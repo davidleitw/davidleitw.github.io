@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>貼文</title>
+    
+
+
+
+
+
+
+
+
+  
+
+
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+
+<link rel="stylesheet" href="/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="/css/layouts/main.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/navigators/navbar.css"/>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Muli:wght@300;400;500;600" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" />
+
+
+<link rel="icon" type="image/png" href="/images/favicon_hu8376fd15465fef26ffe66b6bcf0ca686_13669_42x0_resize_box_2.png" />
+
+
+<link rel="stylesheet" href="/css/style.css"/>
+
+    
+    <link rel="stylesheet" href="/css/layouts/list.css">
+    <link rel="stylesheet" href="/css/navigators/sidebar.css">
+
+
+    
+    
+  </head>
+
+  <body data-spy="scroll" data-target="#TableOfContents" data-offset="80">
+    <div class="container-fluid bg-dimmed wrapper">
+      
+      
+    
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+<nav class="navbar navbar-expand-xl top-navbar final-navbar shadow">
+  <div class="container">
+      <button class="navbar-toggler navbar-light" id="sidebar-toggler" type="button" onclick="toggleSidebar()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="/">
+      <img src="/images/main-logo_hu864bbe108f1be1ae04b57f7f2fd9d631_5637_42x0_resize_box_2.png">davidlei Blog</a>
+    <button class="navbar-toggler navbar-light" id="toc-toggler" type="button" onclick="toggleTOC()">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse lang-selector" id="top-nav-items">
+      <ul class="navbar-nav ml-auto">
+      
+      </ul>
+    </div>
+  </div>
+  
+  <img src="/images/main-logo_hu864bbe108f1be1ae04b57f7f2fd9d631_5637_42x0_resize_box_2.png" class="d-none" id="main-logo">
+  <img src="/images/inverted-logo_hu8376fd15465fef26ffe66b6bcf0ca686_13669_42x0_resize_box_2.png" class="d-none" id="inverted-logo">
+</nav>
+
+
+
+      
+      
+  
+  
+
+  <section class="sidebar-section" id="sidebar-section">
+    <div class="sidebar-holder">
+      <div class="sidebar" id="sidebar">
+        <input type="text" value="" placeholder="Search" data-search="" id="search-box" />
+        <div class="sidebar-tree">
+          <ul class="tree" id="tree">
+            <li id="list-heading"><a href="/posts" data-filter="all">Posts</a></li>
+            <div class="subtree">
+                
+  
+  
+  
+  
+  
+    
+    <li><a class="" href="/posts/introduction/">Introduction</a></li>
+  
+
+  
+  
+  
+  
+  
+    
+    <li>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/">Network</a>
+      
+      <ul class="">
+        
+  
+  
+  
+  
+  
+    
+    <li><a class="" href="/posts/network/controller/">Controller</a></li>
+  
+
+  
+  
+  
+  
+  
+    
+    <li>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/sdn/">SDN</a>
+      
+      <ul class="">
+        
+  
+  
+  
+  
+  
+    
+    <li><a class="" href="/posts/network/sdn/%E4%BB%80%E9%BA%BC%E6%98%AFsdn/">SDN_01: 什麼是SDN</a></li>
+  
+
+
+      </ul>
+    </li>
+  
+
+
+      </ul>
+    </li>
+  
+
+
+            </div>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+      
+      
+<section class="content-section" id="content-section">
+  <div class="content container-fluid" id="content">
+    <div class="container-fluid post-card-holder" id="post-card-holder">
+      
+      
+        <div class="post-card">
+  <a href="/posts/introduction/" class="post-card-link">
+    <div class="card">
+      <div class="card-head">
+        <img class="card-img-top" src='/posts/introduction/hero.svg'/>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">About me</h5>
+        <p class="card-text post-summary">Me  一個喜歡宅在家追番寫程式的肥宅，閒暇之餘也會看輕小說，歐美劇。
+喜歡網路相關，虛擬化，linux kernel等方面，目前剛開始接觸，還有很多需要學習的地方。 希望可以透過這個Blog紀錄下學習的歷程，幫助後輩不要踩重複的坑。
+最常使用的是go語言，寫起來十分的痛快，時不時會在班上傳教Go語言。
+長期把github當作FB在逛，覺得開源是一件很美好的事情，希望大家投入開源，讓這個世界變得更好。
+
+GitHub</p>
+      </div>
+      <div class="card-footer">
+        <span class="float-left">June 8, 2020</span>
+        <a
+        href="/posts/introduction/"
+        class="float-right btn btn-outline-info btn-sm"
+        >Read</a
+        >
+      </div>
+    </div>
+  </a>
+</div>
+
+      
+        <div class="post-card">
+  <a href="/posts/network/sdn/%E4%BB%80%E9%BA%BC%E6%98%AFsdn/" class="post-card-link">
+    <div class="card">
+      <div class="card-head">
+        <img class="card-img-top" src='/images/default-hero.jpg'/>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">SDN入門文章(1) - 什麼是SDN</h5>
+        <p class="card-text post-summary">此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
+當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
+預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
+之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
+什麼是 SDN 以及 SDN 的發展歷史  參考文章
+ SDN 簡介 SDN 發展趨勢   傳統網路的一些特點:
+ 每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
+SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
+常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</p>
+      </div>
+      <div class="card-footer">
+        <span class="float-left">June 8, 2020</span>
+        <a
+        href="/posts/network/sdn/%E4%BB%80%E9%BA%BC%E6%98%AFsdn/"
+        class="float-right btn btn-outline-info btn-sm"
+        >Read</a
+        >
+      </div>
+    </div>
+  </a>
+</div>
+
+      
+    </div>
+    <div class="paginator">
+      
+
+
+    </div>
+  </div>
+</section>
+
+
+      
+       
+    </div>
+
+    
+
+  
+
+
+
+
+  
+
+
+
+
+  
+  
+    
+  
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<footer class="container-fluid text-center align-content-center footer pb-2">
+  <div class="container pt-5">
+    <div class="row text-left">
+      <div class="col-md-4 col-sm-12">
+        <h5>Navigation</h5>
+        
+        <ul>
+            
+              
+              
+                
+              
+              <li class="nav-item">
+                <a class="smooth-scroll" href="#about">About</a>
+              </li>
+            
+            
+              
+              
+                
+              
+              <li class="nav-item">
+                <a class="smooth-scroll" href="#experiences">Experiences</a>
+              </li>
+            
+            
+              
+              
+                
+              
+              <li class="nav-item">
+                <a class="smooth-scroll" href="#projects">Projects</a>
+              </li>
+            
+            
+              
+              
+                
+              
+              <li class="nav-item">
+                <a class="smooth-scroll" href="#recent-posts">Recent Posts</a>
+              </li>
+            
+        </ul>
+        
+
+      </div>
+      
+      <div class="col-md-4 col-sm-12">
+        <h5>Contact me:</h5>
+        <ul>
+          
+          <li><span>Email: </span> <span>davidleitw@gmail.com</span></li>
+          
+        </ul>
+      </div>
+      
+      
+    </div>
+  </div>
+  <hr />
+  <div class="container">
+    <div class="row text-left">
+      <div class="col-md-4">
+        <a id="theme" href="https://github.com/hossainemruz/toha" target="#">
+          <img src="/images/theme-logo_hu8376fd15465fef26ffe66b6bcf0ca686_13669_32x0_resize_box_2.png">
+          Toha
+        </a>
+      </div>
+      <div class="col-md-4 text-center">©2021 create by DAVID LEI</div>
+      <div class="col-md-4 text-right">
+        <a id="hugo" href="https://gohugo.io/">Powered by
+        <img
+          src="/images/hugo-logo.svg"
+          alt="Hugo Logo"
+          height="18"
+        />
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    <script src="/js/jquery-3.4.1.min.js"></script>
+<script src="/js/popper.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+
+<script src="/js/navbar.js"></script>
+<script src="/js/main.js"></script>
+
+
+    
+    
+    <script src="/js/list.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SDN on davidlei Blog</title>
+    <link>https://davidleitw.github.io/posts/network/sdn/</link>
+    <description>Recent content in SDN on davidlei Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 08 Jun 2020 08:06:25 +0600</lastBuildDate><atom:link href="https://davidleitw.github.io/posts/network/sdn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SDN入門文章(1) - 什麼是SDN</title>
+      <link>https://davidleitw.github.io/posts/network/sdn/%E4%BB%80%E9%BA%BC%E6%98%AFsdn/</link>
+      <pubDate>Mon, 08 Jun 2020 08:06:25 +0600</pubDate>
+      
+      <guid>https://davidleitw.github.io/posts/network/sdn/%E4%BB%80%E9%BA%BC%E6%98%AFsdn/</guid>
+      <description>此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
+當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
+預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
+之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
+什麼是 SDN 以及 SDN 的發展歷史  參考文章
+ SDN 簡介 SDN 發展趨勢   傳統網路的一些特點:
+ 每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
+SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
+常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</description>
+    </item>
+    
+  </channel>
+</rss>

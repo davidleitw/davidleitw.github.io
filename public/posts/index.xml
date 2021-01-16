@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>貼文 on davidlei Blog</title>
+    <link>https://davidleitw.github.io/posts/</link>
+    <description>Recent content in 貼文 on davidlei Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 08 Jun 2020 08:06:25 +0600</lastBuildDate><atom:link href="https://davidleitw.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>About me</title>
+      <link>https://davidleitw.github.io/posts/introduction/</link>
+      <pubDate>Mon, 08 Jun 2020 08:06:25 +0600</pubDate>
+      
+      <guid>https://davidleitw.github.io/posts/introduction/</guid>
+      <description>Me  一個喜歡宅在家追番寫程式的肥宅，閒暇之餘也會看輕小說，歐美劇。
+喜歡網路相關，虛擬化，linux kernel等方面，目前剛開始接觸，還有很多需要學習的地方。 希望可以透過這個Blog紀錄下學習的歷程，幫助後輩不要踩重複的坑。
+最常使用的是go語言，寫起來十分的痛快，時不時會在班上傳教Go語言。
+長期把github當作FB在逛，覺得開源是一件很美好的事情，希望大家投入開源，讓這個世界變得更好。
+
+GitHub</description>
+    </item>
+    
+  </channel>
+</rss>
