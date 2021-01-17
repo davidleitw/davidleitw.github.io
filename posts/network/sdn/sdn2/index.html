@@ -210,7 +210,7 @@
         <div class="author-profile ml-auto align-self-lg-center">
           <img class="rounded-circle" src='/images/author/animeYes.png'/>
           <h5 class="author-name">David Lei</h5>
-          <p>June 8, 2020</p>
+          <p>January 8, 2020</p>
         </div>
 
         <div class="title">
@@ -303,6 +303,8 @@
 <p>每一個 Flow entry 都伴隨著0或者多個 actions， actions代表今天封包匹配某個 Header fields 的條件成功之後會執行的動作。</p>
 <p>假設匹配成功之後發現沒有設置 actions， 此時 Switch 就會把<strong>封包丟棄(dropped)</strong>，匹配成功之後執行 actions list 必定會按照原本的順序<strong>依序執行</strong>。</p>
 <p>如果 Controller 將 Flow entry 寫入 Switch 時，Swich 不支援某些 actions，則會被拒絕寫入 Switch 並且返回錯誤。</p>
+<p>Switch 並不需要支援所有在 spec 裡面提及的 action， 只有標注 <strong>Required Action</strong> 的才是一定要支援的，標注 <strong>Optional Action</strong> 的則是選用。</p>
+<p>基本上最有彈性的 <strong>Modify-Field</strong> 雖然是標注為 <strong>Optional Action</strong>，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 Switch 都會支援。</p>
 <hr>
 <h2 id="未完待續-持續趕工中">未完待續， 持續趕工中</h2>
 <h2 id="reference">Reference</h2>
@@ -328,20 +330,36 @@
   
 
   
-
-  
     
       
       <div class="col-md-6 previous-article">
-        <a href="/posts/network/sdn/sdn1/" class="btn btn-outline-info">
+        <a href="/posts/introduction/" class="btn btn-outline-info">
           <span><i class="fas fa-chevron-circle-left"></i> Prev</span>
           <br />
-          <span>SDN入門文章(1): 什麼是SDN</span>
+          <span>About me</span>
         </a>
       </div>
       
     
     
+      
+        
+        
+          
+              
+          
+        
+        <div class="col-md-6 next-article">
+          <a href="/posts/network/sdn/sdn1/" class="btn btn-outline-info">
+            <span>Next <i class="fas fa-chevron-circle-right"></i></span>
+            <br />
+            <span>SDN入門文章(1): 什麼是SDN</span>
+          </a>
+        </div>
+      
+    
+  
+
   
 
 </div>
