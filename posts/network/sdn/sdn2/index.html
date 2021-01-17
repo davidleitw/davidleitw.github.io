@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>About me</title>
+    <title>SDN入門文章(2): OpenFlow1.0協定講解</title>
     
 
 
@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="/css/style.css"/>
 
     
-<meta name="description" content="Introduction to Sample Post" />
+<meta name="description" content="SDN入門文章(2): OpenFlow1.0協定講解" />
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css"
@@ -114,24 +114,24 @@
   
   
   
-    
-    
-  
   
     
-    <li><a class="active" href="/posts/introduction/">About me</a></li>
+    <li><a class="" href="/posts/introduction/">About me</a></li>
   
 
   
   
   
   
+    
+    
+  
   
     
     <li>
-      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/">Network</a>
+      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/">Network</a>
       
-      <ul class="">
+      <ul class="active">
         
   
   
@@ -146,12 +146,15 @@
   
   
   
+    
+    
+  
   
     
     <li>
-      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/sdn/">SDN</a>
+      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/sdn/">SDN</a>
       
-      <ul class="">
+      <ul class="active">
         
   
   
@@ -166,9 +169,12 @@
   
   
   
+    
+    
+  
   
     
-    <li><a class="" href="/posts/network/sdn/sdn2/">SDN_02: OpenFlow 1.0</a></li>
+    <li><a class="active" href="/posts/network/sdn/sdn2/">SDN_02: OpenFlow 1.0</a></li>
   
 
 
@@ -196,7 +202,7 @@
   <div class="content">
     <div class="container p-0 read-area">
       
-      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(https://davidleitw.github.io/posts/introduction/hero.svg);'>
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(https://davidleitw.github.io/images/default-hero.jpg);'>
       </div>
 
       
@@ -208,17 +214,105 @@
         </div>
 
         <div class="title">
-          <h1>About me</h1>
+          <h1>SDN入門文章(2): OpenFlow1.0協定講解</h1>
         </div>
 
         <div class="post-content" id="post-content">
-          <p>一個喜歡宅在家追番寫程式的肥宅，閒暇之餘也會看輕小說，歐美劇。</p>
-<p>喜歡網路相關，虛擬化，linux kernel等方面，目前剛開始接觸，還有很多需要學習的地方。
-希望可以透過這個Blog紀錄下學習的歷程，幫助後輩不要踩重複的坑。</p>
-<p>最常使用的是go語言，寫起來十分的痛快，時不時會在班上傳教Go語言。</p>
-<p>長期把github當作FB在逛，覺得開源是一件很美好的事情，希望大家投入開源，讓這個世界變得更好。</p>
-<p><a href="https://github.com/anuraghazra/github-readme-stats"><img src="https://github-readme-stats.vercel.app/api?username=davidleitw&amp;show_icons=true&amp;theme=tokyonight" alt="Anurag&rsquo;s github stats"></a></p>
-<p><a href="https://github.com/davidleitw">GitHub</a></p>
+          <h2 id="前言">前言</h2>
+<p>想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹<strong>OpenFlow 1.0的架構</strong>，以及一些 spec 的整理。</p>
+<p>之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。</p>
+<h3 id="為什麼會著重在10與13兩個版本呢">為什麼會著重在1.0與1.3兩個版本呢？</h3>
+<blockquote>
+<p>1.0版本與之後的版本不兼容，所以1.0要最先介紹。 <strong>1.0以及1.3版本被選為長期支持的穩定版本</strong> 1.3為目前的主流版本，<strong>多數支持OpenFlow的硬體是支援OpenFlow1.3</strong>
+參考資料: <a href="https://blog.csdn.net/qq_29229567/article/details/88797395">OpenFlow 協定演進</a></p>
+</blockquote>
+<p>底下會依照 OpenFlow 1.0 spec 的編排，去依據介紹完整的協定。</p>
+<ul>
+<li><strong>Switch Components</strong>
+<ul>
+<li>Flow Table(存放規則)
+<ul>
+<li>Header Fields</li>
+<li>Counters</li>
+<li>Actions</li>
+</ul>
+</li>
+<li>Secure Channel</li>
+</ul>
+</li>
+<li><strong>Matching (配對條件流程)</strong></li>
+<li><strong>OpenFlow Protocol Message</strong>
+<ul>
+<li>Controller-to-Switch</li>
+<li>Asynchronous</li>
+<li>Symmetric</li>
+</ul>
+</li>
+</ul>
+<h2 id="openflow-10-架構">OpenFlow 1.0 架構</h2>
+<p><img src="https://imgur.com/AioLuDj.jpg" alt="">
+<strong>OpenFlow 1.0 spec 架構圖</strong></p>
+<hr>
+<h2 id="flow-table">Flow Table</h2>
+<p><img src="https://imgur.com/YazXiG6.jpg" alt=""></p>
+<p>在 <strong>OpenFlow Switch</strong> 中存放轉發規則的表稱之為 <strong>Flow Table</strong>， <strong>Flow Table</strong>中每個項目被稱為 <strong>Flow Entry</strong>。
+在 <strong>OpenFlow 1.0</strong> 中，每個 <strong>Flow Entry</strong> 中都包含三個部份</p>
+<ul>
+<li>Header Fields</li>
+<li>Counters</li>
+<li>Actions</li>
+</ul>
+<h3 id="header-fields">Header Fields</h3>
+<p><strong>OpenFlow 1.0</strong> 協定中共有12種可供匹配的條件
+分別如下，僅列出條列，細節說明請參考 <strong>OpenFlow 1.0 spec</strong></p>
+<ul>
+<li>L1
+<ul>
+<li><strong>Ingress Port</strong>: 封包進入Switch的Port</li>
+</ul>
+</li>
+<li>L2
+<ul>
+<li><strong>Ether source</strong>: 來源Mac Address</li>
+<li><strong>Ether dst</strong>: 目標Mac Address</li>
+<li><strong>Ether type</strong>: <a href="https://zh.wikipedia.org/wiki/%E4%BB%A5%E5%A4%AA%E7%B1%BB%E5%9E%8B">乙太類型</a></li>
+<li><strong>VLAN ID</strong></li>
+<li><strong>VLAN priority</strong></li>
+</ul>
+</li>
+<li>L3
+<ul>
+<li><strong>IP source</strong>: 來源IP Address</li>
+<li><strong>IP dst</strong>: 目標IP Address</li>
+<li><strong>IP proto</strong>: <a href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8">IP協定表</a></li>
+<li><strong>IP Tos bits</strong>: <a href="https://en.wikipedia.org/wiki/Type_of_service">Type of service</a></li>
+</ul>
+</li>
+<li>L4
+<ul>
+<li><strong>TCP/UDP source port</strong></li>
+<li><strong>TCP/UDP dst port</strong></li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/3BGpIr4.png" alt=""></p>
+<h3 id="counters">Counters</h3>
+<p>Counter 會針對每張 Flow Table, 每條 Flow, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。</p>
+<p><img src="https://i.imgur.com/exsmUoB.png" alt=""></p>
+<h3 id="actions">Actions</h3>
+<p>每一個 Flow entry 都伴隨著0或者多個 actions， actions代表今天封包匹配某個 Header fields 的條件成功之後會執行的動作。</p>
+<p>假設匹配成功之後發現沒有設置 actions， 此時 Switch 就會把<strong>封包丟棄(dropped)</strong>，匹配成功之後執行 actions list 必定會按照原本的順序<strong>依序執行</strong>。</p>
+<p>如果 Controller 將 Flow entry 寫入 Switch 時，Swich 不支援某些 actions，則會被拒絕寫入 Switch 並且返回錯誤。</p>
+<hr>
+<h2 id="reference">Reference</h2>
+<blockquote>
+<ul>
+<li><a href="https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf">OpenFlow 1.0 spec</a></li>
+<li><a href="https://opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf">OpenFlow 1.3 spec</a></li>
+<li><a href="https://blog.csdn.net/qq_29229567/article/details/88796456">OpenFlow：简述对OpenFlow协议的认识</a></li>
+<li><a href="https://www.cnblogs.com/ssyfj/p/11620375.html">软件定义网络基础&mdash;OpenFlow流表</a></li>
+</ul>
+</blockquote>
 
         </div>
 
@@ -231,24 +325,22 @@
 
 
   
-    
-    
-      
-        
-        
-        <div class="col-md-12 next-article">
-          <a href="/posts/network/sdn/sdn1/" class="btn btn-outline-info">
-            <span>Next <i class="fas fa-chevron-circle-right"></i></span>
-            <br />
-            <span>SDN入門文章(1): 什麼是SDN</span>
-          </a>
-        </div>
-      
-    
-  
 
   
 
+  
+    
+      
+      <div class="col-md-6 previous-article">
+        <a href="/posts/network/sdn/sdn1/" class="btn btn-outline-info">
+          <span><i class="fas fa-chevron-circle-left"></i> Prev</span>
+          <br />
+          <span>SDN入門文章(1): 什麼是SDN</span>
+        </a>
+      </div>
+      
+    
+    
   
 
 </div>
