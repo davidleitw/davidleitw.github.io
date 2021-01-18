@@ -325,6 +325,55 @@
 <h4 id="optional-action-modify-field修改封包">Optional Action: Modify-Field(修改封包)</h4>
 <p>基本上最有彈性的 <strong>Modify-Field</strong> 雖然是標注為 <strong>Optional Action</strong>，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 Switch 都會支援。</p>
 <p><img src="https://i.imgur.com/8L2cErK.png" alt=""></p>
+<h2 id="matching">Matching</h2>
+<h3 id="packet-flow-in-an-openflow-switch-封包處理流程">Packet flow in an OpenFlow switch: 封包處理流程</h3>
+<p><img src="https://i.imgur.com/QD4VWvh.png" alt=""></p>
+<blockquote>
+<p>Parse header fields步驟會按照下方的圖表進行</p>
+</blockquote>
+<p>封包會按照 flow entry 的優先度依序進行匹配</p>
+<ul>
+<li>匹配成功
+<ul>
+<li>更新 Counter，並且按照 actions 去執行</li>
+<li>假設匹配到的 flow entry 並沒有設置 actions， 則<strong>丟棄</strong>此封包</li>
+<li>假設<strong>沒有匹配</strong>到任何符合條件的 flow entry，則將<strong>封包轉發至 Controller</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="解析封包獲得-header-field-用以檢索符合的-flow-entry">解析封包獲得 Header field 用以檢索符合的 Flow entry</h3>
+<p><img src="https://i.imgur.com/wJHVTOf.png" alt=""></p>
+<h4 id="解析步驟可以簡單劃分成底下四點">解析步驟可以簡單劃分成底下四點</h4>
+<ul>
+<li>初始化 Headers
+<ul>
+<li>設置 Ingress Port</li>
+<li>設置 Ethernet src, dst, type</li>
+<li>其餘欄位設成0</li>
+</ul>
+</li>
+<li>根據 Eth type 填寫 Header
+<ul>
+<li>Eth type: 0x8100(802.1q)
+<ul>
+<li>設置 VLAN ID 跟 優先度</li>
+</ul>
+</li>
+<li>Eth type: 0x0806(ARP) =&gt; <strong>Optional</strong>
+<ul>
+<li>設置 IPv4 src, dst</li>
+</ul>
+</li>
+<li>Eth type: 0x0800(Ipv4)
+<ul>
+<li>設置 IPv4 src, dst, toc</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>根據 IPv4 封包來確定是TCP/UDP/ICMP協定</li>
+<li>寫入TCP/UDP/ICMP協定資料</li>
+</ul>
 <hr>
 <h2 id="reference">Reference</h2>
 <blockquote>
