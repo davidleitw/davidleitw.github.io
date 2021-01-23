@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title></title>
+    <title>SDN入門文章(2): OpenFlow1.0協定講解</title>
     
 
 
@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="/css/style.css"/>
 
     
-<meta name="description" content="" />
+<meta name="description" content="SDN入門文章(2): OpenFlow1.0協定講解" />
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css"
@@ -123,12 +123,15 @@
   
   
   
+    
+    
+  
   
     
     <li>
-      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/">Network</a>
+      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/">Network</a>
       
-      <ul class="">
+      <ul class="active">
         
   
   
@@ -143,12 +146,15 @@
   
   
   
+    
+    
+  
   
     
     <li>
-      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/sdn/">SDN</a>
+      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/sdn/">SDN</a>
       
-      <ul class="">
+      <ul class="active">
         
   
   
@@ -157,6 +163,18 @@
   
     
     <li><a class="" href="/posts/network/sdn/sdn1/">SDN_01: 什麼是SDN</a></li>
+  
+
+  
+  
+  
+  
+    
+    
+  
+  
+    
+    <li><a class="active" href="/posts/network/sdn/sdn2/">SDN_02: OpenFlow 1.0</a></li>
   
 
 
@@ -192,11 +210,11 @@
         <div class="author-profile ml-auto align-self-lg-center">
           <img class="rounded-circle" src='/images/author/animeYes.png'/>
           <h5 class="author-name">David Lei</h5>
-          <p>January 1, 0001</p>
+          <p>January 8, 2020</p>
         </div>
 
         <div class="title">
-          <h1></h1>
+          <h1>SDN入門文章(2): OpenFlow1.0協定講解</h1>
         </div>
 
         <div class="post-content" id="post-content">
@@ -403,20 +421,36 @@ OFPT_BARRIER_REQUEST、OFPT_BARRIER_REPLY</li>
 
 
   
+
+  
     
       
       <div class="col-md-6 previous-article">
-        <a href="/posts/network/sdn/sdn1/" class="btn btn-outline-info">
+        <a href="/posts/introduction/" class="btn btn-outline-info">
           <span><i class="fas fa-chevron-circle-left"></i> Prev</span>
           <br />
-          <span>SDN入門文章(1): 什麼是SDN</span>
+          <span>About me</span>
         </a>
       </div>
       
     
     
-  
-
+      
+        
+        
+          
+              
+          
+        
+        <div class="col-md-6 next-article">
+          <a href="/posts/network/sdn/sdn1/" class="btn btn-outline-info">
+            <span>Next <i class="fas fa-chevron-circle-right"></i></span>
+            <br />
+            <span>SDN入門文章(1): 什麼是SDN</span>
+          </a>
+        </div>
+      
+    
   
 
   
@@ -572,6 +606,13 @@ OFPT_BARRIER_REQUEST、OFPT_BARRIER_REPLY</li>
 <script>
   hljs.initHighlightingOnLoad();
 </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);">
+</script>
+
 
 
   </body>
