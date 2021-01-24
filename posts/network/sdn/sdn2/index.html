@@ -223,8 +223,8 @@
 <p>之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。</p>
 <h3 id="為什麼會著重在10與13兩個版本呢">為什麼會著重在1.0與1.3兩個版本呢？</h3>
 <blockquote>
-<p>1.0版本與之後的版本不兼容，所以1.0要最先介紹。 <strong>1.0以及1.3版本被選為長期支持的穩定版本</strong> 1.3為目前的主流版本，<strong>多數支持OpenFlow的硬體是支援OpenFlow1.3</strong>
-參考資料: <a href="https://blog.csdn.net/qq_29229567/article/details/88797395">OpenFlow 協定演進</a></p>
+<p>1.0版本與之後的版本不兼容，所以1.0要最先介紹。 <strong>1.0以及1.3版本被選為長期支持的穩定版本</strong> 1.3為目前的主流版本，<strong>多數支持OpenFlow的硬體是支援OpenFlow1.3</strong></p>
+<p>參考資料: <a href="https://blog.csdn.net/qq_29229567/article/details/88797395">OpenFlow 協定演進</a></p>
 </blockquote>
 <p>底下會依照 OpenFlow 1.0 spec 的編排，去依據介紹完整的協定。</p>
 <ul>
@@ -243,9 +243,9 @@
 <li><a href="#Secure-Channel"><strong>Secure Channel</strong></a></li>
 <li><a href="#OpenFlow-Protocol-Message"><strong>OpenFlow Protocol Message</strong></a>
 <ul>
-<li>Controller-to-Switch</li>
-<li>Asynchronous</li>
-<li>Symmetric</li>
+<li><a href="#Controller-to-Switch">Controller-to-Switch</a></li>
+<li><a href="#Asynchronous">Asynchronous</a></li>
+<li><a href="#Symmetric">Symmetric</a></li>
 </ul>
 </li>
 </ul>
@@ -255,16 +255,16 @@
 <hr>
 <h2 id="flow-table">Flow Table</h2>
 <p><img src="https://imgur.com/YazXiG6.jpg" alt=""></p>
-<p>在 <strong>OpenFlow Switch</strong> 中存放轉發規則的表稱之為 <strong>Flow Table</strong></p>
+<p>在 <strong>OpenFlow Switch</strong> 中存放轉發規則的表稱之為 <code>Flow Table</code></p>
 <blockquote>
 <p>OpenFlow 1.0 中每個Switch只能存放一個Flow Table</p>
 </blockquote>
-<p><strong>Flow Table</strong>中每個項目被稱為 <strong>Flow Entry</strong>。
-在 <strong>OpenFlow 1.0</strong> 中，每個 <strong>Flow Entry</strong> 中都包含三個部份</p>
+<p><code>Flow Table</code>中每個項目被稱為 <code>Flow Entry</code>
+在 <strong>OpenFlow 1.0</strong> 中，每個 <code>Flow Entry</code> 中都包含三個部份</p>
 <ul>
-<li><strong>Header Fields</strong></li>
-<li><strong>Counters</strong></li>
-<li><strong>Actions</strong></li>
+<li><code>Header Fields</code></li>
+<li><code>Counters</code></li>
+<li><code>Actions</code></li>
 </ul>
 <h3 id="header-fields">Header Fields</h3>
 <p><strong>OpenFlow 1.0</strong> 協定中共有12種可供匹配的條件， IP部份只支援IPv4。</p>
@@ -272,7 +272,7 @@
 <ul>
 <li>L1
 <ul>
-<li><strong>Ingress Port</strong>: 封包進入Switch的Port</li>
+<li><strong>Ingress Port</strong>: 封包進入 <code>Switch</code> 的Port</li>
 </ul>
 </li>
 <li>L2
@@ -301,43 +301,44 @@
 </ul>
 <p><img src="https://i.imgur.com/3BGpIr4.png" alt=""></p>
 <h3 id="counters">Counters</h3>
-<p>Counter 會針對每張 Flow Table, 每條 Flow, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。</p>
+<p><code>Counter</code> 會針對每張 <code>Flow Table</code>, 每條 <code>Flow entry</code>, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。</p>
 <p><img src="https://i.imgur.com/exsmUoB.png" alt=""></p>
 <h3 id="actions">Actions</h3>
-<p>每一個 Flow entry 都伴隨著0或者多個 actions， actions代表今天封包匹配某個 Header fields 的條件成功之後會執行的動作。</p>
-<p>假設匹配成功之後發現沒有設置 actions， 此時 Switch 就會把<strong>封包丟棄(dropped)</strong>，匹配成功之後執行 actions list 必定會按照原本的順序<strong>依序執行</strong>。</p>
+<p>每一個 <code>Flow entry</code> 都伴隨著0或者多個 <code>actions</code>， <code>actions</code>代表今天封包匹配某個 <code>Header fields</code> 的條件成功之後會執行的動作。</p>
+<p>假設匹配成功之後發現沒有設置 <code>actions</code>， 此時 <code>Switch</code> 就會把<strong>封包丟棄(dropped)</strong>，匹配成功之後執行 actions list 必定會按照原本的順序<strong>依序執行</strong>。</p>
 <blockquote>
 <ul>
 <li>如果 Controller 將 Flow entry 寫入 Switch 時，Swich 不支援某些 actions，則會被拒絕寫入 Switch 並且返回錯誤。</li>
 <li>當 Controller 在與 Switch 做連結時，Switch 就會告知 Controller 哪些 <strong>Optional Action</strong> 指令是它支援的。</li>
 </ul>
 </blockquote>
-<p>Switch 並不需要支援所有在 spec 裡面提及的 action， 只有標注 <strong>Required Action</strong> 的才是一定要支援的，標注 <strong>Optional Action</strong> 的則是選用。</p>
+<p><code>Switch</code> 並不需要支援所有在 spec 裡面提及的 <code>action</code>， 只有標注 <strong>Required Action</strong> 的才是一定要支援的，標注 <strong>Optional Action</strong> 的則是選用。</p>
 <h4 id="required-action-forward轉發封包">Required Action: Forward(轉發封包)</h4>
 <p>轉發除了要支援基本的 Switch port 之外， 也要支援以下的 <strong>virtual port</strong>。</p>
 <p><img src="https://i.imgur.com/tgv3Nbj.png" alt=""></p>
-<p>也有兩個 <strong>Optional Action</strong> 的 <strong>virtual port</strong>， Switch 可以自行選擇要不要支援。</p>
+<p>也有兩個 <strong>Optional Action</strong> 的 <strong>virtual port</strong>， <code>Switch</code> 可以自行選擇要不要支援。</p>
 <p><img src="https://i.imgur.com/UdCjSyJ.png" alt=""></p>
 <h4 id="required-action-drop丟棄封包">Required Action: Drop(丟棄封包)</h4>
-<p>除了可以設定 Drop action 之外， 假設今天有 Flow entry 沒有設定 action，switch 也會預設把封包丟棄。</p>
+<p>除了可以設定 Drop action 之外， 假設今天有 <code>Flow entry</code> 沒有設定 <code>action</code>，switch 也會預設把封包丟棄。</p>
 <h4 id="optional-action-enqueue">Optional Action: Enqueue</h4>
-<p>Enqueue 可以將封包轉發至某個特定 port 的 queue 中，便於支援QoS。</p>
+<p>Enqueue 可以將封包轉發至某個特定 port 的 queue 中，便於支援<code>QoS</code>。</p>
 <h4 id="optional-action-modify-field修改封包">Optional Action: Modify-Field(修改封包)</h4>
-<p>基本上最有彈性的 <strong>Modify-Field</strong> 雖然是標注為 <strong>Optional Action</strong>，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 Switch 都會支援。</p>
+<p>基本上最有彈性的 <strong>Modify-Field</strong> 雖然是標注為 <strong>Optional Action</strong>，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 <code>Switch</code> 都會支援。</p>
 <p><img src="https://i.imgur.com/8L2cErK.png" alt=""></p>
+<hr>
 <h2 id="matching">Matching</h2>
 <h3 id="packet-flow-in-an-openflow-switch-封包處理流程">Packet flow in an OpenFlow switch: 封包處理流程</h3>
 <p><img src="https://i.imgur.com/QD4VWvh.png" alt=""></p>
 <blockquote>
 <p>Parse header fields步驟會按照下方的圖表進行</p>
 </blockquote>
-<p>封包會按照 flow entry 的優先度依序進行匹配</p>
+<p>封包會按照 <code>flow entry</code> 的優先度依序進行匹配</p>
 <ul>
 <li>匹配成功
 <ul>
-<li>更新 Counter，並且按照 actions 去執行</li>
-<li>假設匹配到的 flow entry 並沒有設置 actions， 則<strong>丟棄</strong>此封包</li>
-<li>假設<strong>沒有匹配</strong>到任何符合條件的 flow entry，則將<strong>封包轉發至 Controller</strong></li>
+<li>更新 <code>Counter</code>，並且按照 <code>actions</code> 去執行</li>
+<li>假設匹配到的 <code>flow entry</code> 並沒有設置 <code>actions</code>， 則<strong>丟棄</strong>此封包</li>
+<li>假設<strong>沒有匹配</strong>到任何符合條件的 <code>flow entry</code>，則將<strong>封包轉發至 <code>Controller</code></strong></li>
 </ul>
 </li>
 </ul>
@@ -345,14 +346,14 @@
 <p><img src="https://i.imgur.com/wJHVTOf.png" alt=""></p>
 <h4 id="解析步驟可以簡單劃分成底下四點">解析步驟可以簡單劃分成底下四點</h4>
 <ul>
-<li>初始化 Headers
+<li>初始化 <code>Headers</code>
 <ul>
 <li>設置 Ingress Port</li>
 <li>設置 Ethernet src, dst, type</li>
 <li>其餘欄位設成0</li>
 </ul>
 </li>
-<li>根據 Eth type 填寫 Header
+<li>根據 Eth type 填寫 <code>Header</code>
 <ul>
 <li>Eth type: 0x8100(802.1q)
 <ul>
@@ -375,30 +376,71 @@
 <li>寫入TCP/UDP/ICMP協定資料</li>
 </ul>
 <h2 id="secure-channel">Secure Channel</h2>
-<p>作為連結 Switch 與 Controller 的橋樑。</p>
+<p>作為連結 <code>Switch</code> 與 <code>Controller</code> 的橋樑。</p>
 <h2 id="openflow-protocol-message">OpenFlow Protocol Message</h2>
+<blockquote>
+<p>記得,OpenFlow 是定義 Controller 與 Switch 溝通的通訊協定</p>
+</blockquote>
 <p>OpenFlow 協定訊息分成三大類</p>
 <ul>
-<li><strong>Controller-to-Switch</strong>: 此類消息通常由 Controller 主動發出</li>
-<li><strong>Asynchronous</strong>: 此類消息通常由 Switch 主動發出</li>
-<li><strong>Symmetric</strong>: 此類消息 Controller 以及 Switch 都可以發出</li>
+<li><strong>Controller-to-Switch</strong>: 此類消息通常由 <code>Controller</code> 主動發出</li>
+<li><strong>Asynchronous</strong>: 此類消息通常由 <code>Switch</code> 主動發出</li>
+<li><strong>Symmetric</strong>: 此類消息 <code>Controller</code> 以及 <code>Switch</code> 都可以發出</li>
 </ul>
 <h3 id="controller-to-switch">Controller-to-Switch</h3>
 <ul>
 <li><strong>Features</strong>
-Features message 是初始化建立 TLS 連線時由 Controller 發送， 要求 Switch回覆它支援的 Option 功能。</li>
+<code>Features message</code> 是初始化建立 TLS 連線時由 <code>Controller</code> 發送， 要求 <code>Switch</code> 回覆它支援的 Option 功能。</li>
 <li><strong>Configuration</strong>
-Controller 可以用 Configuration message 來設置或者查詢 Switch 的配置訊息。</li>
+<code>Controller</code> 可以用 <code>Configuration message</code> 來設置或者查詢 Switch 的配置訊息。</li>
 <li><strong>Modify-State</strong>
-Modify-State message 可以用來新增/修改/刪除位在 Switch 上的 Flow Table，也可以拿來設置 Switch 上 port 的屬性。</li>
+<code>Modify-State message</code> 可以用來新增/修改/刪除位在 Switch 上的 <code>Flow Table</code>，也可以拿來設置 Switch 上 port 的屬性。</li>
 <li><strong>Read-State</strong>
-Read-State message 用來讀取 Switch&rsquo;s Flow Table 狀態/統計資料以及 port 的狀態。</li>
+<code>Read-State message</code> 用來讀取 <code>Switch's Flow Table</code> 狀態/統計資料以及 <code>port</code> 的狀態。</li>
 <li><strong>Send-Packet</strong>
-Send-Packet message 用來傳送資料到指定 Switch 的 port。</li>
+<code>Send-Packet message</code> 用來傳送資料到指定 <code>Switch</code> 的 <code>port</code>。</li>
 <li><strong>Barrier</strong>
-OFPT_BARRIER_REQUEST、OFPT_BARRIER_REPLY</li>
+<code>OFPT_BARRIER_REQUEST</code>、<code>OFPT_BARRIER_REPLY</code>。</li>
 </ul>
-<hr>
+<h3 id="asynchronous">Asynchronous</h3>
+<ul>
+<li>
+<p><strong>Packet-in</strong>
+<code>Packet-in message</code> 會在兩種情況觸發, 轉送封包去 <code>Controller</code>。</p>
+<ul>
+<li>沒有 match 到任何的 <code>Flow entry</code></li>
+<li>match 到的 <code>Flow entry</code> 有著 <code>packet-in action</code></li>
+</ul>
+<p>假設 Switch 還有足夠的 memory 去緩衝 packet 資料，<code>Switch</code> 會傳送部份的 <code>packet header</code> (默認128 bytes) 以及 <code>buffer ID</code> 給 <code>Controller</code>。</p>
+<p>對於不支援緩存的 <code>Switch</code> 或者 memory 空間不足的情況，<code>Packet-in</code> 事件會把完整的 packet 轉送給 <code>Controller</code>。</p>
+</li>
+<li>
+<p><strong>Flow-Removed</strong>
+在 <code>Controlle</code>r 傳送 <code>flow modify message</code> 時， 在封包裡面可以選擇填入 <code>idle timeout</code>, <code>hard timeout</code>。</p>
+<ul>
+<li><code>idle timeout</code>: <code>Counter</code> 會紀錄 <code>flow entry</code> 最後被 match 的時間點，如果超過就刪除。</li>
+<li><code>hard timeout</code>: <code>Counter</code> 會紀錄 <code>flow entry</code> 被建立的時間，如果超過就刪除。</li>
+</ul>
+<p><code>Flow-Removed message</code> 會在 Switch 刪除某條 <code>Flow entry</code> 時被觸發，傳訊告知<code>Controller</code>。</p>
+</li>
+<li>
+<p><strong>Post-status</strong>
+在 <code>Switch port</code> 狀態改變時，傳送狀態更新給 <code>Controller</code>。</p>
+</li>
+<li>
+<p><strong>Error</strong>
+<code>Switch</code> 回傳錯誤訊息。</p>
+</li>
+</ul>
+<h3 id="symmetric">Symmetric</h3>
+<ul>
+<li><strong>Hello</strong>
+初始化 OpenFlow 連線時使用。</li>
+<li><strong>Echo</strong>
+<code>Echo request/reply messages</code> 可以由 <code>Controller</code> 或者 <code>Switch</code> 發起 <code>request</code>，收到的一方必須回覆 <code>reply</code>，可以藉此測試延遲，頻寬還有連線的狀況。</li>
+<li><strong>Vendor</strong>
+自定義訊息</li>
+</ul>
 <h2 id="reference">Reference</h2>
 <blockquote>
 <ul>
