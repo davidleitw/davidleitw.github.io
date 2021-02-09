@@ -18,6 +18,16 @@
   </url>
   
   <url>
+    <loc>https://davidleitw.github.io/posts/daily/</loc>
+    <lastmod>2020-02-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://davidleitw.github.io/posts/daily/day1/</loc>
+    <lastmod>2020-02-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://davidleitw.github.io/posts/network/</loc>
     <lastmod>2020-01-08T08:06:25+06:00</lastmod>
   </url>
@@ -47,10 +57,6 @@
   
   <url>
     <loc>https://davidleitw.github.io/tags/</loc>
-  </url>
-  
-  <url>
-    <loc>https://davidleitw.github.io/posts/daily/</loc>
   </url>
   
 </urlset>

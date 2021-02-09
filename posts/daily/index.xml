@@ -5,6 +5,18 @@
     <link>https://davidleitw.github.io/posts/daily/</link>
     <description>Recent content in 日常學習紀錄 on davidlei Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://davidleitw.github.io/posts/daily/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <lastBuildDate>Sun, 09 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://davidleitw.github.io/posts/daily/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>每日進度</title>
+      <link>https://davidleitw.github.io/posts/daily/day1/</link>
+      <pubDate>Sun, 09 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://davidleitw.github.io/posts/daily/day1/</guid>
+      <description>這篇文章想要紀錄每天看的一些文章以及Leetcode的刷題情況，自2020-02-09開始紀錄。
+以便於以後如果想要寫心得文章可以快速找到之前讀過的資料
+2020/02/09以前的寒假進度  MIT 6.824  lab1 Lec1, Lec2 paper: MapReduce   閱讀清單  2020/02/09  MIT 6.824: Lec3 + paper: The Google File System 剛開始看 LeetCode:146. LRU Cache  </description>
+    </item>
+    
   </channel>
 </rss>
