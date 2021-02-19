@@ -6,7 +6,18 @@
     <description>Recent content on davidlei Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 08 Jun 2020 08:06:25 +0600</lastBuildDate><atom:link href="https://davidleitw.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 09 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://davidleitw.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>每日進度</title>
+      <link>https://davidleitw.github.io/posts/daily/day1/</link>
+      <pubDate>Tue, 09 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://davidleitw.github.io/posts/daily/day1/</guid>
+      <description>這篇文章想要紀錄每天看的一些文章以及Leetcode的刷題情況，自2021-02-09開始紀錄。
+以便於以後如果想要寫心得文章可以快速找到之前讀過的資料
+2021/02/09以前的寒假進度  MIT 6.824  lab1 Lec1, Lec2 paper: MapReduce   閱讀清單  2021/02/09  MIT 6.824: Lec3 + paper: The Google File System 剛開始看 LeetCode:146. LRU Cache  2021/02/10  閱讀文章: LRU/LFU解析  2021/02/11  LeetCode: 460. LFU Cache 繼續挑戰中 繼續閱讀 paper: The Google File System  2021/02/15  MIT 6.824: Lec3  2021/02/19  LeetCode: 2. Add Two Numbers BlueAbyss專案 初步構思 backup worker channel，假設 pool 的使用率達到一定程度，用一條 goroutine 來協調生成 backup channel 緩衝。  </description>
+    </item>
+    
     <item>
       <title>About me</title>
       <link>https://davidleitw.github.io/posts/introduction/</link>
@@ -19,17 +30,6 @@
 長期把github當作FB在逛，覺得開源是一件很美好的事情，希望大家投入開源，讓這個世界變得更好。
 
 GitHub</description>
-    </item>
-    
-    <item>
-      <title>每日進度</title>
-      <link>https://davidleitw.github.io/posts/daily/day1/</link>
-      <pubDate>Sun, 09 Feb 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://davidleitw.github.io/posts/daily/day1/</guid>
-      <description>這篇文章想要紀錄每天看的一些文章以及Leetcode的刷題情況，自2020-02-09開始紀錄。
-以便於以後如果想要寫心得文章可以快速找到之前讀過的資料
-2020/02/09以前的寒假進度  MIT 6.824  lab1 Lec1, Lec2 paper: MapReduce   閱讀清單  2020/02/09  MIT 6.824: Lec3 + paper: The Google File System 剛開始看 LeetCode:146. LRU Cache  2020/02/10  閱讀文章: LRU/LFU解析  2020/02/11  LeetCode: 460. LFU Cache 繼續挑戰中 繼續閱讀 paper: The Google File System  2020/02/15  MIT 6.824: Lec3  2020/02/19  LeetCode: 2. Add Two Numbers BlueAbyss專案 初步構思 backup worker channel，假設 pool 的使用率達到一定程度，用一條 goroutine 來協調生成 backup channel 緩衝。  </description>
     </item>
     
     <item>
