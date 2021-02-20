@@ -25,7 +25,7 @@
       <guid>https://davidleitw.github.io/posts/daily/day1/</guid>
       <description>這篇文章想要紀錄每天看的一些文章以及Leetcode的刷題情況，自2021-02-09開始紀錄。
 以便於以後如果想要寫心得文章可以快速找到之前讀過的資料
-2021/02/09以前的寒假進度  MIT 6.824  lab1 Lec1, Lec2 paper: MapReduce   閱讀清單  2021/02/09  MIT 6.824: Lec3 + paper: The Google File System 剛開始看 LeetCode:146. LRU Cache  2021/02/10  閱讀文章: LRU/LFU解析  2021/02/11  LeetCode: 460. LFU Cache 繼續挑戰中 繼續閱讀 paper: The Google File System  2021/02/15  MIT 6.824: Lec3  2021/02/19  LeetCode: 2. Add Two Numbers BlueAbyss專案 初步構思 backup worker channel，假設 pool 的使用率達到一定程度，用一條 goroutine 來協調生成 backup channel 緩衝。  </description>
+2021/02/09以前的寒假進度  MIT 6.824  lab1 Lec1, Lec2 paper: MapReduce   閱讀清單  2021/02/09  MIT 6.824: Lec3 + paper: The Google File System 剛開始看 LeetCode:146. LRU Cache  2021/02/10  閱讀文章: LRU/LFU解析  2021/02/11  LeetCode: 460. LFU Cache 繼續挑戰中 繼續閱讀 paper: The Google File System  2021/02/15  MIT 6.824: Lec3  2021/02/19  LeetCode: 2. Add Two Numbers BlueAbyss專案 初步構思 backup worker channel，假設 pool 的使用率達到一定程度，用一條 goroutine 來協調生成 backup channel 緩衝。  2021/02/20  BlueAbyss專案 應該要把workerQueue中back channel移動到外面，獨立出來，還在構思怎麼抽比較合適。  </description>
     </item>
     
     <item>
