@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>SDN</title>
+    <title>Paper</title>
     
 
 
@@ -121,15 +121,12 @@
   
   
   
-    
-    
-  
   
     
     <li>
-      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/">Network</a>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/">Network</a>
       
-      <ul class="active">
+      <ul class="">
         
   
   
@@ -144,15 +141,12 @@
   
   
   
-    
-    
-  
   
     
     <li>
-      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/sdn/">SDN</a>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/sdn/">SDN</a>
       
-      <ul class="active">
+      <ul class="">
         
   
   
@@ -186,9 +180,12 @@
   
   
   
+    
+    
+  
   
     
-    <li><a class="" href="/posts/paper/202102/">The Google File System</a></li>
+    <li><a class="active" href="/posts/paper/202102/">The Google File System</a></li>
   
 
   
@@ -242,25 +239,24 @@
       
       
         <div class="post-card">
-  <a href="/posts/network/sdn/sdn2/" class="post-card-link">
+  <a href="/posts/paper/202102/" class="post-card-link">
     <div class="card">
       <div class="card-head">
         <img class="card-img-top" src='/images/default-hero.jpg'/>
       </div>
       <div class="card-body">
-        <h5 class="card-title">SDN入門文章(2): OpenFlow1.0協定講解</h5>
-        <p class="card-text post-summary">前言 想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹OpenFlow 1.0的架構，以及一些 spec 的整理.
-之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。
-為什麼會著重在1.0與1.3兩個版本呢？  1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
-參考資料: OpenFlow 協定演進
- 底下會依照 OpenFlow 1.0 spec 的編排，去依據介紹完整的協定。
- Switch Components  Flow Table(存放規則)  Header Fields Counters Actions     Matching (配對條件流程) Secure Channel OpenFlow Protocol Message  Controller-to-Switch Asynchronous Symmetric   結語  OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
- Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table</p>
+        <h5 class="card-title">GFS</h5>
+        <p class="card-text post-summary">跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
+背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
+ 用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
+ 跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
+ performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性  因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
+在 Introduction 中也有先簡單介紹了 GFS 的幾個特色</p>
       </div>
       <div class="card-footer">
-        <span class="float-left">January 8, 2020</span>
+        <span class="float-left">January 1, 0001</span>
         <a
-        href="/posts/network/sdn/sdn2/"
+        href="/posts/paper/202102/"
         class="float-right btn btn-outline-info btn-sm"
         >Read</a
         >
@@ -271,27 +267,20 @@
 
       
         <div class="post-card">
-  <a href="/posts/network/sdn/sdn1/" class="post-card-link">
+  <a href="/posts/paper/summary/" class="post-card-link">
     <div class="card">
       <div class="card-head">
         <img class="card-img-top" src='/images/default-hero.jpg'/>
       </div>
       <div class="card-body">
-        <h5 class="card-title">SDN入門文章(1): 什麼是SDN</h5>
-        <p class="card-text post-summary">此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
-當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
-預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
-之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
-什麼是 SDN 以及 SDN 的發展歷史  參考文章
- SDN 簡介 SDN 發展趨勢   傳統網路的一些特點:
- 每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
-SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
-常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</p>
+        <h5 class="card-title">Papers</h5>
+        <p class="card-text post-summary">這個資料夾專門整理一些看過的 paper，閱讀 paper 的經驗還有點不足，可能沒辦法表達得很清楚，不過還是會盡力去紀錄。
+ 2021 年 2 月  The Google File System(GFS)    </p>
       </div>
       <div class="card-footer">
-        <span class="float-left">January 7, 2020</span>
+        <span class="float-left">January 1, 0001</span>
         <a
-        href="/posts/network/sdn/sdn1/"
+        href="/posts/paper/summary/"
         class="float-right btn btn-outline-info btn-sm"
         >Read</a
         >
