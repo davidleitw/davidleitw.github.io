@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>About me</title>
+    <title>Docker Volume</title>
     
 
 
@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="/css/style.css"/>
 
     
-<meta name="description" content="Introduction to Sample Post" />
+<meta name="description" content="Docker Volume" />
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css"
@@ -114,32 +114,35 @@
   
   
   
-    
-    
-  
   
     
-    <li><a class="active" href="/posts/introduction/">About me</a></li>
+    <li><a class="" href="/posts/introduction/">About me</a></li>
   
 
   
   
   
   
+    
+    
+  
   
     
     <li>
-      <i class="fas fa-plus-circle"></i><a class="" href="/posts/docker/">Docker</a>
+      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/docker/">Docker</a>
       
-      <ul class="">
+      <ul class="active">
         
   
   
   
   
+    
+    
+  
   
     
-    <li><a class="" href="/posts/docker/docker_volume/">Docker Volume 用法整理</a></li>
+    <li><a class="active" href="/posts/docker/docker_volume/">Docker Volume 用法整理</a></li>
   
 
 
@@ -280,7 +283,7 @@
   <div class="content">
     <div class="container p-0 read-area">
       
-      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(https://davidleitw.github.io/posts/introduction/hero.svg);'>
+      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(https://davidleitw.github.io/images/default-hero.jpg);'>
       </div>
 
       
@@ -288,21 +291,79 @@
         <div class="author-profile ml-auto align-self-lg-center">
           <img class="rounded-circle" src='/images/author/animeYes.png'/>
           <h5 class="author-name">David Lei</h5>
-          <p>June 8, 2020</p>
+          <p>May 10, 2021</p>
         </div>
 
         <div class="title">
-          <h1>About me</h1>
+          <h1>Docker Volume</h1>
         </div>
 
         <div class="post-content" id="post-content">
-          <p>一個喜歡宅在家追番寫程式的肥宅，閒暇之餘也會看輕小說，歐美劇。</p>
-<p>喜歡網路相關，虛擬化，分散式系統等方面，目前剛開始接觸，還有很多需要學習的地方。
-希望可以透過這個Blog紀錄下學習的歷程，幫助後輩不要踩重複的坑。</p>
-<p>最常使用的是go語言，寫起來十分的痛快，時不時會在班上傳教Go語言。</p>
-<p>長期把github當作FB在逛，覺得開源是一件很美好的事情，希望大家投入開源，讓這個世界變得更好。</p>
-<p><a href="https://github.com/anuraghazra/github-readme-stats"><img src="https://github-readme-stats.vercel.app/api?username=davidleitw&amp;show_icons=true&amp;theme=tokyonight" alt="Anurag&rsquo;s github stats"></a></p>
-<p><a href="https://github.com/davidleitw">GitHub</a></p>
+          <p>因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 <code>Volume</code> 的方式對資料庫做持久化。在這邊紀錄一下 <code>Docker Volume</code> 相關的一些用法。</p>
+<blockquote>
+<p>很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。</p>
+</blockquote>
+<h2 id="volume-是什麼"><code>Volume</code> 是什麼</h2>
+<p><code>Volume</code> 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:</p>
+<ul>
+<li><code>Volume</code> 可以在容器間共享資源，檔案</li>
+<li>更新 <code>Volume</code> 內的檔案並不會影響 Image</li>
+<li><strong><code>Volume</code> 會持續存在，並不會隨著容器刪除而消失</strong></li>
+</ul>
+<p>有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 <code>Volume</code> 中。</p>
+<h2 id="創建-volume">創建 <code>Volume</code></h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ docker volume create volume_name
+</code></pre></div><ul>
+<li>查看所有 <code>Volume</code></li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ docker volume ls
+</code></pre></div><ul>
+<li>查看指定 <code>Volume</code> 資料</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ docker volume inspect volume_name
+</code></pre></div><p><img src="https://i.imgur.com/mRZ8bUN.png" alt=""></p>
+<h2 id="運行一個掛載-volume-的-container">運行一個掛載 <code>Volume</code> 的 Container</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ docker run -d -P <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --name web <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    <span style="color:#75715e"># -v my-vol:/usr/share/nginx/html \</span>
+    --mount source<span style="color:#f92672">=</span>v1,target<span style="color:#f92672">=</span>/usr/share/nginx/html <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    nginx:alpine
+</code></pre></div><p>在使用 <code>docker run</code> 指令的時候可以使用 <code>--mount</code> 參數來將創建好的 <code>Volume</code> 掛載到容器內部，一次 <code>docker run</code> 可以掛載多個 <code>Volume</code>。</p>
+<p><code>target</code> 指的是要將容器內的哪一個檔案/資料夾綁定到 <code>Volume</code> 上</p>
+<ul>
+<li>docker run 參數
+<ul>
+<li>-d: 背景執行 container</li>
+<li>-P: Publish all exposed ports to random ports</li>
+<li>&ndash;name: container name</li>
+</ul>
+</li>
+</ul>
+<p>執行之後可以使用</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ docker inspect web
+</code></pre></div><p>可以在 <code>Mounts</code> 欄位底下找到 <code>Volume</code> 的相關資料
+<img src="https://i.imgur.com/VvJ6lQi.png" alt=""></p>
+<p>上述的操作通常用在 container 產生一些 data，我們想要讓那些 data 不會在 container 被刪除之後消失，做資料持久化的時候才會使用。</p>
+<h2 id="掛載一個本機目錄至容器內">掛載一個本機目錄至容器內</h2>
+<p>除了將容器內指定的檔案綁定到本機之外，我們也可以將原先就存在於本機的檔案/資料夾<strong>加載</strong>到容器內部，舉例來說今天寫了一個影像處理相關的程式，我們把它丟到 docker 上面跑，我們可以把想要處理的影像存在本地端，然後加載到容器內，就可以很方便的測試結果是否正確。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ docker run -d -P <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --name imageProcess <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --mount type<span style="color:#f92672">=</span>bind,source<span style="color:#f92672">=</span>/src/testImage,target<span style="color:#f92672">=</span>/usr/share/src/testImage <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    imageDocker:latest
+</code></pre></div><p>把存在本地端的 /src/testImage 資料夾加載到容器內，記得要加參數 <strong>type=bind</strong></p>
+<p>Docker 預設掛載目錄的權限是<strong>讀寫</strong>，如果想用成唯讀，則要另外加上參數 <strong>readonly</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">~$ docker run -d -P <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --name imageProcess <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    --mount type<span style="color:#f92672">=</span>bind,source<span style="color:#f92672">=</span>/src/testImage,target<span style="color:#f92672">=</span>/usr/share/src/testImage,readonly <span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span>    imageDocker:latest
+</code></pre></div><blockquote>
+<p>除了目錄以外也可以掛載單個文件，像是想要紀錄 container 內部的 history，可以綁定/root/.bash_history 等等多種應用</p>
+</blockquote>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://vuepress.mirror.docker-practice.com/">Docker 從入門到實踐</a></li>
+<li><a href="https://juejin.cn/post/6844904182319841294">Docker 安裝並且持久化postgresql資料</a></li>
+</ul>
 
         </div>
 
@@ -319,42 +380,28 @@
   
 
   
-    
-      
-      <div class="col-md-6 previous-article">
-        <a href="/posts/daily/day1/" class="btn btn-outline-info">
-          <span><i class="fas fa-chevron-circle-left"></i> Prev</span>
-          <br />
-          <span>每日進度</span>
-        </a>
-      </div>
-      
+
+  
+
+  
+
+  
+
+  
     
     
       
         
         
-          
-              
-          
-        
-        <div class="col-md-6 next-article">
-          <a href="/posts/network/sdn/sdn2/" class="btn btn-outline-info">
+        <div class="col-md-12 next-article">
+          <a href="/posts/paper/202102/" class="btn btn-outline-info">
             <span>Next <i class="fas fa-chevron-circle-right"></i></span>
             <br />
-            <span>SDN入門文章(2): OpenFlow1.0協定講解</span>
+            <span>GFS</span>
           </a>
         </div>
       
     
-  
-
-  
-
-  
-
-  
-
   
 
 </div>

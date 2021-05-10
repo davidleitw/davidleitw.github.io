@@ -123,7 +123,23 @@
   
   
     
-    <li><a class="" href="/posts/docker/">Docker</a></li>
+    <li>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/docker/">Docker</a>
+      
+      <ul class="">
+        
+  
+  
+  
+  
+  
+    
+    <li><a class="" href="/posts/docker/docker_volume/">Docker Volume 用法整理</a></li>
+  
+
+
+      </ul>
+    </li>
   
 
   
@@ -259,6 +275,33 @@
   <div class="content container-fluid" id="content">
     <div class="container-fluid post-card-holder" id="post-card-holder">
       
+      
+        <div class="post-card">
+  <a href="/posts/docker/docker_volume/" class="post-card-link">
+    <div class="card">
+      <div class="card-head">
+        <img class="card-img-top" src='/images/default-hero.jpg'/>
+      </div>
+      <div class="card-body">
+        <h5 class="card-title">Docker Volume</h5>
+        <p class="card-text post-summary">因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 Volume 的方式對資料庫做持久化。在這邊紀錄一下 Docker Volume 相關的一些用法。
+ 很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
+ Volume 是什麼 Volume 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:
+ Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不會影響 Image Volume 會持續存在，並不會隨著容器刪除而消失  有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 Volume 中。
+創建 Volume ~$ docker volume create volume_name  查看所有 Volume  ~$ docker volume ls  查看指定 Volume 資料  ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \  --name web \  # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \  nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。</p>
+      </div>
+      <div class="card-footer">
+        <span class="float-left">May 10, 2021</span>
+        <a
+        href="/posts/docker/docker_volume/"
+        class="float-right btn btn-outline-info btn-sm"
+        >Read</a
+        >
+      </div>
+    </div>
+  </a>
+</div>
+
       
         <div class="post-card">
   <a href="/posts/paper/202102/" class="post-card-link">
