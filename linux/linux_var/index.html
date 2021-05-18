@@ -359,35 +359,35 @@ $ var <span style="color:#f92672">=</span> something // 等號兩邊不得有空
 <li>變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來</li>
 </ol>
 <ul>
-<li>如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例
-用 '' 包起來 <code>bash</code> 就不會把 <code>$變數</code> 置換成該變數的內容。
-<img src="https://i.imgur.com/WojjWua.png" alt=""></li>
+<li>
+<p>如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例
+用 '' 包起來 <code>bash</code> 就不會把 <code>$變數</code> 置換成該變數的內容。</p>
+<p><img src="https://i.imgur.com/WojjWua.png" alt=""></p>
+</li>
 </ul>
 <ol start="4">
-<li>
-<p>用跳脫字元 <code>\</code> 可以特殊符號置換成一般字元
-<img src="https://i.imgur.com/N9K7Z6M.png" alt=""></p>
-</li>
-<li>
-<p>如果要用現有的變數組合成新的變數的時候有兩個寫法
-假設今天我們團隊主要的工作目錄是在 <code>/davidlei/project/</code>，一開始建立目錄的時候我們把這個路徑設了一個變數 <code>$work</code>
-<br>
-現在假設 <code>$work</code> 路徑底下有兩個子目錄 <code>project1</code>, <code>project2</code>
+<li>用跳脫字元 <code>\</code> 可以特殊符號置換成一般字元</li>
+</ol>
+<p><img src="https://i.imgur.com/N9K7Z6M.png" alt=""></p>
+<ol start="5">
+<li>如果要用現有的變數組合成新的變數的時候有兩個寫法</li>
+</ol>
+<p>假設今天我們團隊主要的工作目錄是在 <code>/davidlei/project/</code>，一開始建立目錄的時候我們把這個路徑設了一個變數 <code>$work</code></p>
+<p>\</p>
+<p>現在假設 <code>$work</code> 路徑底下有兩個子目錄 <code>project1</code>, <code>project2</code>
 我們想用 <code>workdir1</code>, <code>workdir2</code> 兩個變數來代表這兩個 project 的路徑
-我們可以用底下兩種寫法
-<br>
-<img src="https://i.imgur.com/8UhGbDI.png" alt=""></p>
-</li>
-<li>
-<p>若要把一個變數設定成環境變數還需要使用 <code>export</code></p>
-</li>
+我們可以用底下兩種寫法</p>
+<p>\</p>
+<p><img src="https://i.imgur.com/8UhGbDI.png" alt=""></p>
+<ol start="6">
+<li>若要把一個變數設定成環境變數還需要使用 <strong><code>export</code></strong></li>
 </ol>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ var<span style="color:#f92672">=</span>xxx
 $ export var
 </code></pre></div><ol start="7">
-<li>取消變數使用 <code>unset</code>
-<img src="https://i.imgur.com/qwBEo4O.png" alt=""></li>
+<li>取消變數使用 <strong><code>unset</code></strong></li>
 </ol>
+<p><img src="https://i.imgur.com/qwBEo4O.png" alt=""></p>
 <h3 id="reference">reference</h3>
 <ul>
 <li><a href="http://linux.vbird.org/linux_basic/0320bash.php#variable_var">鳥哥的 Linux 私房菜 認識與學習BASH</a></li>
