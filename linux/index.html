@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Papers</title>
+    <title>Linux</title>
     
 
 
@@ -36,13 +36,8 @@
 <link rel="stylesheet" href="/css/style.css"/>
 
     
-<meta name="description" content="Papers" />
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css"
-/>
-<link rel="stylesheet" href="/css/layouts/single.css"/>
-<link rel="stylesheet" href="/css/navigators/sidebar.css">
+    <link rel="stylesheet" href="/css/layouts/list.css">
+    <link rel="stylesheet" href="/css/navigators/sidebar.css">
 
 
     
@@ -101,13 +96,16 @@
 
       
       
+  
+  
+
   <section class="sidebar-section" id="sidebar-section">
     <div class="sidebar-holder">
       <div class="sidebar" id="sidebar">
         <input type="text" value="" placeholder="Search" data-search="" id="search-box" />
         <div class="sidebar-tree">
           <ul class="tree" id="tree">
-            <li id="list-heading"><a href="/posts" data-filter="all">Posts</a></li>
+            <li id="list-heading"><a href="/linux" data-filter="all"></a></li>
             <div class="subtree">
                 
   
@@ -148,12 +146,15 @@
   
   
   
+    
+    
+  
   
     
     <li>
-      <i class="fas fa-plus-circle"></i><a class="" href="/linux/">Linux</a>
+      <i class="fas fa-minus-circle"></i><a class="active" href="/linux/">Linux</a>
       
-      <ul class="">
+      <ul class="active">
         
   
   
@@ -232,15 +233,12 @@
   
   
   
-    
-    
-  
   
     
     <li>
-      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/paper/">Paper</a>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/paper/">Paper</a>
       
-      <ul class="active">
+      <ul class="">
         
   
   
@@ -255,12 +253,9 @@
   
   
   
-    
-    
-  
   
     
-    <li><a class="active" href="/posts/paper/summary/">閱讀 Paper 心得整理</a></li>
+    <li><a class="" href="/posts/paper/summary/">閱讀 Paper 心得整理</a></li>
   
 
 
@@ -305,108 +300,51 @@
       
       
 <section class="content-section" id="content-section">
-  <div class="content">
-    <div class="container p-0 read-area">
+  <div class="content container-fluid" id="content">
+    <div class="container-fluid post-card-holder" id="post-card-holder">
       
-      <div class="hero-area col-sm-12" id="hero-area" style='background-image: url(https://davidleitw.github.io/images/default-hero.jpg);'>
+      
+        <div class="post-card">
+  <a href="/linux/linux_var/" class="post-card-link">
+    <div class="card">
+      <div class="card-head">
+        <img class="card-img-top" src='/images/default-hero.jpg'/>
       </div>
-
-      
-      <div class="page-content">
-        <div class="author-profile ml-auto align-self-lg-center">
-          <img class="rounded-circle" src='/images/author/animeYes.png'/>
-          <h5 class="author-name">David Lei</h5>
-          <p>February 26, 2021</p>
-        </div>
-
-        <div class="title">
-          <h1>Papers</h1>
-        </div>
-
-        <div class="post-content" id="post-content">
-          <blockquote>
-<p>這個資料夾專門整理一些看過的 paper，由於閱讀 paper 的經驗還有點不足，可能沒辦法表達得很清楚，不過還是會盡力去紀錄。
-期望是每個月可以寫一篇 paper 的心得文章，二月底才有這個構想，所以不確定 <code>GFS</code> 的心得能不能順利生出來。</p>
-</blockquote>
-<ul>
-<li><strong>2021 年 2 月</strong>
-<ul>
-<li><a href="https://davidleitw.github.io/posts/paper/202102/">The Google File System(GFS)</a></li>
-</ul>
-</li>
-</ul>
-
-        </div>
-
-        
-        
-
-        
-      <hr />
-        <div class="row next-prev-navigator">
-
-
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    
-      
-      <div class="col-md-6 previous-article">
-        <a href="/posts/paper/202102/" class="btn btn-outline-info">
-          <span><i class="fas fa-chevron-circle-left"></i> Prev</span>
-          <br />
-          <span>GFS</span>
-        </a>
+      <div class="card-body">
+        <h5 class="card-title">Linux shell 變數相關用法</h5>
+        <p class="card-text post-summary">假設今天我們常用的資料夾路徑是在 /path1/workdir/project1/module... 每次登入 linux 環境都要切換到這個資料夾我們就需要重新輸入路徑
+$ cd /path1/workdir/project1/module... 我們這時候就可以用一個變數來取代常用的字串
+在這之前先介紹一下變數的取用
+echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這個變數的值並且顯示出來
+ 在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
+ 回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
+$ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則  設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格  $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來   如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例 用 '' 包起來 bash 就不會把 $變數 置換成該變數的內容。    用跳脫字元 \ 可以特殊符號置換成一般字元   如果要用現有的變數組合成新的變數的時候有兩個寫法 假設今天我們團隊主要的工作目錄是在 /davidlei/project/，一開始建立目錄的時候我們把這個路徑設了一個變數 $work 現在假設 $work 路徑底下有兩個子目錄 project1, project2 我們想用 workdir1, workdir2 兩個變數來代表這兩個 project 的路徑 我們可以用底下兩種寫法   若要把一個變數設定成環境變數還需要使用 export</p>
       </div>
-      
-    
-    
-      
-        
-        
-          
-              
-          
-        
-        <div class="col-md-6 next-article">
-          <a href="/posts/daily/day1/" class="btn btn-outline-info">
-            <span>Next <i class="fas fa-chevron-circle-right"></i></span>
-            <br />
-            <span>每日進度</span>
-          </a>
-        </div>
-      
-    
-  
-
-  
-
-</div>
-
-      <hr />
-      
-      
+      <div class="card-footer">
+        <span class="float-left">May 10, 2021</span>
+        <a
+        href="/linux/linux_var/"
+        class="float-right btn btn-outline-info btn-sm"
+        >Read</a
+        >
       </div>
     </div>
+  </a>
+</div>
+
+      
+    </div>
+    <div class="paginator">
+      
+
+
+    </div>
   </div>
-  
 </section>
 
 
       
-      
-  <section class="toc-section" id="toc-section">
-    
-  </section>
-
+       
     </div>
 
     
@@ -535,19 +473,7 @@
 
     
     
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
-<script src="/js/single.js"></script>
-<script>
-  hljs.initHighlightingOnLoad();
-</script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);">
-</script>
-
-
+    <script src="/js/list.js"></script>
 
   </body>
 </html>

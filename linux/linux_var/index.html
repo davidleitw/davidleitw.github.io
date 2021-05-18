@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>SDN入門文章(1): 什麼是SDN</title>
+    <title>Linux shell 變數相關用法</title>
     
 
 
@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="/css/style.css"/>
 
     
-<meta name="description" content="SDN入門文章(1): 什麼是SDN" />
+<meta name="description" content="Linux shell 變數相關用法" />
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css"
@@ -148,20 +148,26 @@
   
   
   
+    
+    
+  
   
     
     <li>
-      <i class="fas fa-plus-circle"></i><a class="" href="/linux/">Linux</a>
+      <i class="fas fa-minus-circle"></i><a class="active" href="/linux/">Linux</a>
       
-      <ul class="">
+      <ul class="active">
         
   
   
   
   
+    
+    
+  
   
     
-    <li><a class="" href="/linux/linux_var/">Linux shell 變數相關用法整理</a></li>
+    <li><a class="active" href="/linux/linux_var/">Linux shell 變數相關用法整理</a></li>
   
 
 
@@ -173,15 +179,12 @@
   
   
   
-    
-    
-  
   
     
     <li>
-      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/">Network</a>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/">Network</a>
       
-      <ul class="active">
+      <ul class="">
         
   
   
@@ -196,26 +199,20 @@
   
   
   
-    
-    
-  
   
     
     <li>
-      <i class="fas fa-minus-circle"></i><a class="active" href="/posts/network/sdn/">SDN</a>
+      <i class="fas fa-plus-circle"></i><a class="" href="/posts/network/sdn/">SDN</a>
       
-      <ul class="active">
+      <ul class="">
         
   
   
   
   
-    
-    
-  
   
     
-    <li><a class="active" href="/posts/network/sdn/sdn1/">SDN_01: 什麼是SDN</a></li>
+    <li><a class="" href="/posts/network/sdn/sdn1/">SDN_01: 什麼是SDN</a></li>
   
 
   
@@ -319,83 +316,82 @@
         <div class="author-profile ml-auto align-self-lg-center">
           <img class="rounded-circle" src='/images/author/animeYes.png'/>
           <h5 class="author-name">David Lei</h5>
-          <p>January 7, 2020</p>
+          <p>May 10, 2021</p>
         </div>
 
         <div class="title">
-          <h1>SDN入門文章(1): 什麼是SDN</h1>
+          <h1>Linux shell 變數相關用法</h1>
         </div>
 
         <div class="post-content" id="post-content">
-          <p>此專案用來整理一些學習 SDN 的相關知識以及參考資料。
-由於剛開始學習沒多久，所以會著重於個人學習的<strong>順序</strong>，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。</p>
-<p>當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點</p>
-<h2 id="預備知識">預備知識</h2>
-<p>在學習 SDN 之前我準備先複習了一輪 <a href="https://www.ucg.ac.me/skladiste/blog_44233/objava_64433/fajlovi/Computer%20Networking%20_%20A%20Top%20Down%20Approach,%207th,%20converted.pdf">computer networking a top-down approach 7th</a>，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。</p>
-<p>之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。</p>
-<h2 id="什麼是-sdn-以及-sdn-的發展歷史">什麼是 SDN 以及 SDN 的發展歷史</h2>
+          <p>假設今天我們常用的資料夾路徑是在 <code>/path1/workdir/project1/module...</code>
+每次登入 <code>linux</code> 環境都要切換到這個資料夾我們就需要重新輸入路徑</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cd /path1/workdir/project1/module...
+</code></pre></div><p>我們這時候就可以用一個變數來取代常用的字串</p>
+<p>在這之前先介紹一下變數的取用</p>
+<h3 id="echo">echo</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo $HOME
+/home/davidlei
+
+$ echo <span style="color:#e6db74">${</span>HOME<span style="color:#e6db74">}</span> 
+/home/davidlei
+</code></pre></div><p><img src="https://i.imgur.com/uaQeu5b.png" alt=""></p>
+<p>取出 <code>Home</code> 這個變數的值並且顯示出來</p>
 <blockquote>
-<p>參考文章</p>
-<ul>
-<li><a href="https://feisky.gitbooks.io/sdn/content/sdn/">SDN 簡介</a></li>
-<li><a href="https://hackmd.io/@cnsrl/SJur_2twL">SDN 發展趨勢</a></li>
-</ul>
+<p>在 Linux 底下變數前面都需要加上 $ 符號來做辨識
+也可以在 $ 符號後面用 {} 把變數名稱框起來</p>
 </blockquote>
-<p>傳統網路的一些特點:</p>
+<p>回到一開始提到的案例，我們現在想要設置一個變數 <code>work</code> 來存放 <code>/path/workdir/project1/module</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo $work
+ // 還未設置的變數默認為空，echo 出來的結果是空
+$ work<span style="color:#f92672">=</span>/path1/workdir/project1/module
+$ echo $work
+/path1/workdir/project1/module
+</code></pre></div><p><img src="https://i.imgur.com/afTw2VS.png" alt=""></p>
+<h3 id="變數的設定規則">變數的設定規則</h3>
+<ol>
+<li>設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ var<span style="color:#f92672">=</span>something   // 正確
+$ var <span style="color:#f92672">=</span> something // 等號兩邊不得有空格
+</code></pre></div><ol start="2">
+<li>變數開頭不能是數字</li>
+<li>變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來</li>
+</ol>
 <ul>
-<li>每個節點是由設備單獨控制，屬於分散式架構。</li>
-<li>控制面以及轉接面放在同一個設備上。</li>
-<li>管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。</li>
-<li>通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。</li>
+<li>如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例
+用 '' 包起來 <code>bash</code> 就不會把 <code>$變數</code> 置換成該變數的內容。
+<img src="https://i.imgur.com/WojjWua.png" alt=""></li>
 </ul>
-<p>SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。</p>
-<p><img src="http://i.imgur.com/uF2pcH0.jpg" alt=""></p>
-<p>SDN 並非一種技術，而是一種設計的理念，只要符合<strong>控制面以及轉接面的分離</strong>，以及開放的<strong>可程式化</strong>設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著<strong>集中控制</strong>的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。</p>
-<h2 id="常用名詞解釋">常用名詞解釋</h2>
-<p><img src="https://sites.google.com/a/cnsrl.cycu.edu.tw/da-shu-bi-ji/_/rsrc/1565708281052/sdn/sdn_architecture.png" alt=""></p>
-<h3 id="network-device-網路設備">Network Device 網路設備</h3>
-<p>網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</p>
-<p>有時候網路設備也被稱為 <strong>Data Plane</strong>。</p>
-<p>支援 OpenFlow 的 switch 會有以下功能</p>
+<ol start="4">
+<li>
+<p>用跳脫字元 <code>\</code> 可以特殊符號置換成一般字元
+<img src="https://i.imgur.com/N9K7Z6M.png" alt=""></p>
+</li>
+<li>
+<p>如果要用現有的變數組合成新的變數的時候有兩個寫法
+假設今天我們團隊主要的工作目錄是在 <code>/davidlei/project/</code>，一開始建立目錄的時候我們把這個路徑設了一個變數 <code>$work</code>
+<br>
+現在假設 <code>$work</code> 路徑底下有兩個子目錄 <code>project1</code>, <code>project2</code>
+我們想用 <code>workdir1</code>, <code>workdir2</code> 兩個變數來代表這兩個 project 的路徑
+我們可以用底下兩種寫法
+<br>
+<img src="https://i.imgur.com/8UhGbDI.png" alt=""></p>
+</li>
+<li>
+<p>若要把一個變數設定成環境變數還需要使用 <code>export</code></p>
+</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ var<span style="color:#f92672">=</span>xxx
+$ export var
+</code></pre></div><ol start="7">
+<li>取消變數使用 <code>unset</code>
+<img src="https://i.imgur.com/qwBEo4O.png" alt=""></li>
+</ol>
+<h3 id="reference">reference</h3>
 <ul>
-<li>對於接收到的封包進行修改或針對指定的 port 進行轉送。</li>
-<li>對於接收到的封包進行轉送到 Controller 的動作(Packet-In)。</li>
-<li>對於接收到來自 Controller 的封包轉送到指定的連接埠(Packet-Out)。</li>
+<li><a href="http://linux.vbird.org/linux_basic/0320bash.php#variable_var">鳥哥的 Linux 私房菜 認識與學習BASH</a></li>
 </ul>
-<h3 id="南向界面southbound-interface-control-data-plane-interface">南向界面(Southbound Interface/ Control Data Plane Interface)</h3>
-<p>南向界面是指 Data Plane 以及 Controller 之間的界面，在 SDN 架構中，希望南向界面是標準化的，這樣才可以讓軟體可以不受硬體的限制，在任何設備上都能執行，不過現在還只是理想。</p>
-<p>目前主流的南向界面標準是 OpenFlow 協定，雖然還有其他各種南向界面，不過還是 OpenFlow 為大宗。</p>
-<blockquote>
-<p>因為我也還是新手的緣故，所以也是從 OpenFlow 開始學習 SDN 的，此篇心得文也會著重在 OpenFlow 協定上。</p>
-</blockquote>
-<h3 id="控制器controller">控制器(Controller)</h3>
-<p><strong>Controller</strong> 是 SDN 的核心，北向有應用程式提供業務邏輯經由 Controller 將轉送的規則藉由 Southbound Interface 傳給網路設備，屬於 SDN 架構中最重要的部份。</p>
-<p>目前 Controller 百家爭鳴，有很多開源的 controller (例如 Ryu, FloodLight, NOX/POX)等等，也有很多公司開發的商用版本，本篇心得文會使用 Ryu 去做一些 OpenFlow 相關的實驗。</p>
-<h3 id="北向界面northbound-interface">北向界面(Northbound Interface)</h3>
-<p>北向界面是指應用程式以及 Controller 之間溝通的界面，目前還沒有一個統一的標準，通常會因為狀況不同而採用不同的方案。</p>
-<h3 id="applicationservices">Application(Services)</h3>
-<p>這裡的 Application 是指幾乎所有網路的應用，包含load balancing, security, monitoring 等等.. 應用程式的業務邏輯就透過 Controller 傳送規則給網路設備，讓設備彈性的執行我們要的功能。</p>
-<h2 id="openflow-協定">OpenFlow 協定</h2>
-<p>OpenFlow 為最有代表性的南向界面，被視為第一個 SDN 的標準之一。它最初在 SDN 環境中定義了通信協定，使 SDN 控制器能夠與物理和虛擬的交換機和路由器等網路裝置的轉發平面直接進行互動，從而更好地適應不斷變化的業務需求。</p>
-<h3 id="概述維基百科httpszhwikipediaorgwikiopenflow">概述(<a href="https://zh.wikipedia.org/wiki/OpenFlow">維基百科</a>)</h3>
-<p>OpenFlow 能夠啟動遠端的控制器，經由網路交換器，決定網路封包要由何種路徑通過網路交換機。這個協定的發明者，將它當成軟體定義網路（Software-defined networking）的啟動器。</p>
-<p>OpenFlow 允許從遠端控制網路交換器的封包轉送表，透過新增、修改與移除封包控制規則與行動，來改變封包轉送的路徑。比起用存取控制列表 (ACLs) 和路由協定，允許更複雜的流量管理。同時，OpenFlow 允許不同供應商用一個簡單，開源的協定去遠端管理交換機（通常提供專有的介面和描述語言)。</p>
-<h3 id="協定內容">協定內容</h3>
-<p>因為 OpenFlow 算是一個很有指標性的 SDN 協定，所以對於要學習 SDN 的人來說，他的 specification 也非常值得一看，我們會就 <strong>OpenFlow</strong> 獨立一個章節來談論。請點以下連結:</p>
-<ul>
-<li><a href="https://github.com/davidleitw/learn_SDN/blob/master/OpenFlow.md">OpenFlow協定</a></li>
-</ul>
-<hr>
-<blockquote>
-<p>參考資料</p>
-<ul>
-<li><a href="https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf">OpenFlow 1.0 spec</a></li>
-<li><a href="https://www.researchgate.net/publication/220195143_OpenFlow_Enabling_innovation_in_campus_networks">OpenFlow: Enabling Innovation in Campus Networks</a></li>
-<li><a href="https://www.cnblogs.com/ssyfj/tag/SDN/">協定心得</a></li>
-</ul>
-</blockquote>
-<p>下一篇文章會從 OpenFlow 1.0 開始講起，後續再補充 OpenFlow 1.3 新增了哪些東西。
-目前最常使用的就是 OpenFlow 1.3 的版本，在商業上的應用最廣泛(支援 OpenFlow 的 Switch很多都是支援 OpenFlow 1.3版本)</p>
 
         </div>
 
@@ -407,19 +403,6 @@
         <div class="row next-prev-navigator">
 
 
-  
-    
-      
-      <div class="col-md-6 previous-article">
-        <a href="/posts/network/sdn/sdn2/" class="btn btn-outline-info">
-          <span><i class="fas fa-chevron-circle-left"></i> Prev</span>
-          <br />
-          <span>SDN入門文章(2): OpenFlow1.0協定講解</span>
-        </a>
-      </div>
-      
-    
-    
   
 
   
