@@ -380,11 +380,14 @@ $ var <span style="color:#f92672">=</span> something // 等號兩邊不得有空
 我們可以用底下兩種寫法</p>
 <p><img src="https://i.imgur.com/8UhGbDI.png" alt=""></p>
 <ol start="6">
-<li>若要把一個變數設定成環境變數還需要使用 <strong><code>export</code></strong></li>
+<li>若要把一個變數設定成全域變數還需要使用 <strong><code>export</code></strong></li>
 </ol>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ var<span style="color:#f92672">=</span>xxx
 $ export var
-</code></pre></div><ol start="7">
+</code></pre></div><blockquote>
+<p>此方式宣告的全域變數不等於環境變數，把 bash 關掉之後變數資料就會清除</p>
+</blockquote>
+<ol>
 <li>取消變數使用 <strong><code>unset</code></strong></li>
 </ol>
 <p><img src="https://i.imgur.com/qwBEo4O.png" alt=""></p>
