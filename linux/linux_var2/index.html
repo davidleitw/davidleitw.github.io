@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Linux shell 變數相關用法 assign, echo, export, unset</title>
+    <title>Linux shell 變數相關用法 read, declare, array</title>
     
 
 
@@ -36,7 +36,7 @@
 <link rel="stylesheet" href="/css/style.css"/>
 
     
-<meta name="description" content="Linux shell 變數相關用法 assign, echo, export, unset" />
+<meta name="description" content="Linux shell 變數相關用法 read, declare, array" />
 <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/atom-one-dark.min.css"
@@ -162,21 +162,21 @@
   
   
   
-    
-    
-  
   
     
-    <li><a class="active" href="/linux/linux_var/">Linux shell 變數相關用法_1</a></li>
+    <li><a class="" href="/linux/linux_var/">Linux shell 變數相關用法_1</a></li>
   
 
   
   
   
   
+    
+    
+  
   
     
-    <li><a class="" href="/linux/linux_var2/">Linux shell 變數相關用法整理_2</a></li>
+    <li><a class="active" href="/linux/linux_var2/">Linux shell 變數相關用法整理_2</a></li>
   
 
 
@@ -329,80 +329,40 @@
         </div>
 
         <div class="title">
-          <h1>Linux shell 變數相關用法 assign, echo, export, unset</h1>
+          <h1>Linux shell 變數相關用法 read, declare, array</h1>
         </div>
 
         <div class="post-content" id="post-content">
-          <p>假設今天我們常用的資料夾路徑是在 <code>/path1/workdir/project1/module...</code>
-每次登入 <code>linux</code> 環境都要切換到這個資料夾我們就需要重新輸入路徑</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cd /path1/workdir/project1/module...
-</code></pre></div><p>我們這時候就可以用一個變數來取代常用的字串</p>
-<p>在這之前先介紹一下變數的取用</p>
-<h3 id="echo">echo</h3>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo $HOME
-/home/davidlei
-
-$ echo <span style="color:#e6db74">${</span>HOME<span style="color:#e6db74">}</span> 
-/home/davidlei
-</code></pre></div><p><img src="https://i.imgur.com/uaQeu5b.png" alt=""></p>
-<p>取出 <code>Home</code> 這個變數的值並且顯示出來</p>
-<blockquote>
-<p>在 Linux 底下變數前面都需要加上 $ 符號來做辨識
-也可以在 $ 符號後面用 {} 把變數名稱框起來</p>
-</blockquote>
-<p>回到一開始提到的案例，我們現在想要設置一個變數 <code>work</code> 來存放 <code>/path/workdir/project1/module</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ echo $work
- // 還未設置的變數默認為空，echo 出來的結果是空
-$ work<span style="color:#f92672">=</span>/path1/workdir/project1/module
-$ echo $work
-/path1/workdir/project1/module
-</code></pre></div><p><img src="https://i.imgur.com/afTw2VS.png" alt=""></p>
-<h3 id="變數的設定規則">變數的設定規則</h3>
-<ol>
-<li>設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格</li>
-</ol>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ var<span style="color:#f92672">=</span>something   // 正確
-$ var <span style="color:#f92672">=</span> something // 等號兩邊不得有空格
-</code></pre></div><ol start="2">
-<li>變數開頭不能是數字</li>
-<li>變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來</li>
-</ol>
-<ul>
-<li>
-<p>如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例
-用 '' 包起來 <code>bash</code> 就不會把 <code>$變數</code> 置換成該變數的內容。</p>
-<p><img src="https://i.imgur.com/WojjWua.png" alt=""></p>
-</li>
-</ul>
-<ol start="4">
-<li>
-<p>用跳脫字元 <code>\</code> 可以特殊符號置換成一般字元</p>
-<p><img src="https://i.imgur.com/N9K7Z6M.png" alt=""></p>
-</li>
-<li>
-<p>如果要用現有的變數組合成新的變數的時候有兩個寫法</p>
-</li>
-</ol>
-<p>假設今天我們團隊主要的工作目錄是在 <code>/davidlei/project/</code>，一開始建立目錄的時候我們把這個路徑設了一個變數 <code>$work</code></p>
-<p>現在假設 <code>$work</code> 路徑底下有兩個子目錄 <code>project1</code>, <code>project2</code>
-我們想用 <code>workdir1</code>, <code>workdir2</code> 兩個變數來代表這兩個 project 的路徑
-我們可以用底下兩種寫法</p>
-<p><img src="https://i.imgur.com/8UhGbDI.png" alt=""></p>
-<ol start="6">
-<li>若要把一個變數設定成全域變數還需要使用 <strong><code>export</code></strong></li>
-</ol>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ var<span style="color:#f92672">=</span>xxx
-$ export var
-</code></pre></div><blockquote>
-<p>此方式宣告的全域變數不等於環境變數，把 bash 關掉之後變數資料就會清除</p>
-</blockquote>
-<ol>
-<li>取消變數使用 <strong><code>unset</code></strong></li>
-</ol>
-<p><img src="https://i.imgur.com/qwBEo4O.png" alt=""></p>
+          <p>很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。</p>
+<h2 id="read">read</h2>
+<p>讀取從鍵盤輸入的變數，常常會出現在 <code>shell script</code> 之中</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ read <span style="color:#f92672">[</span>-pt<span style="color:#f92672">]</span> 變數名稱
+// 參數
+// -p 後面接提示字元
+// -t 後面接等待時間，超過時間沒輸入則取消指令
+$ 
+</code></pre></div><p><img src="https://i.imgur.com/ESVYEHs.png" alt=""></p>
+<h2 id="declare">declare</h2>
+<p>可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ declare <span style="color:#f92672">[</span>-aixr<span style="color:#f92672">]</span> 變數名稱
+// 參數
+// -a 宣告陣列型態的變數
+// -i 宣告整數型態的變數
+// -x 同 export 指令，宣告的變數變成全域變數<span style="color:#f92672">(</span>可以讓子程序讀取<span style="color:#f92672">)</span>
+// -r 宣告 readonly, 不可更改變數內容，也無法被 unset 取消
+// -p 列出變數資料型態
+$ 
+</code></pre></div><p><img src="https://i.imgur.com/f9Dy2zj.png" alt=""></p>
+<p>接著試著把 <code>num</code> 轉成全域變數，並且用 <code>export</code> 指令觀察一下:</p>
+<p><img src="https://i.imgur.com/wthrxEi.png" alt=""></p>
+<p>列出指定變數的資料型態</p>
+<p><img src="https://i.imgur.com/Q7PFV45.png" alt=""></p>
+<h3 id="array">array</h3>
+<p>以 <code>arr[index]=content</code> 的形式來指定 array Index 所代表的值。</p>
+<p><img src="https://i.imgur.com/ZMIa41Y.png" alt=""></p>
 <h3 id="reference">reference</h3>
 <ul>
-<li><a href="http://linux.vbird.org/linux_basic/0320bash.php#variable_var">鳥哥的 Linux 私房菜 認識與學習BASH</a></li>
+<li><a href="http://linux.vbird.org/linux_basic/0320bash.php#variable_environ">鳥哥的 Linux 私房菜</a></li>
 </ul>
 
         </div>
