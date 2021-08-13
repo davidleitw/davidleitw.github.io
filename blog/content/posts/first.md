@@ -4,8 +4,8 @@ date: 2021-08-13T21:34:43+08:00
 author: davidlei
 draft: false
 tags: 
-    network
-    SDN
+    `network`
+    `SDN`
 ---
 
 此專案用來整理一些學習 SDN 的相關知識以及參考資料。
