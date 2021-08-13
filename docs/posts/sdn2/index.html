@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>SDN 學習筆記(二): OpenFlow 1.0 介紹 - davidLei</title><meta name="Description" content="SDN 學習筆記第二篇"><meta property="og:title" content="SDN 學習筆記(二): OpenFlow 1.0 介紹" />
+<meta property="og:description" content="SDN 學習筆記第二篇" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/sdn2/" />
+<meta property="article:published_time" content="2021-08-13T21:34:43+08:00" />
+<meta property="article:modified_time" content="2021-08-13T21:34:43+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="SDN 學習筆記(二): OpenFlow 1.0 介紹"/>
+<meta name="twitter:description" content="SDN 學習筆記第二篇"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/sdn2/" /><link rel="prev" href="http://example.org/posts/gfs/" /><link rel="next" href="http://example.org/posts/sdn1/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "SDN 學習筆記(二): OpenFlow 1.0 介紹",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/sdn2\/"
+        },"genre": "posts","keywords": "network, SDN","wordcount":  552 ,
+        "url": "http:\/\/example.org\/posts\/sdn2\/","datePublished": "2021-08-13T21:34:43+08:00","dateModified": "2021-08-13T21:34:43+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": "SDN 學習筆記第二篇"
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">SDN 學習筆記(二): OpenFlow 1.0 介紹</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/sdn/"><i class="far fa-folder fa-fw"></i>SDN</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-08-13">2021-08-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;552 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;3 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a>
+      <ul>
+        <li><a href="#為什麼會著重在10與13兩個版本呢">為什麼會著重在1.0與1.3兩個版本呢？</a></li>
+      </ul>
+    </li>
+    <li><a href="#openflow-10-架構">OpenFlow 1.0 架構</a></li>
+    <li><a href="#flow-table">Flow Table</a>
+      <ul>
+        <li><a href="#header-fields">Header Fields</a></li>
+        <li><a href="#counters">Counters</a></li>
+        <li><a href="#actions">Actions</a></li>
+      </ul>
+    </li>
+    <li><a href="#matching">Matching</a>
+      <ul>
+        <li><a href="#packet-flow-in-an-openflow-switch-封包處理流程">Packet flow in an OpenFlow switch: 封包處理流程</a></li>
+        <li><a href="#解析封包獲得-header-field-用以檢索符合的-flow-entry">解析封包獲得 Header field 用以檢索符合的 Flow entry</a></li>
+      </ul>
+    </li>
+    <li><a href="#secure-channel">Secure Channel</a></li>
+    <li><a href="#openflow-protocol-message">OpenFlow Protocol Message</a>
+      <ul>
+        <li><a href="#controller-to-switch">Controller-to-Switch</a></li>
+        <li><a href="#asynchronous">Asynchronous</a></li>
+        <li><a href="#symmetric">Symmetric</a></li>
+      </ul>
+    </li>
+    <li><a href="#結語">結語</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="前言">前言</h2>
+<p>想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹<strong>OpenFlow 1.0的架構</strong>，以及一些 spec 的整理.</p>
+<p>之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。</p>
+<h3 id="為什麼會著重在10與13兩個版本呢">為什麼會著重在1.0與1.3兩個版本呢？</h3>
+<blockquote>
+<p>1.0版本與之後的版本不兼容，所以1.0要最先介紹。 <strong>1.0以及1.3版本被選為長期支持的穩定版本</strong> 1.3為目前的主流版本，<strong>多數支持OpenFlow的硬體是支援OpenFlow1.3</strong></p>
+<p>參考資料: <a href="https://blog.csdn.net/qq_29229567/article/details/88797395" target="_blank" rel="noopener noreffer">OpenFlow 協定演進</a></p>
+</blockquote>
+<h2 id="openflow-10-架構">OpenFlow 1.0 架構</h2>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgur.com/AioLuDj.jpg"
+        data-srcset="https://imgur.com/AioLuDj.jpg, https://imgur.com/AioLuDj.jpg 1.5x, https://imgur.com/AioLuDj.jpg 2x"
+        data-sizes="auto"
+        alt="https://imgur.com/AioLuDj.jpg"
+        title="https://imgur.com/AioLuDj.jpg" />
+<strong>OpenFlow 1.0 spec 架構圖</strong></p>
+<hr>
+<h2 id="flow-table">Flow Table</h2>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgur.com/YazXiG6.jpg"
+        data-srcset="https://imgur.com/YazXiG6.jpg, https://imgur.com/YazXiG6.jpg 1.5x, https://imgur.com/YazXiG6.jpg 2x"
+        data-sizes="auto"
+        alt="https://imgur.com/YazXiG6.jpg"
+        title="https://imgur.com/YazXiG6.jpg" /></p>
+<p>在 <strong>OpenFlow Switch</strong> 中存放轉發規則的表稱之為 <code>Flow Table</code></p>
+<blockquote>
+<p>OpenFlow 1.0 中每個Switch只能存放一個Flow Table</p>
+</blockquote>
+<p><code>Flow Table</code>中每個項目被稱為 <code>Flow Entry</code>
+在 <strong>OpenFlow 1.0</strong> 中，每個 <code>Flow Entry</code> 中都包含三個部份</p>
+<ul>
+<li><code>Header Fields</code></li>
+<li><code>Counters</code></li>
+<li><code>Actions</code></li>
+</ul>
+<h3 id="header-fields">Header Fields</h3>
+<p><strong>OpenFlow 1.0</strong> 協定中共有12種可供匹配的條件， IP部份只支援IPv4。</p>
+<p>分別如下，僅列出條列，細節說明請參考 <strong>OpenFlow 1.0 spec</strong></p>
+<ul>
+<li>L1
+<ul>
+<li><strong>Ingress Port</strong>: 封包進入 <code>Switch</code> 的Port</li>
+</ul>
+</li>
+<li>L2
+<ul>
+<li><strong>Ether source</strong>: 來源Mac Address</li>
+<li><strong>Ether dst</strong>: 目標Mac Address</li>
+<li><strong>Ether type</strong>: <a href="https://zh.wikipedia.org/wiki/%E4%BB%A5%E5%A4%AA%E7%B1%BB%E5%9E%8B" target="_blank" rel="noopener noreffer">乙太類型</a></li>
+<li><strong>VLAN ID</strong></li>
+<li><strong>VLAN priority</strong></li>
+</ul>
+</li>
+<li>L3
+<ul>
+<li><strong>IPv4 source</strong>: 來源IP Address</li>
+<li><strong>IPv4 dst</strong>: 目標IP Address</li>
+<li><strong>IPv4 proto</strong>: <a href="https://zh.wikipedia.org/wiki/IP%E5%8D%8F%E8%AE%AE%E5%8F%B7%E5%88%97%E8%A1%A8" target="_blank" rel="noopener noreffer">IP協定表</a></li>
+<li><strong>IPv4 Tos bits</strong>: <a href="https://en.wikipedia.org/wiki/Type_of_service" target="_blank" rel="noopener noreffer">Type of service</a></li>
+</ul>
+</li>
+<li>L4
+<ul>
+<li><strong>TCP/UDP source port</strong></li>
+<li><strong>TCP/UDP dst port</strong></li>
+</ul>
+</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/3BGpIr4.png"
+        data-srcset="https://i.imgur.com/3BGpIr4.png, https://i.imgur.com/3BGpIr4.png 1.5x, https://i.imgur.com/3BGpIr4.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/3BGpIr4.png"
+        title="https://i.imgur.com/3BGpIr4.png" /></p>
+<h3 id="counters">Counters</h3>
+<p><code>Counter</code> 會針對每張 <code>Flow Table</code>, 每條 <code>Flow entry</code>, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/exsmUoB.png"
+        data-srcset="https://i.imgur.com/exsmUoB.png, https://i.imgur.com/exsmUoB.png 1.5x, https://i.imgur.com/exsmUoB.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/exsmUoB.png"
+        title="https://i.imgur.com/exsmUoB.png" /></p>
+<h3 id="actions">Actions</h3>
+<p>每一個 <code>Flow entry</code> 都伴隨著0或者多個 <code>actions</code>， <code>actions</code>代表今天封包匹配某個 <code>Header fields</code> 的條件成功之後會執行的動作。</p>
+<p>假設匹配成功之後發現沒有設置 <code>actions</code>， 此時 <code>Switch</code> 就會把<strong>封包丟棄(dropped)</strong>，匹配成功之後執行 actions list 必定會按照原本的順序<strong>依序執行</strong>。</p>
+<blockquote>
+<ul>
+<li>如果 Controller 將 Flow entry 寫入 Switch 時，Swich 不支援某些 actions，則會被拒絕寫入 Switch 並且返回錯誤。</li>
+<li>當 Controller 在與 Switch 做連結時，Switch 就會告知 Controller 哪些 <strong>Optional Action</strong> 指令是它支援的。</li>
+</ul>
+</blockquote>
+<p><code>Switch</code> 並不需要支援所有在 spec 裡面提及的 <code>action</code>， 只有標注 <strong>Required Action</strong> 的才是一定要支援的，標注 <strong>Optional Action</strong> 的則是選用。</p>
+<h4 id="required-action-forward轉發封包">Required Action: Forward(轉發封包)</h4>
+<p>轉發除了要支援基本的 Switch port 之外， 也要支援以下的 <strong>virtual port</strong>。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/tgv3Nbj.png"
+        data-srcset="https://i.imgur.com/tgv3Nbj.png, https://i.imgur.com/tgv3Nbj.png 1.5x, https://i.imgur.com/tgv3Nbj.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/tgv3Nbj.png"
+        title="https://i.imgur.com/tgv3Nbj.png" /></p>
+<p>也有兩個 <strong>Optional Action</strong> 的 <strong>virtual port</strong>， <code>Switch</code> 可以自行選擇要不要支援。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/UdCjSyJ.png"
+        data-srcset="https://i.imgur.com/UdCjSyJ.png, https://i.imgur.com/UdCjSyJ.png 1.5x, https://i.imgur.com/UdCjSyJ.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/UdCjSyJ.png"
+        title="https://i.imgur.com/UdCjSyJ.png" /></p>
+<h4 id="required-action-drop丟棄封包">Required Action: Drop(丟棄封包)</h4>
+<p>除了可以設定 Drop action 之外， 假設今天有 <code>Flow entry</code> 沒有設定 <code>action</code>，switch 也會預設把封包丟棄。</p>
+<h4 id="optional-action-enqueue">Optional Action: Enqueue</h4>
+<p>Enqueue 可以將封包轉發至某個特定 port 的 queue 中，便於支援<code>QoS</code>。</p>
+<h4 id="optional-action-modify-field修改封包">Optional Action: Modify-Field(修改封包)</h4>
+<p>基本上最有彈性的 <strong>Modify-Field</strong> 雖然是標注為 <strong>Optional Action</strong>，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 <code>Switch</code> 都會支援。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/8L2cErK.png"
+        data-srcset="https://i.imgur.com/8L2cErK.png, https://i.imgur.com/8L2cErK.png 1.5x, https://i.imgur.com/8L2cErK.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/8L2cErK.png"
+        title="https://i.imgur.com/8L2cErK.png" /></p>
+<hr>
+<h2 id="matching">Matching</h2>
+<h3 id="packet-flow-in-an-openflow-switch-封包處理流程">Packet flow in an OpenFlow switch: 封包處理流程</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/QD4VWvh.png"
+        data-srcset="https://i.imgur.com/QD4VWvh.png, https://i.imgur.com/QD4VWvh.png 1.5x, https://i.imgur.com/QD4VWvh.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/QD4VWvh.png"
+        title="https://i.imgur.com/QD4VWvh.png" /></p>
+<blockquote>
+<p>Parse header fields步驟會按照下方的圖表進行</p>
+</blockquote>
+<p>封包會按照 <code>flow entry</code> 的優先度依序進行匹配</p>
+<ul>
+<li>匹配成功
+<ul>
+<li>更新 <code>Counter</code>，並且按照 <code>actions</code> 去執行</li>
+<li>假設匹配到的 <code>flow entry</code> 並沒有設置 <code>actions</code>， 則<strong>丟棄</strong>此封包</li>
+<li>假設<strong>沒有匹配</strong>到任何符合條件的 <code>flow entry</code>，則將<strong>封包轉發至 <code>Controller</code></strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="解析封包獲得-header-field-用以檢索符合的-flow-entry">解析封包獲得 Header field 用以檢索符合的 Flow entry</h3>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/wJHVTOf.png"
+        data-srcset="https://i.imgur.com/wJHVTOf.png, https://i.imgur.com/wJHVTOf.png 1.5x, https://i.imgur.com/wJHVTOf.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/wJHVTOf.png"
+        title="https://i.imgur.com/wJHVTOf.png" /></p>
+<h4 id="解析步驟可以簡單劃分成底下四點">解析步驟可以簡單劃分成底下四點</h4>
+<ul>
+<li>初始化 <code>Headers</code>
+<ul>
+<li>設置 Ingress Port</li>
+<li>設置 Ethernet src, dst, type</li>
+<li>其餘欄位設成0</li>
+</ul>
+</li>
+<li>根據 Eth type 填寫 <code>Header</code>
+<ul>
+<li>Eth type: 0x8100(802.1q)
+<ul>
+<li>設置 VLAN ID 跟 優先度</li>
+</ul>
+</li>
+<li>Eth type: 0x0806(ARP) =&gt; <strong>Optional</strong>
+<ul>
+<li>設置 IPv4 src, dst</li>
+</ul>
+</li>
+<li>Eth type: 0x0800(Ipv4)
+<ul>
+<li>設置 IPv4 src, dst, toc</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>根據 IPv4 封包來確定是TCP/UDP/ICMP協定</li>
+<li>寫入TCP/UDP/ICMP協定資料</li>
+</ul>
+<h2 id="secure-channel">Secure Channel</h2>
+<p>作為連結 <code>Switch</code> 與 <code>Controller</code> 的橋樑。</p>
+<h2 id="openflow-protocol-message">OpenFlow Protocol Message</h2>
+<blockquote>
+<p>記得,OpenFlow 是定義 Controller 與 Switch 溝通的通訊協定</p>
+</blockquote>
+<p>OpenFlow 協定訊息分成三大類</p>
+<ul>
+<li><strong>Controller-to-Switch</strong>: 此類消息通常由 <code>Controller</code> 主動發出</li>
+<li><strong>Asynchronous</strong>: 此類消息通常由 <code>Switch</code> 主動發出</li>
+<li><strong>Symmetric</strong>: 此類消息 <code>Controller</code> 以及 <code>Switch</code> 都可以發出</li>
+</ul>
+<h3 id="controller-to-switch">Controller-to-Switch</h3>
+<ul>
+<li>
+<p><strong>Features</strong></p>
+<p><code>Features message</code> 是初始化建立 TLS 連線時由 <code>Controller</code> 發送， 要求 <code>Switch</code> 回覆它支援的 Option 功能。</p>
+</li>
+<li>
+<p><strong>Configuration</strong></p>
+<p><code>Controller</code> 可以用 <code>Configuration message</code> 來設置或者查詢 Switch 的配置訊息。</p>
+</li>
+<li>
+<p><strong>Modify-State</strong></p>
+<p><code>Modify-State message</code> 可以用來新增/修改/刪除位在 Switch 上的 <code>Flow Table</code>，也可以拿來設置 Switch 上 port 的屬性。</p>
+</li>
+<li>
+<p><strong>Read-State</strong></p>
+<p><code>Read-State message</code> 用來讀取 <code>Switch's Flow Table</code> 狀態/統計資料以及 <code>port</code> 的狀態。</p>
+</li>
+<li>
+<p><strong>Send-Packet</strong></p>
+<p><code>Send-Packet message</code> 用來傳送資料到指定 <code>Switch</code> 的 <code>port</code>。</p>
+</li>
+<li>
+<p><strong>Barrier</strong></p>
+<p><code>OFPT_BARRIER_REQUEST</code>、<code>OFPT_BARRIER_REPLY</code>。</p>
+</li>
+</ul>
+<h3 id="asynchronous">Asynchronous</h3>
+<ul>
+<li>
+<p><strong>Packet-in</strong></p>
+<p><code>Packet-in message</code> 會在兩種情況觸發, 轉送封包去 <code>Controller</code>。</p>
+<ul>
+<li>沒有 match 到任何的 <code>Flow entry</code></li>
+<li>match 到的 <code>Flow entry</code> 有著 <code>packet-in action</code></li>
+</ul>
+<p>假設 Switch 還有足夠的 memory 去緩衝 packet 資料，<code>Switch</code> 會傳送部份的 <code>packet header</code> (默認128 bytes) 以及 <code>buffer ID</code> 給 <code>Controller</code>。</p>
+<p>對於不支援緩存的 <code>Switch</code> 或者 memory 空間不足的情況，<code>Packet-in</code> 事件會把完整的 packet 轉送給 <code>Controller</code>。</p>
+</li>
+<li>
+<p><strong>Flow-Removed</strong></p>
+<p>在 <code>Controller</code> 傳送 <code>flow modify message</code> 時， 在封包裡面可以選擇填入 <code>idle timeout</code>, <code>hard timeout</code>。</p>
+<ul>
+<li><code>idle timeout</code>: <code>Counter</code> 會紀錄 <code>flow entry</code> 最後被 match 的時間點，如果超過就刪除。</li>
+<li><code>hard timeout</code>: <code>Counter</code> 會紀錄 <code>flow entry</code> 被建立的時間，如果超過就刪除。</li>
+</ul>
+<p><code>Flow-Removed message</code> 會在 Switch 刪除某條 <code>Flow entry</code> 時被觸發，傳訊告知<code>Controller</code>。</p>
+</li>
+<li>
+<p><strong>Post-status</strong></p>
+<p>在 <code>Switch port</code> 狀態改變時，傳送狀態更新給 <code>Controller</code>。</p>
+</li>
+<li>
+<p><strong>Error</strong></p>
+<p><code>Switch</code> 回傳錯誤訊息。</p>
+</li>
+</ul>
+<h3 id="symmetric">Symmetric</h3>
+<ul>
+<li>
+<p><strong>Hello</strong></p>
+<p>初始化 OpenFlow 連線時使用。</p>
+</li>
+<li>
+<p><strong>Echo</strong></p>
+<p><code>Echo request/reply messages</code> 可以由 <code>Controller</code> 或者 <code>Switch</code> 發起 <code>request</code>，收到的一方必須回覆 <code>reply</code>，可以藉此測試延遲，頻寬還有連線的狀況。</p>
+</li>
+<li>
+<p><strong>Vendor</strong></p>
+<p>自定義訊息</p>
+</li>
+</ul>
+<h2 id="結語">結語</h2>
+<p>在 <code>OpenFlow</code> 規格書中通常分成前半部份的<strong>規範</strong>以及後半部份的<strong>協議實作</strong></p>
+<p><strong>規範</strong>通常是講解觀念部份，後半部的<strong>協議</strong>通常探討實現規範的細節，本文章只有大概介紹一下規範讓讀者可以快速的了解 <code>OpenFlow</code> 的概要。</p>
+<p>目前主流的 <code>OpenFlow</code> 版本為 <code>OpenFlow 1.3</code> ，相較於 <code>OpenFlow 1.0</code> 增加了很多方便的新功能， 所以大概看過 <code>OpenFlow 1.0</code> 之後建議將閱讀重心放在1.3版本。</p>
+<p>關於 <code>OpenFlow 1.3</code> 我在網路上找資料的時候有找到中文的全文翻譯，很推薦搭配著原文的規格書一起看， 連結在此: <a href="https://www.jianshu.com/p/acfeae1771b3" target="_blank" rel="noopener noreffer">OpenFlow 1.3</a>。</p>
+<p><strong>後續的實作都會採用1.3版本為主</strong>， 建議先大概看一輪上述的1.3文檔再繼續接下來的練習。</p>
+<h2 id="reference">Reference</h2>
+<blockquote>
+<ul>
+<li><a href="https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf" target="_blank" rel="noopener noreffer">OpenFlow 1.0 spec</a></li>
+<li><a href="https://opennetworking.org/wp-content/uploads/2014/10/openflow-spec-v1.3.0.pdf" target="_blank" rel="noopener noreffer">OpenFlow 1.3 spec</a></li>
+<li><a href="https://blog.csdn.net/qq_29229567/article/details/88796456" target="_blank" rel="noopener noreffer">OpenFlow：简述对OpenFlow协议的认识</a></li>
+<li><a href="https://www.cnblogs.com/ssyfj/p/11620375.html" target="_blank" rel="noopener noreffer">软件定义网络基础&mdash;OpenFlow流表</a></li>
+<li><a href="https://blog.csdn.net/lady_killer9/article/details/104540806" target="_blank" rel="noopener noreffer">OpenFlow 1.0 協議講解</a></li>
+<li><a href="https://www.jianshu.com/p/acfeae1771b3" target="_blank" rel="noopener noreffer">OpenFlow 1.3 中文解析</a></li>
+</ul>
+</blockquote>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2021-08-13</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/sdn2/" data-title="SDN 學習筆記(二): OpenFlow 1.0 介紹" data-hashtags="network,SDN"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/sdn2/" data-hashtag="network"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/sdn2/" data-title="SDN 學習筆記(二): OpenFlow 1.0 介紹" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/sdn2/" data-title="SDN 學習筆記(二): OpenFlow 1.0 介紹"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/sdn2/" data-title="SDN 學習筆記(二): OpenFlow 1.0 介紹"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/sdn2/" data-title="SDN 學習筆記(二): OpenFlow 1.0 介紹" data-description="SDN 學習筆記第二篇"><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/sdn2/" data-title="SDN 學習筆記(二): OpenFlow 1.0 介紹" data-description="SDN 學習筆記第二篇"><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/sdn2/" data-title="SDN 學習筆記(二): OpenFlow 1.0 介紹"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/sdn/">SDN</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/gfs/" class="prev" rel="prev" title="The Google File System (GFS) 論文心得"><i class="fas fa-angle-left fa-fw"></i>The Google File System (GFS) 論文心得</a>
+            <a href="/posts/sdn1/" class="next" rel="next" title="SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹">SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹<i class="fas fa-angle-right fa-fw"></i></a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":16},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

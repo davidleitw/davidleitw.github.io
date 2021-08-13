@@ -30,3 +30,9 @@ git add .
 git commit -m "update"
 git push
 ```
+
+### reference
+- [使用 GitHub Pages 展示你的 Single Page Application](https://blog.timtnlee.me/post/development/spa-on-github-page)
+- [使用 Github Pages 和 Hugo 搭建个人博客教程](https://yousali.me/how-to-create-blog/)
+- [使用hugo生成静态博客并部署在GitHub上](https://zhuanlan.zhihu.com/p/397612900)
+- [LoveIt 官方 blog](https://hugoloveit.com/zh-cn/categories/)

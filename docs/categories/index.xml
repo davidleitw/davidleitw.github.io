@@ -12,6 +12,27 @@
     <guid>http://example.org/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</guid>
     <description><![CDATA[]]></description>
 </item><item>
+    <title>docker</title>
+    <link>http://example.org/categories/docker/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/docker/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>linux</title>
+    <link>http://example.org/categories/linux/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/linux/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>paper</title>
+    <link>http://example.org/categories/paper/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/paper/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>SDN</title>
     <link>http://example.org/categories/sdn/</link>
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>

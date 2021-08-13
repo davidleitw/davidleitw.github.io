@@ -12,7 +12,7 @@
 因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 /docs 或者 /public 之中，底下是我 github page 專案的架構
 其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
 在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
-hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push " />
+hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://example.org/posts/lovelt/" />
 <meta property="article:published_time" content="2021-08-13T23:01:13+08:00" />
@@ -25,11 +25,11 @@ hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push " />
 因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 /docs 或者 /public 之中，底下是我 github page 專案的架構
 其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
 在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
-hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push "/>
+hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  "/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/lovelt/" /><link rel="prev" href="http://example.org/posts/sdn1/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/lovelt/" /><link rel="prev" href="http://example.org/posts/dockervolume/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
@@ -38,7 +38,7 @@ hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push "/>
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/lovelt\/"
-        },"genre": "posts","keywords": "blog","wordcount":  58 ,
+        },"genre": "posts","keywords": "blog","wordcount":  76 ,
         "url": "http:\/\/example.org\/posts\/lovelt\/","datePublished": "2021-08-13T23:01:13+08:00","dateModified": "2021-08-13T23:01:13+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -115,14 +115,22 @@ hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push "/>
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/"><i class="far fa-folder fa-fw"></i>日常紀錄</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-08-13">2021-08-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;58 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-08-13">2021-08-13</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;76 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
                     <span><i class="details-icon fas fa-angle-right"></i></span>
                 </div>
-                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
             </div><div class="content" id="content"><p>這次新架的 blog 使用了 <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer">LoveIt</a> 這個主題</p>
 <p>詳細的架設參數設定都是參考其<a href="https://hugoloveit.com/zh-cn/posts/" target="_blank" rel="noopener noreffer">官方部落格</a>，寫的算是滿詳細的，值得參考。</p>
 <p>至於跟 github page 連動的部份，這方面很多文章都有不同的解決方案，我在這篇分享一下我的解決方法。</p>
@@ -142,7 +150,14 @@ hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push "/>
 git add . 
 git commit -m <span class="s2">&#34;update&#34;</span>
 git push
-</code></pre></div></div><div class="post-footer" id="post-footer">
+</code></pre></div><h3 id="reference">reference</h3>
+<ul>
+<li><a href="https://blog.timtnlee.me/post/development/spa-on-github-page" target="_blank" rel="noopener noreffer">使用 GitHub Pages 展示你的 Single Page Application</a></li>
+<li><a href="https://yousali.me/how-to-create-blog/" target="_blank" rel="noopener noreffer">使用 Github Pages 和 Hugo 搭建个人博客教程</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/397612900" target="_blank" rel="noopener noreffer">使用hugo生成静态博客并部署在GitHub上</a></li>
+<li><a href="https://hugoloveit.com/zh-cn/categories/" target="_blank" rel="noopener noreffer">LoveIt 官方 blog</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
@@ -165,7 +180,7 @@ git push
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/sdn1/" class="prev" rel="prev" title="SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹"><i class="fas fa-angle-left fa-fw"></i>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</a></div>
+    <div class="post-nav"><a href="/posts/dockervolume/" class="prev" rel="prev" title="docker volume 用法整理"><i class="fas fa-angle-left fa-fw"></i>docker volume 用法整理</a></div>
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">

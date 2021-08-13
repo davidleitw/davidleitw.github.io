@@ -107,9 +107,40 @@
 因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 /docs 或者 /public 之中，底下是我 github page 專案的架構
 其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
 在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
-hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push </div><div class="post-footer">
+hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  </div><div class="post-footer">
         <a href="/posts/lovelt/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/blog/">blog</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/dockervolume/">docker volume 用法整理</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/docker/"><i class="far fa-folder fa-fw"></i>docker</a></span></div><div class="content">因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 Volume 的方式對資料庫做持久化。在這邊紀錄一下 Docker Volume 相關的一些用法。
+ 很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
+ Volume 是什麼 Volume 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:
+ Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不會影響 Image Volume 會持續存在，並不會隨著容器刪除而消失  有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 Volume 中。
+創建 Volume ~$ docker volume create volume_name  查看所有 Volume  ~$ docker volume ls  查看指定 Volume 資料  ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \  --name web \  # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \  nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。</div><div class="post-footer">
+        <a href="/posts/dockervolume/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/container/">container</a>,&nbsp;<a href="/tags/docker/">docker</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/linux_shell_var1/">Linux shell 變數相關用法整理(一): assign, echo, export, unset</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/linux/"><i class="far fa-folder fa-fw"></i>linux</a></span></div><div class="content">假設今天我們常用的資料夾路徑是在 /path1/workdir/project1/module... 每次登入 linux 環境都要切換到這個資料夾我們就需要重新輸入路徑
+$ cd /path1/workdir/project1/module... 我們這時候就可以用一個變數來取代常用的字串
+在這之前先介紹一下變數的取用
+echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這個變數的值並且顯示出來
+ 在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
+ 回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
+$ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則  設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格  $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來    如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例 用 '' 包起來 bash 就不會把 $變數 置換成該變數的內容。</div><div class="post-footer">
+        <a href="/posts/linux_shell_var1/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/shell/">shell</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/linux_shell_var2/">Linux shell 變數相關用法整理(二): read, declare, array</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/linux/"><i class="far fa-folder fa-fw"></i>linux</a></span></div><div class="content">很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。
+read 讀取從鍵盤輸入的變數，常常會出現在 shell script 之中
+$ read [-pt] 變數名稱 // 參數 // -p 後面接提示字元 // -t 後面接等待時間，超過時間沒輸入則取消指令 $ declare 可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型
+$ declare [-aixr] 變數名稱 // 參數 // -a 宣告陣列型態的變數 // -i 宣告整數型態的變數 // -x 同 export 指令，宣告的變數變成全域變數(可以讓子程序讀取) // -r 宣告 readonly, 不可更改變數內容，也無法被 unset 取消 // -p 列出變數資料型態 $ 接著試著把 num 轉成全域變數，並且用 export 指令觀察一下:
+列出指定變數的資料型態
+array 以 arr[index]=content 的形式來指定 array Index 所代表的值。
+reference  鳥哥的 Linux 私房菜  </div><div class="post-footer">
+        <a href="/posts/linux_shell_var2/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/shell/">shell</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/sdn1/">SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/sdn/"><i class="far fa-folder fa-fw"></i>SDN</a></span></div><div class="content">此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
@@ -123,7 +154,29 @@ SDN 並非一種技術，而是一種設計的理念，只要符合控制面以�
 常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</div><div class="post-footer">
         <a href="/posts/sdn1/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/sdn/">SDN</a></div></div>
-</article></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/sdn2/">SDN 學習筆記(二): OpenFlow 1.0 介紹</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/sdn/"><i class="far fa-folder fa-fw"></i>SDN</a></span></div><div class="content">前言 想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹OpenFlow 1.0的架構，以及一些 spec 的整理.
+之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。
+為什麼會著重在1.0與1.3兩個版本呢？  1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
+參考資料: OpenFlow 協定演進
+ OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
+ Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table
+ OpenFlow 1.0 中每個Switch只能存放一個Flow Table
+ Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
+ Header Fields Counters Actions  Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
+分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec</div><div class="post-footer">
+        <a href="/posts/sdn2/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/sdn/">SDN</a></div></div>
+</article><ul class="pagination"><li class="page-item active">
+                    <span class="page-link">
+                        <a href="/">1</a>
+                    </span>
+                </li><li class="page-item ">
+                    <span class="page-link">
+                        <a href="/page/2/">2</a>
+                    </span>
+                </li></ul></div></div>
             </main><footer class="footer">
         <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
