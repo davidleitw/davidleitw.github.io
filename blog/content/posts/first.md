@@ -1,7 +1,11 @@
 ---
-title: "SDN-1"
+title: "SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹"
 date: 2021-08-13T21:34:43+08:00
+author: davidlei
 draft: false
+tags: 
+    network
+    SDN
 ---
 
 此專案用來整理一些學習 SDN 的相關知識以及參考資料。
