@@ -42,14 +42,9 @@ theme = "LoveIt"
     rss = 10
         [params.home.profile]
         enable = true
-        # Gravatar 邮箱，用于优先在主页显示的头像
-        gravatarEmail = ""
-        # 主页显示头像的 URL
-        avatarURL = "/images/avatar.png"
-        # LoveIt 更改 | 0.2.7 主页显示的网站标题 (支持 HTML 格式)
-        title = ""
-        # 主页显示的网站副标题
-        subtitle = "这是我的全新 Hugo 网站"
+        avatarURL = "https://avatars.githubusercontent.com/u/42119758?v=4"
+        title = "davidlei blog"
+        subtitle = "存放學習筆記的地方"
         # 是否为副标题显示打字机动画
         typeit = true
         # 是否显示社交账号
