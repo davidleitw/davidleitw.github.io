@@ -44,7 +44,7 @@ theme = "LoveIt"
         enable = true
         avatarURL = "https://avatars.githubusercontent.com/u/42119758?v=4"
         title = "davidlei blog"
-        subtitle = "存放學習筆記的地方"
+        subtitle = "紀錄學習心得，日常點滴的地方"
         typeit = true
         social = true
         disclaimer = ""
@@ -166,33 +166,35 @@ theme = "LoveIt"
     absoluteURL = false
 
 [menu]
-  [[menu.main]]
-    identifier = "posts"
-    # you can add extra information before the name (HTML format is supported), such as icons
-    pre = ""
-    # you can add extra information after the name (HTML format is supported), such as icons
-    post = ""
-    name = "文章"
-    url = "/posts/"
-    # title will be shown when you hover on this menu link
-    title = ""
-    weight = 1
-  [[menu.main]]
-    identifier = "tags"
-    pre = ""
-    post = ""
-    name = "標籤"
-    url = "/tags/"
-    title = ""
-    weight = 2
-  [[menu.main]]
-    identifier = "categories"
-    pre = ""
-    post = ""
-    name = "分類"
-    url = "/categories/"
-    title = ""
-    weight = 3
+    [[menu.main]]
+        identifier = "posts"
+        # you can add extra information before the name (HTML format is supported), such as icons
+        pre = ""
+        # you can add extra information after the name (HTML format is supported), such as icons
+        post = ""
+        name = "文章"
+        url = "/posts/"
+        # title will be shown when you hover on this menu link
+        title = ""
+        weight = 1
+    [[menu.main]]
+        identifier = "tags"
+        pre = ""
+        post = ""
+        name = "標籤"
+        url = "/tags/"
+        title = ""
+        weight = 2
+    [[menu.main]]
+        identifier = "categories"
+        pre = ""
+        post = ""
+        name = "分類"
+        url = "/categories/"
+        title = ""
+        weight = 3
+
+
 
 # Markup related configuration in Hugo
 [markup]

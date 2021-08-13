@@ -4,12 +4,25 @@
         <link>http://example.org/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 23:01:13 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</title>
+    <link>http://example.org/posts/lovelt/</link>
+    <pubDate>Fri, 13 Aug 2021 23:01:13 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lovelt/</guid>
+    <description><![CDATA[這次新架的 blog 使用了 LoveIt 這個主題
+詳細的架設參數設定都是參考其官方部落格，寫的算是滿詳細的，值得參考。
+至於跟 github page 連動的部份，這方面很多文章都有不同的解決方案，我在這篇分享一下我的解決方法。
+因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 /docs 或者 /public 之中，底下是我 github page 專案的架構
+其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
+在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
+hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push ]]></description>
+</item><item>
     <title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
-    <link>http://example.org/posts/first/</link>
+    <link>http://example.org/posts/sdn1/</link>
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/first/</guid>
+    <guid>http://example.org/posts/sdn1/</guid>
     <description><![CDATA[此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
 當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
 預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。

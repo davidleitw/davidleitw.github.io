@@ -6,6 +6,8 @@ draft: false
 tags: 
     - network
     - SDN
+categories: ["SDN"]
+description: SDN 學習筆記第一篇
 ---
 
 此專案用來整理一些學習 SDN 的相關知識以及參考資料。
