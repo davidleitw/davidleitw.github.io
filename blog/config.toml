@@ -45,20 +45,116 @@ theme = "LoveIt"
         avatarURL = "https://avatars.githubusercontent.com/u/42119758?v=4"
         title = "davidlei blog"
         subtitle = "存放學習筆記的地方"
-        # 是否为副标题显示打字机动画
         typeit = true
-        # 是否显示社交账号
         social = true
-        # LoveIt 新增 | 0.2.0 免责声明 (支持 HTML 格式)
         disclaimer = ""
-        # 主页文章列表
         [params.home.posts]
+            enable = true
+            paginate = 6
+            defaultHiddenFromHomePage = false
+[params.social]
+    GitHub = "https://github.com/davidleitw"
+    Email = "davidleitw@gmail.com"
+[params.page]
+    hiddenFromHomePage = false
+    hiddenFromSearch = false
+    twemoji = false
+    lightgallery = false
+    linkToMarkdown = true
+    [params.page.toc]
         enable = true
-        # 主页每页显示文章数量
-        paginate = 6
-        # LoveIt 删除 | 0.2.0 被 params.page 中的 hiddenFromHomePage 替代
-        # 当你没有在文章前置参数中设置 "hiddenFromHomePage" 时的默认行为
-        defaultHiddenFromHomePage = false
+        keepStatic = true
+        auto = true
+    [params.page.code]
+        copy = true
+        maxShownLines = 16
+    [params.page.math]
+        enable = true
+        blockLeftDelimiter = ""
+        blockRightDelimiter = ""
+        inlineLeftDelimiter = ""
+        inlineRightDelimiter = ""
+        copyTex = true
+        mhchem = true
+    [params.page.share]
+        enable = true
+        Twitter = true
+        Facebook = true
+        Linkedin = false
+        Whatsapp = true
+        Pinterest = false
+        Tumblr = false
+        HackerNews = false
+        Reddit = false
+        VK = false
+        Buffer = false
+        Xing = false
+        Line = true
+        Instapaper = false
+        Pocket = false
+        Digg = false
+        Stumbleupon = false
+        Flipboard = false
+        Weibo = true
+        Renren = false
+        Myspace = true
+        Blogger = true
+        Baidu = false
+        Odnoklassniki = false
+        Evernote = true
+        Skype = false
+        Trello = false
+        Mix = false
+    [params.page.comment]
+        enable = true
+        [params.page.comment.disqus]
+            enable = false
+            shortname = ""
+        [params.page.comment.gitalk]
+            enable = false
+            owner = ""
+            repo = ""
+            clientId = ""
+            clientSecret = ""
+        [params.page.comment.valine]
+            enable = false
+            appId = ""
+            appKey = ""
+            placeholder = ""
+            avatar = "mp"
+            meta= ""
+            pageSize = 10
+            lang = ""
+            visitor = true
+            recordIP = true
+            highlight = true
+            enableQQ = false
+            serverURLs = ""
+            emoji = ""
+        [params.page.comment.facebook]
+            enable = false
+            width = "100%"
+            numPosts = 10
+            appId = ""
+            languageCode = "en"
+        [params.page.comment.telegram]
+            enable = false
+            siteID = ""
+            limit = 5
+            height = ""
+            color = ""
+            colorful = true
+            dislikes = false
+            outlined = false
+        [params.page.comment.commento]
+            enable = false
+        [params.page.comment.utterances]
+            enable = false
+            repo = ""
+            issueTerm = "pathname"
+            label = ""
+            lightTheme = "github-light"
+            darkTheme = "github-dark"
 
 [menu]
   [[menu.main]]
@@ -96,4 +192,7 @@ theme = "LoveIt"
     # false is a necessary configuration (https://github.com/dillonzq/LoveIt/issues/158)
     noClasses = false
 
-  
+[author]
+    name="davidlei"
+    email="davidleitw@gmail.com"
+    link="https://davidleitw.github.io/"
