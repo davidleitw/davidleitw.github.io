@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>C Function Pointer 基礎用法整理 - davidLei</title><meta name="Description" content="function pointer"><meta property="og:title" content="C Function Pointer 基礎用法整理" />
+<meta property="og:description" content="function pointer" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/c_functionpointer/" />
+<meta property="article:published_time" content="2021-08-15T00:04:43+08:00" />
+<meta property="article:modified_time" content="2021-08-15T00:04:43+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="C Function Pointer 基礎用法整理"/>
+<meta name="twitter:description" content="function pointer"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/c_functionpointer/" /><link rel="prev" href="http://example.org/posts/lovelt/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "C Function Pointer 基礎用法整理",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/c_functionpointer\/"
+        },"genre": "posts","keywords": "c","wordcount":  414 ,
+        "url": "http:\/\/example.org\/posts\/c_functionpointer\/","datePublished": "2021-08-15T00:04:43+08:00","dateModified": "2021-08-15T00:04:43+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": "function pointer"
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">C Function Pointer 基礎用法整理</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-08-15">2021-08-15</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;414 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;2 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#function-pointer">function pointer</a>
+      <ul>
+        <li><a href="#注意">注意</a></li>
+        <li><a href="#jserv-上課的範例">Jserv 上課的範例</a></li>
+      </ul>
+    </li>
+    <li><a href="#應用舉例">應用舉例</a></li>
+    <li><a href="#reference">reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>這最近在看 <code>jserv</code> 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 <code>function pointer</code> 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。</p>
+<p>之後在學習的過程中如果遇到 <code>function pointer</code> 的應用也會一併整理在這篇文章中。</p>
+<h2 id="function-pointer">function pointer</h2>
+<p><code>function pointer</code> 顧名思義就是指向某個 <code>function</code> 的 <code>pointer</code>，有了 <code>function pointer</code> 我們就可以實現把 <code>function</code> 當作參數，傳進一個 <code>function</code> 之中，或者更加彈性的設計我們的程式，減少多餘的 <code>if/else</code>, <code>switch case</code>。</p>
+<p>我們先從一個簡單的 <code>function pointer</code> 宣告開始講起</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+</code></pre></div><p>上面就是一個基本的 <code>function pointer</code> 宣告</p>
+<p>一個 <code>function pointer</code> 變數名稱為 <code>myFunc</code>，可以這麼解讀</p>
+<ul>
+<li><code>myFunc</code> 是一個指標指向一個 <code>function</code>
+<ul>
+<li>該 <code>function</code> 有兩個 <code>int</code> 的 parameters</li>
+<li>該 <code>function</code> 會回傳 <code>int</code></li>
+</ul>
+</li>
+</ul>
+<p>假設今天我有個 <code>function</code> 宣告成以下這種形式</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">parseFunc</span><span class="p">(</span><span class="kt">float</span> <span class="n">f1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">c1</span><span class="p">);</span>
+</code></pre></div><p>我們要怎麼宣告一個 <code>pointer</code> 去指向這個 <code>function</code> 呢？</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">);</span>
+</code></pre></div><p>解讀成</p>
+<ul>
+<li><code>myFunc</code> 是一個指標指向一個 <code>function</code>
+<ul>
+<li>該 <code>function</code> 有三個 parameters，分別要傳入
+<ul>
+<li><em><code>float</code></em></li>
+<li><em><code>int</code></em></li>
+<li><em><code>char</code></em></li>
+</ul>
+</li>
+<li>該 <code>function</code> 會回傳 <em><code>void</code></em></li>
+</ul>
+</li>
+</ul>
+<p>所以我們可以來驗證看看這個 <code>function pointer</code> 是否能真的呼叫 <code>parseFunc</code> 這個 <code>function</code></p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="kt">void</span> <span class="nf">parseFunc</span><span class="p">(</span><span class="kt">float</span> <span class="n">f1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">c1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%f %d %c</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">c1</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">parseFunc</span><span class="p">(</span><span class="mf">0.87</span><span class="p">,</span> <span class="mi">87</span><span class="p">,</span> <span class="sc">&#39;a&#39;</span><span class="p">);</span>
+
+    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">)</span> <span class="o">=</span> <span class="n">parseFunc</span><span class="p">;</span>
+    <span class="n">myFunc</span><span class="p">(</span><span class="mf">0.87</span><span class="p">,</span> <span class="mi">877</span><span class="p">,</span> <span class="sc">&#39;b&#39;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p><a href="https://ideone.com/CaCBwE" target="_blank" rel="noopener noreffer">程式執行結果</a></p>
+<h3 id="注意">注意</h3>
+<p>上面在宣告 <code>function pointer</code> 的時候</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">)</span>
+</code></pre></div><p>會注意到 <code>*myFunc</code> 會用括號包起來，這是不能省略的喔，省略的話就不是 <code>function pointer</code> 的宣告方法了。</p>
+<p>省略的話會變成</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">*</span><span class="nf">myFunc</span><span class="p">(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">);</span>
+</code></pre></div><p>這樣子 <code>myFunc</code> 就不是 <code>function pointer</code> 了，而是單純宣告一個 <code>function</code></p>
+<h3 id="jserv-上課的範例">Jserv 上課的範例</h3>
+<p>簡單的例子看完就可以來看看 <code>Jserv</code> 在 <a href="https://hackmd.io/@sysprog/c-pointer" target="_blank" rel="noopener noreffer">你所不知道的C語言：指標篇</a> 開頭所舉出來的範例</p>
+<p>試試看能不能自己寫出該宣告怎麼解釋</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">**</span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">char</span> <span class="o">*</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">));</span>
+</code></pre></div><ul>
+<li>d 是一個 <code>function pointer</code>, 該 <code>function</code> 有兩個 <code>parameters</code>
+<ul>
+<li>第一個 <code>parameters</code>: a reference to an <em><code>int</code></em></li>
+<li>第二個 <code>parameters</code>: 同樣也是一個 <code>function pointer</code>
+<ul>
+<li>該 <code>function</code> 有兩個 <code>parameters</code>
+<ul>
+<li>a pointer to a <em><code>char</code></em></li>
+<li>a pointer to a pointer to a <em><code>char</code></em></li>
+</ul>
+</li>
+<li>return a pointer to a pointer to a <em><code>char</code></em></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>return a pointer to a pointer to <em><code>void</code></em></li>
+</ul>
+<h2 id="應用舉例">應用舉例</h2>
+<p>今天如果我想寫一個 <code>calculate</code> 的 <code>function</code> 該 function 有三個參數</p>
+<ul>
+<li>a</li>
+<li>b</li>
+<li>加減乘除</li>
+</ul>
+<p>傳入 a, b 之後再傳入要計算的動作，我們可以利用 <code>function pointer</code> 來取代 <code>switch/case</code>, 並增加可讀性</p>
+<p>我們可以宣告成</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">int</span> <span class="nf">sub</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">int</span> <span class="nf">mul</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">int</span> <span class="nf">div</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">calculate</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">cal</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">));</span>
+</code></pre></div><p>用這樣的宣告形式，就可以把我們實現好的加減乘除 <code>function</code> 當作參數傳入 <code>calculate</code> 當中</p>
+<p>但是又有人會說 <code>calculate</code> 的第三個參數宣告還是有點複雜，有沒有辦法可以再讓可讀性增加呢？</p>
+<p>這時候我們會習慣用 <code>typedef</code> 的關鍵字把常用的 <code>function pointer</code> 宣告取一個比較簡短的名稱</p>
+<p>導入 <code>typedef</code> 之後我們可以寫成以下的形式</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="n">calc</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">int</span> <span class="nf">sub</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">int</span> <span class="nf">mul</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">int</span> <span class="nf">div</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">calculate</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">,</span> <span class="n">calc</span> <span class="n">method</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>這樣子我們在看 <code>calculate</code> 宣告的時候就會清楚的知道第三個參數要把指定的 <code>method</code> 傳進去。</p>
+<p>完整的程式碼我放在 <a href="https://github.com/davidleitw/c-pointer-review" target="_blank" rel="noopener noreffer">GitHub</a>，可以把 code 載下來自己 run 一次，順便改改看寫法，觀察其中的不同。</p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="https://hackmd.io/@sysprog/c-pointer" target="_blank" rel="noopener noreffer">你所不知道的C語言：指標篇</a></li>
+<li><a href="http://hackgrass.blogspot.com/2017/07/cc-function-pointer-function-pointer.html" target="_blank" rel="noopener noreffer">(c/c++) Function Pointer函式指標兩三事 (Function Pointer 的 typedef 與 Array of Function Pointer)
+</a></li>
+<li><a href="http://godleon.blogspot.com/2008/01/c-function-pointer-function-pointer.html" target="_blank" rel="noopener noreffer">C - Function Pointer</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2021-08-15</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/c_functionpointer/" data-title="C Function Pointer 基礎用法整理" data-hashtags="c"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/c_functionpointer/" data-hashtag="c"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/c_functionpointer/" data-title="C Function Pointer 基礎用法整理" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/c_functionpointer/" data-title="C Function Pointer 基礎用法整理"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/c_functionpointer/" data-title="C Function Pointer 基礎用法整理"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/c_functionpointer/" data-title="C Function Pointer 基礎用法整理" data-description="function pointer"><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/c_functionpointer/" data-title="C Function Pointer 基礎用法整理" data-description="function pointer"><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/c_functionpointer/" data-title="C Function Pointer 基礎用法整理"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/lovelt/" class="prev" rel="prev" title="使用 Hugo 主題 LoveIt 架設 blog 資源紀錄"><i class="fas fa-angle-left fa-fw"></i>使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":16},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>
