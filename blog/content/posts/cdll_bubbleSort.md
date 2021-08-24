@@ -78,7 +78,7 @@ void swap_node(struct node *n1, struct node *n2) {
 
 今天我們想要 swap `node_2`, `node_3`，經過 swap 之後應該要變成這樣:
 
-![](http://i.imgur.com/3WEADJB.png)
+![](https://i.imgur.com/3WEADJB.png)
 
 先複習一下我們 `swap function` 的定義
 
