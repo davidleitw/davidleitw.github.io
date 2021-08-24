@@ -221,7 +221,7 @@ rnode = lnode->next;
 
 完整的程式碼放在 [GitHub](https://github.com/davidleitw/linked_list/blob/master/q1/bubblesort.c)
 
-之後也會補上延伸題目的 `merge sort`
+之後也會補上延伸題目的 `merge sort`。
 
 ## reference
 
