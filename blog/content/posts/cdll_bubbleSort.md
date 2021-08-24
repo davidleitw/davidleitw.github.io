@@ -134,7 +134,7 @@ node_3->next = node_2;
 
 最後完成如下
 
-![](http://i.imgur.com/3WEADJB.png)
+![](https://i.imgur.com/3WEADJB.png)
 
 建議如果對指標不熟悉的最好自己拿紙筆畫一次，會清楚很多。
 
