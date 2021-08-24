@@ -4,7 +4,18 @@
         <link>http://example.org/tags/c/</link>
         <description>c - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sun, 15 Aug 2021 00:04:43 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/c/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/c/" rel="self" type="application/rss+xml" /><item>
+    <title>Circular Doubly linked list 實作 bubble sort </title>
+    <link>http://example.org/posts/cdll_bubblesort/</link>
+    <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/cdll_bubblesort/</guid>
+    <description><![CDATA[前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
+在這篇文章會紀錄關於 bubble sort 的實現。
+node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
+swap 之後要把 node 的 prev 跟 next pointer 處理好。
+Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!]]></description>
+</item><item>
     <title>C Function Pointer 基礎用法整理</title>
     <link>http://example.org/posts/c_functionpointer/</link>
     <pubDate>Sun, 15 Aug 2021 00:04:43 &#43;0800</pubDate>

@@ -4,9 +4,20 @@
         <link>http://example.org/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</lastBuildDate>
             <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>Circular Doubly linked list 實作 bubble sort </title>
+    <link>http://example.org/posts/cdll_bubblesort/</link>
+    <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/cdll_bubblesort/</guid>
+    <description><![CDATA[前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
+在這篇文章會紀錄關於 bubble sort 的實現。
+node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
+swap 之後要把 node 的 prev 跟 next pointer 處理好。
+Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!]]></description>
+</item><item>
     <title>備份 vscode 環境紀錄</title>
     <link>http://example.org/posts/vscode_backup/</link>
     <pubDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</pubDate>
@@ -124,17 +135,5 @@ SDN 並非一種技術，而是一種設計的理念，只要符合控制面以�
  Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
  Header Fields Counters Actions  Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
 分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec]]></description>
-</item><item>
-    <title>The Google File System (GFS) 論文心得</title>
-    <link>http://example.org/posts/gfs/</link>
-    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/gfs/</guid>
-    <description><![CDATA[跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
-背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
- 用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
- 跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
- performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性  因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
-在 Introduction 中也有先簡單介紹了 GFS 的幾個特色]]></description>
 </item></channel>
 </rss>

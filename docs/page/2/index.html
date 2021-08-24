@@ -10,7 +10,7 @@
 <meta property="og:description" content="一個紀錄心情，技術，人生的網站" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="http://example.org/" />
-<meta property="og:updated_time" content="2021-08-21T19:13:21+08:00" />
+<meta property="og:updated_time" content="2021-08-25T04:16:48+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="davidLei"/>
 <meta name="twitter:description" content="一個紀錄心情，技術，人生的網站"/>
@@ -100,6 +100,17 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/linux_shell_var1/">Linux shell 變數相關用法整理(一): assign, echo, export, unset</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/linux/"><i class="far fa-folder fa-fw"></i>linux</a></span></div><div class="content">假設今天我們常用的資料夾路徑是在 /path1/workdir/project1/module... 每次登入 linux 環境都要切換到這個資料夾我們就需要重新輸入路徑
+$ cd /path1/workdir/project1/module... 我們這時候就可以用一個變數來取代常用的字串
+在這之前先介紹一下變數的取用
+echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這個變數的值並且顯示出來
+ 在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
+ 回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
+$ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則  設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格  $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來    如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例 用 '' 包起來 bash 就不會把 $變數 置換成該變數的內容。</div><div class="post-footer">
+        <a href="/posts/linux_shell_var1/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/shell/">shell</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/linux_shell_var2/">Linux shell 變數相關用法整理(二): read, declare, array</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/linux/"><i class="far fa-folder fa-fw"></i>linux</a></span></div><div class="content">很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。
 read 讀取從鍵盤輸入的變數，常常會出現在 shell script 之中

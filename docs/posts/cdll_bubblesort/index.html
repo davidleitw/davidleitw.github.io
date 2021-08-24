@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Circular Doubly linked list 實作 bubble sort  - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Circular Doubly linked list 實作 bubble sort " />
+<meta property="og:description" content="前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
+在這篇文章會紀錄關於 bubble sort 的實現。
+node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
+swap 之後要把 node 的 prev 跟 next pointer 處理好。
+Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i&#43;&#43;) { int flag = 0; for(int j = 0; j &lt; length-i-1; j&#43;&#43;) { if(arr[j] &gt; arr[j&#43;1]) { int t = arr[j]; arr[j] = arr[j&#43;1]; arr[j&#43;1] = t; flag = 1; } } if(!" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/cdll_bubblesort/" />
+<meta property="article:published_time" content="2021-08-25T04:16:48+08:00" />
+<meta property="article:modified_time" content="2021-08-25T04:16:48+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Circular Doubly linked list 實作 bubble sort "/>
+<meta name="twitter:description" content="前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
+在這篇文章會紀錄關於 bubble sort 的實現。
+node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
+swap 之後要把 node 的 prev 跟 next pointer 處理好。
+Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i&#43;&#43;) { int flag = 0; for(int j = 0; j &lt; length-i-1; j&#43;&#43;) { if(arr[j] &gt; arr[j&#43;1]) { int t = arr[j]; arr[j] = arr[j&#43;1]; arr[j&#43;1] = t; flag = 1; } } if(!"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/cdll_bubblesort/" /><link rel="prev" href="http://example.org/posts/vscode_backup/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Circular Doubly linked list 實作 bubble sort ",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/cdll_bubblesort\/"
+        },"genre": "posts","keywords": "c","wordcount":  453 ,
+        "url": "http:\/\/example.org\/posts\/cdll_bubblesort\/","datePublished": "2021-08-25T04:16:48+08:00","dateModified": "2021-08-25T04:16:48+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Circular Doubly linked list 實作 bubble sort </h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-08-25">2021-08-25</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;453 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;3 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#node-結構">node 結構</a></li>
+    <li><a href="#bubble-sort">Bubble sort</a>
+      <ul>
+        <li><a href="#swap_node">swap_node</a></li>
+      </ul>
+    </li>
+    <li><a href="#bubble-sort-with-circular-doubly-linked-list">Bubble sort with Circular doubly linked list</a></li>
+    <li><a href="#reference">reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="前言">前言</h2>
+<p>本問題出自於 <a href="http://wiki.csie.ncku.edu.tw/linux/schedule" target="_blank" rel="noopener noreffer">jserv - Linux 核心設計講座</a> 第一周 <a href="https://hackmd.io/@sysprog/c-linked-list" target="_blank" rel="noopener noreffer">linked list 和非連續記憶體操作</a> 底下<a href="https://hackmd.io/@jserv/SyK-WApKM?type=view" target="_blank" rel="noopener noreffer">題目一</a>的延伸題目</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/mHpjpNG.png"
+        data-srcset="https://i.imgur.com/mHpjpNG.png, https://i.imgur.com/mHpjpNG.png 1.5x, https://i.imgur.com/mHpjpNG.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/mHpjpNG.png"
+        title="https://i.imgur.com/mHpjpNG.png" /></p>
+<p>在這篇文章會紀錄關於 <code>bubble sort</code> 的實現。</p>
+<h2 id="node-結構">node 結構</h2>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">node</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">next</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div><p>本題目 <code>linked list</code> 屬於 <code>circular doubly linked list</code>, 所以處理上還需要考慮循環的問題。</p>
+<p><code>swap</code> 之後要把 <code>node</code> 的 <code>prev</code> 跟 <code>next pointer</code> 處理好。</p>
+<h2 id="bubble-sort">Bubble sort</h2>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">bubble_sort</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">arr</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">length</span><span class="o">-</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+                <span class="kt">int</span> <span class="n">t</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+                <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+                <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="p">;</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p>在寫 <code>linked list</code> 版本的 <code>sort</code> 之前，先來看一下一般 <code>array</code> 版本的實現方式。
+基本上 <code>bubble sort</code> 算是一個容易理解的演算法，現在比較大的問題是要先實現一個 <code>swap</code> 來對兩個 <code>node</code> 交換。</p>
+<h3 id="swap_node">swap_node</h3>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">swap_node</span><span class="p">(</span><span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">n1</span><span class="p">,</span> <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">n2</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">n1</span><span class="o">-&gt;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">n2</span><span class="p">;</span>
+    <span class="n">n2</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">n1</span><span class="o">-&gt;</span><span class="n">prev</span><span class="p">;</span>
+    
+    <span class="n">n1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">n2</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+    <span class="n">n2</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">n1</span><span class="p">;</span>
+    
+    <span class="n">n1</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">n2</span><span class="p">;</span>
+    <span class="n">n2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">n1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>因為我們 <code>linked list</code> 是採用 <code>doubly linked list</code>，所以還要額外處理 <code>prev</code> 指標。</p>
+<p>以下用簡單的示意圖解釋一下這個 swap 是怎麼運作的</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/qNOURXT.png"
+        data-srcset="https://i.imgur.com/qNOURXT.png, https://i.imgur.com/qNOURXT.png 1.5x, https://i.imgur.com/qNOURXT.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/qNOURXT.png"
+        title="https://i.imgur.com/qNOURXT.png" /></p>
+<p>今天我們想要 swap <code>node_2</code>, <code>node_3</code>，經過 swap 之後應該要變成這樣:</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="http://i.imgur.com/3WEADJB.png"
+        data-srcset="http://i.imgur.com/3WEADJB.png, http://i.imgur.com/3WEADJB.png 1.5x, http://i.imgur.com/3WEADJB.png 2x"
+        data-sizes="auto"
+        alt="http://i.imgur.com/3WEADJB.png"
+        title="http://i.imgur.com/3WEADJB.png" /></p>
+<p>先複習一下我們 <code>swap function</code> 的定義</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">swap_node</span><span class="p">(</span><span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">);</span>
+</code></pre></div><p>所以我們傳入的是 <code>node_2</code>, <code>node_3</code> 的地址，<code>node_1</code>, <code>node_4</code> 則不能直接存取。</p>
+<p>接著我們一步一步來解析，先處理 <code>node_1</code>, <code>node_3</code> 之間的連結</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
+<span class="n">node_3</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_1</span><span class="p">;</span>
+</code></pre></div><p>因為我們沒辦法直接存取 <code>node_1</code>，所以要透過 <code>node_2-&gt;prev</code> 來表示</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
+<span class="n">node_3</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span><span class="p">;</span>
+</code></pre></div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/j0Gyabk.png"
+        data-srcset="https://i.imgur.com/j0Gyabk.png, https://i.imgur.com/j0Gyabk.png 1.5x, https://i.imgur.com/j0Gyabk.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/j0Gyabk.png"
+        title="https://i.imgur.com/j0Gyabk.png" /></p>
+<p>接著處理 <code>node_2</code>, <code>node_4</code> 之間的連結</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_4</span><span class="p">;</span>
+<span class="n">node_4</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_2</span><span class="p">;</span>
+</code></pre></div><p>因為我們無法直接存取 <code>node_4</code>, 所以要表示成 <code>node_3-&gt;next</code>;</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<span class="n">node_3</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_2</span><span class="p">;</span>
+</code></pre></div><p>處理完之後變成這樣，最後只需要處理 <code>node_2</code>, <code>node_3</code> 之間的連結</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/I6PkLqk.png"
+        data-srcset="https://i.imgur.com/I6PkLqk.png, https://i.imgur.com/I6PkLqk.png 1.5x, https://i.imgur.com/I6PkLqk.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/I6PkLqk.png"
+        title="https://i.imgur.com/I6PkLqk.png" /></p>
+<p>讓 <code>node_2-&gt;prev</code> 指向 <code>node_3</code>, <code>node_3-&gt;next</code> 指向 <code>node2</code>，實現最後的交換。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
+<span class="n">node_3</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_2</span><span class="p">;</span>
+</code></pre></div><p>最後完成如下</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="http://i.imgur.com/3WEADJB.png"
+        data-srcset="http://i.imgur.com/3WEADJB.png, http://i.imgur.com/3WEADJB.png 1.5x, http://i.imgur.com/3WEADJB.png 2x"
+        data-sizes="auto"
+        alt="http://i.imgur.com/3WEADJB.png"
+        title="http://i.imgur.com/3WEADJB.png" /></p>
+<p>建議如果對指標不熟悉的最好自己拿紙筆畫一次，會清楚很多。</p>
+<h2 id="bubble-sort-with-circular-doubly-linked-list">Bubble sort with Circular doubly linked list</h2>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">bubble_sort</span><span class="p">(</span><span class="k">struct</span> <span class="n">node</span> <span class="o">**</span><span class="n">head</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!*</span><span class="n">head</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">tnode</span><span class="p">;</span> <span class="c1">// temp
+</span><span class="c1"></span>    <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">lnode</span> <span class="o">=</span> <span class="o">*</span><span class="n">head</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">length</span> <span class="o">-</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span><span class="p">(</span><span class="n">lnode</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">rnode</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">swap_node</span><span class="p">(</span><span class="n">lnode</span><span class="p">,</span> <span class="n">rnode</span><span class="p">);</span>
+                <span class="n">tnode</span> <span class="o">=</span> <span class="n">rnode</span><span class="p">;</span>
+                <span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="p">;</span>
+                <span class="n">lnode</span> <span class="o">=</span> <span class="n">tnode</span><span class="p">;</span>
+                <span class="n">flag</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">lnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+            <span class="n">rnode</span> <span class="o">=</span> <span class="n">rnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">lnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">flag</span><span class="p">)</span> <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="o">*</span><span class="n">head</span> <span class="o">=</span> <span class="n">lnode</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>接著來介紹 <code>bubble sort</code> 在 <code>circular doubly linked list</code> 中的實現
+根據剛剛 <code>array</code> 版本的 <code>bubble sort</code>，我們需要兩個指標指向要比較的兩點。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">lnode</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">rnode</span><span class="p">;</span>
+</code></pre></div><p>跟一般的 <code>bubble sort</code> 實現原理基本相同，只是因為我們的資料結構是 <code>circular doubly linked list</code>，所以有幾個需要注意的地方</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="n">lnode</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">rnode</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">swap_node</span><span class="p">(</span><span class="n">lnode</span><span class="p">,</span> <span class="n">rnode</span><span class="p">);</span>
+    <span class="n">tnode</span> <span class="o">=</span> <span class="n">rnode</span><span class="p">;</span>
+    <span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="p">;</span>
+    <span class="n">lnode</span> <span class="o">=</span> <span class="n">tnode</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>繼續用剛剛的例子，假設今天是 <code>node_2</code>, <code>node_3</code> 要交換
+此時 <code>lnode</code> 指向 <code>node_2</code>, <code>rnode</code> 指向 <code>node_3</code></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/Dc26hSg.png"
+        data-srcset="https://i.imgur.com/Dc26hSg.png, https://i.imgur.com/Dc26hSg.png 1.5x, https://i.imgur.com/Dc26hSg.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/Dc26hSg.png"
+        title="https://i.imgur.com/Dc26hSg.png" /></p>
+<p>交換完之後會變成</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/AfCCDhB.png"
+        data-srcset="https://i.imgur.com/AfCCDhB.png, https://i.imgur.com/AfCCDhB.png 1.5x, https://i.imgur.com/AfCCDhB.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/AfCCDhB.png"
+        title="https://i.imgur.com/AfCCDhB.png" /></p>
+<p>這時候為了後續的交換，需要把 <code>lnode</code>, <code>rnode</code> 指向正確的地方</p>
+<p>才需要這段程式碼</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">tnode</span> <span class="o">=</span> <span class="n">rnode</span><span class="p">;</span>
+<span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="p">;</span>
+<span class="n">lnode</span> <span class="o">=</span> <span class="n">tnode</span><span class="p">;</span>
+</code></pre></div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/u7MylD9.png"
+        data-srcset="https://i.imgur.com/u7MylD9.png, https://i.imgur.com/u7MylD9.png 1.5x, https://i.imgur.com/u7MylD9.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/u7MylD9.png"
+        title="https://i.imgur.com/u7MylD9.png" /></p>
+<p>傳統的 <code>bubble sort</code> 每一輪比完都要從 arr[0] 開始重新比較，在 <code>circular doubly linked list</code> 中，我們每輪結束都要把 <code>lnode</code> 重新指向起點，並將 <code>rnode</code> 指向 <code>lnode-&gt;next</code>。</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">lnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</code></pre></div><p>完整的程式碼放在 <a href="https://github.com/davidleitw/linked_list/blob/master/q1/bubblesort.c" target="_blank" rel="noopener noreffer">GitHub</a></p>
+<p>之後也會補上延伸題目的 <code>merge sort</code></p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="https://ithelp.ithome.com.tw/articles/10236214" target="_blank" rel="noopener noreffer">舌尖上的演算法系列: Day7 &ndash; Brute Force - Bubble Sort</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2021-08-25</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/cdll_bubblesort/" data-title="Circular Doubly linked list 實作 bubble sort " data-hashtags="c"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/cdll_bubblesort/" data-hashtag="c"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/cdll_bubblesort/" data-title="Circular Doubly linked list 實作 bubble sort " data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/cdll_bubblesort/" data-title="Circular Doubly linked list 實作 bubble sort "><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/cdll_bubblesort/" data-title="Circular Doubly linked list 實作 bubble sort "><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/cdll_bubblesort/" data-title="Circular Doubly linked list 實作 bubble sort " data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/cdll_bubblesort/" data-title="Circular Doubly linked list 實作 bubble sort " data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/cdll_bubblesort/" data-title="Circular Doubly linked list 實作 bubble sort "><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/vscode_backup/" class="prev" rel="prev" title="備份 vscode 環境紀錄"><i class="fas fa-angle-left fa-fw"></i>備份 vscode 環境紀錄</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":16},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>
