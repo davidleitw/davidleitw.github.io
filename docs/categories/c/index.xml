@@ -4,7 +4,16 @@
         <link>http://example.org/categories/c/</link>
         <description>c - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/c/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/c/" rel="self" type="application/rss+xml" /><item>
+    <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
+    <link>http://example.org/posts/jserv_linux_w1_q2/</link>
+    <pubDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/jserv_linux_w1_q2/</guid>
+    <description><![CDATA[單向 linked list
+typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
+list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!]]></description>
+</item><item>
     <title>Circular Doubly linked list 實作 bubble sort </title>
     <link>http://example.org/posts/cdll_bubblesort/</link>
     <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>

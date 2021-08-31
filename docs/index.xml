@@ -4,9 +4,18 @@
         <link>http://example.org/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</lastBuildDate>
             <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
+    <link>http://example.org/posts/jserv_linux_w1_q2/</link>
+    <pubDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/jserv_linux_w1_q2/</guid>
+    <description><![CDATA[單向 linked list
+typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
+list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!]]></description>
+</item><item>
     <title>Circular Doubly linked list 實作 bubble sort </title>
     <link>http://example.org/posts/cdll_bubblesort/</link>
     <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>
@@ -119,21 +128,5 @@ reference  鳥哥的 Linux 私房菜  ]]></description>
  每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
 SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
 常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。]]></description>
-</item><item>
-    <title>SDN 學習筆記(二): OpenFlow 1.0 介紹</title>
-    <link>http://example.org/posts/sdn2/</link>
-    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/sdn2/</guid>
-    <description><![CDATA[前言 想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹OpenFlow 1.0的架構，以及一些 spec 的整理.
-之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。
-為什麼會著重在1.0與1.3兩個版本呢？  1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
-參考資料: OpenFlow 協定演進
- OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
- Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table
- OpenFlow 1.0 中每個Switch只能存放一個Flow Table
- Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
- Header Fields Counters Actions  Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
-分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec]]></description>
 </item></channel>
 </rss>

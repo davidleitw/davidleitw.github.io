@@ -67,7 +67,7 @@ theme = "LoveIt"
         auto = true
     [params.page.code]
         copy = true
-        maxShownLines = 16
+        maxShownLines = 130
     [params.page.math]
         enable = true
         blockLeftDelimiter = ""
