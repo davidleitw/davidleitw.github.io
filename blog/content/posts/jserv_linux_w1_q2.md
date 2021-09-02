@@ -544,5 +544,8 @@ list *sort(list *start) {
 
 // 待補充
 
+之後會補上測試正確性的程式碼，目前完整的檔案可以參考 [GitHub](https://github.com/davidleitw/linked_list/blob/master/question/question3.c)
+
+
 ### reference 
 <!-- - [snprintf 妙無窮](https://wirelessr.gitbooks.io/working-life/content/snprintf_miao_wu_qiong.html) -->
