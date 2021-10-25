@@ -100,64 +100,16 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/socket1/">linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-10-25">2021-10-25</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a>&nbsp;<a href="/categories/linux/"><i class="far fa-folder fa-fw"></i>linux</a>&nbsp;<a href="/categories/network/"><i class="far fa-folder fa-fw"></i>network</a>&nbsp;<a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div><div class="content">socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
-在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
-我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
-本文章所使用的環境
- kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
-#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
- AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page</div><div class="post-footer">
-        <a href="/posts/socket1/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/jserv_linux_w1_q2/">jserv - linux 核心設計 第一周題目二解題紀錄</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-09-01">2021-09-01</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">單向 linked list
-typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
-list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!</div><div class="post-footer">
-        <a href="/posts/jserv_linux_w1_q2/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/cdll_bubblesort/">Circular Doubly linked list 實作 bubble sort </a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-25">2021-08-25</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
-在這篇文章會紀錄關於 bubble sort 的實現。
-node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
-swap 之後要把 node 的 prev 跟 next pointer 處理好。
-Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!</div><div class="post-footer">
-        <a href="/posts/cdll_bubblesort/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/vscode_backup/">備份 vscode 環境紀錄</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-21">2021-08-21</time></span></div><div class="content">參考 將VS Code 工作環境備份到 GitHub上吧~
-可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。</div><div class="post-footer">
-        <a href="/posts/vscode_backup/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/github/">github</a>,&nbsp;<a href="/tags/vscode/">vscode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/cobradefault/">golang cobra: 在沒有添加任何參數的情況下預設產生 help message</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-16">2021-08-16</time></span>&nbsp;<span class="post-category">included in <a href="/categories/go/"><i class="far fa-folder fa-fw"></i>go</a></span></div><div class="content">問題描述 最近在使用 cobra 編寫一個簡單的 command line 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊
-一般來說用 cobra 寫的程式要顯示詳細的使用教學都要使用 --help 參數，如圖
-但是我又想到 golangci-lint 這個工具同樣也是用 cobra 來寫 command line 的應用，卻可以在沒有添加參數的時候跳出 --help 的說明
-像是這樣
-所以我特別找了一些資料，發現其實解決的方法滿簡單的
-解決方法 一般的教學文章在介紹 cobra 的時候都會訂一個 rootCmd 一類的物件，作為你的 command line 應用一開始的 root，之後的指令就會用
-rootCmd.AddCommand(功能名稱) 的方式添加進去
-所以解決方式很簡單，只要在 rootCmd 定義的地方判斷如果其 args 的長度為零，就呼叫預設的 Help function 即可。
-var rootCmd = &amp;cobra.Command{ Use: &#34;leit&#34;, Short: &#34;A calendar application in command line.&#34;, Long: doc, Run: func(cmd *cobra.Command, args []string) { if len(args) == 0 { _ = cmd.</div><div class="post-footer">
-        <a href="/posts/cobradefault/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/go/">go</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/c_functionpointer/">C Function Pointer 基礎用法整理</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-15">2021-08-15</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">這最近在看 jserv 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 function pointer 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。
-之後在學習的過程中如果遇到 function pointer 的應用也會一併整理在這篇文章中。
-function pointer function pointer 顧名思義就是指向某個 function 的 pointer，有了 function pointer 我們就可以實現把 function 當作參數，傳進一個 function 之中，或者更加彈性的設計我們的程式，減少多餘的 if/else, switch case。
-我們先從一個簡單的 function pointer 宣告開始講起
-int (*myFunc)(int, int); 上面就是一個基本的 function pointer 宣告
-一個 function pointer 變數名稱為 myFunc，可以這麼解讀
- myFunc 是一個指標指向一個 function  該 function 有兩個 int 的 parameters 該 function 會回傳 int    假設今天我有個 function 宣告成以下這種形式
-void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer 去指向這個 function 呢？</div><div class="post-footer">
-        <a href="/posts/c_functionpointer/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
-</article><ul class="pagination"><li class="page-item active">
+        <a href="/posts/gfs/">The Google File System (GFS) 論文心得</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/paper/"><i class="far fa-folder fa-fw"></i>paper</a></span></div><div class="content">跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
+背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
+ 用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
+ 跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
+ performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性  因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
+在 Introduction 中也有先簡單介紹了 GFS 的幾個特色</div><div class="post-footer">
+        <a href="/posts/gfs/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/distributed/">distributed</a>,&nbsp;<a href="/tags/paper/">paper</a></div></div>
+</article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
                         <a href="/">1</a>
                     </span>
@@ -165,7 +117,7 @@ void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer �
                     <span class="page-link">
                         <a href="/page/2/">2</a>
                     </span>
-                </li><li class="page-item ">
+                </li><li class="page-item active">
                     <span class="page-link">
                         <a href="/page/3/">3</a>
                     </span>

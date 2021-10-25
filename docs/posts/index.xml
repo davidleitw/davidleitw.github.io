@@ -4,7 +4,20 @@
         <link>http://example.org/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
+    <link>http://example.org/posts/socket1/</link>
+    <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socket1/</guid>
+    <description><![CDATA[socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
+在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
+我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
+本文章所使用的環境
+ kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
+#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+ AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page]]></description>
+</item><item>
     <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
     <link>http://example.org/posts/jserv_linux_w1_q2/</link>
     <pubDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</pubDate>
@@ -111,20 +124,5 @@ $ declare [-aixr] 變數名稱 // 參數 // -a 宣告陣列型態的變數 // -i
 列出指定變數的資料型態
 array 以 arr[index]=content 的形式來指定 array Index 所代表的值。
 reference  鳥哥的 Linux 私房菜  ]]></description>
-</item><item>
-    <title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
-    <link>http://example.org/posts/sdn1/</link>
-    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/sdn1/</guid>
-    <description><![CDATA[此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
-當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
-預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
-之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
-什麼是 SDN 以及 SDN 的發展歷史  參考文章
- SDN 簡介 SDN 發展趨勢   傳統網路的一些特點:
- 每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
-SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
-常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。]]></description>
 </item></channel>
 </rss>

@@ -10,7 +10,7 @@
 <meta property="og:description" content="一個紀錄心情，技術，人生的網站" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="http://example.org/" />
-<meta property="og:updated_time" content="2021-09-01T01:04:53+08:00" />
+<meta property="og:updated_time" content="2021-10-25T01:04:53+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="davidLei"/>
 <meta name="twitter:description" content="一個紀錄心情，技術，人生的網站"/>
@@ -100,6 +100,17 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lovelt/">使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/"><i class="far fa-folder fa-fw"></i>日常紀錄</a></span></div><div class="content">這次新架的 blog 使用了 LoveIt 這個主題
+詳細的架設參數設定都是參考其官方部落格，寫的算是滿詳細的，值得參考。
+至於跟 github page 連動的部份，這方面很多文章都有不同的解決方案，我在這篇分享一下我的解決方法。
+因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 /docs 或者 /public 之中，底下是我 github page 專案的架構
+其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
+在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
+hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  </div><div class="post-footer">
+        <a href="/posts/lovelt/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/blog/">blog</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/dockervolume/">docker volume 用法整理</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/docker/"><i class="far fa-folder fa-fw"></i>docker</a></span></div><div class="content">因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 Volume 的方式對資料庫做持久化。在這邊紀錄一下 Docker Volume 相關的一些用法。
  很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
@@ -157,16 +168,6 @@ SDN 並非一種技術，而是一種設計的理念，只要符合控制面以�
 分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec</div><div class="post-footer">
         <a href="/posts/sdn2/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/sdn/">SDN</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/gfs/">The Google File System (GFS) 論文心得</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/paper/"><i class="far fa-folder fa-fw"></i>paper</a></span></div><div class="content">跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
-背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
- 用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
- 跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
- performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性  因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
-在 Introduction 中也有先簡單介紹了 GFS 的幾個特色</div><div class="post-footer">
-        <a href="/posts/gfs/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/distributed/">distributed</a>,&nbsp;<a href="/tags/paper/">paper</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
                         <a href="/">1</a>
@@ -174,6 +175,10 @@ SDN 並非一種技術，而是一種設計的理念，只要符合控制面以�
                 </li><li class="page-item active">
                     <span class="page-link">
                         <a href="/page/2/">2</a>
+                    </span>
+                </li><li class="page-item ">
+                    <span class="page-link">
+                        <a href="/page/3/">3</a>
                     </span>
                 </li></ul></div></div>
             </main><footer class="footer">

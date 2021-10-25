@@ -1,0 +1,21 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>socket - Category - davidLei</title>
+        <link>http://example.org/categories/socket/</link>
+        <description>socket - Category - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/socket/" rel="self" type="application/rss+xml" /><item>
+    <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
+    <link>http://example.org/posts/socket1/</link>
+    <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socket1/</guid>
+    <description><![CDATA[socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
+在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
+我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
+本文章所使用的環境
+ kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
+#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+ AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page]]></description>
+</item></channel>
+</rss>

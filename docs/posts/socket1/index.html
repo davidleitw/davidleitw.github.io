@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket" />
+<meta property="og:description" content="socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
+在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
+我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
+本文章所使用的環境
+ kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
+#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+ AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/socket1/" />
+<meta property="article:published_time" content="2021-10-25T01:04:53+08:00" />
+<meta property="article:modified_time" content="2021-10-25T01:04:53+08:00" />
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket"/>
+<meta name="twitter:description" content="socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
+在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
+我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
+本文章所使用的環境
+ kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
+#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+ AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/socket1/" /><link rel="prev" href="http://example.org/posts/jserv_linux_w1_q2/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "linux socket programming(一): 什麼是 socket \u0026 創建一個新的 socket",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/socket1\/"
+        },"genre": "posts","keywords": "linux","wordcount":  184 ,
+        "url": "http:\/\/example.org\/posts\/socket1\/","datePublished": "2021-10-25T01:04:53+08:00","dateModified": "2021-10-25T01:04:53+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a>&nbsp;<a href="/categories/linux/"><i class="far fa-folder fa-fw"></i>linux</a>&nbsp;<a href="/categories/network/"><i class="far fa-folder fa-fw"></i>network</a>&nbsp;<a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-10-25">2021-10-25</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;184 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#socket">socket</a>
+      <ul>
+        <li></li>
+        <li><a href="#檔案描述符是什麼">檔案描述符是什麼?</a></li>
+        <li><a href="#建立-socket-example">建立 socket example</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h1 id="socket-programming">socket programming</h1>
+<p><code>socket</code> 本質上是一種 <strong>IPC</strong> (<code>Inter-Process Communication</code>) 的技術，用於兩個或多個 <code>process</code> 進行資料交換或者通訊。</p>
+<p>在網路領域，<code>socket</code> 著重的不是同一台主機間 <code>process</code> 的通訊，而是不同主機執行的 <code>process</code> 互相交換資料的通訊。</p>
+<p>我們在寫 <code>socket programming</code> 的時候會使用 <code>os</code> 提供的 <code>API</code>，來避免重複造輪子，今天的筆記會簡單介紹一下 <code>linux</code> 提供的 <code>socket API</code>，並用兩個簡單的範例介紹如何用 <code>tcp</code> 跟 <code>udp</code> 協定透過 <code>socket</code> 傳輸資料。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/gXp0tLh.png"
+        data-srcset="https://i.imgur.com/gXp0tLh.png, https://i.imgur.com/gXp0tLh.png 1.5x, https://i.imgur.com/gXp0tLh.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/gXp0tLh.png"
+        title="https://i.imgur.com/gXp0tLh.png" /></p>
+<p>本文章所使用的環境</p>
+<ul>
+<li><em><strong>kernel</strong></em>: <code>5.11.0-37-generic</code></li>
+<li><em><strong>gcc version</strong></em>: <code>gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0</code></li>
+<li><em><strong>GNU Make</strong></em>: <code>4.2.1</code></li>
+</ul>
+<p>在寫 <code>socket</code> 相關的程式的時候，需要先</p>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;arpa/inet.h&gt;  // sockaddr 相關</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
+</span></code></pre></div><h2 id="socket">socket</h2>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">socket</span><span class="p">(</span><span class="kt">int</span> <span class="n">domain</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="kt">int</span> <span class="n">protocol</span><span class="p">)</span>
+</code></pre></div><h4 id="domain"><em>domain</em></h4>
+<p>定義要建立哪一種類型的 <code>socket</code>，常用的有以下幾種類型</p>
+<ul>
+<li><strong>AF_UNIX</strong>, <strong>AF_LOCAL</strong>: 用於本機間 <code>process</code> 的溝通</li>
+<li><strong>AF_INET</strong>, <strong>AF_INET6</strong>
+<ul>
+<li><strong>AF_INET</strong>: IPv4 協定</li>
+<li><strong>AF_INET6</strong>: IPv6 協定</li>
+</ul>
+</li>
+</ul>
+<p>詳細的選項可以參考 <code>socket</code> 的 <a href="https://man7.org/linux/man-pages/man2/socket.2.html" target="_blank" rel="noopener noreffer">man page</a></p>
+<h4 id="type"><em>type</em></h4>
+<p><code>socket</code> 傳輸資料的手段(<code>communication semantics</code>)</p>
+<ul>
+<li><strong>SOCK_STREAM</strong>: 對應到 <code>tcp</code> 協定</li>
+<li><strong>SOCK_DGRAM</strong>: 對應到 <code>udp</code> 協定</li>
+</ul>
+<h4 id="protocol"><em>protocol</em></h4>
+<p>設定通訊協定的號碼，通常在寫的時候會填入 <code>0</code>，<code>kernel</code> 會根據上面的兩個參數自動選擇合適的協定。</p>
+<ul>
+<li><a href="https://man7.org/linux/man-pages/man5/protocols.5.html#top_of_page" target="_blank" rel="noopener noreffer">protocol man page</a></li>
+</ul>
+<p><code>/etc/protocols</code> 可以看到 <code>linux</code> 底下支援的協定</p>
+<h4 id="return-value"><em>Return Value</em></h4>
+<p>成功建立 <code>socket</code> 之後，此函式會返回該 <code>socket</code> 的<strong>檔案描述符</strong>(<code>socket file descriptor</code>)，在之後的操作可以透過這個回傳值來操作我們建立的 <code>socket</code>。 如果建立失敗則會回傳 <code>-1(INVALID_SOCKET)</code></p>
+<h3 id="檔案描述符是什麼">檔案描述符是什麼?</h3>
+<p>參考資料</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Everything_is_a_file" target="_blank" rel="noopener noreffer">Everything is a file</a></li>
+<li><a href="https://kkc.github.io/2020/08/22/file-descriptor/" target="_blank" rel="noopener noreffer">Linux 的 file descriptor 筆記 FD 真的好重要</a></li>
+<li><a href="https://www.cnblogs.com/chorm590/p/12745824.html" target="_blank" rel="noopener noreffer">Linux 下 socket 通訊所用的 sockfd 怎麼來的</a></li>
+</ul>
+<h3 id="建立-socket-example">建立 socket example</h3>
+<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// AF_INET = IPv4
+</span><span class="c1"></span>    <span class="c1">// SOCK_DGRAM = UDP
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">socket_fd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_DGRAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    
+    <span class="c1">// 檢查是否建立成功
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">socket_fd</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Fail to create a socket.&#34;</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// 根據 socker_fd 關閉剛剛創立的 socket
+</span><span class="c1"></span>    <span class="n">close</span><span class="p">(</span><span class="n">socket_fd</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>在 <a href="https://github.com/davidleitw/socket" target="_blank" rel="noopener noreffer">github</a> 參考完整專案</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2021-10-25</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/socket1/" data-title="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket" data-hashtags="linux"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/socket1/" data-hashtag="linux"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/socket1/" data-title="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/socket1/" data-title="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/socket1/" data-title="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/socket1/" data-title="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/socket1/" data-title="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/socket1/" data-title="linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/jserv_linux_w1_q2/" class="prev" rel="prev" title="jserv - linux 核心設計 第一周題目二解題紀錄"><i class="fas fa-angle-left fa-fw"></i>jserv - linux 核心設計 第一周題目二解題紀錄</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":130},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>
