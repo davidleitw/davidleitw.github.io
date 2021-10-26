@@ -1,5 +1,5 @@
 ---
-title: "linux socket programming(一): socket 中用來存放地址的 sockaddr"
+title: "linux socket programming(二): socket 中用來存放地址的 sockaddr"
 date: 2021-10-26T01:04:53+08:00
 draft: false
 tags: 

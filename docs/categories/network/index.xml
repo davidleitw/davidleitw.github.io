@@ -5,7 +5,7 @@
         <description>network - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
             <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/network/" rel="self" type="application/rss+xml" /><item>
-    <title>linux socket programming(一): socket 中用來存放地址的 sockaddr</title>
+    <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
     <link>http://example.org/posts/socker2/</link>
     <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
