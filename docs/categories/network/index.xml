@@ -4,7 +4,17 @@
         <link>http://example.org/categories/network/</link>
         <description>network - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/network/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/network/" rel="self" type="application/rss+xml" /><item>
+    <title>linux socket programming(一): socket 中用來存放地址的 sockaddr</title>
+    <link>http://example.org/posts/socker2/</link>
+    <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socker2/</guid>
+    <description><![CDATA[sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
+sockaddr 結構，定義如下
+typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
+IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
+</item><item>
     <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
     <link>http://example.org/posts/socket1/</link>
     <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>

@@ -4,7 +4,17 @@
         <link>http://example.org/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>linux socket programming(一): socket 中用來存放地址的 sockaddr</title>
+    <link>http://example.org/posts/socker2/</link>
+    <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socker2/</guid>
+    <description><![CDATA[sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
+sockaddr 結構，定義如下
+typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
+IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
+</item><item>
     <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
     <link>http://example.org/posts/socket1/</link>
     <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>
@@ -111,18 +121,5 @@ echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這�
  在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
  回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
 $ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則  設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格  $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來    如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例 用 '' 包起來 bash 就不會把 $變數 置換成該變數的內容。]]></description>
-</item><item>
-    <title>Linux shell 變數相關用法整理(二): read, declare, array</title>
-    <link>http://example.org/posts/linux_shell_var2/</link>
-    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/linux_shell_var2/</guid>
-    <description><![CDATA[很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。
-read 讀取從鍵盤輸入的變數，常常會出現在 shell script 之中
-$ read [-pt] 變數名稱 // 參數 // -p 後面接提示字元 // -t 後面接等待時間，超過時間沒輸入則取消指令 $ declare 可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型
-$ declare [-aixr] 變數名稱 // 參數 // -a 宣告陣列型態的變數 // -i 宣告整數型態的變數 // -x 同 export 指令，宣告的變數變成全域變數(可以讓子程序讀取) // -r 宣告 readonly, 不可更改變數內容，也無法被 unset 取消 // -p 列出變數資料型態 $ 接著試著把 num 轉成全域變數，並且用 export 指令觀察一下:
-列出指定變數的資料型態
-array 以 arr[index]=content 的形式來指定 array Index 所代表的值。
-reference  鳥哥的 Linux 私房菜  ]]></description>
 </item></channel>
 </rss>
