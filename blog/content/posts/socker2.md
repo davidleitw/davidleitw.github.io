@@ -4,7 +4,10 @@ date: 2021-10-26T01:04:53+08:00
 draft: false
 tags: 
     - linux
-categories: ["c", "linux", "network", "socket"]
+    - network
+    - socket
+    - c
+categories: ["socket"]
 ---
 
 ## sockaddr
