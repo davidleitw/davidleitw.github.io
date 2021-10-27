@@ -10,7 +10,7 @@
 <meta property="og:description" content="一個紀錄心情，技術，人生的網站" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="http://example.org/" />
-<meta property="og:updated_time" content="2021-10-26T01:04:53+08:00" />
+<meta property="og:updated_time" content="2021-10-27T01:04:53+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="davidLei"/>
 <meta name="twitter:description" content="一個紀錄心情，技術，人生的網站"/>
@@ -100,6 +100,14 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lc222/">leetcode 222. Count Complete Tree Nodes</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-10-27">2021-10-27</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a>&nbsp;<a href="/categories/data-struct/"><i class="far fa-folder fa-fw"></i>data struct</a>&nbsp;<a href="/categories/tree/"><i class="far fa-folder fa-fw"></i>Tree</a></span></div><div class="content">題目連結
+題目敘述 給予一棵 Complete Binary Tree，求節點個數。
+Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
+class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&lt;TreeNode*&gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&gt;left) q.push(node-&gt;left); if (node-&gt;right) q.push(node-&gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.</div><div class="post-footer">
+        <a href="/posts/lc222/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/socker2/">linux socket programming(二): socket 中用來存放地址的 sockaddr</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-10-26">2021-10-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a>&nbsp;<a href="/categories/linux/"><i class="far fa-folder fa-fw"></i>linux</a>&nbsp;<a href="/categories/network/"><i class="far fa-folder fa-fw"></i>network</a>&nbsp;<a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div><div class="content">sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
@@ -140,19 +148,6 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
 可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。</div><div class="post-footer">
         <a href="/posts/vscode_backup/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/github/">github</a>,&nbsp;<a href="/tags/vscode/">vscode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/cobradefault/">golang cobra: 在沒有添加任何參數的情況下預設產生 help message</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-16">2021-08-16</time></span>&nbsp;<span class="post-category">included in <a href="/categories/go/"><i class="far fa-folder fa-fw"></i>go</a></span></div><div class="content">問題描述 最近在使用 cobra 編寫一個簡單的 command line 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊
-一般來說用 cobra 寫的程式要顯示詳細的使用教學都要使用 --help 參數，如圖
-但是我又想到 golangci-lint 這個工具同樣也是用 cobra 來寫 command line 的應用，卻可以在沒有添加參數的時候跳出 --help 的說明
-像是這樣
-所以我特別找了一些資料，發現其實解決的方法滿簡單的
-解決方法 一般的教學文章在介紹 cobra 的時候都會訂一個 rootCmd 一類的物件，作為你的 command line 應用一開始的 root，之後的指令就會用
-rootCmd.AddCommand(功能名稱) 的方式添加進去
-所以解決方式很簡單，只要在 rootCmd 定義的地方判斷如果其 args 的長度為零，就呼叫預設的 Help function 即可。
-var rootCmd = &amp;cobra.Command{ Use: &#34;leit&#34;, Short: &#34;A calendar application in command line.&#34;, Long: doc, Run: func(cmd *cobra.Command, args []string) { if len(args) == 0 { _ = cmd.</div><div class="post-footer">
-        <a href="/posts/cobradefault/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/go/">go</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>

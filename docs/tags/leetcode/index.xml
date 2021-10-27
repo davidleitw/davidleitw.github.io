@@ -1,0 +1,18 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>leetcode - Tag - davidLei</title>
+        <link>http://example.org/tags/leetcode/</link>
+        <description>leetcode - Tag - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 27 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 222. Count Complete Tree Nodes</title>
+    <link>http://example.org/posts/lc222/</link>
+    <pubDate>Wed, 27 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc222/</guid>
+    <description><![CDATA[題目連結
+題目敘述 給予一棵 Complete Binary Tree，求節點個數。
+Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
+class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&lt;TreeNode*&gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&gt;left) q.push(node-&gt;left); if (node-&gt;right) q.push(node-&gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.]]></description>
+</item></channel>
+</rss>
