@@ -15,8 +15,8 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://example.org/posts/socket3/" />
-<meta property="article:published_time" content="2021-10-26T01:04:53+08:00" />
-<meta property="article:modified_time" content="2021-10-26T01:04:53+08:00" />
+<meta property="article:published_time" content="2021-11-12T01:04:53+08:00" />
+<meta property="article:modified_time" content="2021-11-12T01:04:53+08:00" />
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="linux socket programming(三): socket programming 中常用的位置轉換函數"/>
 <meta name="twitter:description" content="一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
@@ -29,7 +29,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/socket3/" /><link rel="prev" href="http://example.org/posts/socker2/" /><link rel="next" href="http://example.org/posts/lc222/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/socket3/" /><link rel="prev" href="http://example.org/posts/lc222/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><script type="application/ld+json">
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
@@ -39,7 +39,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/socket3\/"
         },"genre": "posts","keywords": "linux, network, socket, c","wordcount":  204 ,
-        "url": "http:\/\/example.org\/posts\/socket3\/","datePublished": "2021-10-26T01:04:53+08:00","dateModified": "2021-10-26T01:04:53+08:00","publisher": {
+        "url": "http:\/\/example.org\/posts\/socket3\/","datePublished": "2021-11-12T01:04:53+08:00","dateModified": "2021-11-12T01:04:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
                 "@type": "Person",
@@ -115,7 +115,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">linux socket programming(三): socket programming 中常用的位置轉換函數</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-10-26">2021-10-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;204 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-11-12">2021-11-12</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;204 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -209,7 +209,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
-                <span>Updated on 2021-10-26</span>
+                <span>Updated on 2021-11-12</span>
             </div>
             <div class="post-info-license"></div>
         </div>
@@ -228,8 +228,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/socker2/" class="prev" rel="prev" title="linux socket programming(二): socket 中用來存放地址的 sockaddr"><i class="fas fa-angle-left fa-fw"></i>linux socket programming(二): socket 中用來存放地址的 sockaddr</a>
-            <a href="/posts/lc222/" class="next" rel="next" title="leetcode 222. Count Complete Tree Nodes">leetcode 222. Count Complete Tree Nodes<i class="fas fa-angle-right fa-fw"></i></a></div>
+    <div class="post-nav"><a href="/posts/lc222/" class="prev" rel="prev" title="leetcode 222. Count Complete Tree Nodes"><i class="fas fa-angle-left fa-fw"></i>leetcode 222. Count Complete Tree Nodes</a></div>
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">

@@ -4,10 +4,10 @@
         <link>http://example.org/tags/c/</link>
         <description>c - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/c/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/c/" rel="self" type="application/rss+xml" /><item>
     <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
     <link>http://example.org/posts/socket3/</link>
-    <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>http://example.org/posts/socket3/</guid>
     <description><![CDATA[一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
