@@ -108,6 +108,17 @@ class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; i
         <a href="/posts/lc222/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/socket3/">linux socket programming(三): socket programming 中常用的位置轉換函數</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-10-26">2021-10-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div><div class="content">一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
+以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
+一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
+typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
+ 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
+#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE</div><div class="post-footer">
+        <a href="/posts/socket3/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/socket/">socket</a>,&nbsp;<a href="/tags/c/">c</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/socker2/">linux socket programming(二): socket 中用來存放地址的 sockaddr</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-10-26">2021-10-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div><div class="content">sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
@@ -142,12 +153,6 @@ swap 之後要把 node 的 prev 跟 next pointer 處理好。
 Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!</div><div class="post-footer">
         <a href="/posts/cdll_bubblesort/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/vscode_backup/">備份 vscode 環境紀錄</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-21">2021-08-21</time></span></div><div class="content">參考 將VS Code 工作環境備份到 GitHub上吧~
-可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。</div><div class="post-footer">
-        <a href="/posts/vscode_backup/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/github/">github</a>,&nbsp;<a href="/tags/vscode/">vscode</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>

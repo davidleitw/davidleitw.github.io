@@ -15,6 +15,19 @@
 Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
 class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&lt;TreeNode*&gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&gt;left) q.push(node-&gt;left); if (node-&gt;right) q.push(node-&gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.]]></description>
 </item><item>
+    <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
+    <link>http://example.org/posts/socket3/</link>
+    <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socket3/</guid>
+    <description><![CDATA[一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
+以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
+一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
+typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
+ 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
+#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
+</item><item>
     <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
     <link>http://example.org/posts/socker2/</link>
     <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
@@ -107,16 +120,5 @@ void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer �
 其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
 在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
 hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  ]]></description>
-</item><item>
-    <title>docker volume 用法整理</title>
-    <link>http://example.org/posts/dockervolume/</link>
-    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/dockervolume/</guid>
-    <description><![CDATA[因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 Volume 的方式對資料庫做持久化。在這邊紀錄一下 Docker Volume 相關的一些用法。
- 很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
- Volume 是什麼 Volume 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:
- Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不會影響 Image Volume 會持續存在，並不會隨著容器刪除而消失  有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 Volume 中。
-創建 Volume ~$ docker volume create volume_name  查看所有 Volume  ~$ docker volume ls  查看指定 Volume 資料  ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \  --name web \  # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \  nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。]]></description>
 </item></channel>
 </rss>

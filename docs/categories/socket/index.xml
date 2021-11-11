@@ -5,6 +5,19 @@
         <description>socket - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
             <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/socket/" rel="self" type="application/rss+xml" /><item>
+    <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
+    <link>http://example.org/posts/socket3/</link>
+    <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socket3/</guid>
+    <description><![CDATA[一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
+以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
+一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
+typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
+ 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
+#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
+</item><item>
     <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
     <link>http://example.org/posts/socker2/</link>
     <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
