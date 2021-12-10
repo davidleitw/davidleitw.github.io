@@ -8,9 +8,10 @@
         <title>C Function Pointer 基礎用法整理 - davidLei</title><meta name="Description" content="function pointer"><meta property="og:title" content="C Function Pointer 基礎用法整理" />
 <meta property="og:description" content="function pointer" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://example.org/posts/c_functionpointer/" />
+<meta property="og:url" content="http://example.org/posts/c_functionpointer/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-15T00:04:43+08:00" />
 <meta property="article:modified_time" content="2021-08-15T00:04:43+08:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="C Function Pointer 基礎用法整理"/>
 <meta name="twitter:description" content="function pointer"/>
@@ -127,7 +128,7 @@
 <h2 id="function-pointer">function pointer</h2>
 <p><code>function pointer</code> 顧名思義就是指向某個 <code>function</code> 的 <code>pointer</code>，有了 <code>function pointer</code> 我們就可以實現把 <code>function</code> 當作參數，傳進一個 <code>function</code> 之中，或者更加彈性的設計我們的程式，減少多餘的 <code>if/else</code>, <code>switch case</code>。</p>
 <p>我們先從一個簡單的 <code>function pointer</code> 宣告開始講起</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
 </code></pre></div><p>上面就是一個基本的 <code>function pointer</code> 宣告</p>
 <p>一個 <code>function pointer</code> 變數名稱為 <code>myFunc</code>，可以這麼解讀</p>
 <ul>
@@ -139,9 +140,9 @@
 </li>
 </ul>
 <p>假設今天我有個 <code>function</code> 宣告成以下這種形式</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">parseFunc</span><span class="p">(</span><span class="kt">float</span> <span class="n">f1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">c1</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">parseFunc</span><span class="p">(</span><span class="kt">float</span> <span class="n">f1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">c1</span><span class="p">);</span>
 </code></pre></div><p>我們要怎麼宣告一個 <code>pointer</code> 去指向這個 <code>function</code> 呢？</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">);</span>
 </code></pre></div><p>解讀成</p>
 <ul>
 <li><code>myFunc</code> 是一個指標指向一個 <code>function</code>
@@ -158,7 +159,7 @@
 </li>
 </ul>
 <p>所以我們可以來驗證看看這個 <code>function pointer</code> 是否能真的呼叫 <code>parseFunc</code> 這個 <code>function</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span><span class="cp"></span>
 <span class="kt">void</span> <span class="nf">parseFunc</span><span class="p">(</span><span class="kt">float</span> <span class="n">f1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">char</span> <span class="n">c1</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">printf</span><span class="p">(</span><span class="s">&#34;%f %d %c</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">c1</span><span class="p">);</span>
@@ -174,15 +175,15 @@
 </code></pre></div><p><a href="https://ideone.com/CaCBwE" target="_blank" rel="noopener noreffer">程式執行結果</a></p>
 <h3 id="注意">注意</h3>
 <p>上面在宣告 <code>function pointer</code> 的時候</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">myFunc</span><span class="p">)(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">)</span>
 </code></pre></div><p>會注意到 <code>*myFunc</code> 會用括號包起來，這是不能省略的喔，省略的話就不是 <code>function pointer</code> 的宣告方法了。</p>
 <p>省略的話會變成</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">*</span><span class="nf">myFunc</span><span class="p">(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">*</span><span class="nf">myFunc</span><span class="p">(</span><span class="kt">float</span><span class="p">,</span> <span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="p">);</span>
 </code></pre></div><p>這樣子 <code>myFunc</code> 就不是 <code>function pointer</code> 了，而是單純宣告一個 <code>function</code></p>
 <h3 id="jserv-上課的範例">Jserv 上課的範例</h3>
 <p>簡單的例子看完就可以來看看 <code>Jserv</code> 在 <a href="https://hackmd.io/@sysprog/c-pointer" target="_blank" rel="noopener noreffer">你所不知道的C語言：指標篇</a> 開頭所舉出來的範例</p>
 <p>試試看能不能自己寫出該宣告怎麼解釋</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">**</span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">char</span> <span class="o">*</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">));</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="o">**</span><span class="p">(</span><span class="o">*</span><span class="n">d</span><span class="p">)</span> <span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">char</span> <span class="o">*</span><span class="p">,</span> <span class="kt">char</span> <span class="o">**</span><span class="p">));</span>
 </code></pre></div><ul>
 <li>d 是一個 <code>function pointer</code>, 該 <code>function</code> 有兩個 <code>parameters</code>
 <ul>
@@ -211,7 +212,7 @@
 </ul>
 <p>傳入 a, b 之後再傳入要計算的動作，我們可以利用 <code>function pointer</code> 來取代 <code>switch/case</code>, 並增加可讀性</p>
 <p>我們可以宣告成</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
 <span class="kt">int</span> <span class="nf">sub</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
 <span class="kt">int</span> <span class="nf">mul</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
 <span class="kt">int</span> <span class="nf">div</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
@@ -221,7 +222,7 @@
 <p>但是又有人會說 <code>calculate</code> 的第三個參數宣告還是有點複雜，有沒有辦法可以再讓可讀性增加呢？</p>
 <p>這時候我們會習慣用 <code>typedef</code> 的關鍵字把常用的 <code>function pointer</code> 宣告取一個比較簡短的名稱</p>
 <p>導入 <code>typedef</code> 之後我們可以寫成以下的形式</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="n">calc</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="nf">int</span> <span class="p">(</span><span class="o">*</span><span class="n">calc</span><span class="p">)(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
 
 <span class="kt">int</span> <span class="nf">add</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
 <span class="kt">int</span> <span class="nf">sub</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">;</span> <span class="p">}</span>
@@ -269,7 +270,7 @@
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.90.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

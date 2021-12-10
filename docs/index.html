@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-	<meta name="generator" content="Hugo 0.80.0" />
+	<meta name="generator" content="Hugo 0.90.0" />
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
@@ -10,7 +10,7 @@
 <meta property="og:description" content="一個紀錄心情，技術，人生的網站" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="http://example.org/" />
-<meta property="og:updated_time" content="2021-11-12T01:04:53+08:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="davidLei"/>
 <meta name="twitter:description" content="一個紀錄心情，技術，人生的網站"/>
@@ -100,6 +100,15 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lc1306/">leetcode 1306. Jump Game III [Medium]</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-09">2021-12-09</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
+注意你在任意時刻都不能跳出陣列。
+限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
+解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
+static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr.</div><div class="post-footer">
+        <a href="/posts/lc1306/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/socket3/">linux socket programming(三): socket programming 中常用的位置轉換函數</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-11-12">2021-11-12</time></span>&nbsp;<span class="post-category">included in <a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div><div class="content">一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
@@ -111,7 +120,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
         <a href="/posts/socket3/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/socket/">socket</a>,&nbsp;<a href="/tags/c/">c</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc222/">leetcode 222. Count Complete Tree Nodes</a>
+        <a href="/posts/lc222/">leetcode 222. Count Complete Tree Nodes [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-10-27">2021-10-27</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目連結
 題目敘述 給予一棵 Complete Binary Tree，求節點個數。
 Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
@@ -144,15 +153,6 @@ typedef struct __list { int data; struct __list *next; } list; 在不存在環�
 list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!</div><div class="post-footer">
         <a href="/posts/jserv_linux_w1_q2/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/cdll_bubblesort/">Circular Doubly linked list 實作 bubble sort </a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-25">2021-08-25</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
-在這篇文章會紀錄關於 bubble sort 的實現。
-node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
-swap 之後要把 node 的 prev 跟 next pointer 處理好。
-Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!</div><div class="post-footer">
-        <a href="/posts/cdll_bubblesort/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>
@@ -167,7 +167,7 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
                     </span>
                 </li></ul></div></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.90.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

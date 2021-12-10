@@ -1,122 +1,101 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Posts on davidLei</title>
-    <link>http://example.org/posts/</link>
-    <description>Recent content in Posts on davidLei</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-    <webMaster>davidleitw@gmail.com (davidlei)</webMaster>
-    <lastBuildDate>Thu, 09 Dec 2021 01:04:53 +0800</lastBuildDate><atom:link href="http://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>leetcode 1306. Jump Game III [Medium]</title>
-      <link>http://example.org/posts/lc1306/</link>
-      <pubDate>Thu, 09 Dec 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/lc1306/</guid>
-      <description>題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>All Posts - davidLei</title>
+        <link>http://example.org/posts/</link>
+        <description>All Posts | davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 1306. Jump Game III [Medium]</title>
+    <link>http://example.org/posts/lc1306/</link>
+    <pubDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc1306/</guid>
+    <description><![CDATA[題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
 注意你在任意時刻都不能跳出陣列。
-限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &amp;lt; arr.length 0 ≦ start &amp;lt; arr.length
-解題紀錄 簡單的 dfs 解決，用一個 vector&amp;lt;bool&amp;gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
-static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&amp;lt;bool&amp;gt; record; bool canReach(vector&amp;lt;int&amp;gt; &amp;amp;arr, int start) { len = arr.</description>
-    </item>
-    
-    <item>
-      <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
-      <link>http://example.org/posts/socket3/</link>
-      <pubDate>Fri, 12 Nov 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/socket3/</guid>
-      <description>一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
+限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
+解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
+static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr.]]></description>
+</item><item>
+    <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
+    <link>http://example.org/posts/socket3/</link>
+    <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socket3/</guid>
+    <description><![CDATA[一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
 一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
 typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
  只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
-#include &amp;lt;arpa/inet.h&amp;gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
-回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE</description>
-    </item>
-    
-    <item>
-      <title>leetcode 222. Count Complete Tree Nodes [Medium]</title>
-      <link>http://example.org/posts/lc222/</link>
-      <pubDate>Wed, 27 Oct 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/lc222/</guid>
-      <description>題目連結
+#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
+</item><item>
+    <title>leetcode 222. Count Complete Tree Nodes [Medium]</title>
+    <link>http://example.org/posts/lc222/</link>
+    <pubDate>Wed, 27 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc222/</guid>
+    <description><![CDATA[題目連結
 題目敘述 給予一棵 Complete Binary Tree，求節點個數。
 Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
-class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&amp;lt;TreeNode*&amp;gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&amp;gt;left) q.push(node-&amp;gt;left); if (node-&amp;gt;right) q.push(node-&amp;gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.</description>
-    </item>
-    
-    <item>
-      <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
-      <link>http://example.org/posts/socker2/</link>
-      <pubDate>Tue, 26 Oct 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/socker2/</guid>
-      <description>sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
+class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&lt;TreeNode*&gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&gt;left) q.push(node-&gt;left); if (node-&gt;right) q.push(node-&gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.]]></description>
+</item><item>
+    <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
+    <link>http://example.org/posts/socker2/</link>
+    <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socker2/</guid>
+    <description><![CDATA[sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
 typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
-IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。</description>
-    </item>
-    
-    <item>
-      <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
-      <link>http://example.org/posts/socket1/</link>
-      <pubDate>Mon, 25 Oct 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/socket1/</guid>
-      <description>socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
+IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
+</item><item>
+    <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
+    <link>http://example.org/posts/socket1/</link>
+    <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/socket1/</guid>
+    <description><![CDATA[socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
 在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
 我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
 本文章所使用的環境
  kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
-#include &amp;lt;arpa/inet.h&amp;gt; // sockaddr 相關#include &amp;lt;sys/socket.h&amp;gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
- AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page</description>
-    </item>
-    
-    <item>
-      <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
-      <link>http://example.org/posts/jserv_linux_w1_q2/</link>
-      <pubDate>Wed, 01 Sep 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/jserv_linux_w1_q2/</guid>
-      <description>單向 linked list
+#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+ AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page]]></description>
+</item><item>
+    <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
+    <link>http://example.org/posts/jserv_linux_w1_q2/</link>
+    <pubDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/jserv_linux_w1_q2/</guid>
+    <description><![CDATA[單向 linked list
 typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
-list *sort(list *start) { if (!start || !start-&amp;gt;next) return start; list *left = start; list *right = left-&amp;gt;next; /* LL0; (a): left-&amp;gt;next = NULL; (b): right-&amp;gt;next = NULL; (c): left = left-&amp;gt;next; (d): left = right-&amp;gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!</description>
-    </item>
-    
-    <item>
-      <title>Circular Doubly linked list 實作 bubble sort </title>
-      <link>http://example.org/posts/cdll_bubblesort/</link>
-      <pubDate>Wed, 25 Aug 2021 04:16:48 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/cdll_bubblesort/</guid>
-      <description>前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
+list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!]]></description>
+</item><item>
+    <title>Circular Doubly linked list 實作 bubble sort </title>
+    <link>http://example.org/posts/cdll_bubblesort/</link>
+    <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/cdll_bubblesort/</guid>
+    <description><![CDATA[前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
 在這篇文章會紀錄關於 bubble sort 的實現。
 node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
 swap 之後要把 node 的 prev 跟 next pointer 處理好。
-Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &amp;lt; length-1; i++) { int flag = 0; for(int j = 0; j &amp;lt; length-i-1; j++) { if(arr[j] &amp;gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!</description>
-    </item>
-    
-    <item>
-      <title>備份 vscode 環境紀錄</title>
-      <link>http://example.org/posts/vscode_backup/</link>
-      <pubDate>Sat, 21 Aug 2021 19:13:21 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/vscode_backup/</guid>
-      <description>參考 將VS Code 工作環境備份到 GitHub上吧~
-可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。</description>
-    </item>
-    
-    <item>
-      <title>golang cobra: 在沒有添加任何參數的情況下預設產生 help message</title>
-      <link>http://example.org/posts/cobradefault/</link>
-      <pubDate>Mon, 16 Aug 2021 01:37:36 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/cobradefault/</guid>
-      <description>問題描述 最近在使用 cobra 編寫一個簡單的 command line 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊
+Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!]]></description>
+</item><item>
+    <title>備份 vscode 環境紀錄</title>
+    <link>http://example.org/posts/vscode_backup/</link>
+    <pubDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/vscode_backup/</guid>
+    <description><![CDATA[參考 將VS Code 工作環境備份到 GitHub上吧~
+可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。]]></description>
+</item><item>
+    <title>golang cobra: 在沒有添加任何參數的情況下預設產生 help message</title>
+    <link>http://example.org/posts/cobradefault/</link>
+    <pubDate>Mon, 16 Aug 2021 01:37:36 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/cobradefault/</guid>
+    <description><![CDATA[問題描述 最近在使用 cobra 編寫一個簡單的 command line 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊
 一般來說用 cobra 寫的程式要顯示詳細的使用教學都要使用 --help 參數，如圖
 但是我又想到 golangci-lint 這個工具同樣也是用 cobra 來寫 command line 的應用，卻可以在沒有添加參數的時候跳出 --help 的說明
 像是這樣
@@ -124,131 +103,20 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &amp
 解決方法 一般的教學文章在介紹 cobra 的時候都會訂一個 rootCmd 一類的物件，作為你的 command line 應用一開始的 root，之後的指令就會用
 rootCmd.AddCommand(功能名稱) 的方式添加進去
 所以解決方式很簡單，只要在 rootCmd 定義的地方判斷如果其 args 的長度為零，就呼叫預設的 Help function 即可。
-var rootCmd = &amp;amp;cobra.Command{ Use: &amp;#34;leit&amp;#34;, Short: &amp;#34;A calendar application in command line.&amp;#34;, Long: doc, Run: func(cmd *cobra.Command, args []string) { if len(args) == 0 { _ = cmd.</description>
-    </item>
-    
-    <item>
-      <title>C Function Pointer 基礎用法整理</title>
-      <link>http://example.org/posts/c_functionpointer/</link>
-      <pubDate>Sun, 15 Aug 2021 00:04:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/c_functionpointer/</guid>
-      <description>這最近在看 jserv 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 function pointer 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。
+var rootCmd = &amp;cobra.Command{ Use: &#34;leit&#34;, Short: &#34;A calendar application in command line.&#34;, Long: doc, Run: func(cmd *cobra.Command, args []string) { if len(args) == 0 { _ = cmd.]]></description>
+</item><item>
+    <title>C Function Pointer 基礎用法整理</title>
+    <link>http://example.org/posts/c_functionpointer/</link>
+    <pubDate>Sun, 15 Aug 2021 00:04:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/c_functionpointer/</guid>
+    <description><![CDATA[這最近在看 jserv 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 function pointer 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。
 之後在學習的過程中如果遇到 function pointer 的應用也會一併整理在這篇文章中。
 function pointer function pointer 顧名思義就是指向某個 function 的 pointer，有了 function pointer 我們就可以實現把 function 當作參數，傳進一個 function 之中，或者更加彈性的設計我們的程式，減少多餘的 if/else, switch case。
 我們先從一個簡單的 function pointer 宣告開始講起
 int (*myFunc)(int, int); 上面就是一個基本的 function pointer 宣告
 一個 function pointer 變數名稱為 myFunc，可以這麼解讀
  myFunc 是一個指標指向一個 function  該 function 有兩個 int 的 parameters 該 function 會回傳 int    假設今天我有個 function 宣告成以下這種形式
-void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer 去指向這個 function 呢？</description>
-    </item>
-    
-    <item>
-      <title>使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</title>
-      <link>http://example.org/posts/lovelt/</link>
-      <pubDate>Fri, 13 Aug 2021 23:01:13 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/lovelt/</guid>
-      <description>這次新架的 blog 使用了 LoveIt 這個主題
-詳細的架設參數設定都是參考其官方部落格，寫的算是滿詳細的，值得參考。
-至於跟 github page 連動的部份，這方面很多文章都有不同的解決方案，我在這篇分享一下我的解決方法。
-因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 /docs 或者 /public 之中，底下是我 github page 專案的架構
-其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
-在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
-hugo -d ../docs cd .. git add . git commit -m &amp;#34;update&amp;#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  </description>
-    </item>
-    
-    <item>
-      <title>docker volume 用法整理</title>
-      <link>http://example.org/posts/dockervolume/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/dockervolume/</guid>
-      <description>因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 Volume 的方式對資料庫做持久化。在這邊紀錄一下 Docker Volume 相關的一些用法。
- 很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
- Volume 是什麼 Volume 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:
- Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不會影響 Image Volume 會持續存在，並不會隨著容器刪除而消失  有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 Volume 中。
-創建 Volume ~$ docker volume create volume_name  查看所有 Volume  ~$ docker volume ls  查看指定 Volume 資料  ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \  --name web \  # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \  nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。</description>
-    </item>
-    
-    <item>
-      <title>Linux shell 變數相關用法整理(一): assign, echo, export, unset</title>
-      <link>http://example.org/posts/linux_shell_var1/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/linux_shell_var1/</guid>
-      <description>假設今天我們常用的資料夾路徑是在 /path1/workdir/project1/module... 每次登入 linux 環境都要切換到這個資料夾我們就需要重新輸入路徑
-$ cd /path1/workdir/project1/module... 我們這時候就可以用一個變數來取代常用的字串
-在這之前先介紹一下變數的取用
-echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這個變數的值並且顯示出來
- 在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
- 回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
-$ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則  設定變數中間以 &amp;ldquo;=&amp;rdquo; 連結，並且等號兩側不能有空格  $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &amp;quot;&amp;quot; 雙引號 或者 &#39;&#39; 單引號包起來    如果變數內容包含著其他變數，需要用 &amp;quot;&amp;quot; 包起來，請看下方範例 用 &#39;&#39; 包起來 bash 就不會把 $變數 置換成該變數的內容。</description>
-    </item>
-    
-    <item>
-      <title>Linux shell 變數相關用法整理(二): read, declare, array</title>
-      <link>http://example.org/posts/linux_shell_var2/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/linux_shell_var2/</guid>
-      <description>很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。
-read 讀取從鍵盤輸入的變數，常常會出現在 shell script 之中
-$ read [-pt] 變數名稱 // 參數 // -p 後面接提示字元 // -t 後面接等待時間，超過時間沒輸入則取消指令 $ declare 可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型
-$ declare [-aixr] 變數名稱 // 參數 // -a 宣告陣列型態的變數 // -i 宣告整數型態的變數 // -x 同 export 指令，宣告的變數變成全域變數(可以讓子程序讀取) // -r 宣告 readonly, 不可更改變數內容，也無法被 unset 取消 // -p 列出變數資料型態 $ 接著試著把 num 轉成全域變數，並且用 export 指令觀察一下:
-列出指定變數的資料型態
-array 以 arr[index]=content 的形式來指定 array Index 所代表的值。
-reference  鳥哥的 Linux 私房菜  </description>
-    </item>
-    
-    <item>
-      <title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
-      <link>http://example.org/posts/sdn1/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/sdn1/</guid>
-      <description>此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
-當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
-預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
-之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
-什麼是 SDN 以及 SDN 的發展歷史  參考文章
- SDN 簡介 SDN 發展趨勢   傳統網路的一些特點:
- 每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
-SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
-常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</description>
-    </item>
-    
-    <item>
-      <title>SDN 學習筆記(二): OpenFlow 1.0 介紹</title>
-      <link>http://example.org/posts/sdn2/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/sdn2/</guid>
-      <description>前言 想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹OpenFlow 1.0的架構，以及一些 spec 的整理.
-之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。
-為什麼會著重在1.0與1.3兩個版本呢？  1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
-參考資料: OpenFlow 協定演進
- OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
- Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table
- OpenFlow 1.0 中每個Switch只能存放一個Flow Table
- Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
- Header Fields Counters Actions  Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
-分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec</description>
-    </item>
-    
-    <item>
-      <title>The Google File System (GFS) 論文心得</title>
-      <link>http://example.org/posts/gfs/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/gfs/</guid>
-      <description>跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
-背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
- 用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
- 跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
- performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性  因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
-在 Introduction 中也有先簡單介紹了 GFS 的幾個特色</description>
-    </item>
-    
-  </channel>
+void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer 去指向這個 function 呢？]]></description>
+</item></channel>
 </rss>

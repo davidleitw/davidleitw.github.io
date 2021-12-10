@@ -12,9 +12,10 @@ node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linke
 swap 之後要把 node 的 prev 跟 next pointer 處理好。
 Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i&#43;&#43;) { int flag = 0; for(int j = 0; j &lt; length-i-1; j&#43;&#43;) { if(arr[j] &gt; arr[j&#43;1]) { int t = arr[j]; arr[j] = arr[j&#43;1]; arr[j&#43;1] = t; flag = 1; } } if(!" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://example.org/posts/cdll_bubblesort/" />
+<meta property="og:url" content="http://example.org/posts/cdll_bubblesort/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-08-25T04:16:48+08:00" />
 <meta property="article:modified_time" content="2021-08-25T04:16:48+08:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Circular Doubly linked list 實作 bubble sort "/>
 <meta name="twitter:description" content="前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
@@ -143,14 +144,14 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
         title="https://i.imgur.com/mHpjpNG.png" /></p>
 <p>在這篇文章會紀錄關於 <code>bubble sort</code> 的實現。</p>
 <h2 id="node-結構">node 結構</h2>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">node</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">node</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
     <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">next</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div><p>本題目 <code>linked list</code> 屬於 <code>circular doubly linked list</code>, 所以處理上還需要考慮循環的問題。</p>
 <p><code>swap</code> 之後要把 <code>node</code> 的 <code>prev</code> 跟 <code>next pointer</code> 處理好。</p>
 <h2 id="bubble-sort">Bubble sort</h2>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">bubble_sort</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">arr</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> 
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">bubble_sort</span><span class="p">(</span><span class="kt">int</span> <span class="o">*</span><span class="n">arr</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> 
 <span class="p">{</span>
     <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">length</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
         <span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -168,7 +169,7 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
 </code></pre></div><p>在寫 <code>linked list</code> 版本的 <code>sort</code> 之前，先來看一下一般 <code>array</code> 版本的實現方式。
 基本上 <code>bubble sort</code> 算是一個容易理解的演算法，現在比較大的問題是要先實現一個 <code>swap</code> 來對兩個 <code>node</code> 交換。</p>
 <h3 id="swap_node">swap_node</h3>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">swap_node</span><span class="p">(</span><span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">n1</span><span class="p">,</span> <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">n2</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">swap_node</span><span class="p">(</span><span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">n1</span><span class="p">,</span> <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">n2</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">n1</span><span class="o">-&gt;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">n2</span><span class="p">;</span>
     <span class="n">n2</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">n1</span><span class="o">-&gt;</span><span class="n">prev</span><span class="p">;</span>
     
@@ -198,13 +199,13 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
         alt="https://i.imgur.com/3WEADJB.png"
         title="https://i.imgur.com/3WEADJB.png" /></p>
 <p>先複習一下我們 <code>swap function</code> 的定義</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">swap_node</span><span class="p">(</span><span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">swap_node</span><span class="p">(</span><span class="n">node_2</span><span class="p">,</span> <span class="n">node_3</span><span class="p">);</span>
 </code></pre></div><p>所以我們傳入的是 <code>node_2</code>, <code>node_3</code> 的地址，<code>node_1</code>, <code>node_4</code> 則不能直接存取。</p>
 <p>接著我們一步一步來解析，先處理 <code>node_1</code>, <code>node_3</code> 之間的連結</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">node_1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
 <span class="n">node_3</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_1</span><span class="p">;</span>
 </code></pre></div><p>因為我們沒辦法直接存取 <code>node_1</code>，所以要透過 <code>node_2-&gt;prev</code> 來表示</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
 <span class="n">node_3</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span><span class="p">;</span>
 </code></pre></div><p><img
         class="lazyload"
@@ -215,10 +216,10 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
         alt="https://i.imgur.com/j0Gyabk.png"
         title="https://i.imgur.com/j0Gyabk.png" /></p>
 <p>接著處理 <code>node_2</code>, <code>node_4</code> 之間的連結</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_4</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_4</span><span class="p">;</span>
 <span class="n">node_4</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_2</span><span class="p">;</span>
 </code></pre></div><p>因為我們無法直接存取 <code>node_4</code>, 所以要表示成 <code>node_3-&gt;next</code>;</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_3</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 <span class="n">node_3</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_2</span><span class="p">;</span>
 </code></pre></div><p>處理完之後變成這樣，最後只需要處理 <code>node_2</code>, <code>node_3</code> 之間的連結</p>
 <p><img
@@ -230,7 +231,7 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
         alt="https://i.imgur.com/I6PkLqk.png"
         title="https://i.imgur.com/I6PkLqk.png" /></p>
 <p>讓 <code>node_2-&gt;prev</code> 指向 <code>node_3</code>, <code>node_3-&gt;next</code> 指向 <code>node2</code>，實現最後的交換。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">node_2</span><span class="o">-&gt;</span><span class="n">prev</span> <span class="o">=</span> <span class="n">node_3</span><span class="p">;</span>
 <span class="n">node_3</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node_2</span><span class="p">;</span>
 </code></pre></div><p>最後完成如下</p>
 <p><img
@@ -243,7 +244,7 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
         title="https://i.imgur.com/3WEADJB.png" /></p>
 <p>建議如果對指標不熟悉的最好自己拿紙筆畫一次，會清楚很多。</p>
 <h2 id="bubble-sort-with-circular-doubly-linked-list">Bubble sort with Circular doubly linked list</h2>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">bubble_sort</span><span class="p">(</span><span class="k">struct</span> <span class="n">node</span> <span class="o">**</span><span class="n">head</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">bubble_sort</span><span class="p">(</span><span class="k">struct</span> <span class="n">node</span> <span class="o">**</span><span class="n">head</span><span class="p">,</span> <span class="k">const</span> <span class="kt">int</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!*</span><span class="n">head</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
     <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">tnode</span><span class="p">;</span> <span class="c1">// temp
 </span><span class="c1"></span>    <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">lnode</span> <span class="o">=</span> <span class="o">*</span><span class="n">head</span><span class="p">;</span>
@@ -271,10 +272,10 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
 <span class="p">}</span>
 </code></pre></div><p>接著來介紹 <code>bubble sort</code> 在 <code>circular doubly linked list</code> 中的實現
 根據剛剛 <code>array</code> 版本的 <code>bubble sort</code>，我們需要兩個指標指向要比較的兩點。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">lnode</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">lnode</span><span class="p">;</span>
 <span class="k">struct</span> <span class="n">node</span> <span class="o">*</span><span class="n">rnode</span><span class="p">;</span>
 </code></pre></div><p>跟一般的 <code>bubble sort</code> 實現原理基本相同，只是因為我們的資料結構是 <code>circular doubly linked list</code>，所以有幾個需要注意的地方</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="n">lnode</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">rnode</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="n">lnode</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&gt;</span> <span class="n">rnode</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">swap_node</span><span class="p">(</span><span class="n">lnode</span><span class="p">,</span> <span class="n">rnode</span><span class="p">);</span>
     <span class="n">tnode</span> <span class="o">=</span> <span class="n">rnode</span><span class="p">;</span>
     <span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="p">;</span>
@@ -301,7 +302,7 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
         title="https://i.imgur.com/AfCCDhB.png" /></p>
 <p>這時候為了後續的交換，需要把 <code>lnode</code>, <code>rnode</code> 指向正確的地方</p>
 <p>才需要這段程式碼</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">tnode</span> <span class="o">=</span> <span class="n">rnode</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">tnode</span> <span class="o">=</span> <span class="n">rnode</span><span class="p">;</span>
 <span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="p">;</span>
 <span class="n">lnode</span> <span class="o">=</span> <span class="n">tnode</span><span class="p">;</span>
 </code></pre></div><p><img
@@ -313,7 +314,7 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
         alt="https://i.imgur.com/u7MylD9.png"
         title="https://i.imgur.com/u7MylD9.png" /></p>
 <p>傳統的 <code>bubble sort</code> 每一輪比完都要從 arr[0] 開始重新比較，在 <code>circular doubly linked list</code> 中，我們每輪結束都要把 <code>lnode</code> 重新指向起點，並將 <code>rnode</code> 指向 <code>lnode-&gt;next</code>。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
     <span class="n">lnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 <span class="n">rnode</span> <span class="o">=</span> <span class="n">lnode</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 </code></pre></div><p>完整的程式碼放在 <a href="https://github.com/davidleitw/linked_list/blob/master/question/bubblesort.c" target="_blank" rel="noopener noreffer">GitHub</a></p>
@@ -350,7 +351,7 @@ Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt;
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.90.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

@@ -1,94 +1,71 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Categories on davidLei</title>
-    <link>http://example.org/categories/</link>
-    <description>Recent content in Categories on davidLei</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-    <webMaster>davidleitw@gmail.com (davidlei)</webMaster>
-    <lastBuildDate>Thu, 09 Dec 2021 01:04:53 +0800</lastBuildDate><atom:link href="http://example.org/categories/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>leetcode</title>
-      <link>http://example.org/categories/leetcode/</link>
-      <pubDate>Thu, 09 Dec 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/leetcode/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>socket</title>
-      <link>http://example.org/categories/socket/</link>
-      <pubDate>Fri, 12 Nov 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/socket/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>c</title>
-      <link>http://example.org/categories/c/</link>
-      <pubDate>Wed, 01 Sep 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/c/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>go</title>
-      <link>http://example.org/categories/go/</link>
-      <pubDate>Mon, 16 Aug 2021 01:37:36 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/go/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>日常紀錄</title>
-      <link>http://example.org/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</link>
-      <pubDate>Fri, 13 Aug 2021 23:01:13 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>docker</title>
-      <link>http://example.org/categories/docker/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/docker/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>linux</title>
-      <link>http://example.org/categories/linux/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/linux/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>paper</title>
-      <link>http://example.org/categories/paper/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/paper/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>SDN</title>
-      <link>http://example.org/categories/sdn/</link>
-      <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/categories/sdn/</guid>
-      <description></description>
-    </item>
-    
-  </channel>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Categories - Category - davidLei</title>
+        <link>http://example.org/categories/</link>
+        <description>Categories - Category - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode</title>
+    <link>http://example.org/categories/leetcode/</link>
+    <pubDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/leetcode/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>socket</title>
+    <link>http://example.org/categories/socket/</link>
+    <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/socket/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>c</title>
+    <link>http://example.org/categories/c/</link>
+    <pubDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/c/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>go</title>
+    <link>http://example.org/categories/go/</link>
+    <pubDate>Mon, 16 Aug 2021 01:37:36 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/go/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>日常紀錄</title>
+    <link>http://example.org/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</link>
+    <pubDate>Fri, 13 Aug 2021 23:01:13 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>docker</title>
+    <link>http://example.org/categories/docker/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/docker/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>linux</title>
+    <link>http://example.org/categories/linux/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/linux/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>paper</title>
+    <link>http://example.org/categories/paper/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/paper/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>SDN</title>
+    <link>http://example.org/categories/sdn/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/sdn/</guid>
+    <description><![CDATA[]]></description>
+</item></channel>
 </rss>

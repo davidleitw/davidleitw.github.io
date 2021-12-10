@@ -10,9 +10,10 @@
 typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
 list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://example.org/posts/jserv_linux_w1_q2/" />
+<meta property="og:url" content="http://example.org/posts/jserv_linux_w1_q2/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-09-01T01:04:53+08:00" />
 <meta property="article:modified_time" content="2021-09-01T01:04:53+08:00" />
+
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="jserv - linux 核心設計 第一周題目二解題紀錄"/>
 <meta name="twitter:description" content="單向 linked list
@@ -129,13 +130,13 @@ list *sort(list *start) { if (!start || !start-&gt;next) return start; list *lef
   </ul>
 </nav></div>
             </div><div class="content" id="content"><p>單向 linked list</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">__list</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">__list</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
     <span class="k">struct</span> <span class="n">__list</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
 <span class="p">}</span> <span class="n">list</span><span class="p">;</span>
 </code></pre></div><p>在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序:
 請補完 LL0 ~ LL6 程式碼。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="nf">sort</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">start</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="nf">sort</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">start</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">start</span> <span class="o">||</span> <span class="o">!</span><span class="n">start</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">start</span><span class="p">;</span>
     <span class="n">list</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
@@ -211,7 +212,7 @@ list *sort(list *start) { if (!start || !start-&gt;next) return start; list *lef
 </code></pre></div><h3 id="解題思路">解題思路</h3>
 <p>先觀察 <code>sort</code> 會看到該函式在內部會呼叫 <code>sort</code>，所以為遞迴函式。
 知道是遞迴函式就要先關注遞迴的<strong>終止條件</strong>。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">start</span> <span class="o">||</span> <span class="o">!</span><span class="n">start</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">start</span> <span class="o">||</span> <span class="o">!</span><span class="n">start</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="n">start</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div><p>先觀察開頭的 if 敘述，有兩種情況會導致遞迴中止</p>
@@ -220,10 +221,10 @@ list *sort(list *start) { if (!start || !start-&gt;next) return start; list *lef
 <li><code>start &amp;&amp; !start-&gt;next</code> → 表示該 list 只有一個元素，直接 return 自身。</li>
 </ul>
 <p>再來觀察回傳的部份，先看一下函式的宣告</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="nf">sort</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">start</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="nf">sort</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">start</span><span class="p">);</span>
 </code></pre></div><p>回傳的資料型態是 <code>list*</code>，所以可以得知呼叫 <code>sort</code> 之後會得到一串已經排序好的 list。</p>
 <p>接著繼續往下看</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
 <span class="n">list</span> <span class="o">*</span><span class="n">right</span> <span class="o">=</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 <span class="cm">/*
 </span><span class="cm">    LL0;
@@ -241,7 +242,7 @@ list *sort(list *start) { if (!start || !start-&gt;next) return start; list *lef
 <li><code>list *right = left-&gt;next;</code></li>
 </ul>
 <p>之後再分別呼叫 <code>sort</code> 排序，根據以前寫 <code>merge sort</code> 的經驗，這邊先認定要把 <code>list</code> 分成兩條獨立的 <code>list</code>，先判斷 <strong><code>LL0: left-&gt;next = NULL;</code></strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
 <span class="n">list</span> <span class="o">*</span><span class="n">right</span> <span class="o">=</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 <span class="n">left</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
 
@@ -249,14 +250,14 @@ list *sort(list *start) { if (!start || !start-&gt;next) return start; list *lef
 <span class="n">right</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">right</span><span class="p">);</span>
 </code></pre></div><h3 id="遞迴呼叫思考">遞迴呼叫思考</h3>
 <p>接著思考一下今天我們 input 的 <code>list</code> 有五筆資料好了</p>
-<pre><code>1 -&gt; -3 -&gt; 2 -&gt; -4 -&gt; 5
+<pre tabindex="0"><code>1 -&gt; -3 -&gt; 2 -&gt; -4 -&gt; 5
 </code></pre><p>我們現在先不要看下面的邏輯，依照我們上面推斷的部份呼叫看看 <code>sort</code></p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="n">head</span><span class="p">;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="n">head</span><span class="p">;</span>
 <span class="c1">// append datas
 </span><span class="c1"></span>
 <span class="n">head</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">head</span><span class="p">);</span>
 </code></pre></div><p>呼叫之後展開</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">head</span> <span class="o">||</span> <span class="o">!</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">head</span> <span class="o">||</span> <span class="o">!</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">head</span><span class="p">;</span>
     
 <span class="n">list</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
@@ -268,11 +269,11 @@ list *sort(list *start) { if (!start || !start-&gt;next) return start; list *lef
 <li><strong>left</strong> : <code>1</code></li>
 <li><strong>right</strong> : <code>-3</code> → <code>2</code> → <code>-4</code> → <code>5</code></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">left</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">left</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">left</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">left</span><span class="p">);</span>
 <span class="n">right</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">right</span><span class="p">);</span>
 </code></pre></div><p>因為我們 <code>left</code> 只有一個元素，所以會直接 <code>return</code>
 <code>right</code> 呢？ 目前 <code>right</code> 有四個元素，所以不符合終止條件，會繼續呼叫遞迴下去。</p>
-<pre><code>1 -&gt; -3 -&gt; 2 -&gt; -4 -&gt; 5
+<pre tabindex="0"><code>1 -&gt; -3 -&gt; 2 -&gt; -4 -&gt; 5
 
 left = 1
 right = -3 -&gt; 2 -&gt; -4 -&gt; 5
@@ -300,7 +301,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
 <p>有發現嗎？ 每次合併的時候都像是在做 <code>insert sort</code>，但是比較不一樣的是我們是從右邊開始一個一個元素 <code>insert</code> 到最左邊的元素。</p>
 <p>所以上面我們已經完成了呼叫遞迴的邏輯，下面要來思考怎麼 <code>merge</code>，才可以把 <code>left</code> 跟 <code>right</code> 組合，並且回傳以排序好的 <code>list's head</code>。</p>
 <h3 id="merge-邏輯">merge 邏輯</h3>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">left</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">left</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">left</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">left</span><span class="p">);</span>
 <span class="n">right</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">right</span><span class="p">);</span>
 
 <span class="k">for</span> <span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">;</span> <span class="p">)</span> <span class="p">{</span>
@@ -359,12 +360,12 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
         <span class="p">}</span>
     <span class="p">}</span>
 </code></pre></div><p>由於我們上面經過了遞迴的過程</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">left</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">left</span><span class="p">);</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">left</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">left</span><span class="p">);</span>
 <span class="n">right</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">right</span><span class="p">);</span>
 </code></pre></div><p>所以我們可以先假設，<code>left</code>, <code>right</code> 目前都已經是排序好的狀態
 <code>left</code>, <code>right</code> 指標所指的 <code>data</code> 都是該 <code>list</code> 的<strong>最小值</strong>。</p>
 <p>之後要透過 <code>for loop</code> 的 <code>merge</code> 邏輯，把比較小的 <code>data</code> 當作 start 並接到正確的位置。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">right</span> <span class="o">||</span> <span class="p">(</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span> <span class="p">{</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">merge</span><span class="p">)</span> <span class="p">{</span>
             <span class="cm">/*
@@ -395,7 +396,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
         <span class="p">...</span>
     <span class="p">}</span>
 <span class="p">}</span>
-</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">right</span> <span class="o">||</span> <span class="p">(</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span> <span class="p">{</span>
+</code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">right</span> <span class="o">||</span> <span class="p">(</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">merge</span><span class="p">)</span> <span class="p">{</span>
         <span class="n">LL1</span>
     <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
@@ -422,7 +423,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
 <li>將 <code>start</code> 指向 <code>left</code></li>
 </ul>
 <p>所以 <strong><code>LL1: start = merge = left;</code></strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">right</span> <span class="o">||</span> <span class="p">(</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span> <span class="p">{</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">merge</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">merge</span> <span class="o">=</span> <span class="n">left</span><span class="p">;</span>
@@ -434,7 +435,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div><p><code>LL3</code> 的部分，因為已經處理好 <code>left</code> 的第一個元素了(<code>暫存在 merge</code>)，所以 <strong><code>LL3: left = left-&gt;next;</code></strong>，移動到下一個節點。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">right</span> <span class="o">||</span> <span class="p">(</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span> <span class="p">{</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">merge</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">merge</span> <span class="o">=</span> <span class="n">left</span><span class="p">;</span>
@@ -464,7 +465,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
 </ul>
 <p>所以可以推論出 <strong><code>LL4: start = merge = right;</code></strong></p>
 <p>同理 <strong><code>LL6: right = right-&gt;next;</code></strong> 與上方 <code>LL3</code> 思路一致。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">right</span> <span class="o">||</span> <span class="p">(</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span> <span class="p">{</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">merge</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">merge</span> <span class="o">=</span> <span class="n">left</span><span class="p">;</span>
@@ -499,7 +500,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
 <p>這時候因為不滿足 <code>if(!right || (left &amp;&amp; left-&gt;data &lt; right-&gt;data))</code> 的條件所以進入 <code>else</code> 區塊，又因為 <code>merge</code> 已經經過初始化，所以最終會跑到 <code>LL5</code> 的區域</p>
 <p>這時候我們需要把已經 <code>merge</code> 好的部份接上 <code>right</code> 那邊已經排列好的 <code>list</code>
 所以 <strong><code>LL5: merge-&gt;next = right;</code></strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">merge</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span> <span class="n">left</span> <span class="o">||</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">right</span> <span class="o">||</span> <span class="p">(</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">))</span> <span class="p">{</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">merge</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">merge</span> <span class="o">=</span> <span class="n">left</span><span class="p">;</span>
@@ -535,7 +536,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
 <p>因為<code>left</code>, <code>right</code> 其中之一不為空，所以迴圈會繼續。</p>
 <p>所以 <code>LL2</code> 跟 <code>LL5</code> 的思路同理，<strong><code>LL2: merge-&gt;next = left;</code></strong></p>
 <p>這樣我們基本上就把整個 <code>sort</code> 的空格填完了，以下是完整程式碼:</p>
-<div class="highlight"><pre class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="nf">sort</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">start</span><span class="p">)</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">list</span> <span class="o">*</span><span class="nf">sort</span><span class="p">(</span><span class="n">list</span> <span class="o">*</span><span class="n">start</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">start</span> <span class="o">||</span> <span class="o">!</span><span class="n">start</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">start</span><span class="p">;</span>
     <span class="n">list</span> <span class="o">*</span><span class="n">left</span> <span class="o">=</span> <span class="n">start</span><span class="p">;</span>
@@ -605,7 +606,7 @@ right = -3 -&gt; 2 -&gt; -4 -&gt; 5
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.90.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

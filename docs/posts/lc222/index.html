@@ -5,17 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>leetcode 222. Count Complete Tree Nodes - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="leetcode 222. Count Complete Tree Nodes" />
+        <title>leetcode 222. Count Complete Tree Nodes [Medium] - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="leetcode 222. Count Complete Tree Nodes [Medium]" />
 <meta property="og:description" content="題目連結
 題目敘述 給予一棵 Complete Binary Tree，求節點個數。
 Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
 class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&lt;TreeNode*&gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&gt;left) q.push(node-&gt;left); if (node-&gt;right) q.push(node-&gt;right); cnt&#43;&#43;; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C&#43;&#43; online submissions for Count Complete Tree Nodes." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="http://example.org/posts/lc222/" />
+<meta property="og:url" content="http://example.org/posts/lc222/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-10-27T01:04:53+08:00" />
 <meta property="article:modified_time" content="2021-10-27T01:04:53+08:00" />
+
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="leetcode 222. Count Complete Tree Nodes"/>
+<meta name="twitter:title" content="leetcode 222. Count Complete Tree Nodes [Medium]"/>
 <meta name="twitter:description" content="題目連結
 題目敘述 給予一棵 Complete Binary Tree，求節點個數。
 Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
@@ -27,7 +28,7 @@ class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; i
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
-        "headline": "leetcode 222. Count Complete Tree Nodes",
+        "headline": "leetcode 222. Count Complete Tree Nodes [Medium]",
         "inLanguage": "en",
         "mainEntityOfPage": {
             "@type": "WebPage",
@@ -107,7 +108,7 @@ class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; i
                 <div class="container"><div class="toc" id="toc-auto">
             <h2 class="toc-title">Contents</h2>
             <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animated flipInX">leetcode 222. Count Complete Tree Nodes</h1><div class="post-meta">
+        </div><article class="page single"><h1 class="single-title animated flipInX">leetcode 222. Count Complete Tree Nodes [Medium]</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div>
             <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-10-27">2021-10-27</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;208 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
@@ -131,7 +132,7 @@ class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; i
 <h3 id="complete-binary-tree-定義"><em>Complete Binary Tree</em> 定義</h3>
 <h4 id="bfs"><em>BFS</em></h4>
 <p>用最直觀的 <code>BFS</code> 來解，每從 <code>queue</code> 拿出一個節點，<code>count</code> 加一。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="kt">int</span> <span class="n">countNodes</span><span class="p">(</span><span class="n">TreeNode</span><span class="o">*</span> <span class="n">root</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">root</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
@@ -156,7 +157,7 @@ class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; i
 <span class="n">Memory</span> <span class="nl">Usage</span><span class="p">:</span> <span class="mf">31.5</span> <span class="n">MB</span><span class="p">,</span> <span class="n">less</span> <span class="n">than</span> <span class="mf">6.88</span><span class="o">%</span> <span class="n">of</span> <span class="n">C</span><span class="o">++</span> <span class="n">online</span> <span class="n">submissions</span> <span class="k">for</span> <span class="n">Count</span> <span class="n">Complete</span> <span class="n">Tree</span> <span class="n">Nodes</span><span class="p">.</span>
 </code></pre></div><h4 id="利用-complete-binary-tree-條件優化">利用 <em>Complete Binary Tree</em> 條件優化</h4>
 <p>如果樹是 <code>Perfect Binary Tree</code>，那它一定也會是 <code>Complete Binary Tree</code>，一開始 <code>lnode</code> 與 <code>rnode</code> 分別往左與右遍歷，假設最後 <code>left height</code> 跟 <code>right height</code> 相同，就代表這棵樹屬於 <code>Perfect Binary Tree</code>，代表節點數目會是 $2^h - 1$，<code>h</code> 為樹高。</p>
-<div class="highlight"><pre class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
     <span class="kt">int</span> <span class="n">countNodes</span><span class="p">(</span><span class="n">TreeNode</span><span class="o">*</span> <span class="n">root</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">root</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
@@ -192,7 +193,7 @@ class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; i
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes" data-hashtags="leetcode"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/lc222/" data-hashtag="leetcode"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes"><i class="fab fa-evernote fa-fw"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes [Medium]" data-hashtags="leetcode"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/lc222/" data-hashtag="leetcode"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes [Medium]" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes [Medium]"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes [Medium]"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes [Medium]" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes [Medium]" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/lc222/" data-title="leetcode 222. Count Complete Tree Nodes [Medium]"><i class="fab fa-evernote fa-fw"></i></a></span>
             </div>
         </div>
     </div>
@@ -209,7 +210,7 @@ class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; i
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.80.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.90.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2021</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

@@ -1,38 +1,29 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>leetcode on davidLei</title>
-    <link>http://example.org/categories/leetcode/</link>
-    <description>Recent content in leetcode on davidLei</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-    <webMaster>davidleitw@gmail.com (davidlei)</webMaster>
-    <lastBuildDate>Thu, 09 Dec 2021 01:04:53 +0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>leetcode 1306. Jump Game III [Medium]</title>
-      <link>http://example.org/posts/lc1306/</link>
-      <pubDate>Thu, 09 Dec 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/lc1306/</guid>
-      <description>題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>leetcode - Category - davidLei</title>
+        <link>http://example.org/categories/leetcode/</link>
+        <description>leetcode - Category - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 1306. Jump Game III [Medium]</title>
+    <link>http://example.org/posts/lc1306/</link>
+    <pubDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc1306/</guid>
+    <description><![CDATA[題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
 注意你在任意時刻都不能跳出陣列。
-限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &amp;lt; arr.length 0 ≦ start &amp;lt; arr.length
-解題紀錄 簡單的 dfs 解決，用一個 vector&amp;lt;bool&amp;gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
-static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&amp;lt;bool&amp;gt; record; bool canReach(vector&amp;lt;int&amp;gt; &amp;amp;arr, int start) { len = arr.</description>
-    </item>
-    
-    <item>
-      <title>leetcode 222. Count Complete Tree Nodes [Medium]</title>
-      <link>http://example.org/posts/lc222/</link>
-      <pubDate>Wed, 27 Oct 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/lc222/</guid>
-      <description>題目連結
+限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
+解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
+static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr.]]></description>
+</item><item>
+    <title>leetcode 222. Count Complete Tree Nodes [Medium]</title>
+    <link>http://example.org/posts/lc222/</link>
+    <pubDate>Wed, 27 Oct 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc222/</guid>
+    <description><![CDATA[題目連結
 題目敘述 給予一棵 Complete Binary Tree，求節點個數。
 Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
-class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&amp;lt;TreeNode*&amp;gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&amp;gt;left) q.push(node-&amp;gt;left); if (node-&amp;gt;right) q.push(node-&amp;gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.</description>
-    </item>
-    
-  </channel>
+class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&lt;TreeNode*&gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&gt;left) q.push(node-&gt;left); if (node-&gt;right) q.push(node-&gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.]]></description>
+</item></channel>
 </rss>
