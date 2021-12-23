@@ -7,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>leetcode 1306. Jump Game III [Medium] - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="leetcode 1306. Jump Game III [Medium]" />
 <meta property="og:description" content="題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i &#43; arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
-注意你在任意時刻都不能跳出陣列.
+注意你在任意時刻都不能跳出陣列。
 限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
 解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
 static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr." />
@@ -19,7 +19,7 @@ static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="leetcode 1306. Jump Game III [Medium]"/>
 <meta name="twitter:description" content="題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i &#43; arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
-注意你在任意時刻都不能跳出陣列.
+注意你在任意時刻都不能跳出陣列。
 限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
 解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
 static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr."/>
@@ -127,7 +127,7 @@ static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); 
 </nav></div>
             </div><div class="content" id="content"><h2 id="題目敘述">題目敘述</h2>
 <p>給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。</p>
-<p>注意你在任意時刻都不能跳出陣列.</p>
+<p>注意你在任意時刻都不能跳出陣列。</p>
 <p>限制：
 1 ≦ arr.length ≦ 5 × 10 ^ 4
 0 ≦ arr[i] &lt; arr.length
