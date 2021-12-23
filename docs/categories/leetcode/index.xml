@@ -4,7 +4,19 @@
         <link>http://example.org/categories/leetcode/</link>
         <description>leetcode - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Thu, 23 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 210. Course Schedule II [Medium]</title>
+    <link>http://example.org/posts/lc210/</link>
+    <pubDate>Thu, 23 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc210/</guid>
+    <description><![CDATA[題目敘述 給一個 prerequisites，每個元素 prerequisites[i] = [a, b]，都代表如果想選 a 課程，必須先修過 b 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。
+思考 什麼情況下會導致無法修過全部的課程? 考慮以下組合為例
+ prerequisites[0] = (1, 0), 修課程 1 之前必須修過課程 0 prerequisites[1] = (2, 1), 修課程 2 之前必須修過課程 1 prerequisites[2] = (0, 2), 修課程 0 之前必須修過課程 2  如果轉成有向圖則會變成以下情況
+所以說這題其實是一題圖論的題目，把修課的條件建立成一個 graph，然後用 dfs 去尋訪，如果偵測到 cycle 代表一定有課程沒辦法修到，回傳空陣列。
+在 dfs 的過程中用 status 來紀錄每個節點的狀態，如果 status[cur] == 1，代表這個節點是目前尋訪的點，用 status 來判斷是否有 cycle 的存在。
+解題紀錄 class Solution { public: vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) { vector&lt;vector&lt;int&gt;&gt; graph(numCourses); // 建立有向圖  for (const auto &amp;requisite: prerequisites) { graph[requisite[1]].]]></description>
+</item><item>
     <title>leetcode 1306. Jump Game III [Medium]</title>
     <link>http://example.org/posts/lc1306/</link>
     <pubDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</pubDate>

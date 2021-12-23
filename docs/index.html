@@ -100,6 +100,16 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lc210/">leetcode 210. Course Schedule II [Medium]</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-23">2021-12-23</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給一個 prerequisites，每個元素 prerequisites[i] = [a, b]，都代表如果想選 a 課程，必須先修過 b 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。
+思考 什麼情況下會導致無法修過全部的課程? 考慮以下組合為例
+ prerequisites[0] = (1, 0), 修課程 1 之前必須修過課程 0 prerequisites[1] = (2, 1), 修課程 2 之前必須修過課程 1 prerequisites[2] = (0, 2), 修課程 0 之前必須修過課程 2  如果轉成有向圖則會變成以下情況
+所以說這題其實是一題圖論的題目，把修課的條件建立成一個 graph，然後用 dfs 去尋訪，如果偵測到 cycle 代表一定有課程沒辦法修到，回傳空陣列。
+在 dfs 的過程中用 status 來紀錄每個節點的狀態，如果 status[cur] == 1，代表這個節點是目前尋訪的點，用 status 來判斷是否有 cycle 的存在。
+解題紀錄 class Solution { public: vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) { vector&lt;vector&lt;int&gt;&gt; graph(numCourses); // 建立有向圖  for (const auto &amp;requisite: prerequisites) { graph[requisite[1]].</div><div class="post-footer">
+        <a href="/posts/lc210/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc1306/">leetcode 1306. Jump Game III [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-09">2021-12-09</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
 注意你在任意時刻都不能跳出陣列。
@@ -146,13 +156,6 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
  AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page</div><div class="post-footer">
         <a href="/posts/socket1/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/socket/">socket</a>,&nbsp;<a href="/tags/c/">c</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/jserv_linux_w1_q2/">jserv - linux 核心設計 第一周題目二解題紀錄</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-09-01">2021-09-01</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">單向 linked list
-typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
-list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!</div><div class="post-footer">
-        <a href="/posts/jserv_linux_w1_q2/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>
