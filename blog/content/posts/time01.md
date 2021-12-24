@@ -4,6 +4,7 @@ date: 2021-12-24T01:04:53+08:00
 draft: false
 tags: 
     - go
+    - timer
 categories: ["go"]
 ---
 
@@ -274,4 +275,4 @@ func main() {
 ### reference
 - [Golang 如何正確的停止 Ticker](https://blog.csdn.net/yjp19871013/article/details/82048944)
 - [Go 高級併發模式: 第二部份(計時器)](https://zhuanlan.zhihu.com/p/338356039)
-- [golang 源碼閱讀之定時器與避坑功能](https://www.pengrl.com/p/62835/)
+- [golang 源碼閱讀之定時器與避坑指南](https://www.pengrl.com/p/62835/)

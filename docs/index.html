@@ -105,7 +105,7 @@
 所有有關定時器的功能都在 time 內，使用前必須先
 import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下</div><div class="post-footer">
         <a href="/posts/time01/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/go/">go</a></div></div>
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/go/">go</a>,&nbsp;<a href="/tags/timer/">timer</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc210/">leetcode 210. Course Schedule II [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-23">2021-12-23</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給一個 prerequisites，每個元素 prerequisites[i] = [a, b]，都代表如果想選 a 課程，必須先修過 b 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。
