@@ -8,7 +8,7 @@
         <title>leetcode 56. Merge Intervals [Medium] - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="leetcode 56. Merge Intervals [Medium]" />
 <meta property="og:description" content="題目敘述 這題的題目本身意思很直觀，給很多 區間，然後將所有範圍重疊的 區間 合併。
 思考 一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 case 分成三種，如下圖所示
-這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，這樣處理起來就有效率多了，任何情況下如果發現題目的 case 有可能要先判斷是在前面還是後面，最好先想想看是不是能用排序來解決這個問題。
+這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 case，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 start 先排過一輪，就不會出線上圖 case B 的情況了。
 解題流程 class Solution { public: vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) { int length = intervals.size(); vector&lt;vector&lt;int&gt;&gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur &#43; 1; while (walker &lt; length) { if (intervals[walker][0] &gt; end) { break; } end = max(end, intervals[walker][1]); walker&#43;&#43;; } solution." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://example.org/posts/lc56/" /><meta property="article:section" content="posts" />
@@ -19,7 +19,7 @@
 <meta name="twitter:title" content="leetcode 56. Merge Intervals [Medium]"/>
 <meta name="twitter:description" content="題目敘述 這題的題目本身意思很直觀，給很多 區間，然後將所有範圍重疊的 區間 合併。
 思考 一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 case 分成三種，如下圖所示
-這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，這樣處理起來就有效率多了，任何情況下如果發現題目的 case 有可能要先判斷是在前面還是後面，最好先想想看是不是能用排序來解決這個問題。
+這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 case，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 start 先排過一輪，就不會出線上圖 case B 的情況了。
 解題流程 class Solution { public: vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) { int length = intervals.size(); vector&lt;vector&lt;int&gt;&gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur &#43; 1; while (walker &lt; length) { if (intervals[walker][0] &gt; end) { break; } end = max(end, intervals[walker][1]); walker&#43;&#43;; } solution."/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -33,7 +33,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/lc56\/"
-        },"genre": "posts","keywords": "leetcode","wordcount":  88 ,
+        },"genre": "posts","keywords": "leetcode","wordcount":  92 ,
         "url": "http:\/\/example.org\/posts\/lc56\/","datePublished": "2021-12-24T01:04:53+08:00","dateModified": "2021-12-24T01:04:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -110,7 +110,7 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">leetcode 56. Merge Intervals [Medium]</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-12-24">2021-12-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;88 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-12-24">2021-12-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;92 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -136,7 +136,7 @@
         data-sizes="auto"
         alt="https://i.imgur.com/mp8TRLh.png"
         title="https://i.imgur.com/mp8TRLh.png" /></p>
-<p>這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 <code>case B</code> 都消失，這樣處理起來就有效率多了，任何情況下如果發現題目的 <code>case</code> 有可能要先判斷是在前面還是後面，最好先想想看是不是能用排序來解決這個問題。</p>
+<p>這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 <code>case B</code> 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 <code>case</code>，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 <code>start</code> 先排過一輪，就不會出線上圖 <code>case B</code> 的情況了。</p>
 <h2 id="解題流程">解題流程</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>

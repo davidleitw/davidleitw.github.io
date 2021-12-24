@@ -55,7 +55,7 @@ theme = "LoveIt"
 [params.social]
     GitHub = "davidleitw"
     Email = "davidleitw@gmail.com"
-    Linkedin = "david-lei-2604121b6/"
+    Linkedin = "david-lei-2604121b6"
 [params.page]
     hiddenFromHomePage = false
     hiddenFromSearch = false

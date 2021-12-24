@@ -12,7 +12,7 @@
     <guid>http://example.org/posts/lc56/</guid>
     <description><![CDATA[題目敘述 這題的題目本身意思很直觀，給很多 區間，然後將所有範圍重疊的 區間 合併。
 思考 一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 case 分成三種，如下圖所示
-這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，這樣處理起來就有效率多了，任何情況下如果發現題目的 case 有可能要先判斷是在前面還是後面，最好先想想看是不是能用排序來解決這個問題。
+這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 case，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 start 先排過一輪，就不會出線上圖 case B 的情況了。
 解題流程 class Solution { public: vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) { int length = intervals.size(); vector&lt;vector&lt;int&gt;&gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur + 1; while (walker &lt; length) { if (intervals[walker][0] &gt; end) { break; } end = max(end, intervals[walker][1]); walker++; } solution.]]></description>
 </item><item>
     <title>leetcode 210. Course Schedule II [Medium]</title>
