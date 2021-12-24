@@ -14,6 +14,16 @@
 所有有關定時器的功能都在 time 內，使用前必須先
 import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下]]></description>
 </item><item>
+    <title>leetcode 56. Merge Intervals [Medium]</title>
+    <link>http://example.org/posts/lc56/</link>
+    <pubDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc56/</guid>
+    <description><![CDATA[題目敘述 這題的題目本身意思很直觀，給很多 區間，然後將所有範圍重疊的 區間 合併。
+思考 一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 case 分成三種，如下圖所示
+這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，這樣處理起來就有效率多了，任何情況下如果發現題目的 case 有可能要先判斷是在前面還是後面，最好先想想看是不是能用排序來解決這個問題。
+解題流程 class Solution { public: vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) { int length = intervals.size(); vector&lt;vector&lt;int&gt;&gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur + 1; while (walker &lt; length) { if (intervals[walker][0] &gt; end) { break; } end = max(end, intervals[walker][1]); walker++; } solution.]]></description>
+</item><item>
     <title>leetcode 210. Course Schedule II [Medium]</title>
     <link>http://example.org/posts/lc210/</link>
     <pubDate>Thu, 23 Dec 2021 01:04:53 &#43;0800</pubDate>
@@ -102,13 +112,5 @@ list *sort(list *start) { if (!start || !start-&gt;next) return start; list *lef
 node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
 swap 之後要把 node 的 prev 跟 next pointer 處理好。
 Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!]]></description>
-</item><item>
-    <title>備份 vscode 環境紀錄</title>
-    <link>http://example.org/posts/vscode_backup/</link>
-    <pubDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/vscode_backup/</guid>
-    <description><![CDATA[參考 將VS Code 工作環境備份到 GitHub上吧~
-可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。]]></description>
 </item></channel>
 </rss>
