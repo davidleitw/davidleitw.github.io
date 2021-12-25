@@ -4,9 +4,18 @@
         <link>http://example.org/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</lastBuildDate>
             <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>leetcode 227. Basic Calculator II [Medium]</title>
+    <link>http://example.org/posts/lc227/</link>
+    <pubDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc227/</guid>
+    <description><![CDATA[題目敘述 輸入算式的字串，返回解答。運算子只有 +, -, *, /，這題還沒有出現包含括號的情況。
+解題紀錄 這次是直覺的用 stack 解出來，但是仔細思考過後發覺好像不一定要用 stack，可以用變數去存資料，之後待補XD
+class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&lt;long long int&gt; result; char op_code = &#39;+&#39;; for (int i = 0; i &lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &#39;0&#39;; } if (!isnumber(s[i]) &amp;&amp; s[i] != &#39; &#39; || i == len-1) { switch (op_code) { case &#39;+&#39;: result.]]></description>
+</item><item>
     <title>golang 定時器(一) Time, Ticker 基本用法整理</title>
     <link>http://example.org/posts/time01/</link>
     <pubDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</pubDate>
@@ -103,16 +112,5 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
     <description><![CDATA[單向 linked list
 typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
 list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!]]></description>
-</item><item>
-    <title>Circular Doubly linked list 實作 bubble sort </title>
-    <link>http://example.org/posts/cdll_bubblesort/</link>
-    <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/cdll_bubblesort/</guid>
-    <description><![CDATA[前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
-在這篇文章會紀錄關於 bubble sort 的實現。
-node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
-swap 之後要把 node 的 prev 跟 next pointer 處理好。
-Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!]]></description>
 </item></channel>
 </rss>

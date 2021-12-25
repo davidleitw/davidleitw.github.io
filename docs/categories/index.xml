@@ -4,19 +4,19 @@
         <link>http://example.org/categories/</link>
         <description>Categories - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode</title>
+    <link>http://example.org/categories/leetcode/</link>
+    <pubDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/leetcode/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>go</title>
     <link>http://example.org/categories/go/</link>
     <pubDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>http://example.org/categories/go/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>leetcode</title>
-    <link>http://example.org/categories/leetcode/</link>
-    <pubDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/categories/leetcode/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>socket</title>

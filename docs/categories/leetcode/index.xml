@@ -4,7 +4,16 @@
         <link>http://example.org/categories/leetcode/</link>
         <description>leetcode - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 227. Basic Calculator II [Medium]</title>
+    <link>http://example.org/posts/lc227/</link>
+    <pubDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc227/</guid>
+    <description><![CDATA[題目敘述 輸入算式的字串，返回解答。運算子只有 +, -, *, /，這題還沒有出現包含括號的情況。
+解題紀錄 這次是直覺的用 stack 解出來，但是仔細思考過後發覺好像不一定要用 stack，可以用變數去存資料，之後待補XD
+class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&lt;long long int&gt; result; char op_code = &#39;+&#39;; for (int i = 0; i &lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &#39;0&#39;; } if (!isnumber(s[i]) &amp;&amp; s[i] != &#39; &#39; || i == len-1) { switch (op_code) { case &#39;+&#39;: result.]]></description>
+</item><item>
     <title>leetcode 56. Merge Intervals [Medium]</title>
     <link>http://example.org/posts/lc56/</link>
     <pubDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</pubDate>
