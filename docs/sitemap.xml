@@ -2,13 +2,14 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
-            <loc>http://example.org/categories/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/tags/leetcode/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/categories/leetcode/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/categories/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/tags/leetcode/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/categories/leetcode/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/posts/lc198/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/posts/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/tags/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/lc973/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/posts/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/tags/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/lc227/</loc><lastmod>2021-12-25T01:04:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/tags/go/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/categories/go/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod></url><url>

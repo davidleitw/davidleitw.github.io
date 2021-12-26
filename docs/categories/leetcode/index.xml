@@ -4,7 +4,16 @@
         <link>http://example.org/categories/leetcode/</link>
         <description>leetcode - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sun, 26 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sun, 26 Dec 2021 01:05:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 198. House Robber [Medium]</title>
+    <link>http://example.org/posts/lc198/</link>
+    <pubDate>Sun, 26 Dec 2021 01:05:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc198/</guid>
+    <description><![CDATA[題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
+這題算是基本的 dp 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。
+解題紀錄 class Solution { public: int rob(vector&lt;int&gt;&amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; ]]></description>
+</item><item>
     <title>leetcode 973. K Closest Points to Origin [Medium]</title>
     <link>http://example.org/posts/lc973/</link>
     <pubDate>Sun, 26 Dec 2021 01:04:53 &#43;0800</pubDate>
