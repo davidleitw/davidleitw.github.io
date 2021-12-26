@@ -165,7 +165,8 @@ theme = "LoveIt"
     snippetLength = 50
     highlightTag = "em"
     absoluteURL = false
-
+[params.verification]
+    google = "googlee1a453a86d1f5e65.html"
 [menu]
     [[menu.main]]
         identifier = "posts"
