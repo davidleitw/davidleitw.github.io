@@ -1,5 +1,5 @@
 ---
-title: "利用 vargrant 執行自己編譯的 kernel，快速搭建實驗環境"
+title: "利用 vagrant 執行自己編譯的 kernel，快速搭建實驗環境"
 date: 2021-12-28T01:05:53+08:00
 draft: false
 tags: 
