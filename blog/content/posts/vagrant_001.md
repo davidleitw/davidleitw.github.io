@@ -195,3 +195,7 @@ host@ubuntu: ~$: vagrant snapshot restore kernel_4.14_env
 host@ubuntu: ~$: vagrant up
 ```
 
+## reference 
+- [vagrant docs](https://www.vagrantup.com/docs)
+- [Vagrant 基本使用操作](https://blog.csdn.net/visonyuan/article/details/103866612)
+- [為 Guest Ubuntu 編譯 kernel](https://www.jianshu.com/p/50a7045d293a)

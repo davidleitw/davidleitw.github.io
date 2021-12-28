@@ -33,7 +33,7 @@ $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo 
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/vagrant_001\/"
-        },"genre": "posts","keywords": "vagrant, kernel, linux","wordcount":  443 ,
+        },"genre": "posts","keywords": "vagrant, kernel, linux","wordcount":  453 ,
         "url": "http:\/\/example.org\/posts\/vagrant_001\/","datePublished": "2021-12-28T01:05:53+08:00","dateModified": "2021-12-28T01:05:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -110,7 +110,7 @@ $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo 
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">利用 vagrant 執行自己編譯的 kernel，快速搭建實驗環境</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/vagrant/"><i class="far fa-folder fa-fw"></i>vagrant</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-12-28">2021-12-28</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;443 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-12-28">2021-12-28</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;453 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;3 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -129,6 +129,7 @@ $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo 
       </ul>
     </li>
     <li><a href="#讀取-snapshot存檔點">讀取 snapshot(存檔點)</a></li>
+    <li><a href="#reference">reference</a></li>
   </ul>
 </nav></div>
             </div><div class="content" id="content"><h2 id="vagrant">vagrant</h2>
@@ -292,7 +293,13 @@ host@ubuntu: ~$: vagrant snapshot list
 </code></pre></div><h2 id="讀取-snapshot存檔點">讀取 snapshot(存檔點)</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">host@ubuntu: ~$: vagrant snapshot restore kernel_4.14_env
 host@ubuntu: ~$: vagrant up
-</code></pre></div></div><div class="post-footer" id="post-footer">
+</code></pre></div><h2 id="reference">reference</h2>
+<ul>
+<li><a href="https://www.vagrantup.com/docs" target="_blank" rel="noopener noreffer">vagrant docs</a></li>
+<li><a href="https://blog.csdn.net/visonyuan/article/details/103866612" target="_blank" rel="noopener noreffer">Vagrant 基本使用操作</a></li>
+<li><a href="https://www.jianshu.com/p/50a7045d293a" target="_blank" rel="noopener noreffer">為 Guest Ubuntu 編譯 kernel</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
