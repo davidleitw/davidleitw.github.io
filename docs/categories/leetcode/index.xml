@@ -4,7 +4,16 @@
         <link>http://example.org/categories/leetcode/</link>
         <description>leetcode - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 876. Middle of the Linked List [Medium]</title>
+    <link>http://example.org/posts/lc876/</link>
+    <pubDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc876/</guid>
+    <description><![CDATA[題目敘述 獲得 linked list 的 middle 節點。
+經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
+解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; ]]></description>
+</item><item>
     <title>leetcode 476. Number Complement [Medium]</title>
     <link>http://example.org/posts/lc476/</link>
     <pubDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</pubDate>

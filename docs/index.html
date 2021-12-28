@@ -108,6 +108,13 @@ $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo 
         <a href="/posts/vagrant_001/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/vagrant/">vagrant</a>,&nbsp;<a href="/tags/kernel/">kernel</a>,&nbsp;<a href="/tags/linux/">linux</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lc876/">leetcode 876. Middle of the Linked List [Medium]</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-28">2021-12-28</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 獲得 linked list 的 middle 節點。
+經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
+解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; </div><div class="post-footer">
+        <a href="/posts/lc876/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc476/">leetcode 476. Number Complement [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-27">2021-12-27</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
 思路 這題算是 Bit Manipulation 的入門題目，很適合練習 bit 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。
@@ -139,13 +146,6 @@ class Solution { public: vector&lt;vector&lt;int&gt;&gt; kClosest(vector&lt;vect
 class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&lt;long long int&gt; result; char op_code = &#39;+&#39;; for (int i = 0; i &lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &#39;0&#39;; } if (!isnumber(s[i]) &amp;&amp; s[i] != &#39; &#39; || i == len-1) { switch (op_code) { case &#39;+&#39;: result.</div><div class="post-footer">
         <a href="/posts/lc227/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/time01/">golang 定時器(一) Time, Ticker 基本用法整理</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-24">2021-12-24</time></span>&nbsp;<span class="post-category">included in <a href="/categories/go/"><i class="far fa-folder fa-fw"></i>go</a></span></div><div class="content">在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。
-所有有關定時器的功能都在 time 內，使用前必須先
-import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下</div><div class="post-footer">
-        <a href="/posts/time01/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/go/">go</a>,&nbsp;<a href="/tags/timer/">timer</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>

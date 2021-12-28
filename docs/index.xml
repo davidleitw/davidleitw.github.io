@@ -17,6 +17,15 @@
 install 安裝可以參考 官方網站，在 ubuntu 的環境安裝 vagrant 可以用以下指令:
 $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo apt-add-repository &#34;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs)main&#34; $ sudo apt-get update &amp;&amp; sudo apt-get install vagrant $ vagrant plugin install vagrant-vbguest vagrant 只是一個管理虛擬機的工具，底層可以選擇 VirtualBox, VMware, AWS.. 等不同的虛擬機環境，在 linux 的主機中最方便安裝的就是 VirtualBox，所以在正式使用之前要記得先安裝 VirtualBox。]]></description>
 </item><item>
+    <title>leetcode 876. Middle of the Linked List [Medium]</title>
+    <link>http://example.org/posts/lc876/</link>
+    <pubDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc876/</guid>
+    <description><![CDATA[題目敘述 獲得 linked list 的 middle 節點。
+經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
+解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; ]]></description>
+</item><item>
     <title>leetcode 476. Number Complement [Medium]</title>
     <link>http://example.org/posts/lc476/</link>
     <pubDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</pubDate>
@@ -98,18 +107,5 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
 限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
 解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
 static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr.]]></description>
-</item><item>
-    <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
-    <link>http://example.org/posts/socket3/</link>
-    <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/socket3/</guid>
-    <description><![CDATA[一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
-以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
-一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
-typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
- 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
-#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
-回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
 </item></channel>
 </rss>
