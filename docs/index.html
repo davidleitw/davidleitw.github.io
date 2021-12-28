@@ -100,6 +100,14 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/vagrant_001/">利用 vargrant 執行自己編譯的 kernel，快速搭建實驗環境</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-28">2021-12-28</time></span>&nbsp;<span class="post-category">included in <a href="/categories/vagrant/"><i class="far fa-folder fa-fw"></i>vagrant</a></span></div><div class="content">vagrant vagrant 是一款建立及管理虛擬機的工具，利用 vagrant 可以快速在本機端架設實驗環境，並且可以把自己習慣的環境包裝後在任何有安裝 vagrant 的電腦執行，達到 IaC(Infrastructure as Code) 的特性，使用 vagrant 可以大幅降低環境的架設時間，趁這個機會順便學習一下基本的用法。
+這學期在修 linux 的課程會有添加 system call 或者改 kernel 的需求，所以這篇文章紀錄一下如何使用 vagrant 來執行自己編譯好的 kernel，以及一些 vagrant 的基本用法，用虛擬機做實驗也降低了把自己的環境搞壞的風險。
+install 安裝可以參考 官方網站，在 ubuntu 的環境安裝 vagrant 可以用以下指令:
+$ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo apt-add-repository &#34;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs)main&#34; $ sudo apt-get update &amp;&amp; sudo apt-get install vagrant $ vagrant plugin install vagrant-vbguest vagrant 只是一個管理虛擬機的工具，底層可以選擇 VirtualBox, VMware, AWS.. 等不同的虛擬機環境，在 linux 的主機中最方便安裝的就是 VirtualBox，所以在正式使用之前要記得先安裝 VirtualBox。</div><div class="post-footer">
+        <a href="/posts/vagrant_001/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/vagrant/">vagrant</a>,&nbsp;<a href="/tags/kernel/">kernel</a>,&nbsp;<a href="/tags/linux/">linux</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc476/">leetcode 476. Number Complement [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-27">2021-12-27</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
 思路 這題算是 Bit Manipulation 的入門題目，很適合練習 bit 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。
@@ -138,14 +146,6 @@ class Solution { public: int calculate(string s) { long long int tmp; long long 
 import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下</div><div class="post-footer">
         <a href="/posts/time01/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/go/">go</a>,&nbsp;<a href="/tags/timer/">timer</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc56/">leetcode 56. Merge Intervals [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-24">2021-12-24</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 這題的題目本身意思很直觀，給很多 區間，然後將所有範圍重疊的 區間 合併。
-思考 一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 case 分成三種，如下圖所示
-這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 case，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 start 先排過一輪，就不會出線上圖 case B 的情況了。
-解題流程 class Solution { public: vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) { int length = intervals.size(); vector&lt;vector&lt;int&gt;&gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur + 1; while (walker &lt; length) { if (intervals[walker][0] &gt; end) { break; } end = max(end, intervals[walker][1]); walker++; } solution.</div><div class="post-footer">
-        <a href="/posts/lc56/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>
@@ -159,8 +159,10 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
                         <a href="/page/3/">3</a>
                     </span>
                 </li><li class="page-item ">
+                    <span class="page-link" aria-hidden="true">&hellip;</span>
+                </li><li class="page-item ">
                     <span class="page-link">
-                        <a href="/page/4/">4</a>
+                        <a href="/page/5/">5</a>
                     </span>
                 </li></ul></div></div>
             </main><footer class="footer">

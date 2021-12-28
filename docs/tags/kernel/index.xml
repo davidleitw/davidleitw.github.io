@@ -1,0 +1,18 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>kernel - Tag - davidLei</title>
+        <link>http://example.org/tags/kernel/</link>
+        <description>kernel - Tag - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+    <title>利用 vargrant 執行自己編譯的 kernel，快速搭建實驗環境</title>
+    <link>http://example.org/posts/vagrant_001/</link>
+    <pubDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/vagrant_001/</guid>
+    <description><![CDATA[vagrant vagrant 是一款建立及管理虛擬機的工具，利用 vagrant 可以快速在本機端架設實驗環境，並且可以把自己習慣的環境包裝後在任何有安裝 vagrant 的電腦執行，達到 IaC(Infrastructure as Code) 的特性，使用 vagrant 可以大幅降低環境的架設時間，趁這個機會順便學習一下基本的用法。
+這學期在修 linux 的課程會有添加 system call 或者改 kernel 的需求，所以這篇文章紀錄一下如何使用 vagrant 來執行自己編譯好的 kernel，以及一些 vagrant 的基本用法，用虛擬機做實驗也降低了把自己的環境搞壞的風險。
+install 安裝可以參考 官方網站，在 ubuntu 的環境安裝 vagrant 可以用以下指令:
+$ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo apt-add-repository &#34;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs)main&#34; $ sudo apt-get update &amp;&amp; sudo apt-get install vagrant $ vagrant plugin install vagrant-vbguest vagrant 只是一個管理虛擬機的工具，底層可以選擇 VirtualBox, VMware, AWS.. 等不同的虛擬機環境，在 linux 的主機中最方便安裝的就是 VirtualBox，所以在正式使用之前要記得先安裝 VirtualBox。]]></description>
+</item></channel>
+</rss>

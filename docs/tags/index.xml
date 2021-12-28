@@ -4,7 +4,28 @@
         <link>http://example.org/tags/</link>
         <description>Tags - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>kernel</title>
+    <link>http://example.org/tags/kernel/</link>
+    <pubDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/tags/kernel/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>linux</title>
+    <link>http://example.org/tags/linux/</link>
+    <pubDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/tags/linux/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>vagrant</title>
+    <link>http://example.org/tags/vagrant/</link>
+    <pubDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/tags/vagrant/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>leetcode</title>
     <link>http://example.org/tags/leetcode/</link>
     <pubDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</pubDate>
@@ -33,13 +54,6 @@
     <guid>http://example.org/tags/c/</guid>
     <description><![CDATA[]]></description>
 </item><item>
-    <title>linux</title>
-    <link>http://example.org/tags/linux/</link>
-    <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/tags/linux/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
     <title>network</title>
     <link>http://example.org/tags/network/</link>
     <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
@@ -59,20 +73,6 @@
     <pubDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</pubDate>
     <author>Author</author>
     <guid>http://example.org/tags/github/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>vscode</title>
-    <link>http://example.org/tags/vscode/</link>
-    <pubDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/tags/vscode/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>blog</title>
-    <link>http://example.org/tags/blog/</link>
-    <pubDate>Fri, 13 Aug 2021 23:01:13 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/tags/blog/</guid>
     <description><![CDATA[]]></description>
 </item></channel>
 </rss>
