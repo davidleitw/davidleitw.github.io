@@ -4,7 +4,18 @@
         <link>http://example.org/tags/leetcode/</link>
         <description>leetcode - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/leetcode/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 116. Populating Next Right Pointers in Each Node [Medium]</title>
+    <link>http://example.org/posts/lc116/</link>
+    <pubDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc116/</guid>
+    <description><![CDATA[題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。
+用中文有點難表達，直接看圖吧。
+解題流程 這題跟很多 tree 的題目一樣，可以用 BFS 或者 DFS 兩種方式去實現。
+BFS 用 BFS 的解法，就是在每個 level 找到最左邊的 Node 當作開頭，往右開始每個節點都用 next 指標連結。
+class Solution { public: Node* connect(Node* root) { if (!root) return root; queue&lt;Node*&gt; q; q.push(root); while (!q.empty()) { Node *curr; const int qsize = q.size(); for (int i = 0; i &lt; qsize; ++i) { Node *n = q.]]></description>
+</item><item>
     <title>leetcode 876. Middle of the Linked List [Medium]</title>
     <link>http://example.org/posts/lc876/</link>
     <pubDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</pubDate>

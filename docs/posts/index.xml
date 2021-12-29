@@ -4,7 +4,18 @@
         <link>http://example.org/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 116. Populating Next Right Pointers in Each Node [Medium]</title>
+    <link>http://example.org/posts/lc116/</link>
+    <pubDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc116/</guid>
+    <description><![CDATA[題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。
+用中文有點難表達，直接看圖吧。
+解題流程 這題跟很多 tree 的題目一樣，可以用 BFS 或者 DFS 兩種方式去實現。
+BFS 用 BFS 的解法，就是在每個 level 找到最左邊的 Node 當作開頭，往右開始每個節點都用 next 指標連結。
+class Solution { public: Node* connect(Node* root) { if (!root) return root; queue&lt;Node*&gt; q; q.push(root); while (!q.empty()) { Node *curr; const int qsize = q.size(); for (int i = 0; i &lt; qsize; ++i) { Node *n = q.]]></description>
+</item><item>
     <title>利用 vagrant 執行自己編譯的 kernel，快速搭建實驗環境</title>
     <link>http://example.org/posts/vagrant_001/</link>
     <pubDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</pubDate>
@@ -94,16 +105,5 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
 所以說這題其實是一題圖論的題目，把修課的條件建立成一個 graph，然後用 dfs 去尋訪，如果偵測到 cycle 代表一定有課程沒辦法修到，回傳空陣列。
 在 dfs 的過程中用 status 來紀錄每個節點的狀態，如果 status[cur] == 1，代表這個節點是目前尋訪的點，用 status 來判斷是否有 cycle 的存在。
 解題紀錄 class Solution { public: vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) { vector&lt;vector&lt;int&gt;&gt; graph(numCourses); // 建立有向圖  for (const auto &amp;requisite: prerequisites) { graph[requisite[1]].]]></description>
-</item><item>
-    <title>leetcode 1306. Jump Game III [Medium]</title>
-    <link>http://example.org/posts/lc1306/</link>
-    <pubDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc1306/</guid>
-    <description><![CDATA[題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
-注意你在任意時刻都不能跳出陣列。
-限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
-解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
-static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr.]]></description>
 </item></channel>
 </rss>
