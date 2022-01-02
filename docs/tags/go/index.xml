@@ -1,32 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>go on davidLei</title>
-    <link>http://example.org/tags/go/</link>
-    <description>Recent content in go on davidLei</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-    <webMaster>davidleitw@gmail.com (davidlei)</webMaster>
-    <lastBuildDate>Fri, 24 Dec 2021 01:04:53 +0800</lastBuildDate><atom:link href="http://example.org/tags/go/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>golang 定時器(一) Time, Ticker 基本用法整理</title>
-      <link>http://example.org/posts/time01/</link>
-      <pubDate>Fri, 24 Dec 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/time01/</guid>
-      <description>在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>go - Tag - davidLei</title>
+        <link>http://example.org/tags/go/</link>
+        <description>go - Tag - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/go/" rel="self" type="application/rss+xml" /><item>
+    <title>golang 定時器(一) Time, Ticker 基本用法整理</title>
+    <link>http://example.org/posts/time01/</link>
+    <pubDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/time01/</guid>
+    <description><![CDATA[在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。
 所有有關定時器的功能都在 time 內，使用前必須先
-import &amp;#34;time&amp;#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &amp;lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下</description>
-    </item>
-    
-    <item>
-      <title>golang cobra: 在沒有添加任何參數的情況下預設產生 help message</title>
-      <link>http://example.org/posts/cobradefault/</link>
-      <pubDate>Mon, 16 Aug 2021 01:37:36 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/cobradefault/</guid>
-      <description>問題描述 最近在使用 cobra 編寫一個簡單的 command line 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊
+import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下]]></description>
+</item><item>
+    <title>golang cobra: 在沒有添加任何參數的情況下預設產生 help message</title>
+    <link>http://example.org/posts/cobradefault/</link>
+    <pubDate>Mon, 16 Aug 2021 01:37:36 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/cobradefault/</guid>
+    <description><![CDATA[問題描述 最近在使用 cobra 編寫一個簡單的 command line 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊
 一般來說用 cobra 寫的程式要顯示詳細的使用教學都要使用 --help 參數，如圖
 但是我又想到 golangci-lint 這個工具同樣也是用 cobra 來寫 command line 的應用，卻可以在沒有添加參數的時候跳出 --help 的說明
 像是這樣
@@ -34,8 +27,6 @@ import &amp;#34;time&amp;#34; 單次定時事件 - Timer // src/time/sleep.go  /
 解決方法 一般的教學文章在介紹 cobra 的時候都會訂一個 rootCmd 一類的物件，作為你的 command line 應用一開始的 root，之後的指令就會用
 rootCmd.AddCommand(功能名稱) 的方式添加進去
 所以解決方式很簡單，只要在 rootCmd 定義的地方判斷如果其 args 的長度為零，就呼叫預設的 Help function 即可。
-var rootCmd = &amp;amp;cobra.Command{ Use: &amp;#34;leit&amp;#34;, Short: &amp;#34;A calendar application in command line.&amp;#34;, Long: doc, Run: func(cmd *cobra.Command, args []string) { if len(args) == 0 { _ = cmd.</description>
-    </item>
-    
-  </channel>
+var rootCmd = &amp;cobra.Command{ Use: &#34;leit&#34;, Short: &#34;A calendar application in command line.&#34;, Long: doc, Run: func(cmd *cobra.Command, args []string) { if len(args) == 0 { _ = cmd.]]></description>
+</item></channel>
 </rss>

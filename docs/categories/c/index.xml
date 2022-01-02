@@ -1,53 +1,42 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>c on davidLei</title>
-    <link>http://example.org/categories/c/</link>
-    <description>Recent content in c on davidLei</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-    <webMaster>davidleitw@gmail.com (davidlei)</webMaster>
-    <lastBuildDate>Wed, 01 Sep 2021 01:04:53 +0800</lastBuildDate><atom:link href="http://example.org/categories/c/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
-      <link>http://example.org/posts/jserv_linux_w1_q2/</link>
-      <pubDate>Wed, 01 Sep 2021 01:04:53 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/jserv_linux_w1_q2/</guid>
-      <description>單向 linked list
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>c - Category - davidLei</title>
+        <link>http://example.org/categories/c/</link>
+        <description>c - Category - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/c/" rel="self" type="application/rss+xml" /><item>
+    <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
+    <link>http://example.org/posts/jserv_linux_w1_q2/</link>
+    <pubDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/jserv_linux_w1_q2/</guid>
+    <description><![CDATA[單向 linked list
 typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
-list *sort(list *start) { if (!start || !start-&amp;gt;next) return start; list *left = start; list *right = left-&amp;gt;next; /* LL0; (a): left-&amp;gt;next = NULL; (b): right-&amp;gt;next = NULL; (c): left = left-&amp;gt;next; (d): left = right-&amp;gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!</description>
-    </item>
-    
-    <item>
-      <title>Circular Doubly linked list 實作 bubble sort </title>
-      <link>http://example.org/posts/cdll_bubblesort/</link>
-      <pubDate>Wed, 25 Aug 2021 04:16:48 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/cdll_bubblesort/</guid>
-      <description>前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
+list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!]]></description>
+</item><item>
+    <title>Circular Doubly linked list 實作 bubble sort </title>
+    <link>http://example.org/posts/cdll_bubblesort/</link>
+    <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/cdll_bubblesort/</guid>
+    <description><![CDATA[前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
 在這篇文章會紀錄關於 bubble sort 的實現。
 node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
 swap 之後要把 node 的 prev 跟 next pointer 處理好。
-Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &amp;lt; length-1; i++) { int flag = 0; for(int j = 0; j &amp;lt; length-i-1; j++) { if(arr[j] &amp;gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!</description>
-    </item>
-    
-    <item>
-      <title>C Function Pointer 基礎用法整理</title>
-      <link>http://example.org/posts/c_functionpointer/</link>
-      <pubDate>Sun, 15 Aug 2021 00:04:43 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/c_functionpointer/</guid>
-      <description>這最近在看 jserv 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 function pointer 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。
+Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!]]></description>
+</item><item>
+    <title>C Function Pointer 基礎用法整理</title>
+    <link>http://example.org/posts/c_functionpointer/</link>
+    <pubDate>Sun, 15 Aug 2021 00:04:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/c_functionpointer/</guid>
+    <description><![CDATA[這最近在看 jserv 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 function pointer 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。
 之後在學習的過程中如果遇到 function pointer 的應用也會一併整理在這篇文章中。
 function pointer function pointer 顧名思義就是指向某個 function 的 pointer，有了 function pointer 我們就可以實現把 function 當作參數，傳進一個 function 之中，或者更加彈性的設計我們的程式，減少多餘的 if/else, switch case。
 我們先從一個簡單的 function pointer 宣告開始講起
 int (*myFunc)(int, int); 上面就是一個基本的 function pointer 宣告
 一個 function pointer 變數名稱為 myFunc，可以這麼解讀
  myFunc 是一個指標指向一個 function  該 function 有兩個 int 的 parameters 該 function 會回傳 int    假設今天我有個 function 宣告成以下這種形式
-void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer 去指向這個 function 呢？</description>
-    </item>
-    
-  </channel>
+void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer 去指向這個 function 呢？]]></description>
+</item></channel>
 </rss>

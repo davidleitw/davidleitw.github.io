@@ -1,23 +1,16 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>github on davidLei</title>
-    <link>http://example.org/tags/github/</link>
-    <description>Recent content in github on davidLei</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en</language>
-    <managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-    <webMaster>davidleitw@gmail.com (davidlei)</webMaster>
-    <lastBuildDate>Sat, 21 Aug 2021 19:13:21 +0800</lastBuildDate><atom:link href="http://example.org/tags/github/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>備份 vscode 環境紀錄</title>
-      <link>http://example.org/posts/vscode_backup/</link>
-      <pubDate>Sat, 21 Aug 2021 19:13:21 +0800</pubDate>
-      <author>davidleitw@gmail.com (davidlei)</author>
-      <guid>http://example.org/posts/vscode_backup/</guid>
-      <description>參考 將VS Code 工作環境備份到 GitHub上吧~
-可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。</description>
-    </item>
-    
-  </channel>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>github - Tag - davidLei</title>
+        <link>http://example.org/tags/github/</link>
+        <description>github - Tag - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/github/" rel="self" type="application/rss+xml" /><item>
+    <title>備份 vscode 環境紀錄</title>
+    <link>http://example.org/posts/vscode_backup/</link>
+    <pubDate>Sat, 21 Aug 2021 19:13:21 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/vscode_backup/</guid>
+    <description><![CDATA[參考 將VS Code 工作環境備份到 GitHub上吧~
+可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。]]></description>
+</item></channel>
 </rss>
