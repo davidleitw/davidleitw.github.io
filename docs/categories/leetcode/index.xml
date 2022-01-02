@@ -1,111 +1,159 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
-    <channel>
-        <title>leetcode - Category - davidLei</title>
-        <link>http://example.org/categories/leetcode/</link>
-        <description>leetcode - Category - davidLei</description>
-        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
-    <title>leetcode 116. Populating Next Right Pointers in Each Node [Medium]</title>
-    <link>http://example.org/posts/lc116/</link>
-    <pubDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc116/</guid>
-    <description><![CDATA[題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>leetcode on davidLei</title>
+    <link>http://example.org/categories/leetcode/</link>
+    <description>Recent content in leetcode on davidLei</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+    <webMaster>davidleitw@gmail.com (davidlei)</webMaster>
+    <lastBuildDate>Sun, 02 Jan 2022 01:12:53 +0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</title>
+      <link>http://example.org/posts/lc1010/</link>
+      <pubDate>Sun, 02 Jan 2022 01:12:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc1010/</guid>
+      <description>題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。
+解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。
+假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。
+class Solution { public: int numPairsDivisibleBy60(vector&amp;lt;int&amp;gt;&amp;amp; time) { int cnt = 0; int m[60] = {0}; for (int i = 0; i &amp;lt; time.size(); ++i) { cnt += m[time[i]%60 == 0 ?</description>
+    </item>
+    
+    <item>
+      <title>leetcode 1026. Maximum Difference Between Node and Ancestor [Medium]</title>
+      <link>http://example.org/posts/lc1026/</link>
+      <pubDate>Sat, 01 Jan 2022 01:12:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc1026/</guid>
+      <description>題目敘述 給一棵二元樹，回傳某個節點與其祖先節點的最大的差(絕對值)。
+解題紀錄 DFS 用 DFS 尋訪每個節點，並且順便紀錄到這個節點之前的 max, min value，這樣子最大的差就是 max - min。
+class Solution { public: int maxAncestorDiff(TreeNode* root) { return get_max_different(root, root-&amp;gt;val, root-&amp;gt;val); } int get_max_different(TreeNode *root, int maxv, int minv) { if (!root) return maxv - minv; maxv = max(maxv, root-&amp;gt;val); minv = min(minv, root-&amp;gt;val); return max(get_max_different(root-&amp;gt;left, maxv, minv), get_max_different(root-&amp;gt;right, maxv, minv)); } }; #pragma GCC optimize(&amp;#34;Ofast&amp;#34;) #pragma GCC target(&amp;#34;avx,avx2,fma&amp;#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); </description>
+    </item>
+    
+    <item>
+      <title>leetcode 116. Populating Next Right Pointers in Each Node [Medium]</title>
+      <link>http://example.org/posts/lc116/</link>
+      <pubDate>Wed, 29 Dec 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc116/</guid>
+      <description>題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&amp;gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。
 用中文有點難表達，直接看圖吧。
 解題流程 這題跟很多 tree 的題目一樣，可以用 BFS 或者 DFS 兩種方式去實現。
 BFS 用 BFS 的解法，就是在每個 level 找到最左邊的 Node 當作開頭，往右開始每個節點都用 next 指標連結。
-class Solution { public: Node* connect(Node* root) { if (!root) return root; queue&lt;Node*&gt; q; q.push(root); while (!q.empty()) { Node *curr; const int qsize = q.size(); for (int i = 0; i &lt; qsize; ++i) { Node *n = q.]]></description>
-</item><item>
-    <title>leetcode 876. Middle of the Linked List [Medium]</title>
-    <link>http://example.org/posts/lc876/</link>
-    <pubDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc876/</guid>
-    <description><![CDATA[題目敘述 獲得 linked list 的 middle 節點。
+class Solution { public: Node* connect(Node* root) { if (!root) return root; queue&amp;lt;Node*&amp;gt; q; q.push(root); while (!q.empty()) { Node *curr; const int qsize = q.size(); for (int i = 0; i &amp;lt; qsize; ++i) { Node *n = q.</description>
+    </item>
+    
+    <item>
+      <title>leetcode 876. Middle of the Linked List [Medium]</title>
+      <link>http://example.org/posts/lc876/</link>
+      <pubDate>Tue, 28 Dec 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc876/</guid>
+      <description>題目敘述 獲得 linked list 的 middle 節點。
 經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
-解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; ]]></description>
-</item><item>
-    <title>leetcode 476. Number Complement [Medium]</title>
-    <link>http://example.org/posts/lc476/</link>
-    <pubDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc476/</guid>
-    <description><![CDATA[題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
+解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;amp;&amp;amp; fast-&amp;gt;next) { fast = fast-&amp;gt;next-&amp;gt;next; head = head-&amp;gt;next; } return head; } }; </description>
+    </item>
+    
+    <item>
+      <title>leetcode 476. Number Complement [Medium]</title>
+      <link>http://example.org/posts/lc476/</link>
+      <pubDate>Mon, 27 Dec 2021 01:05:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc476/</guid>
+      <description>題目敘述 對一個整數的有效位元做位元轉換(ones&#39; complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
 思路 這題算是 Bit Manipulation 的入門題目，很適合練習 bit 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。
-因為這題的範圍限制 1 &lt;= num &lt; 2^31，所以可確保第一個 bit 為0
+因為這題的範圍限制 1 &amp;lt;= num &amp;lt; 2^31，所以可確保第一個 bit 為0
 找第一個有效位元 我的想法是先從左邊第一個 bit 開始找，找到第一個 1 ，後面所有的 bit 就都是有效位數，再一一反轉。
 要判斷左邊第一個位元是不是 1 可以寫成
-if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方式先找到第一個 1 的所在，在對於後面的 bit 做反轉。
-反轉 bits  (一): 逐個 bit 反轉, 利用 XOR  class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !]]></description>
-</item><item>
-    <title>leetcode 198. House Robber [Medium]</title>
-    <link>http://example.org/posts/lc198/</link>
-    <pubDate>Sun, 26 Dec 2021 01:05:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc198/</guid>
-    <description><![CDATA[題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
+if ((num &amp;amp; (1 &amp;lt;&amp;lt; 31)) == 1) { // do something } 可以利用這個方式先找到第一個 1 的所在，在對於後面的 bit 做反轉。
+反轉 bits  (一): 逐個 bit 反轉, 利用 XOR  class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &amp;gt;= 0; shift--) { if ((num &amp;amp; (1 &amp;lt;&amp;lt; shift)) !</description>
+    </item>
+    
+    <item>
+      <title>leetcode 198. House Robber [Medium]</title>
+      <link>http://example.org/posts/lc198/</link>
+      <pubDate>Sun, 26 Dec 2021 01:05:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc198/</guid>
+      <description>題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
 這題算是基本的 dp 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。
-解題紀錄 class Solution { public: int rob(vector&lt;int&gt;&amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; ]]></description>
-</item><item>
-    <title>leetcode 973. K Closest Points to Origin [Medium]</title>
-    <link>http://example.org/posts/lc973/</link>
-    <pubDate>Sun, 26 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc973/</guid>
-    <description><![CDATA[題目敘述 給 n 個座標，返回距離原點最近的 k 個座標
+解題紀錄 class Solution { public: int rob(vector&amp;lt;int&amp;gt;&amp;amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &amp;lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; </description>
+    </item>
+    
+    <item>
+      <title>leetcode 973. K Closest Points to Origin [Medium]</title>
+      <link>http://example.org/posts/lc973/</link>
+      <pubDate>Sun, 26 Dec 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc973/</guid>
+      <description>題目敘述 給 n 個座標，返回距離原點最近的 k 個座標
 解題紀錄 解法一 因為要返回的只有座標點，所以其實不需要開根號，直接用 (x^2 + y^2) 比較即可。
-class Solution { public: vector&lt;vector&lt;int&gt;&gt; kClosest(vector&lt;vector&lt;int&gt;&gt;&amp; points, int k) { sort(points.begin(), points.end(), [this](vector&lt;int&gt; &amp;a, vector&lt;int&gt; &amp;b) { return get_distance(a) &lt; get_distance(b); }); return vector&lt;vector&lt;int&gt;&gt;(points.begin(), points.begin() + k); } inline int get_distance(vector&lt;int&gt; &amp;point) { return point[0] * point[0] + point[1] * point[1]; } }; #pragma GCC optimize(&#34;Ofast&#34;) #pragma GCC target(&#34;avx,avx2,fma&#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); 解法二 求最近的 k 個節點，其實可以換個思路，利用 maxHeap 來實現。]]></description>
-</item><item>
-    <title>leetcode 227. Basic Calculator II [Medium]</title>
-    <link>http://example.org/posts/lc227/</link>
-    <pubDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc227/</guid>
-    <description><![CDATA[題目敘述 輸入算式的字串，返回解答。運算子只有 +, -, *, /，這題還沒有出現包含括號的情況。
+class Solution { public: vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt; kClosest(vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt;&amp;amp; points, int k) { sort(points.begin(), points.end(), [this](vector&amp;lt;int&amp;gt; &amp;amp;a, vector&amp;lt;int&amp;gt; &amp;amp;b) { return get_distance(a) &amp;lt; get_distance(b); }); return vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt;(points.begin(), points.begin() + k); } inline int get_distance(vector&amp;lt;int&amp;gt; &amp;amp;point) { return point[0] * point[0] + point[1] * point[1]; } }; #pragma GCC optimize(&amp;#34;Ofast&amp;#34;) #pragma GCC target(&amp;#34;avx,avx2,fma&amp;#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); 解法二 求最近的 k 個節點，其實可以換個思路，利用 maxHeap 來實現。</description>
+    </item>
+    
+    <item>
+      <title>leetcode 227. Basic Calculator II [Medium]</title>
+      <link>http://example.org/posts/lc227/</link>
+      <pubDate>Sat, 25 Dec 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc227/</guid>
+      <description>題目敘述 輸入算式的字串，返回解答。運算子只有 +, -, *, /，這題還沒有出現包含括號的情況。
 解題紀錄 這次是直覺的用 stack 解出來，但是仔細思考過後發覺好像不一定要用 stack，可以用變數去存資料，之後待補XD
-class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&lt;long long int&gt; result; char op_code = &#39;+&#39;; for (int i = 0; i &lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &#39;0&#39;; } if (!isnumber(s[i]) &amp;&amp; s[i] != &#39; &#39; || i == len-1) { switch (op_code) { case &#39;+&#39;: result.]]></description>
-</item><item>
-    <title>leetcode 56. Merge Intervals [Medium]</title>
-    <link>http://example.org/posts/lc56/</link>
-    <pubDate>Fri, 24 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc56/</guid>
-    <description><![CDATA[題目敘述 這題的題目本身意思很直觀，給很多 區間，然後將所有範圍重疊的 區間 合併。
+class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&amp;lt;long long int&amp;gt; result; char op_code = &amp;#39;+&amp;#39;; for (int i = 0; i &amp;lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &amp;#39;0&amp;#39;; } if (!isnumber(s[i]) &amp;amp;&amp;amp; s[i] != &amp;#39; &amp;#39; || i == len-1) { switch (op_code) { case &amp;#39;+&amp;#39;: result.</description>
+    </item>
+    
+    <item>
+      <title>leetcode 56. Merge Intervals [Medium]</title>
+      <link>http://example.org/posts/lc56/</link>
+      <pubDate>Fri, 24 Dec 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc56/</guid>
+      <description>題目敘述 這題的題目本身意思很直觀，給很多 區間，然後將所有範圍重疊的 區間 合併。
 思考 一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 case 分成三種，如下圖所示
 這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 case，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 start 先排過一輪，就不會出線上圖 case B 的情況了。
-解題流程 class Solution { public: vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) { int length = intervals.size(); vector&lt;vector&lt;int&gt;&gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur + 1; while (walker &lt; length) { if (intervals[walker][0] &gt; end) { break; } end = max(end, intervals[walker][1]); walker++; } solution.]]></description>
-</item><item>
-    <title>leetcode 210. Course Schedule II [Medium]</title>
-    <link>http://example.org/posts/lc210/</link>
-    <pubDate>Thu, 23 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc210/</guid>
-    <description><![CDATA[題目敘述 給一個 prerequisites，每個元素 prerequisites[i] = [a, b]，都代表如果想選 a 課程，必須先修過 b 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。
+解題流程 class Solution { public: vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt; merge(vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt;&amp;amp; intervals) { int length = intervals.size(); vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &amp;lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur + 1; while (walker &amp;lt; length) { if (intervals[walker][0] &amp;gt; end) { break; } end = max(end, intervals[walker][1]); walker++; } solution.</description>
+    </item>
+    
+    <item>
+      <title>leetcode 210. Course Schedule II [Medium]</title>
+      <link>http://example.org/posts/lc210/</link>
+      <pubDate>Thu, 23 Dec 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc210/</guid>
+      <description>題目敘述 給一個 prerequisites，每個元素 prerequisites[i] = [a, b]，都代表如果想選 a 課程，必須先修過 b 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。
 思考 什麼情況下會導致無法修過全部的課程? 考慮以下組合為例
  prerequisites[0] = (1, 0), 修課程 1 之前必須修過課程 0 prerequisites[1] = (2, 1), 修課程 2 之前必須修過課程 1 prerequisites[2] = (0, 2), 修課程 0 之前必須修過課程 2  如果轉成有向圖則會變成以下情況
 所以說這題其實是一題圖論的題目，把修課的條件建立成一個 graph，然後用 dfs 去尋訪，如果偵測到 cycle 代表一定有課程沒辦法修到，回傳空陣列。
 在 dfs 的過程中用 status 來紀錄每個節點的狀態，如果 status[cur] == 1，代表這個節點是目前尋訪的點，用 status 來判斷是否有 cycle 的存在。
-解題紀錄 class Solution { public: vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) { vector&lt;vector&lt;int&gt;&gt; graph(numCourses); // 建立有向圖  for (const auto &amp;requisite: prerequisites) { graph[requisite[1]].]]></description>
-</item><item>
-    <title>leetcode 1306. Jump Game III [Medium]</title>
-    <link>http://example.org/posts/lc1306/</link>
-    <pubDate>Thu, 09 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc1306/</guid>
-    <description><![CDATA[題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
+解題紀錄 class Solution { public: vector&amp;lt;int&amp;gt; findOrder(int numCourses, vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt;&amp;amp; prerequisites) { vector&amp;lt;vector&amp;lt;int&amp;gt;&amp;gt; graph(numCourses); // 建立有向圖  for (const auto &amp;amp;requisite: prerequisites) { graph[requisite[1]].</description>
+    </item>
+    
+    <item>
+      <title>leetcode 1306. Jump Game III [Medium]</title>
+      <link>http://example.org/posts/lc1306/</link>
+      <pubDate>Thu, 09 Dec 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc1306/</guid>
+      <description>題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
 注意你在任意時刻都不能跳出陣列。
-限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
-解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
-static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr.]]></description>
-</item><item>
-    <title>leetcode 222. Count Complete Tree Nodes [Medium]</title>
-    <link>http://example.org/posts/lc222/</link>
-    <pubDate>Wed, 27 Oct 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc222/</guid>
-    <description><![CDATA[題目連結
+限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &amp;lt; arr.length 0 ≦ start &amp;lt; arr.length
+解題紀錄 簡單的 dfs 解決，用一個 vector&amp;lt;bool&amp;gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
+static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&amp;lt;bool&amp;gt; record; bool canReach(vector&amp;lt;int&amp;gt; &amp;amp;arr, int start) { len = arr.</description>
+    </item>
+    
+    <item>
+      <title>leetcode 222. Count Complete Tree Nodes [Medium]</title>
+      <link>http://example.org/posts/lc222/</link>
+      <pubDate>Wed, 27 Oct 2021 01:04:53 +0800</pubDate>
+      <author>davidleitw@gmail.com (davidlei)</author>
+      <guid>http://example.org/posts/lc222/</guid>
+      <description>題目連結
 題目敘述 給予一棵 Complete Binary Tree，求節點個數。
 Complete Binary Tree 定義 BFS 用最直觀的 BFS 來解，每從 queue 拿出一個節點，count 加一。
-class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&lt;TreeNode*&gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&gt;left) q.push(node-&gt;left); if (node-&gt;right) q.push(node-&gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.]]></description>
-</item></channel>
+class Solution { public: int countNodes(TreeNode* root) { if (!root) return 0; int cnt = 0; queue&amp;lt;TreeNode*&amp;gt; q; q.push(root); while (!q.empty()) { TreeNode *node = q.front(); q.pop(); if (node-&amp;gt;left) q.push(node-&amp;gt;left); if (node-&amp;gt;right) q.push(node-&amp;gt;right); cnt++; } return cnt; } }; Runtime: 24 ms, faster than 95.34% of C++ online submissions for Count Complete Tree Nodes.</description>
+    </item>
+    
+  </channel>
 </rss>
