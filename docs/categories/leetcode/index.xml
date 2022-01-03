@@ -4,7 +4,16 @@
         <link>http://example.org/categories/leetcode/</link>
         <description>leetcode - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sun, 02 Jan 2022 01:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 04 Jan 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/leetcode/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 997. Find the Town Judge [Easy]</title>
+    <link>http://example.org/posts/lc997/</link>
+    <pubDate>Tue, 04 Jan 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc997/</guid>
+    <description><![CDATA[題目敘述 在小鎮中有 N 個人，其中裡面有一個是 Judge，成為 Judge 要滿足兩個條件
+ Judge 本身不相信任何人 其他 N-1 個人都相信 Judge  一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
+解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; ]]></description>
+</item><item>
     <title>leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</title>
     <link>http://example.org/posts/lc1010/</link>
     <pubDate>Sun, 02 Jan 2022 01:12:53 &#43;0800</pubDate>
@@ -93,17 +102,5 @@ class Solution { public: int calculate(string s) { long long int tmp; long long 
 思考 一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 case 分成三種，如下圖所示
 這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 case B 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 case，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 start 先排過一輪，就不會出線上圖 case B 的情況了。
 解題流程 class Solution { public: vector&lt;vector&lt;int&gt;&gt; merge(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) { int length = intervals.size(); vector&lt;vector&lt;int&gt;&gt; solution; sort(intervals.begin(), intervals.end()); int cur = 0; while (cur &lt; length) { int start = intervals[cur][0]; int end = intervals[cur][1]; int walker = cur + 1; while (walker &lt; length) { if (intervals[walker][0] &gt; end) { break; } end = max(end, intervals[walker][1]); walker++; } solution.]]></description>
-</item><item>
-    <title>leetcode 210. Course Schedule II [Medium]</title>
-    <link>http://example.org/posts/lc210/</link>
-    <pubDate>Thu, 23 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc210/</guid>
-    <description><![CDATA[題目敘述 給一個 prerequisites，每個元素 prerequisites[i] = [a, b]，都代表如果想選 a 課程，必須先修過 b 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。
-思考 什麼情況下會導致無法修過全部的課程? 考慮以下組合為例
- prerequisites[0] = (1, 0), 修課程 1 之前必須修過課程 0 prerequisites[1] = (2, 1), 修課程 2 之前必須修過課程 1 prerequisites[2] = (0, 2), 修課程 0 之前必須修過課程 2  如果轉成有向圖則會變成以下情況
-所以說這題其實是一題圖論的題目，把修課的條件建立成一個 graph，然後用 dfs 去尋訪，如果偵測到 cycle 代表一定有課程沒辦法修到，回傳空陣列。
-在 dfs 的過程中用 status 來紀錄每個節點的狀態，如果 status[cur] == 1，代表這個節點是目前尋訪的點，用 status 來判斷是否有 cycle 的存在。
-解題紀錄 class Solution { public: vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) { vector&lt;vector&lt;int&gt;&gt; graph(numCourses); // 建立有向圖  for (const auto &amp;requisite: prerequisites) { graph[requisite[1]].]]></description>
 </item></channel>
 </rss>
