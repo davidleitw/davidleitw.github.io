@@ -650,6 +650,7 @@ void wake_up_new_task(struct task_struct *p)
 ### reference
 - [_do_fork, do_fork 詳解](https://www.cnblogs.com/linhaostudy/p/9644736.html#autoid-1-4-0)
 - [trace 30個基本Linux系統呼叫第七日：fork](https://ithelp.ithome.com.tw/articles/10185342)
+- [Day4 橫空出世的 kernel_clone](https://ithelp.ithome.com.tw/articles/10267145)
 - [fork 背後隱藏的技術細節](https://zhuanlan.zhihu.com/p/373954153)
 - [Linux系统如何标识进程？](https://blog.csdn.net/weijitao/article/details/79918013)
 - [kernel_clone](https://blog.csdn.net/jasonactions/article/details/115316642)
