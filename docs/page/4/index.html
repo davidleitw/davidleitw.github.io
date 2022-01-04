@@ -100,6 +100,17 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/socket1/">linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-10-25">2021-10-25</time></span>&nbsp;<span class="post-category">included in <a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div><div class="content">socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
+在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
+我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
+本文章所使用的環境
+ kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
+#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+ AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page</div><div class="post-footer">
+        <a href="/posts/socket1/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/socket/">socket</a>,&nbsp;<a href="/tags/c/">c</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/jserv_linux_w1_q2/">jserv - linux 核心設計 第一周題目二解題紀錄</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-09-01">2021-09-01</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">單向 linked list
 typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
@@ -146,17 +157,6 @@ int (*myFunc)(int, int); 上面就是一個基本的 function pointer 宣告
 void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer 去指向這個 function 呢？</div><div class="post-footer">
         <a href="/posts/c_functionpointer/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lovelt/">使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/"><i class="far fa-folder fa-fw"></i>日常紀錄</a></span></div><div class="content">這次新架的 blog 使用了 LoveIt 這個主題
-詳細的架設參數設定都是參考其官方部落格，寫的算是滿詳細的，值得參考。
-至於跟 github page 連動的部份，這方面很多文章都有不同的解決方案，我在這篇分享一下我的解決方法。
-因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 /docs 或者 /public 之中，底下是我 github page 專案的架構
-其中 blog 是主要 hugo 生成的目錄，docs 是給 github page 辨識靜態檔案的目錄。
-在 /blog 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 /docs 底下，讓 github page 讀取
-hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  </div><div class="post-footer">
-        <a href="/posts/lovelt/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/blog/">blog</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
                         <a href="/">1</a>
@@ -176,6 +176,10 @@ hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push referenc
                 </li><li class="page-item ">
                     <span class="page-link">
                         <a href="/page/5/">5</a>
+                    </span>
+                </li><li class="page-item ">
+                    <span class="page-link">
+                        <a href="/page/6/">6</a>
                     </span>
                 </li></ul></div></div>
             </main><footer class="footer">

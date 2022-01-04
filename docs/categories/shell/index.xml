@@ -1,0 +1,34 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>shell - Category - davidLei</title>
+        <link>http://example.org/categories/shell/</link>
+        <description>shell - Category - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/shell/" rel="self" type="application/rss+xml" /><item>
+    <title>Linux shell 變數相關用法整理(一): assign, echo, export, unset</title>
+    <link>http://example.org/posts/linux_shell_var1/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/linux_shell_var1/</guid>
+    <description><![CDATA[假設今天我們常用的資料夾路徑是在 /path1/workdir/project1/module... 每次登入 linux 環境都要切換到這個資料夾我們就需要重新輸入路徑
+$ cd /path1/workdir/project1/module... 我們這時候就可以用一個變數來取代常用的字串
+在這之前先介紹一下變數的取用
+echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這個變數的值並且顯示出來
+ 在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
+ 回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
+$ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則  設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格  $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來    如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例 用 '' 包起來 bash 就不會把 $變數 置換成該變數的內容。]]></description>
+</item><item>
+    <title>Linux shell 變數相關用法整理(二): read, declare, array</title>
+    <link>http://example.org/posts/linux_shell_var2/</link>
+    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/linux_shell_var2/</guid>
+    <description><![CDATA[很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。
+read 讀取從鍵盤輸入的變數，常常會出現在 shell script 之中
+$ read [-pt] 變數名稱 // 參數 // -p 後面接提示字元 // -t 後面接等待時間，超過時間沒輸入則取消指令 $ declare 可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型
+$ declare [-aixr] 變數名稱 // 參數 // -a 宣告陣列型態的變數 // -i 宣告整數型態的變數 // -x 同 export 指令，宣告的變數變成全域變數(可以讓子程序讀取) // -r 宣告 readonly, 不可更改變數內容，也無法被 unset 取消 // -p 列出變數資料型態 $ 接著試著把 num 轉成全域變數，並且用 export 指令觀察一下:
+列出指定變數的資料型態
+array 以 arr[index]=content 的形式來指定 array Index 所代表的值。
+reference  鳥哥的 Linux 私房菜  ]]></description>
+</item></channel>
+</rss>

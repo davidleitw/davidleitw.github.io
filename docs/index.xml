@@ -4,9 +4,20 @@
         <link>http://example.org/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 04 Jan 2022 00:12:53 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</lastBuildDate>
             <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>Linux fork() 底層實作流程整理</title>
+    <link>http://example.org/posts/linux_fork_01/</link>
+    <pubDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/linux_fork_01/</guid>
+    <description><![CDATA[因為作業需要在 task_struct 中加入 counter 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
+ kernel 版本使用 v4.14.259
+ 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
+從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
+ 建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()]]></description>
+</item><item>
     <title>leetcode 997. Find the Town Judge [Easy]</title>
     <link>http://example.org/posts/lc997/</link>
     <pubDate>Tue, 04 Jan 2022 00:12:53 &#43;0800</pubDate>
@@ -95,14 +106,5 @@ if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方�
     <description><![CDATA[題目敘述 給 n 個座標，返回距離原點最近的 k 個座標
 解題紀錄 解法一 因為要返回的只有座標點，所以其實不需要開根號，直接用 (x^2 + y^2) 比較即可。
 class Solution { public: vector&lt;vector&lt;int&gt;&gt; kClosest(vector&lt;vector&lt;int&gt;&gt;&amp; points, int k) { sort(points.begin(), points.end(), [this](vector&lt;int&gt; &amp;a, vector&lt;int&gt; &amp;b) { return get_distance(a) &lt; get_distance(b); }); return vector&lt;vector&lt;int&gt;&gt;(points.begin(), points.begin() + k); } inline int get_distance(vector&lt;int&gt; &amp;point) { return point[0] * point[0] + point[1] * point[1]; } }; #pragma GCC optimize(&#34;Ofast&#34;) #pragma GCC target(&#34;avx,avx2,fma&#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); 解法二 求最近的 k 個節點，其實可以換個思路，利用 maxHeap 來實現。]]></description>
-</item><item>
-    <title>leetcode 227. Basic Calculator II [Medium]</title>
-    <link>http://example.org/posts/lc227/</link>
-    <pubDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc227/</guid>
-    <description><![CDATA[題目敘述 輸入算式的字串，返回解答。運算子只有 +, -, *, /，這題還沒有出現包含括號的情況。
-解題紀錄 這次是直覺的用 stack 解出來，但是仔細思考過後發覺好像不一定要用 stack，可以用變數去存資料，之後待補XD
-class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&lt;long long int&gt; result; char op_code = &#39;+&#39;; for (int i = 0; i &lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &#39;0&#39;; } if (!isnumber(s[i]) &amp;&amp; s[i] != &#39; &#39; || i == len-1) { switch (op_code) { case &#39;+&#39;: result.]]></description>
 </item></channel>
 </rss>

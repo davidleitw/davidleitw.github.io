@@ -100,70 +100,30 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc876/">leetcode 876. Middle of the Linked List [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-28">2021-12-28</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 獲得 linked list 的 middle 節點。
-經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
-解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; </div><div class="post-footer">
-        <a href="/posts/lc876/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc476/">leetcode 476. Number Complement [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-27">2021-12-27</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
-思路 這題算是 Bit Manipulation 的入門題目，很適合練習 bit 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。
-因為這題的範圍限制 1 &lt;= num &lt; 2^31，所以可確保第一個 bit 為0
-找第一個有效位元 我的想法是先從左邊第一個 bit 開始找，找到第一個 1 ，後面所有的 bit 就都是有效位數，再一一反轉。
-要判斷左邊第一個位元是不是 1 可以寫成
-if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方式先找到第一個 1 的所在，在對於後面的 bit 做反轉。
-反轉 bits  (一): 逐個 bit 反轉, 利用 XOR  class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !</div><div class="post-footer">
-        <a href="/posts/lc476/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc198/">leetcode 198. House Robber [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-26">2021-12-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
-這題算是基本的 dp 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。
-解題紀錄 class Solution { public: int rob(vector&lt;int&gt;&amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; </div><div class="post-footer">
-        <a href="/posts/lc198/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc973/">leetcode 973. K Closest Points to Origin [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-26">2021-12-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給 n 個座標，返回距離原點最近的 k 個座標
-解題紀錄 解法一 因為要返回的只有座標點，所以其實不需要開根號，直接用 (x^2 + y^2) 比較即可。
-class Solution { public: vector&lt;vector&lt;int&gt;&gt; kClosest(vector&lt;vector&lt;int&gt;&gt;&amp; points, int k) { sort(points.begin(), points.end(), [this](vector&lt;int&gt; &amp;a, vector&lt;int&gt; &amp;b) { return get_distance(a) &lt; get_distance(b); }); return vector&lt;vector&lt;int&gt;&gt;(points.begin(), points.begin() + k); } inline int get_distance(vector&lt;int&gt; &amp;point) { return point[0] * point[0] + point[1] * point[1]; } }; #pragma GCC optimize(&#34;Ofast&#34;) #pragma GCC target(&#34;avx,avx2,fma&#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); 解法二 求最近的 k 個節點，其實可以換個思路，利用 maxHeap 來實現。</div><div class="post-footer">
-        <a href="/posts/lc973/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc227/">leetcode 227. Basic Calculator II [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-25">2021-12-25</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 輸入算式的字串，返回解答。運算子只有 +, -, *, /，這題還沒有出現包含括號的情況。
-解題紀錄 這次是直覺的用 stack 解出來，但是仔細思考過後發覺好像不一定要用 stack，可以用變數去存資料，之後待補XD
-class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&lt;long long int&gt; result; char op_code = &#39;+&#39;; for (int i = 0; i &lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &#39;0&#39;; } if (!isnumber(s[i]) &amp;&amp; s[i] != &#39; &#39; || i == len-1) { switch (op_code) { case &#39;+&#39;: result.</div><div class="post-footer">
-        <a href="/posts/lc227/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/time01/">golang 定時器(一) Time, Ticker 基本用法整理</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-24">2021-12-24</time></span>&nbsp;<span class="post-category">included in <a href="/categories/go/"><i class="far fa-folder fa-fw"></i>go</a></span></div><div class="content">在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。
-所有有關定時器的功能都在 time 內，使用前必須先
-import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下</div><div class="post-footer">
-        <a href="/posts/time01/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/go/">go</a>,&nbsp;<a href="/tags/timer/">timer</a></div></div>
+        <a href="/posts/gfs/">The Google File System (GFS) 論文心得</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/paper/"><i class="far fa-folder fa-fw"></i>paper</a></span></div><div class="content">跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
+背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
+ 用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
+ 跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
+ performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性  因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
+在 Introduction 中也有先簡單介紹了 GFS 的幾個特色</div><div class="post-footer">
+        <a href="/posts/gfs/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/distributed/">distributed</a>,&nbsp;<a href="/tags/paper/">paper</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
                         <a href="/">1</a>
                     </span>
-                </li><li class="page-item active">
-                    <span class="page-link">
-                        <a href="/page/2/">2</a>
-                    </span>
                 </li><li class="page-item ">
-                    <span class="page-link">
-                        <a href="/page/3/">3</a>
-                    </span>
+                    <span class="page-link" aria-hidden="true">&hellip;</span>
                 </li><li class="page-item ">
                     <span class="page-link">
                         <a href="/page/4/">4</a>
                     </span>
                 </li><li class="page-item ">
-                    <span class="page-link" aria-hidden="true">&hellip;</span>
-                </li><li class="page-item ">
+                    <span class="page-link">
+                        <a href="/page/5/">5</a>
+                    </span>
+                </li><li class="page-item active">
                     <span class="page-link">
                         <a href="/page/6/">6</a>
                     </span>

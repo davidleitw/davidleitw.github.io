@@ -6,7 +6,7 @@ draft: false
 tags: 
     - linux
     - shell
-categories: ["linux"]
+categories: ["shell"]
 description: linuxshellvar2
 ---
 
