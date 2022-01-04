@@ -19,7 +19,9 @@ categories: ["linux_kernel"]
 - 建立 **user process**: `fork`, `vfork`, `clone`
 - 建立 **kernel thread**: `kernel_thread`, `kthread_create`
 
+
 以上這些 `API` 最後都會呼叫 `/kernel/fork.c` 中的 [`_do_fork`](https://elixir.free-electrons.com/linux/v4.14.54/source/kernel/fork.c#L2019) 來進行 `create task_struct` 的操作，只是會根據給的參數不同，來決定建立出來的 `task_struct` 的性質，以上幾個 `system call` 的差別也可以參考 [The difference between fork(), vfork(), exec() and clone()](https://stackoverflow.com/questions/4856255/the-difference-between-fork-vfork-exec-and-clone)
+
 
 但是如果看最新幾版的 `kernel source code` 會發現怎麼樣都沒辦法找到 `_do_fork` 這個 `function` 了，仔細找了一下原因，發現在 `linux v5.10` 之後因為命名規則的不同，把 `_do_fork()` 改名為 `kernel_thread()`，不過實作並沒有大幅度的更改，所以以下在研究 `source code` 的時候還是會以 `v4.14.259` 為準。
 
@@ -56,9 +58,10 @@ long _do_fork(unsigned long clone_flags,
 			  unsigned long stack_start,
 			  unsigned long stack_size,
 			  int __user *parent_tidptr,
-			  int __user *child_tidptr*,
+			  int __user *child_tidptr,
 			  unsigned long tls)
 ```
+
 
 因為在 `linux` 中 `process` 跟 `thread` 沒有明確的區分，都是以 `task_struct` 的形式存在，所以 `task_struct` 的性質就要在呼叫 `system call` 的時候藉由傳入的 `clone flags` 來決定性質。
 
@@ -94,6 +97,7 @@ long _do_fork(unsigned long clone_flags,
 #define CLONE_NEWNET 0x40000000 /* New network namespace */
 #define CLONE_IO 0x80000000 /* Clone io context */
 ```
+
 
 透過組合不同的 `clone flag` 可以決定 `task_struct` 的一些特性，詳細解說每個 `clone flag` 有什麼用途可以參考  [clone(2)](https://man7.org/linux/man-pages/man2/clone.2.html)，之後有機會再針對 `clone` 整理一篇文章。
 
@@ -139,6 +143,7 @@ long _do_fork(unsigned long clone_flags,
 	.
 }
 ```
+
 
 一開始的段落是有關於 `ptrace` 的邏輯處理，`trace` 變數代表 `child process` 是否可以被追蹤，如果可以，則 `trace` 代表這個 `child process` 是由哪個 `system call` 創立的(`vfork`, `clone`, `fork`)，重點在於後面的 `copy_process`，其實講的直觀一點，`copy_process` 做的事情就是回傳一個新的 `task_struct`，但是在回傳新的 `task_struct` 的時候，該 `task_struct` 是還沒有開啟的狀態，我們先繼續往 `copy_process` 去 `trace`。
 

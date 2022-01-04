@@ -167,7 +167,7 @@
 			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
 			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
 			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
-			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="o">*</span><span class="p">,</span>
+			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
 			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
 </code></pre></div><p>因為在 <code>linux</code> 中 <code>process</code> 跟 <code>thread</code> 沒有明確的區分，都是以 <code>task_struct</code> 的形式存在，所以 <code>task_struct</code> 的性質就要在呼叫 <code>system call</code> 的時候藉由傳入的 <code>clone flags</code> 來決定性質。</p>
 <p><code>clone flags</code> 定義在 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/include/uapi/linux/sched.h#L5" target="_blank" rel="noopener noreffer">/include/uapi/linux/sched.h</a>中，定義如下</p>
