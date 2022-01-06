@@ -43,7 +43,7 @@ $ sudo apt upgrade virtualbox
 ```bash
 $ mkdir project
 $ cd project
-$ vagrant init ubuntu/xenial164
+$ vagrant init ubuntu/xenial64
 $ vagrant up
 ```
 
