@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Linux schedule 流程研究 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux schedule 流程研究" />
+<meta property="og:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/linux_get_context_switch/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-01-07T03:12:53+08:00" />
+<meta property="article:modified_time" content="2022-01-07T03:12:53+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Linux schedule 流程研究"/>
+<meta name="twitter:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks."/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/linux_get_context_switch/" /><link rel="prev" href="http://example.org/posts/linux_fork_01/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Linux schedule 流程研究",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/linux_get_context_switch\/"
+        },"genre": "posts","keywords": "linux_kernel, system_call, scheduler","wordcount":  1219 ,
+        "url": "http:\/\/example.org\/posts\/linux_get_context_switch\/","datePublished": "2022-01-07T03:12:53+08:00","dateModified": "2022-01-07T03:12:53+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Linux schedule 流程研究</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-07">2022-01-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1219 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;6 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424">schedule</a></a></li>
+      </ul>
+    </li>
+    <li><a href="#sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412">sched_submit_work</a></a></li>
+    <li><a href="#_schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3299"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299">_schedule</a></a>
+      <ul>
+        <li><a href="#get-the-number-of-context-switches">get the number of context switches</a></li>
+      </ul>
+    </li>
+    <li><a href="#kernel-space">kernel space</a></li>
+    <li><a href="#user-space">user space</a>
+      <ul>
+        <li><a href="#refernece">refernece</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>第一次 <code>trace</code> 整個調度的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
+<h3 id="schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424" target="_blank" rel="noopener noreffer">schedule</a></h3>
+<p>要 <code>trace</code> 調度器要先找到 <code>schedule</code> 的入口，定義在 <code>kernel/sched/core.c</code>，函式定義如下</p>
+<pre tabindex="0"><code class="language-c=3424" data-lang="c=3424">asmlinkage __visible void __sched schedule(void)
+{
+	struct task_struct *tsk = current;
+    
+    // 避免 deadlock
+	sched_submit_work(tsk);
+	do {
+        // 調度本身無法搶佔，等調度完畢再開啟
+	preempt_disable();
+		
+        __schedule(false);
+        
+        // 調度完成，開啟搶佔功能
+	sched_preempt_enable_no_resched();
+	} while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度
+}
+EXPORT_SYMBOL(schedule);
+</code></pre><h2 id="sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412" target="_blank" rel="noopener noreffer">sched_submit_work</a></h2>
+<pre tabindex="0"><code class="language-c=3412" data-lang="c=3412">static inline void sched_submit_work(struct task_struct *tsk)
+{
+	if (!tsk-&gt;state || tsk_is_pi_blocked(tsk))
+		return;
+	/*
+	 * If we are going to sleep and we have plugged IO queued,
+	 * make sure to submit it to avoid deadlocks.
+	 */
+	if (blk_needs_flush_plug(tsk))
+		blk_schedule_flush_plug(tsk);
+}
+</code></pre><p>在 <code>sched_submit_work</code> 中先檢查 <code>tsk-&gt;state</code> 是否為 0(<code>runnable</code>)，如果是就直接返回。
+<code>tsk_is_pi_blocked</code> 檢查 <code>tsk</code> 的 <code>deadlock</code> 檢測器是否為空。</p>
+<p>注意到 <code>schedule</code> 的 <code>while</code> 迴圈中的 <code>__schedule(false)</code>，<code>__schedule</code> 是真正調度執行的地方，所以繼續往下 <code>trace</code></p>
+<h2 id="_schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3299"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299" target="_blank" rel="noopener noreffer">_schedule</a></h2>
+<p>在 <code>__schedule()</code> 定義上方有一段註解說明<strong>調度時機</strong>，主要是說明 <code>task_struct</code> 在什麼情況會被調度，底下會大概敘述一下調度器在什麼情況下會考慮調度。</p>
+<pre tabindex="0"><code class="language-c=3260" data-lang="c=3260">/*
+ * __schedule() is the main scheduler function.
+ *
+ * The main means of driving the scheduler and thus entering this function are:
+ *
+ *   1. Explicit blocking: mutex, semaphore, waitqueue, etc.
+ *
+ *   2. TIF_NEED_RESCHED flag is checked on interrupt and userspace return
+ *      paths. For example, see arch/x86/entry_64.S.
+ *
+ *      To drive preemption between tasks, the scheduler sets the flag in timer
+ *      interrupt handler scheduler_tick().
+ *
+ *   3. Wakeups don't really cause entry into schedule(). They add a
+ *      task to the run-queue and that's it.
+ *
+ *      Now, if the new task added to the run-queue preempts the current
+ *      task, then the wakeup sets TIF_NEED_RESCHED and schedule() gets
+ *      called on the nearest possible occasion:
+ *
+ *       - If the kernel is preemptible (CONFIG_PREEMPT=y):
+ *
+ *         - in syscall or exception context, at the next outmost
+ *           preempt_enable(). (this might be as soon as the wake_up()'s
+ *           spin_unlock()!)
+ *
+ *         - in IRQ context, return from interrupt-handler to
+ *           preemptible context
+ *
+ *       - If the kernel is not preemptible (CONFIG_PREEMPT is not set)
+ *         then at the next:
+ *
+ *          - cond_resched() call
+ *          - explicit schedule() call
+ *          - return from syscall or exception to user-space
+ *          - return from interrupt-handler to user-space
+ *
+ * WARNING: must be called with preemption disabled!
+ */
+</code></pre><p>在這段註解中大致說明了幾個調度的場景跟時機</p>
+<ul>
+<li>自願切換(<code>Voluntary</code>)
+<ul>
+<li><code>sleep</code>，定時任務場景</li>
+<li><code>mutex</code>, <code>semaphore</code> <code>waitqueue</code> 等</li>
+<li>在呼叫 <a href="https://elixir.bootlin.com/linux/latest/source/kernel/exit.c#L727" target="_blank" rel="noopener noreffer">do_exit</a> 時，主動釋放資源，並且最後會調用一次<code>主調度器</code>。</li>
+</ul>
+</li>
+<li>強制切換(<code>Involuntary</code>), 也被稱為搶佔(<code>Preemption</code>)
+<ul>
+<li><code>TIF_NEED_RESCHED</code>, <code>TIF</code> 開頭代表是 <code>thread information flags</code>，詳細有哪些 <code>flag</code> 可以參考 <a href="https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/thread_info.h#L80" target="_blank" rel="noopener noreffer">arch/x86/include/asm/thread_info.h</a>，<code>kernel</code> 透過這個 <code>flag</code> 來判斷這個 <code>task_struct</code> 是否要被<strong>搶佔(<code>Preemption</code>)</strong>
+<ul>
+<li>具體 <code>TIF_NEED_RESCHED</code> 的細節可以參考<a href="http://linuxperf.com/?p=211" target="_blank" rel="noopener noreffer">這篇文章</a></li>
+<li>當 <code>TIF_NEED_RESCHED</code> 被設置後並不是馬上被調度，而是會在最近的<strong>調度點</strong>被調度</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>wake_up</code> 只是把 <code>task</code> 加入 <code>runqueue</code> 中，之後根據 <code>preempts</code> 的設置會有不同的處理方式。</li>
+</ul>
+<pre tabindex="0"><code class="language-c=3299" data-lang="c=3299">static void __sched notrace __schedule(bool preempt)
+{
+	struct task_struct *prev, *next;
+	unsigned long *switch_count;
+	struct rq_flags rf;
+	struct rq *rq;
+	int cpu;
+
+	cpu = smp_processor_id();
+	rq = cpu_rq(cpu);
+	prev = rq-&gt;curr;
+
+	schedule_debug(prev);
+
+	if (sched_feat(HRTICK))
+		hrtick_clear(rq);
+
+	local_irq_disable();
+	rcu_note_context_switch(preempt);
+
+	/*
+	 * Make sure that signal_pending_state()-&gt;signal_pending() below
+	 * can't be reordered with __set_current_state(TASK_INTERRUPTIBLE)
+	 * done by the caller to avoid the race with signal_wake_up().
+	 */
+	rq_lock(rq, &amp;rf);
+	smp_mb__after_spinlock();
+
+	/* Promote REQ to ACT */
+	rq-&gt;clock_update_flags &lt;&lt;= 1;
+	update_rq_clock(rq);
+
+	switch_count = &amp;prev-&gt;nivcsw;
+	if (!preempt &amp;&amp; prev-&gt;state) {
+		if (unlikely(signal_pending_state(prev-&gt;state, prev))) {
+			prev-&gt;state = TASK_RUNNING;
+		} else {
+			deactivate_task(rq, prev, DEQUEUE_SLEEP | DEQUEUE_NOCLOCK);
+			prev-&gt;on_rq = 0;
+
+			if (prev-&gt;in_iowait) {
+				atomic_inc(&amp;rq-&gt;nr_iowait);
+				delayacct_blkio_start();
+			}
+
+			/*
+			 * If a worker went to sleep, notify and ask workqueue
+			 * whether it wants to wake up a task to maintain
+			 * concurrency.
+			 */
+			if (prev-&gt;flags &amp; PF_WQ_WORKER) {
+				struct task_struct *to_wakeup;
+
+				to_wakeup = wq_worker_sleeping(prev);
+				if (to_wakeup)
+					try_to_wake_up_local(to_wakeup, &amp;rf);
+			}
+		}
+		switch_count = &amp;prev-&gt;nvcsw;
+	}
+
+	next = pick_next_task(rq, prev, &amp;rf);
+	clear_tsk_need_resched(prev);
+	clear_preempt_need_resched();
+
+	if (likely(prev != next)) {
+		rq-&gt;nr_switches++;
+		rq-&gt;curr = next;
+		/*
+		 * The membarrier system call requires each architecture
+		 * to have a full memory barrier after updating
+		 * rq-&gt;curr, before returning to user-space. For TSO
+		 * (e.g. x86), the architecture must provide its own
+		 * barrier in switch_mm(). For weakly ordered machines
+		 * for which spin_unlock() acts as a full memory
+		 * barrier, finish_lock_switch() in common code takes
+		 * care of this barrier. For weakly ordered machines for
+		 * which spin_unlock() acts as a RELEASE barrier (only
+		 * arm64 and PowerPC), arm64 has a full barrier in
+		 * switch_to(), and PowerPC has
+		 * smp_mb__after_unlock_lock() before
+		 * finish_lock_switch().
+		 */
+		++*switch_count;
+		trace_sched_switch(preempt, prev, next);
+
+		/* Also unlocks the rq: */
+		prev-&gt;cs_cnt++;
+		rq = context_switch(rq, prev, next, &amp;rf);
+	} else {
+		rq-&gt;clock_update_flags &amp;= ~(RQCF_ACT_SKIP|RQCF_REQ_SKIP);
+		rq_unlock_irq(rq, &amp;rf);
+	}
+
+	balance_callback(rq);
+}
+</code></pre><p><code>task_struct</code> 中 <code>nivcsw</code> 變數來計算搶佔的調度次數，<code>nvcsw</code> 代表非搶佔調度。</p>
+<pre tabindex="0"><code class="language-c=3331" data-lang="c=3331">switch_count = &amp;prev-&gt;nivcsw;
+
+// scheduler 會檢查 prev 的狀態以及是否允許 kernel preempt
+if (!preempt &amp;&amp; prev-&gt;state) {
+    // 如果 prev 的狀態是 TASK_INTERRUPTIBLE
+    // 而且 prev 有非阻塞等待訊號
+    // 這樣就不應該將 prev 從 runqueu 刪掉
+    // 而是把它的狀態改成 TASK_RUNNING, 等待下一次的排程
+    if (unlikely(signal_pending_state(prev-&gt;state, prev))) {
+        prev-&gt;state = TASK_RUNNING;
+    } else {
+        // 將 prev 從 runqueue 中移除
+        deactivate_task(rq, prev, DEQUEUE_SLEEP | DEQUEUE_NOCLOCK);
+        // 標記 prev 不在 runqueue 中
+        prev-&gt;on_rq = 0;
+
+        if (prev-&gt;in_iowait) {
+            atomic_inc(&amp;rq-&gt;nr_iowait);
+            delayacct_blkio_start();
+        }
+
+        /*
+         * If a worker went to sleep, notify and ask workqueue
+         * whether it wants to wake up a task to maintain
+         * concurrency.
+         */
+        if (prev-&gt;flags &amp; PF_WQ_WORKER) {
+            struct task_struct *to_wakeup;
+
+            to_wakeup = wq_worker_sleeping(prev);
+            if (to_wakeup)
+                try_to_wake_up_local(to_wakeup, &amp;rf);
+        }
+    }
+    // 如果不是被搶佔的，就應該要累加 nvcsw, 代表主動放棄資源的排程
+    switch_count = &amp;prev-&gt;nvcsw;
+}
+</code></pre><p>接下來則是呼叫調度器選擇下一個優先度最高的 <code>task</code> 排進 <code>runqueue</code>。</p>
+<pre tabindex="0"><code class="language-c=3360" data-lang="c=3360">// 選擇一個優先度最高的 task 放入 runqueue 中
+next = pick_next_task(rq, prev, &amp;rf);
+// 清除 prev 的 TIF_NEED_RESCHED flag
+clear_tsk_need_resched(prev);
+</code></pre><p>自從 <code>Linux v2.6.23</code> 開始，<code>Linux</code> 引入了 <code>scheduling class</code> 的概念，大大提昇的調度器的擴展性，用戶可以依照自己的需求實現 <code>interface</code> 直接放入 <code>kernel</code> 中進行調度， 同樣在 <code>Linux v2.6.23</code> 之後 <code>Completely Fair Scheduler(CFS)</code> 取代原先的 <code>O(1) scheduler</code> 成為系統預設的調度器，在 <code>pick_next_task</code> 中就會實際根據調度器選擇出一個優先度最高的 <code>task</code>，但因為篇幅問題，之後有機會再深入研究調度器的實現。</p>
+<p>處理完 <code>prev</code>，也選擇了 <code>next</code>，接著就是要進行 <code>context switch</code> 的部份。</p>
+<pre tabindex="0"><code class="language-c=3364" data-lang="c=3364">// 如果 prev 不是 next (也有機率 prev 放入 runqueue 中之後又被挑選到)
+if (likely(prev != next)) {
+    rq-&gt;nr_switches++; // 計算 number of context switches.
+    rq-&gt;curr = next;   // 將 curr 指向被排程的新 task
+    /*
+     * The membarrier system call requires each architecture
+     * to have a full memory barrier after updating
+     * rq-&gt;curr, before returning to user-space. For TSO
+     * (e.g. x86), the architecture must provide its own
+     * barrier in switch_mm(). For weakly ordered machines
+     * for which spin_unlock() acts as a full memory
+     * barrier, finish_lock_switch() in common code takes
+     * care of this barrier. For weakly ordered machines for
+     * which spin_unlock() acts as a RELEASE barrier (only
+     * arm64 and PowerPC), arm64 has a full barrier in
+     * switch_to(), and PowerPC has
+     * smp_mb__after_unlock_lock() before
+     * finish_lock_switch().
+     */
+    
+    // 增加一次被調度的次數
+    // 上面的判斷可以得知，如果是搶佔會加 nivcsw，非搶佔則是會加 nvcsw 
+    ++*switch_count; 
+    trace_sched_switch(preempt, prev, next);
+
+    /* Also unlocks the rq: */
+    prev-&gt;cs_cnt++;
+    // 實際進行 context switch 的 function
+    rq = context_switch(rq, prev, next, &amp;rf);
+} else {
+    // 如果 prev == next 則不進行 context switch
+    rq-&gt;clock_update_flags &amp;= ~(RQCF_ACT_SKIP|RQCF_REQ_SKIP);
+    rq_unlock_irq(rq, &amp;rf);
+}
+</code></pre><h3 id="get-the-number-of-context-switches">get the number of context switches</h3>
+<p>回到作業的要求(一)，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被調度的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
+<p>在驗證自己程式的正確性時，我們會參考 <code>/proc/{pid}/sched</code> 中的 <code>nr_switches</code>，實際找到 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924" target="_blank" rel="noopener noreffer">proc_sched_show_task</a> 就會發現 <code>nr_switches</code> 也是用 <code>nivcsw + nvcse</code> 來實現。</p>
+<pre tabindex="0"><code class="language-c=924" data-lang="c=924">void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
+						  struct seq_file *m) 
+{
+    unsigned long nr_switches;
+    .
+    .
+    .
+    nr_switches = p-&gt;nvcsw + p-&gt;nivcsw;
+    .
+    .
+    .
+    __P(nr_switches);
+}
+</code></pre><p>所以題目一的實現如下:</p>
+<h2 id="kernel-space">kernel space</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;linux/sched.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/kernel.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/uaccess.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/syscalls.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;linux/resource.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;asm/errno.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="n">SYSCALL_DEFINE1</span><span class="p">(</span><span class="n">get_number_of_context_switches</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span><span class="o">*</span><span class="p">,</span> <span class="n">cnt</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">cs_cnt</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">nvcsw</span> <span class="o">+</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">nivcsw</span><span class="p">;</span>
+    <span class="n">printk</span><span class="p">(</span><span class="s">&#34;context switches counter = %u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cs_cnt</span><span class="p">);</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">copy_to_user</span><span class="p">(</span><span class="n">cnt</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cs_cnt</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)))</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>利用 <code>SYSCALL_DEFINE1</code> 的 <code>macro</code> 來展開我們定義的 <code>get_number_of_context_switches</code>，利用 <code>task_struct</code> 的 <code>nvcse, nivcsw</code> 來獲得 <code>number of context switches</code>。</p>
+<p>之所以要用 <code>SYSCALL_DEFINE1</code> 來定義 <code>system call</code> 是因為之前有個 <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029" target="_blank" rel="noopener noreffer">CVE-2009-0029</a>，攻擊者可以藉由 <code>32 跟 64 bits</code> 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 <code>SYSCALL_DEFINE</code> 來定義會比較安全。</p>
+<h2 id="user-space">user space</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;syscall.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cp">#define NUMBER_OF_ITERATIONS 99999999
+</span><span class="cp"></span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">v</span><span class="p">;</span>
+    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">cnt</span><span class="p">;</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;pid = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">getpid</span><span class="p">());</span>
+     
+    <span class="k">for</span><span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUMBER_OF_ITERATIONS</span><span class="o">*</span><span class="mi">3</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="o">++</span><span class="n">t</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">u</span><span class="o">++</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">syscall</span><span class="p">(</span><span class="mi">333</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cnt</span><span class="p">))</span> 
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Error</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="k">else</span> 
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;context switch counter = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cnt</span><span class="p">);</span>
+
+    <span class="n">getchar</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div><p>用 <code>getchar()</code> 卡住最後面方便觀察，但是為導致 <code>cnt</code> 與觀察 <code>proc/{pid}/sched</code> 的結果差1，如下圖所示:</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/LY8Nujr.png"
+        data-srcset="https://i.imgur.com/LY8Nujr.png, https://i.imgur.com/LY8Nujr.png 1.5x, https://i.imgur.com/LY8Nujr.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/LY8Nujr.png"
+        title="https://i.imgur.com/LY8Nujr.png" /></p>
+<p>// 待補題目二</p>
+<h3 id="refernece">refernece</h3>
+<ul>
+<li><a href="http://www.wowotech.net/process_management/447.html" target="_blank" rel="noopener noreffer">CFS调度器（1）-基本原理</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/112203100" target="_blank" rel="noopener noreffer">一篇文章让你了解Linux进程调度器</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/395606426" target="_blank" rel="noopener noreffer">深入理解Linux内核之主调度器（上)</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2022-01-07</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-hashtags="linux_kernel,system_call,scheduler"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/linux_get_context_switch/" data-hashtag="linux_kernel"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a>,&nbsp;<a href="/tags/system_call/">system_call</a>,&nbsp;<a href="/tags/scheduler/">scheduler</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/linux_fork_01/" class="prev" rel="prev" title="Linux fork() 底層實作流程整理"><i class="fas fa-angle-left fa-fw"></i>Linux fork() 底層實作流程整理</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.90.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":130},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

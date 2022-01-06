@@ -4,9 +4,18 @@
         <link>http://example.org/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</lastBuildDate>
             <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>Linux schedule 流程研究</title>
+    <link>http://example.org/posts/linux_get_context_switch/</link>
+    <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/linux_get_context_switch/</guid>
+    <description><![CDATA[第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
+</item><item>
     <title>Linux fork() 底層實作流程整理</title>
     <link>http://example.org/posts/linux_fork_01/</link>
     <pubDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</pubDate>
@@ -97,14 +106,5 @@ if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方�
     <description><![CDATA[題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
 這題算是基本的 dp 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。
 解題紀錄 class Solution { public: int rob(vector&lt;int&gt;&amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; ]]></description>
-</item><item>
-    <title>leetcode 973. K Closest Points to Origin [Medium]</title>
-    <link>http://example.org/posts/lc973/</link>
-    <pubDate>Sun, 26 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc973/</guid>
-    <description><![CDATA[題目敘述 給 n 個座標，返回距離原點最近的 k 個座標
-解題紀錄 解法一 因為要返回的只有座標點，所以其實不需要開根號，直接用 (x^2 + y^2) 比較即可。
-class Solution { public: vector&lt;vector&lt;int&gt;&gt; kClosest(vector&lt;vector&lt;int&gt;&gt;&amp; points, int k) { sort(points.begin(), points.end(), [this](vector&lt;int&gt; &amp;a, vector&lt;int&gt; &amp;b) { return get_distance(a) &lt; get_distance(b); }); return vector&lt;vector&lt;int&gt;&gt;(points.begin(), points.begin() + k); } inline int get_distance(vector&lt;int&gt; &amp;point) { return point[0] * point[0] + point[1] * point[1]; } }; #pragma GCC optimize(&#34;Ofast&#34;) #pragma GCC target(&#34;avx,avx2,fma&#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); 解法二 求最近的 k 個節點，其實可以換個思路，利用 maxHeap 來實現。]]></description>
 </item></channel>
 </rss>
