@@ -15,7 +15,7 @@ categories: ["linux_kernel"]
 
 要 `trace` 調度器要先找到 `schedule` 的入口，定義在 `kernel/sched/core.c`，函式定義如下
 
-```c=3424
+```c
 asmlinkage __visible void __sched schedule(void)
 {
 	struct task_struct *tsk = current;
@@ -39,7 +39,7 @@ EXPORT_SYMBOL(schedule);
 
 ## [sched_submit_work](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412)
 
-```c=3412
+```c
 static inline void sched_submit_work(struct task_struct *tsk)
 {
 	if (!tsk->state || tsk_is_pi_blocked(tsk))
@@ -63,7 +63,7 @@ static inline void sched_submit_work(struct task_struct *tsk)
 在 `__schedule()` 定義上方有一段註解說明**調度時機**，主要是說明 `task_struct` 在什麼情況會被調度，底下會大概敘述一下調度器在什麼情況下會考慮調度。
 
 
-```c=3260
+```c
 /*
  * __schedule() is the main scheduler function.
  *
@@ -116,7 +116,7 @@ static inline void sched_submit_work(struct task_struct *tsk)
         - 當 `TIF_NEED_RESCHED` 被設置後並不是馬上被調度，而是會在最近的**調度點**被調度
 - `wake_up` 只是把 `task` 加入 `runqueue` 中，之後根據 `preempts` 的設置會有不同的處理方式。
 
-```c=3299
+```c
 static void __sched notrace __schedule(bool preempt)
 {
 	struct task_struct *prev, *next;
@@ -219,7 +219,7 @@ static void __sched notrace __schedule(bool preempt)
 `task_struct` 中 `nivcsw` 變數來計算搶佔的調度次數，`nvcsw` 代表非搶佔調度。
 
 
-```c=3331
+```c
 switch_count = &prev->nivcsw;
 
 // scheduler 會檢查 prev 的狀態以及是否允許 kernel preempt
@@ -261,7 +261,7 @@ if (!preempt && prev->state) {
 
 接下來則是呼叫調度器選擇下一個優先度最高的 `task` 排進 `runqueue`。
 
-```c=3360
+```c
 // 選擇一個優先度最高的 task 放入 runqueue 中
 next = pick_next_task(rq, prev, &rf);
 // 清除 prev 的 TIF_NEED_RESCHED flag
@@ -272,7 +272,7 @@ clear_tsk_need_resched(prev);
  
 處理完 `prev`，也選擇了 `next`，接著就是要進行 `context switch` 的部份。
 
-```c=3364
+```c
 // 如果 prev 不是 next (也有機率 prev 放入 runqueue 中之後又被挑選到)
 if (likely(prev != next)) {
     rq->nr_switches++; // 計算 number of context switches.
@@ -315,7 +315,7 @@ if (likely(prev != next)) {
 
 在驗證自己程式的正確性時，我們會參考 `/proc/{pid}/sched` 中的 `nr_switches`，實際找到 [proc_sched_show_task](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924) 就會發現 `nr_switches` 也是用 `nivcsw + nvcse` 來實現。
 
-```c=924
+```c
 void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
 						  struct seq_file *m) 
 {

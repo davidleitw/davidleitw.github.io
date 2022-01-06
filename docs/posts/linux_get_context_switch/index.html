@@ -8,7 +8,7 @@
         <title>Linux schedule 流程研究 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux schedule 流程研究" />
 <meta property="og:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
-asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks." />
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://example.org/posts/linux_get_context_switch/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-01-07T03:12:53+08:00" />
@@ -18,7 +18,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 <meta name="twitter:title" content="Linux schedule 流程研究"/>
 <meta name="twitter:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
-asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks."/>
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks."/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -139,80 +139,80 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
             </div><div class="content" id="content"><p>第一次 <code>trace</code> 整個調度的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
 <h3 id="schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424" target="_blank" rel="noopener noreffer">schedule</a></h3>
 <p>要 <code>trace</code> 調度器要先找到 <code>schedule</code> 的入口，定義在 <code>kernel/sched/core.c</code>，函式定義如下</p>
-<pre tabindex="0"><code class="language-c=3424" data-lang="c=3424">asmlinkage __visible void __sched schedule(void)
-{
-	struct task_struct *tsk = current;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">asmlinkage</span> <span class="n">__visible</span> <span class="kt">void</span> <span class="n">__sched</span> <span class="nf">schedule</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
     
-    // 避免 deadlock
-	sched_submit_work(tsk);
-	do {
-        // 調度本身無法搶佔，等調度完畢再開啟
-	preempt_disable();
+    <span class="c1">// 避免 deadlock
+</span><span class="c1"></span>	<span class="n">sched_submit_work</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+	<span class="k">do</span> <span class="p">{</span>
+        <span class="c1">// 調度本身無法搶佔，等調度完畢再開啟
+</span><span class="c1"></span>	<span class="n">preempt_disable</span><span class="p">();</span>
 		
-        __schedule(false);
+        <span class="n">__schedule</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
         
-        // 調度完成，開啟搶佔功能
-	sched_preempt_enable_no_resched();
-	} while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度
-}
-EXPORT_SYMBOL(schedule);
-</code></pre><h2 id="sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412" target="_blank" rel="noopener noreffer">sched_submit_work</a></h2>
-<pre tabindex="0"><code class="language-c=3412" data-lang="c=3412">static inline void sched_submit_work(struct task_struct *tsk)
-{
-	if (!tsk-&gt;state || tsk_is_pi_blocked(tsk))
-		return;
-	/*
-	 * If we are going to sleep and we have plugged IO queued,
-	 * make sure to submit it to avoid deadlocks.
-	 */
-	if (blk_needs_flush_plug(tsk))
-		blk_schedule_flush_plug(tsk);
-}
-</code></pre><p>在 <code>sched_submit_work</code> 中先檢查 <code>tsk-&gt;state</code> 是否為 0(<code>runnable</code>)，如果是就直接返回。
+        <span class="c1">// 調度完成，開啟搶佔功能
+</span><span class="c1"></span>	<span class="n">sched_preempt_enable_no_resched</span><span class="p">();</span>
+	<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">need_resched</span><span class="p">());</span> <span class="c1">// 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度
+</span><span class="c1"></span><span class="p">}</span>
+<span class="n">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">schedule</span><span class="p">);</span>
+</code></pre></div><h2 id="sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412" target="_blank" rel="noopener noreffer">sched_submit_work</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">sched_submit_work</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">||</span> <span class="n">tsk_is_pi_blocked</span><span class="p">(</span><span class="n">tsk</span><span class="p">))</span>
+		<span class="k">return</span><span class="p">;</span>
+	<span class="cm">/*
+</span><span class="cm">	 * If we are going to sleep and we have plugged IO queued,
+</span><span class="cm">	 * make sure to submit it to avoid deadlocks.
+</span><span class="cm">	 */</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">blk_needs_flush_plug</span><span class="p">(</span><span class="n">tsk</span><span class="p">))</span>
+		<span class="n">blk_schedule_flush_plug</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>在 <code>sched_submit_work</code> 中先檢查 <code>tsk-&gt;state</code> 是否為 0(<code>runnable</code>)，如果是就直接返回。
 <code>tsk_is_pi_blocked</code> 檢查 <code>tsk</code> 的 <code>deadlock</code> 檢測器是否為空。</p>
 <p>注意到 <code>schedule</code> 的 <code>while</code> 迴圈中的 <code>__schedule(false)</code>，<code>__schedule</code> 是真正調度執行的地方，所以繼續往下 <code>trace</code></p>
 <h2 id="_schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3299"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299" target="_blank" rel="noopener noreffer">_schedule</a></h2>
 <p>在 <code>__schedule()</code> 定義上方有一段註解說明<strong>調度時機</strong>，主要是說明 <code>task_struct</code> 在什麼情況會被調度，底下會大概敘述一下調度器在什麼情況下會考慮調度。</p>
-<pre tabindex="0"><code class="language-c=3260" data-lang="c=3260">/*
- * __schedule() is the main scheduler function.
- *
- * The main means of driving the scheduler and thus entering this function are:
- *
- *   1. Explicit blocking: mutex, semaphore, waitqueue, etc.
- *
- *   2. TIF_NEED_RESCHED flag is checked on interrupt and userspace return
- *      paths. For example, see arch/x86/entry_64.S.
- *
- *      To drive preemption between tasks, the scheduler sets the flag in timer
- *      interrupt handler scheduler_tick().
- *
- *   3. Wakeups don't really cause entry into schedule(). They add a
- *      task to the run-queue and that's it.
- *
- *      Now, if the new task added to the run-queue preempts the current
- *      task, then the wakeup sets TIF_NEED_RESCHED and schedule() gets
- *      called on the nearest possible occasion:
- *
- *       - If the kernel is preemptible (CONFIG_PREEMPT=y):
- *
- *         - in syscall or exception context, at the next outmost
- *           preempt_enable(). (this might be as soon as the wake_up()'s
- *           spin_unlock()!)
- *
- *         - in IRQ context, return from interrupt-handler to
- *           preemptible context
- *
- *       - If the kernel is not preemptible (CONFIG_PREEMPT is not set)
- *         then at the next:
- *
- *          - cond_resched() call
- *          - explicit schedule() call
- *          - return from syscall or exception to user-space
- *          - return from interrupt-handler to user-space
- *
- * WARNING: must be called with preemption disabled!
- */
-</code></pre><p>在這段註解中大致說明了幾個調度的場景跟時機</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
+</span><span class="cm"> * __schedule() is the main scheduler function.
+</span><span class="cm"> *
+</span><span class="cm"> * The main means of driving the scheduler and thus entering this function are:
+</span><span class="cm"> *
+</span><span class="cm"> *   1. Explicit blocking: mutex, semaphore, waitqueue, etc.
+</span><span class="cm"> *
+</span><span class="cm"> *   2. TIF_NEED_RESCHED flag is checked on interrupt and userspace return
+</span><span class="cm"> *      paths. For example, see arch/x86/entry_64.S.
+</span><span class="cm"> *
+</span><span class="cm"> *      To drive preemption between tasks, the scheduler sets the flag in timer
+</span><span class="cm"> *      interrupt handler scheduler_tick().
+</span><span class="cm"> *
+</span><span class="cm"> *   3. Wakeups don&#39;t really cause entry into schedule(). They add a
+</span><span class="cm"> *      task to the run-queue and that&#39;s it.
+</span><span class="cm"> *
+</span><span class="cm"> *      Now, if the new task added to the run-queue preempts the current
+</span><span class="cm"> *      task, then the wakeup sets TIF_NEED_RESCHED and schedule() gets
+</span><span class="cm"> *      called on the nearest possible occasion:
+</span><span class="cm"> *
+</span><span class="cm"> *       - If the kernel is preemptible (CONFIG_PREEMPT=y):
+</span><span class="cm"> *
+</span><span class="cm"> *         - in syscall or exception context, at the next outmost
+</span><span class="cm"> *           preempt_enable(). (this might be as soon as the wake_up()&#39;s
+</span><span class="cm"> *           spin_unlock()!)
+</span><span class="cm"> *
+</span><span class="cm"> *         - in IRQ context, return from interrupt-handler to
+</span><span class="cm"> *           preemptible context
+</span><span class="cm"> *
+</span><span class="cm"> *       - If the kernel is not preemptible (CONFIG_PREEMPT is not set)
+</span><span class="cm"> *         then at the next:
+</span><span class="cm"> *
+</span><span class="cm"> *          - cond_resched() call
+</span><span class="cm"> *          - explicit schedule() call
+</span><span class="cm"> *          - return from syscall or exception to user-space
+</span><span class="cm"> *          - return from interrupt-handler to user-space
+</span><span class="cm"> *
+</span><span class="cm"> * WARNING: must be called with preemption disabled!
+</span><span class="cm"> */</span>
+</code></pre></div><p>在這段註解中大致說明了幾個調度的場景跟時機</p>
 <ul>
 <li>自願切換(<code>Voluntary</code>)
 <ul>
@@ -233,198 +233,198 @@ EXPORT_SYMBOL(schedule);
 </li>
 <li><code>wake_up</code> 只是把 <code>task</code> 加入 <code>runqueue</code> 中，之後根據 <code>preempts</code> 的設置會有不同的處理方式。</li>
 </ul>
-<pre tabindex="0"><code class="language-c=3299" data-lang="c=3299">static void __sched notrace __schedule(bool preempt)
-{
-	struct task_struct *prev, *next;
-	unsigned long *switch_count;
-	struct rq_flags rf;
-	struct rq *rq;
-	int cpu;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span> <span class="n">__sched</span> <span class="n">notrace</span> <span class="nf">__schedule</span><span class="p">(</span><span class="kt">bool</span> <span class="n">preempt</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">prev</span><span class="p">,</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">switch_count</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">rq_flags</span> <span class="n">rf</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">cpu</span><span class="p">;</span>
 
-	cpu = smp_processor_id();
-	rq = cpu_rq(cpu);
-	prev = rq-&gt;curr;
+	<span class="n">cpu</span> <span class="o">=</span> <span class="n">smp_processor_id</span><span class="p">();</span>
+	<span class="n">rq</span> <span class="o">=</span> <span class="n">cpu_rq</span><span class="p">(</span><span class="n">cpu</span><span class="p">);</span>
+	<span class="n">prev</span> <span class="o">=</span> <span class="n">rq</span><span class="o">-&gt;</span><span class="n">curr</span><span class="p">;</span>
 
-	schedule_debug(prev);
+	<span class="n">schedule_debug</span><span class="p">(</span><span class="n">prev</span><span class="p">);</span>
 
-	if (sched_feat(HRTICK))
-		hrtick_clear(rq);
+	<span class="k">if</span> <span class="p">(</span><span class="n">sched_feat</span><span class="p">(</span><span class="n">HRTICK</span><span class="p">))</span>
+		<span class="n">hrtick_clear</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
 
-	local_irq_disable();
-	rcu_note_context_switch(preempt);
+	<span class="n">local_irq_disable</span><span class="p">();</span>
+	<span class="n">rcu_note_context_switch</span><span class="p">(</span><span class="n">preempt</span><span class="p">);</span>
 
-	/*
-	 * Make sure that signal_pending_state()-&gt;signal_pending() below
-	 * can't be reordered with __set_current_state(TASK_INTERRUPTIBLE)
-	 * done by the caller to avoid the race with signal_wake_up().
-	 */
-	rq_lock(rq, &amp;rf);
-	smp_mb__after_spinlock();
+	<span class="cm">/*
+</span><span class="cm">	 * Make sure that signal_pending_state()-&gt;signal_pending() below
+</span><span class="cm">	 * can&#39;t be reordered with __set_current_state(TASK_INTERRUPTIBLE)
+</span><span class="cm">	 * done by the caller to avoid the race with signal_wake_up().
+</span><span class="cm">	 */</span>
+	<span class="n">rq_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+	<span class="n">smp_mb__after_spinlock</span><span class="p">();</span>
 
-	/* Promote REQ to ACT */
-	rq-&gt;clock_update_flags &lt;&lt;= 1;
-	update_rq_clock(rq);
+	<span class="cm">/* Promote REQ to ACT */</span>
+	<span class="n">rq</span><span class="o">-&gt;</span><span class="n">clock_update_flags</span> <span class="o">&lt;&lt;=</span> <span class="mi">1</span><span class="p">;</span>
+	<span class="n">update_rq_clock</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
 
-	switch_count = &amp;prev-&gt;nivcsw;
-	if (!preempt &amp;&amp; prev-&gt;state) {
-		if (unlikely(signal_pending_state(prev-&gt;state, prev))) {
-			prev-&gt;state = TASK_RUNNING;
-		} else {
-			deactivate_task(rq, prev, DEQUEUE_SLEEP | DEQUEUE_NOCLOCK);
-			prev-&gt;on_rq = 0;
+	<span class="n">switch_count</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">nivcsw</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">preempt</span> <span class="o">&amp;&amp;</span> <span class="n">prev</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">signal_pending_state</span><span class="p">(</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">,</span> <span class="n">prev</span><span class="p">)))</span> <span class="p">{</span>
+			<span class="n">prev</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_RUNNING</span><span class="p">;</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">deactivate_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">DEQUEUE_SLEEP</span> <span class="o">|</span> <span class="n">DEQUEUE_NOCLOCK</span><span class="p">);</span>
+			<span class="n">prev</span><span class="o">-&gt;</span><span class="n">on_rq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-			if (prev-&gt;in_iowait) {
-				atomic_inc(&amp;rq-&gt;nr_iowait);
-				delayacct_blkio_start();
-			}
+			<span class="k">if</span> <span class="p">(</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">in_iowait</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">nr_iowait</span><span class="p">);</span>
+				<span class="n">delayacct_blkio_start</span><span class="p">();</span>
+			<span class="p">}</span>
 
-			/*
-			 * If a worker went to sleep, notify and ask workqueue
-			 * whether it wants to wake up a task to maintain
-			 * concurrency.
-			 */
-			if (prev-&gt;flags &amp; PF_WQ_WORKER) {
-				struct task_struct *to_wakeup;
+			<span class="cm">/*
+</span><span class="cm">			 * If a worker went to sleep, notify and ask workqueue
+</span><span class="cm">			 * whether it wants to wake up a task to maintain
+</span><span class="cm">			 * concurrency.
+</span><span class="cm">			 */</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_WQ_WORKER</span><span class="p">)</span> <span class="p">{</span>
+				<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">to_wakeup</span><span class="p">;</span>
 
-				to_wakeup = wq_worker_sleeping(prev);
-				if (to_wakeup)
-					try_to_wake_up_local(to_wakeup, &amp;rf);
-			}
-		}
-		switch_count = &amp;prev-&gt;nvcsw;
-	}
+				<span class="n">to_wakeup</span> <span class="o">=</span> <span class="n">wq_worker_sleeping</span><span class="p">(</span><span class="n">prev</span><span class="p">);</span>
+				<span class="k">if</span> <span class="p">(</span><span class="n">to_wakeup</span><span class="p">)</span>
+					<span class="n">try_to_wake_up_local</span><span class="p">(</span><span class="n">to_wakeup</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+		<span class="n">switch_count</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">nvcsw</span><span class="p">;</span>
+	<span class="p">}</span>
 
-	next = pick_next_task(rq, prev, &amp;rf);
-	clear_tsk_need_resched(prev);
-	clear_preempt_need_resched();
+	<span class="n">next</span> <span class="o">=</span> <span class="n">pick_next_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+	<span class="n">clear_tsk_need_resched</span><span class="p">(</span><span class="n">prev</span><span class="p">);</span>
+	<span class="n">clear_preempt_need_resched</span><span class="p">();</span>
 
-	if (likely(prev != next)) {
-		rq-&gt;nr_switches++;
-		rq-&gt;curr = next;
-		/*
-		 * The membarrier system call requires each architecture
-		 * to have a full memory barrier after updating
-		 * rq-&gt;curr, before returning to user-space. For TSO
-		 * (e.g. x86), the architecture must provide its own
-		 * barrier in switch_mm(). For weakly ordered machines
-		 * for which spin_unlock() acts as a full memory
-		 * barrier, finish_lock_switch() in common code takes
-		 * care of this barrier. For weakly ordered machines for
-		 * which spin_unlock() acts as a RELEASE barrier (only
-		 * arm64 and PowerPC), arm64 has a full barrier in
-		 * switch_to(), and PowerPC has
-		 * smp_mb__after_unlock_lock() before
-		 * finish_lock_switch().
-		 */
-		++*switch_count;
-		trace_sched_switch(preempt, prev, next);
+	<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">prev</span> <span class="o">!=</span> <span class="n">next</span><span class="p">))</span> <span class="p">{</span>
+		<span class="n">rq</span><span class="o">-&gt;</span><span class="n">nr_switches</span><span class="o">++</span><span class="p">;</span>
+		<span class="n">rq</span><span class="o">-&gt;</span><span class="n">curr</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+		<span class="cm">/*
+</span><span class="cm">		 * The membarrier system call requires each architecture
+</span><span class="cm">		 * to have a full memory barrier after updating
+</span><span class="cm">		 * rq-&gt;curr, before returning to user-space. For TSO
+</span><span class="cm">		 * (e.g. x86), the architecture must provide its own
+</span><span class="cm">		 * barrier in switch_mm(). For weakly ordered machines
+</span><span class="cm">		 * for which spin_unlock() acts as a full memory
+</span><span class="cm">		 * barrier, finish_lock_switch() in common code takes
+</span><span class="cm">		 * care of this barrier. For weakly ordered machines for
+</span><span class="cm">		 * which spin_unlock() acts as a RELEASE barrier (only
+</span><span class="cm">		 * arm64 and PowerPC), arm64 has a full barrier in
+</span><span class="cm">		 * switch_to(), and PowerPC has
+</span><span class="cm">		 * smp_mb__after_unlock_lock() before
+</span><span class="cm">		 * finish_lock_switch().
+</span><span class="cm">		 */</span>
+		<span class="o">++*</span><span class="n">switch_count</span><span class="p">;</span>
+		<span class="n">trace_sched_switch</span><span class="p">(</span><span class="n">preempt</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">next</span><span class="p">);</span>
 
-		/* Also unlocks the rq: */
-		prev-&gt;cs_cnt++;
-		rq = context_switch(rq, prev, next, &amp;rf);
-	} else {
-		rq-&gt;clock_update_flags &amp;= ~(RQCF_ACT_SKIP|RQCF_REQ_SKIP);
-		rq_unlock_irq(rq, &amp;rf);
-	}
+		<span class="cm">/* Also unlocks the rq: */</span>
+		<span class="n">prev</span><span class="o">-&gt;</span><span class="n">cs_cnt</span><span class="o">++</span><span class="p">;</span>
+		<span class="n">rq</span> <span class="o">=</span> <span class="n">context_switch</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">next</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="n">rq</span><span class="o">-&gt;</span><span class="n">clock_update_flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="n">RQCF_ACT_SKIP</span><span class="o">|</span><span class="n">RQCF_REQ_SKIP</span><span class="p">);</span>
+		<span class="n">rq_unlock_irq</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+	<span class="p">}</span>
 
-	balance_callback(rq);
-}
-</code></pre><p><code>task_struct</code> 中 <code>nivcsw</code> 變數來計算搶佔的調度次數，<code>nvcsw</code> 代表非搶佔調度。</p>
-<pre tabindex="0"><code class="language-c=3331" data-lang="c=3331">switch_count = &amp;prev-&gt;nivcsw;
+	<span class="n">balance_callback</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p><code>task_struct</code> 中 <code>nivcsw</code> 變數來計算搶佔的調度次數，<code>nvcsw</code> 代表非搶佔調度。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">switch_count</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">nivcsw</span><span class="p">;</span>
 
-// scheduler 會檢查 prev 的狀態以及是否允許 kernel preempt
-if (!preempt &amp;&amp; prev-&gt;state) {
-    // 如果 prev 的狀態是 TASK_INTERRUPTIBLE
-    // 而且 prev 有非阻塞等待訊號
-    // 這樣就不應該將 prev 從 runqueu 刪掉
-    // 而是把它的狀態改成 TASK_RUNNING, 等待下一次的排程
-    if (unlikely(signal_pending_state(prev-&gt;state, prev))) {
-        prev-&gt;state = TASK_RUNNING;
-    } else {
-        // 將 prev 從 runqueue 中移除
-        deactivate_task(rq, prev, DEQUEUE_SLEEP | DEQUEUE_NOCLOCK);
-        // 標記 prev 不在 runqueue 中
-        prev-&gt;on_rq = 0;
+<span class="c1">// scheduler 會檢查 prev 的狀態以及是否允許 kernel preempt
+</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">preempt</span> <span class="o">&amp;&amp;</span> <span class="n">prev</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 如果 prev 的狀態是 TASK_INTERRUPTIBLE
+</span><span class="c1"></span>    <span class="c1">// 而且 prev 有非阻塞等待訊號
+</span><span class="c1"></span>    <span class="c1">// 這樣就不應該將 prev 從 runqueu 刪掉
+</span><span class="c1"></span>    <span class="c1">// 而是把它的狀態改成 TASK_RUNNING, 等待下一次的排程
+</span><span class="c1"></span>    <span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">signal_pending_state</span><span class="p">(</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">state</span><span class="p">,</span> <span class="n">prev</span><span class="p">)))</span> <span class="p">{</span>
+        <span class="n">prev</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_RUNNING</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// 將 prev 從 runqueue 中移除
+</span><span class="c1"></span>        <span class="n">deactivate_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">DEQUEUE_SLEEP</span> <span class="o">|</span> <span class="n">DEQUEUE_NOCLOCK</span><span class="p">);</span>
+        <span class="c1">// 標記 prev 不在 runqueue 中
+</span><span class="c1"></span>        <span class="n">prev</span><span class="o">-&gt;</span><span class="n">on_rq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
 
-        if (prev-&gt;in_iowait) {
-            atomic_inc(&amp;rq-&gt;nr_iowait);
-            delayacct_blkio_start();
-        }
+        <span class="k">if</span> <span class="p">(</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">in_iowait</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">nr_iowait</span><span class="p">);</span>
+            <span class="n">delayacct_blkio_start</span><span class="p">();</span>
+        <span class="p">}</span>
 
-        /*
-         * If a worker went to sleep, notify and ask workqueue
-         * whether it wants to wake up a task to maintain
-         * concurrency.
-         */
-        if (prev-&gt;flags &amp; PF_WQ_WORKER) {
-            struct task_struct *to_wakeup;
+        <span class="cm">/*
+</span><span class="cm">         * If a worker went to sleep, notify and ask workqueue
+</span><span class="cm">         * whether it wants to wake up a task to maintain
+</span><span class="cm">         * concurrency.
+</span><span class="cm">         */</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_WQ_WORKER</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">to_wakeup</span><span class="p">;</span>
 
-            to_wakeup = wq_worker_sleeping(prev);
-            if (to_wakeup)
-                try_to_wake_up_local(to_wakeup, &amp;rf);
-        }
-    }
-    // 如果不是被搶佔的，就應該要累加 nvcsw, 代表主動放棄資源的排程
-    switch_count = &amp;prev-&gt;nvcsw;
-}
-</code></pre><p>接下來則是呼叫調度器選擇下一個優先度最高的 <code>task</code> 排進 <code>runqueue</code>。</p>
-<pre tabindex="0"><code class="language-c=3360" data-lang="c=3360">// 選擇一個優先度最高的 task 放入 runqueue 中
-next = pick_next_task(rq, prev, &amp;rf);
-// 清除 prev 的 TIF_NEED_RESCHED flag
-clear_tsk_need_resched(prev);
-</code></pre><p>自從 <code>Linux v2.6.23</code> 開始，<code>Linux</code> 引入了 <code>scheduling class</code> 的概念，大大提昇的調度器的擴展性，用戶可以依照自己的需求實現 <code>interface</code> 直接放入 <code>kernel</code> 中進行調度， 同樣在 <code>Linux v2.6.23</code> 之後 <code>Completely Fair Scheduler(CFS)</code> 取代原先的 <code>O(1) scheduler</code> 成為系統預設的調度器，在 <code>pick_next_task</code> 中就會實際根據調度器選擇出一個優先度最高的 <code>task</code>，但因為篇幅問題，之後有機會再深入研究調度器的實現。</p>
+            <span class="n">to_wakeup</span> <span class="o">=</span> <span class="n">wq_worker_sleeping</span><span class="p">(</span><span class="n">prev</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">to_wakeup</span><span class="p">)</span>
+                <span class="n">try_to_wake_up_local</span><span class="p">(</span><span class="n">to_wakeup</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">// 如果不是被搶佔的，就應該要累加 nvcsw, 代表主動放棄資源的排程
+</span><span class="c1"></span>    <span class="n">switch_count</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">nvcsw</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>接下來則是呼叫調度器選擇下一個優先度最高的 <code>task</code> 排進 <code>runqueue</code>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 選擇一個優先度最高的 task 放入 runqueue 中
+</span><span class="c1"></span><span class="n">next</span> <span class="o">=</span> <span class="n">pick_next_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+<span class="c1">// 清除 prev 的 TIF_NEED_RESCHED flag
+</span><span class="c1"></span><span class="n">clear_tsk_need_resched</span><span class="p">(</span><span class="n">prev</span><span class="p">);</span>
+</code></pre></div><p>自從 <code>Linux v2.6.23</code> 開始，<code>Linux</code> 引入了 <code>scheduling class</code> 的概念，大大提昇的調度器的擴展性，用戶可以依照自己的需求實現 <code>interface</code> 直接放入 <code>kernel</code> 中進行調度， 同樣在 <code>Linux v2.6.23</code> 之後 <code>Completely Fair Scheduler(CFS)</code> 取代原先的 <code>O(1) scheduler</code> 成為系統預設的調度器，在 <code>pick_next_task</code> 中就會實際根據調度器選擇出一個優先度最高的 <code>task</code>，但因為篇幅問題，之後有機會再深入研究調度器的實現。</p>
 <p>處理完 <code>prev</code>，也選擇了 <code>next</code>，接著就是要進行 <code>context switch</code> 的部份。</p>
-<pre tabindex="0"><code class="language-c=3364" data-lang="c=3364">// 如果 prev 不是 next (也有機率 prev 放入 runqueue 中之後又被挑選到)
-if (likely(prev != next)) {
-    rq-&gt;nr_switches++; // 計算 number of context switches.
-    rq-&gt;curr = next;   // 將 curr 指向被排程的新 task
-    /*
-     * The membarrier system call requires each architecture
-     * to have a full memory barrier after updating
-     * rq-&gt;curr, before returning to user-space. For TSO
-     * (e.g. x86), the architecture must provide its own
-     * barrier in switch_mm(). For weakly ordered machines
-     * for which spin_unlock() acts as a full memory
-     * barrier, finish_lock_switch() in common code takes
-     * care of this barrier. For weakly ordered machines for
-     * which spin_unlock() acts as a RELEASE barrier (only
-     * arm64 and PowerPC), arm64 has a full barrier in
-     * switch_to(), and PowerPC has
-     * smp_mb__after_unlock_lock() before
-     * finish_lock_switch().
-     */
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 如果 prev 不是 next (也有機率 prev 放入 runqueue 中之後又被挑選到)
+</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">prev</span> <span class="o">!=</span> <span class="n">next</span><span class="p">))</span> <span class="p">{</span>
+    <span class="n">rq</span><span class="o">-&gt;</span><span class="n">nr_switches</span><span class="o">++</span><span class="p">;</span> <span class="c1">// 計算 number of context switches.
+</span><span class="c1"></span>    <span class="n">rq</span><span class="o">-&gt;</span><span class="n">curr</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>   <span class="c1">// 將 curr 指向被排程的新 task
+</span><span class="c1"></span>    <span class="cm">/*
+</span><span class="cm">     * The membarrier system call requires each architecture
+</span><span class="cm">     * to have a full memory barrier after updating
+</span><span class="cm">     * rq-&gt;curr, before returning to user-space. For TSO
+</span><span class="cm">     * (e.g. x86), the architecture must provide its own
+</span><span class="cm">     * barrier in switch_mm(). For weakly ordered machines
+</span><span class="cm">     * for which spin_unlock() acts as a full memory
+</span><span class="cm">     * barrier, finish_lock_switch() in common code takes
+</span><span class="cm">     * care of this barrier. For weakly ordered machines for
+</span><span class="cm">     * which spin_unlock() acts as a RELEASE barrier (only
+</span><span class="cm">     * arm64 and PowerPC), arm64 has a full barrier in
+</span><span class="cm">     * switch_to(), and PowerPC has
+</span><span class="cm">     * smp_mb__after_unlock_lock() before
+</span><span class="cm">     * finish_lock_switch().
+</span><span class="cm">     */</span>
     
-    // 增加一次被調度的次數
-    // 上面的判斷可以得知，如果是搶佔會加 nivcsw，非搶佔則是會加 nvcsw 
-    ++*switch_count; 
-    trace_sched_switch(preempt, prev, next);
+    <span class="c1">// 增加一次被調度的次數
+</span><span class="c1"></span>    <span class="c1">// 上面的判斷可以得知，如果是搶佔會加 nivcsw，非搶佔則是會加 nvcsw 
+</span><span class="c1"></span>    <span class="o">++*</span><span class="n">switch_count</span><span class="p">;</span> 
+    <span class="n">trace_sched_switch</span><span class="p">(</span><span class="n">preempt</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">next</span><span class="p">);</span>
 
-    /* Also unlocks the rq: */
-    prev-&gt;cs_cnt++;
-    // 實際進行 context switch 的 function
-    rq = context_switch(rq, prev, next, &amp;rf);
-} else {
-    // 如果 prev == next 則不進行 context switch
-    rq-&gt;clock_update_flags &amp;= ~(RQCF_ACT_SKIP|RQCF_REQ_SKIP);
-    rq_unlock_irq(rq, &amp;rf);
-}
-</code></pre><h3 id="get-the-number-of-context-switches">get the number of context switches</h3>
+    <span class="cm">/* Also unlocks the rq: */</span>
+    <span class="n">prev</span><span class="o">-&gt;</span><span class="n">cs_cnt</span><span class="o">++</span><span class="p">;</span>
+    <span class="c1">// 實際進行 context switch 的 function
+</span><span class="c1"></span>    <span class="n">rq</span> <span class="o">=</span> <span class="n">context_switch</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">next</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// 如果 prev == next 則不進行 context switch
+</span><span class="c1"></span>    <span class="n">rq</span><span class="o">-&gt;</span><span class="n">clock_update_flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="n">RQCF_ACT_SKIP</span><span class="o">|</span><span class="n">RQCF_REQ_SKIP</span><span class="p">);</span>
+    <span class="n">rq_unlock_irq</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><h3 id="get-the-number-of-context-switches">get the number of context switches</h3>
 <p>回到作業的要求(一)，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被調度的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
 <p>在驗證自己程式的正確性時，我們會參考 <code>/proc/{pid}/sched</code> 中的 <code>nr_switches</code>，實際找到 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924" target="_blank" rel="noopener noreffer">proc_sched_show_task</a> 就會發現 <code>nr_switches</code> 也是用 <code>nivcsw + nvcse</code> 來實現。</p>
-<pre tabindex="0"><code class="language-c=924" data-lang="c=924">void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
-						  struct seq_file *m) 
-{
-    unsigned long nr_switches;
-    .
-    .
-    .
-    nr_switches = p-&gt;nvcsw + p-&gt;nivcsw;
-    .
-    .
-    .
-    __P(nr_switches);
-}
-</code></pre><p>所以題目一的實現如下:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">proc_sched_show_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="k">struct</span> <span class="n">pid_namespace</span> <span class="o">*</span><span class="n">ns</span><span class="p">,</span>
+						  <span class="k">struct</span> <span class="n">seq_file</span> <span class="o">*</span><span class="n">m</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_switches</span><span class="p">;</span>
+    <span class="p">.</span>
+    <span class="p">.</span>
+    <span class="p">.</span>
+    <span class="n">nr_switches</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">nvcsw</span> <span class="o">+</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">nivcsw</span><span class="p">;</span>
+    <span class="p">.</span>
+    <span class="p">.</span>
+    <span class="p">.</span>
+    <span class="n">__P</span><span class="p">(</span><span class="n">nr_switches</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div><p>所以題目一的實現如下:</p>
 <h2 id="kernel-space">kernel space</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;linux/sched.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;linux/kernel.h&gt;</span><span class="cp">
