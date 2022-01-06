@@ -309,7 +309,7 @@ if (likely(prev != next)) {
 }
 ```
 
-### get the number of context switches
+## get the number of context switches
 
 回到作業的要求(一)，其實可以發現沒有必要再自己加上一個 `counter` 來計算被調度的次數，只要把 `task_struct` 中的 `tsk->nivcsw + tsk->nvcse` 就可以得到這個 `task_struct` 被 `context switch` 的次數了，甚至可以用 `nr_switches` 這個變數來直接獲得答案。
 
@@ -333,7 +333,7 @@ void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
 
 所以題目一的實現如下:
 
-## kernel space
+### kernel space
 
 ```c
 #include <linux/sched.h>
@@ -360,7 +360,7 @@ SYSCALL_DEFINE1(get_number_of_context_switches, unsigned int*, cnt) {
 
 之所以要用 `SYSCALL_DEFINE1` 來定義 `system call` 是因為之前有個 [CVE-2009-0029](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029)，攻擊者可以藉由 `32 跟 64 bits` 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 `SYSCALL_DEFINE` 來定義會比較安全。
 
-## user space
+### user space
 
 ```c
 #include <stdio.h>

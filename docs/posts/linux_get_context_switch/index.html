@@ -123,14 +123,11 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
       </ul>
     </li>
     <li><a href="#sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412">sched_submit_work</a></a></li>
-    <li><a href="#_schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3299"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299">_schedule</a></a>
+    <li><a href="#_schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3299"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299">_schedule</a></a></li>
+    <li><a href="#get-the-number-of-context-switches">get the number of context switches</a>
       <ul>
-        <li><a href="#get-the-number-of-context-switches">get the number of context switches</a></li>
-      </ul>
-    </li>
-    <li><a href="#kernel-space">kernel space</a></li>
-    <li><a href="#user-space">user space</a>
-      <ul>
+        <li><a href="#kernel-space">kernel space</a></li>
+        <li><a href="#user-space">user space</a></li>
         <li><a href="#refernece">refernece</a></li>
       </ul>
     </li>
@@ -408,7 +405,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 </span><span class="c1"></span>    <span class="n">rq</span><span class="o">-&gt;</span><span class="n">clock_update_flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="n">RQCF_ACT_SKIP</span><span class="o">|</span><span class="n">RQCF_REQ_SKIP</span><span class="p">);</span>
     <span class="n">rq_unlock_irq</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre></div><h3 id="get-the-number-of-context-switches">get the number of context switches</h3>
+</code></pre></div><h2 id="get-the-number-of-context-switches">get the number of context switches</h2>
 <p>回到作業的要求(一)，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被調度的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
 <p>在驗證自己程式的正確性時，我們會參考 <code>/proc/{pid}/sched</code> 中的 <code>nr_switches</code>，實際找到 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924" target="_blank" rel="noopener noreffer">proc_sched_show_task</a> 就會發現 <code>nr_switches</code> 也是用 <code>nivcsw + nvcse</code> 來實現。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">proc_sched_show_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="k">struct</span> <span class="n">pid_namespace</span> <span class="o">*</span><span class="n">ns</span><span class="p">,</span>
@@ -425,7 +422,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <span class="n">__P</span><span class="p">(</span><span class="n">nr_switches</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div><p>所以題目一的實現如下:</p>
-<h2 id="kernel-space">kernel space</h2>
+<h3 id="kernel-space">kernel space</h3>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;linux/sched.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;linux/kernel.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;linux/uaccess.h&gt;</span><span class="cp">
@@ -446,7 +443,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 <span class="p">}</span>
 </code></pre></div><p>利用 <code>SYSCALL_DEFINE1</code> 的 <code>macro</code> 來展開我們定義的 <code>get_number_of_context_switches</code>，利用 <code>task_struct</code> 的 <code>nvcse, nivcsw</code> 來獲得 <code>number of context switches</code>。</p>
 <p>之所以要用 <code>SYSCALL_DEFINE1</code> 來定義 <code>system call</code> 是因為之前有個 <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029" target="_blank" rel="noopener noreffer">CVE-2009-0029</a>，攻擊者可以藉由 <code>32 跟 64 bits</code> 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 <code>SYSCALL_DEFINE</code> 來定義會比較安全。</p>
-<h2 id="user-space">user space</h2>
+<h3 id="user-space">user space</h3>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;syscall.h&gt;</span><span class="cp">
 </span><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
