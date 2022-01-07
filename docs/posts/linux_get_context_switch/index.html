@@ -31,7 +31,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/linux_get_context_switch\/"
-        },"genre": "posts","keywords": "linux_kernel, system_call, scheduler","wordcount":  1219 ,
+        },"genre": "posts","keywords": "linux_kernel, system_call, scheduler","wordcount":  1217 ,
         "url": "http:\/\/example.org\/posts\/linux_get_context_switch\/","datePublished": "2022-01-07T03:12:53+08:00","dateModified": "2022-01-07T03:12:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -108,7 +108,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">Linux schedule 流程研究</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-07">2022-01-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1219 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-07">2022-01-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1217 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;6 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -117,12 +117,11 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
                 </div>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
   <ul>
-    <li>
+    <li><a href="#schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424">schedule</a></a>
       <ul>
-        <li><a href="#schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424">schedule</a></a></li>
+        <li><a href="#sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412">sched_submit_work</a></a></li>
       </ul>
     </li>
-    <li><a href="#sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412">sched_submit_work</a></a></li>
     <li><a href="#_schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3299"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299">_schedule</a></a></li>
     <li><a href="#get-the-number-of-context-switches">get the number of context switches</a>
       <ul>
@@ -134,7 +133,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
   </ul>
 </nav></div>
             </div><div class="content" id="content"><p>第一次 <code>trace</code> 整個調度的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
-<h3 id="schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424" target="_blank" rel="noopener noreffer">schedule</a></h3>
+<h2 id="schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424" target="_blank" rel="noopener noreffer">schedule</a></h2>
 <p>要 <code>trace</code> 調度器要先找到 <code>schedule</code> 的入口，定義在 <code>kernel/sched/core.c</code>，函式定義如下</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">asmlinkage</span> <span class="n">__visible</span> <span class="kt">void</span> <span class="n">__sched</span> <span class="nf">schedule</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 <span class="p">{</span>
@@ -153,7 +152,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 	<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">need_resched</span><span class="p">());</span> <span class="c1">// 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度
 </span><span class="c1"></span><span class="p">}</span>
 <span class="n">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">schedule</span><span class="p">);</span>
-</code></pre></div><h2 id="sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412" target="_blank" rel="noopener noreffer">sched_submit_work</a></h2>
+</code></pre></div><h3 id="sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412" target="_blank" rel="noopener noreffer">sched_submit_work</a></h3>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">sched_submit_work</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span><span class="p">)</span>
 <span class="p">{</span>
 	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">||</span> <span class="n">tsk_is_pi_blocked</span><span class="p">(</span><span class="n">tsk</span><span class="p">))</span>
@@ -474,7 +473,6 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
         data-sizes="auto"
         alt="https://i.imgur.com/LY8Nujr.png"
         title="https://i.imgur.com/LY8Nujr.png" /></p>
-<p>// 待補題目二</p>
 <h3 id="refernece">refernece</h3>
 <ul>
 <li><a href="http://www.wowotech.net/process_management/447.html" target="_blank" rel="noopener noreffer">CFS调度器（1）-基本原理</a></li>

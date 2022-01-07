@@ -11,7 +11,7 @@ categories: ["linux_kernel"]
 
 第一次 `trace` 整個調度的流程，`kernel` 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 `function` 的作用都沒辦法很好的說明，希望之後可以多閱讀 `source code`，把相關的知識慢慢補齊，拼湊成完整的知識。
 
-### [schedule](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424)
+## [schedule](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424)
 
 要 `trace` 調度器要先找到 `schedule` 的入口，定義在 `kernel/sched/core.c`，函式定義如下
 
@@ -37,7 +37,7 @@ EXPORT_SYMBOL(schedule);
 
 
 
-## [sched_submit_work](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412)
+### [sched_submit_work](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412)
 
 ```c
 static inline void sched_submit_work(struct task_struct *tsk)
@@ -390,7 +390,6 @@ int main() {
 
 ![](https://i.imgur.com/LY8Nujr.png)
 
-// 待補題目二
 
 ### refernece
 - [CFS调度器（1）-基本原理](http://www.wowotech.net/process_management/447.html)
