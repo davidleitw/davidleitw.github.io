@@ -11,7 +11,7 @@ categories: ["linux_kernel"]
 
 > 本文章環境基於 Linux v4.14.259
 
-因為作業需要在 `task_struct` 中加入 `counter` 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 `linux` 中一個 `process` 建立的時候在哪裡初始化，從 `fork()` 開始慢慢 `trace` 下去。
+因為作業需要在 `task_struct` 中加入 `counter` 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 `linux` 中一個 `process` 建立的時候在哪裡初始化，從 `fork()` 開始慢慢 `trace` 下去。
 
 在 `Linux` 中並沒有明確區分 `process` 跟 `thread`, `task_struct` 可以根據創立條件的不同代表 `process` 或者 `thread`。
 
@@ -355,7 +355,7 @@ rcu_copy_process(p);
 . 大量相關初始化，作業要添加的 counter 可以寫在這邊
 .
 
-// 調度器相關的初始化，之後會再研究這部份整理一篇文章
+// 排程器相關的初始化，之後會再研究這部份整理一篇文章
 // 初始化的時候還會一併將此 process 分派到某個 cpu 上
 retval = sched_fork(clone_flags, p);
 
@@ -584,7 +584,7 @@ long _do_fork(unsigned long clone_flags,
 ```
 
 ### _do_fork() -> wake_up_new_task(p)
-`wake_up_new_task` 的作用是把新創立的 `task_struct` 加入調度的 `runqueue` 當中，實現[如下](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459):
+`wake_up_new_task` 的作用是把新創立的 `task_struct` 加入排程的 `runqueue` 當中，實現[如下](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459):
 
 ```c
 // 位於 kernel/sched/core.c

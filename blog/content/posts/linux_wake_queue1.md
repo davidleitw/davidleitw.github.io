@@ -98,7 +98,7 @@ struct wait_queue_entry {
 };
 ```
 
-一般來說喚醒函數是由調度器實現，所以如果沒有特殊需求，預設的喚醒函數是 [kernel/sched/core.c 中的 try_to_wake_up](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989)，`try_to_wake_up` 在後續會有詳細的介紹。
+一般來說喚醒函數是由排程器實現，所以如果沒有特殊需求，預設的喚醒函數是 [kernel/sched/core.c 中的 try_to_wake_up](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989)，`try_to_wake_up` 在後續會有詳細的介紹。
 
 ### 新增 wait_queue_entry
 
@@ -541,7 +541,7 @@ static void ttwu_do_wakeup(struct rq *rq, struct task_struct *p, int wake_flags,
 }
 ```
 
-`try_to_wake_up` 可以理解成最後會將 `task` 的 `state` 由 `TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE` 改成 `TASK_RUNNING`，並將其加入 `rq` 中等待調度器選擇。
+`try_to_wake_up` 可以理解成最後會將 `task` 的 `state` 由 `TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE` 改成 `TASK_RUNNING`，並將其加入 `rq` 中等待排程器選擇。
 
 
 ## get the number of entering a wait queue

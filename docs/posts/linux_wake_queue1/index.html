@@ -223,7 +223,7 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct
 </span><span class="c1"></span>	<span class="n">wait_queue_func_t</span>	<span class="n">func</span><span class="p">;</span>     <span class="c1">// 喚醒函數(wake_up)
 </span><span class="c1"></span>	<span class="k">struct</span> <span class="n">list_head</span>	<span class="n">entry</span><span class="p">;</span>    <span class="c1">// 指向 prev, next entry
 </span><span class="c1"></span><span class="p">};</span>
-</code></pre></div><p>一般來說喚醒函數是由調度器實現，所以如果沒有特殊需求，預設的喚醒函數是 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989" target="_blank" rel="noopener noreffer">kernel/sched/core.c 中的 try_to_wake_up</a>，<code>try_to_wake_up</code> 在後續會有詳細的介紹。</p>
+</code></pre></div><p>一般來說喚醒函數是由排程器實現，所以如果沒有特殊需求，預設的喚醒函數是 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989" target="_blank" rel="noopener noreffer">kernel/sched/core.c 中的 try_to_wake_up</a>，<code>try_to_wake_up</code> 在後續會有詳細的介紹。</p>
 <h3 id="新增-wait_queue_entry">新增 wait_queue_entry</h3>
 <p><code>task_struct</code> 會封裝在 <code>wait_queue_entry</code> 的 <code>private</code> 成員內，所以在新增等待事件之前，需要先把 <code>task_struct</code> 包裝成 <code>wait_queue_entry</code> 的形式，可以通過 <code>DECLARE_WAITQUEUE</code> 這個 <code>macro</code> 來包裝，在建立的過程會把喚醒函數設為 <code>default_wake_function</code>，對於喚醒函數後面會有更詳細的說明。</p>
 <h3 id="declare_waitqueuehttpselixirbootlincomlinuxv414259sourceincludelinuxwaithl51"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51" target="_blank" rel="noopener noreffer">DECLARE_WAITQUEUE</a></h3>
@@ -604,7 +604,7 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct
 	<span class="p">}</span>
 <span class="cp">#endif
 </span><span class="cp"></span><span class="p">}</span>
-</code></pre></div><p><code>try_to_wake_up</code> 可以理解成最後會將 <code>task</code> 的 <code>state</code> 由 <code>TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE</code> 改成 <code>TASK_RUNNING</code>，並將其加入 <code>rq</code> 中等待調度器選擇。</p>
+</code></pre></div><p><code>try_to_wake_up</code> 可以理解成最後會將 <code>task</code> 的 <code>state</code> 由 <code>TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE</code> 改成 <code>TASK_RUNNING</code>，並將其加入 <code>rq</code> 中等待排程器選擇。</p>
 <h2 id="get-the-number-of-entering-a-wait-queue">get the number of entering a wait queue</h2>
 <p><del>扯遠了</del>，回到這次作業題目(二)的需求，要寫一個 <code>system call</code> 來獲得 <code>task_struct</code> 進入 <code>wait queue</code> 的次數，先在 <code>task_struct</code> 中加入 <code>wq_cnt</code> 變數</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c">    <span class="c1">// include/linux/sched.h 中加入 wq_cnt

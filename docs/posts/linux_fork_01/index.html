@@ -7,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>Linux fork() 底層實作流程整理 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux fork() 底層實作流程整理" />
 <meta property="og:description" content="本文章環境基於 Linux v4.14.259
- 因為作業需要在 task_struct 中加入 counter 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
+ 因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
  建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()" />
@@ -19,7 +19,7 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Linux fork() 底層實作流程整理"/>
 <meta name="twitter:description" content="本文章環境基於 Linux v4.14.259
- 因為作業需要在 task_struct 中加入 counter 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
+ 因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
  建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()"/>
@@ -135,7 +135,7 @@
             </div><div class="content" id="content"><blockquote>
 <p>本文章環境基於 Linux v4.14.259</p>
 </blockquote>
-<p>因為作業需要在 <code>task_struct</code> 中加入 <code>counter</code> 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 <code>linux</code> 中一個 <code>process</code> 建立的時候在哪裡初始化，從 <code>fork()</code> 開始慢慢 <code>trace</code> 下去。</p>
+<p>因為作業需要在 <code>task_struct</code> 中加入 <code>counter</code> 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 <code>linux</code> 中一個 <code>process</code> 建立的時候在哪裡初始化，從 <code>fork()</code> 開始慢慢 <code>trace</code> 下去。</p>
 <p>在 <code>Linux</code> 中並沒有明確區分 <code>process</code> 跟 <code>thread</code>, <code>task_struct</code> 可以根據創立條件的不同代表 <code>process</code> 或者 <code>thread</code>。</p>
 <p>從實作的角度看可以有以下幾種 <code>system call</code> 建立新的 <code>task_struct</code>:</p>
 <ul>
@@ -428,7 +428,7 @@
 <span class="p">.</span> <span class="err">大量相關初始化，作業要添加的</span> <span class="n">counter</span> <span class="err">可以寫在這邊</span>
 <span class="p">.</span>
 
-<span class="c1">// 調度器相關的初始化，之後會再研究這部份整理一篇文章
+<span class="c1">// 排程器相關的初始化，之後會再研究這部份整理一篇文章
 </span><span class="c1">// 初始化的時候還會一併將此 process 分派到某個 cpu 上
 </span><span class="c1"></span><span class="n">retval</span> <span class="o">=</span> <span class="n">sched_fork</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
 
@@ -646,7 +646,7 @@
 	<span class="k">return</span> <span class="n">nr</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div><h3 id="_do_fork---wake_up_new_taskp">_do_fork() -&gt; wake_up_new_task(p)</h3>
-<p><code>wake_up_new_task</code> 的作用是把新創立的 <code>task_struct</code> 加入調度的 <code>runqueue</code> 當中，實現<a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459" target="_blank" rel="noopener noreffer">如下</a>:</p>
+<p><code>wake_up_new_task</code> 的作用是把新創立的 <code>task_struct</code> 加入排程的 <code>runqueue</code> 當中，實現<a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459" target="_blank" rel="noopener noreffer">如下</a>:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 位於 kernel/sched/core.c
 </span><span class="c1"></span>
 <span class="cm">/*

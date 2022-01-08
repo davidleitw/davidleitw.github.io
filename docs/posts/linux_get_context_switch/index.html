@@ -7,9 +7,9 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>Linux schedule 原始碼解讀 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux schedule 原始碼解讀" />
 <meta property="og:description" content="本文章環境基於 Linux v4.14.259
- 第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
-schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
-asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks." />
+ 第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 	preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://example.org/posts/linux_get_context_switch/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-01-07T03:12:53+08:00" />
@@ -18,9 +18,9 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Linux schedule 原始碼解讀"/>
 <meta name="twitter:description" content="本文章環境基於 Linux v4.14.259
- 第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
-schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
-asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks."/>
+ 第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 	preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks."/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -137,9 +137,9 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
             </div><div class="content" id="content"><blockquote>
 <p>本文章環境基於 Linux v4.14.259</p>
 </blockquote>
-<p>第一次 <code>trace</code> 整個調度的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
+<p>第一次 <code>trace</code> 整個排程的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
 <h2 id="schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424" target="_blank" rel="noopener noreffer">schedule</a></h2>
-<p>要 <code>trace</code> 調度器要先找到 <code>schedule</code> 的入口，定義在 <code>kernel/sched/core.c</code>，函式定義如下</p>
+<p>要 <code>trace</code> 排程器要先找到 <code>schedule</code> 的入口，定義在 <code>kernel/sched/core.c</code>，函式定義如下</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">asmlinkage</span> <span class="n">__visible</span> <span class="kt">void</span> <span class="n">__sched</span> <span class="nf">schedule</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
 <span class="p">{</span>
 	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
@@ -147,14 +147,14 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <span class="c1">// 避免 deadlock
 </span><span class="c1"></span>	<span class="n">sched_submit_work</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
 	<span class="k">do</span> <span class="p">{</span>
-        <span class="c1">// 調度本身無法搶佔，等調度完畢再開啟
+        <span class="c1">// 排程本身無法搶佔，等排程完畢再開啟
 </span><span class="c1"></span>	<span class="n">preempt_disable</span><span class="p">();</span>
 		
         <span class="n">__schedule</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
         
-        <span class="c1">// 調度完成，開啟搶佔功能
+        <span class="c1">// 排程完成，開啟搶佔功能
 </span><span class="c1"></span>	<span class="n">sched_preempt_enable_no_resched</span><span class="p">();</span>
-	<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">need_resched</span><span class="p">());</span> <span class="c1">// 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度
+	<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">need_resched</span><span class="p">());</span> <span class="c1">// 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程
 </span><span class="c1"></span><span class="p">}</span>
 <span class="n">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">schedule</span><span class="p">);</span>
 </code></pre></div><h3 id="sched_submit_workhttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3412"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412" target="_blank" rel="noopener noreffer">sched_submit_work</a></h3>
@@ -171,9 +171,9 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 <span class="p">}</span>
 </code></pre></div><p>在 <code>sched_submit_work</code> 中先檢查 <code>tsk-&gt;state</code> 是否為 0(<code>runnable</code>)，如果是就直接返回。
 <code>tsk_is_pi_blocked</code> 檢查 <code>tsk</code> 的 <code>deadlock</code> 檢測器是否為空。</p>
-<p>注意到 <code>schedule</code> 的 <code>while</code> 迴圈中的 <code>__schedule(false)</code>，<code>__schedule</code> 是真正調度執行的地方，所以繼續往下 <code>trace</code></p>
+<p>注意到 <code>schedule</code> 的 <code>while</code> 迴圈中的 <code>__schedule(false)</code>，<code>__schedule</code> 是真正排程執行的地方，所以繼續往下 <code>trace</code></p>
 <h2 id="_schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3299"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299" target="_blank" rel="noopener noreffer">_schedule</a></h2>
-<p>在 <code>__schedule()</code> 定義上方有一段註解說明<strong>調度時機</strong>，主要是說明 <code>task_struct</code> 在什麼情況會被調度，底下會大概敘述一下調度器在什麼情況下會考慮調度。</p>
+<p>在 <code>__schedule()</code> 定義上方有一段註解說明<strong>排程時機</strong>，主要是說明 <code>task_struct</code> 在什麼情況會被排程，底下會大概敘述一下排程器在什麼情況下會考慮排程。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
 </span><span class="cm"> * __schedule() is the main scheduler function.
 </span><span class="cm"> *
@@ -213,13 +213,13 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 </span><span class="cm"> *
 </span><span class="cm"> * WARNING: must be called with preemption disabled!
 </span><span class="cm"> */</span>
-</code></pre></div><p>在這段註解中大致說明了幾個調度的場景跟時機</p>
+</code></pre></div><p>在這段註解中大致說明了幾個排程的場景跟時機</p>
 <ul>
 <li>自願切換(<code>Voluntary</code>)
 <ul>
 <li><code>sleep</code>，定時任務場景</li>
 <li><code>mutex</code>, <code>semaphore</code> <code>waitqueue</code> 等</li>
-<li>在呼叫 <a href="https://elixir.bootlin.com/linux/latest/source/kernel/exit.c#L727" target="_blank" rel="noopener noreffer">do_exit</a> 時，主動釋放資源，並且最後會調用一次<code>主調度器</code>。</li>
+<li>在呼叫 <a href="https://elixir.bootlin.com/linux/latest/source/kernel/exit.c#L727" target="_blank" rel="noopener noreffer">do_exit</a> 時，主動釋放資源，並且最後會調用一次<code>主排程器</code>。</li>
 </ul>
 </li>
 <li>強制切換(<code>Involuntary</code>), 也被稱為搶佔(<code>Preemption</code>)
@@ -227,7 +227,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 <li><code>TIF_NEED_RESCHED</code>, <code>TIF</code> 開頭代表是 <code>thread information flags</code>，詳細有哪些 <code>flag</code> 可以參考 <a href="https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/thread_info.h#L80" target="_blank" rel="noopener noreffer">arch/x86/include/asm/thread_info.h</a>，<code>kernel</code> 透過這個 <code>flag</code> 來判斷這個 <code>task_struct</code> 是否要被<strong>搶佔(<code>Preemption</code>)</strong>
 <ul>
 <li>具體 <code>TIF_NEED_RESCHED</code> 的細節可以參考<a href="http://linuxperf.com/?p=211" target="_blank" rel="noopener noreffer">這篇文章</a></li>
-<li>當 <code>TIF_NEED_RESCHED</code> 被設置後並不是馬上被調度，而是會在最近的<strong>調度點</strong>被調度</li>
+<li>當 <code>TIF_NEED_RESCHED</code> 被設置後並不是馬上被排程，而是會在最近的<strong>排程點</strong>被排程</li>
 </ul>
 </li>
 </ul>
@@ -330,7 +330,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 
 	<span class="n">balance_callback</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
 <span class="p">}</span>
-</code></pre></div><p><code>task_struct</code> 中 <code>nivcsw</code> 變數來計算搶佔的調度次數，<code>nvcsw</code> 代表非搶佔調度。</p>
+</code></pre></div><p><code>task_struct</code> 中 <code>nivcsw</code> 變數來計算搶佔的排程次數，<code>nvcsw</code> 代表非搶佔排程。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">switch_count</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">nivcsw</span><span class="p">;</span>
 
 <span class="c1">// scheduler 會檢查 prev 的狀態以及是否允許 kernel preempt
@@ -368,12 +368,12 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <span class="c1">// 如果不是被搶佔的，就應該要累加 nvcsw, 代表主動放棄資源的排程
 </span><span class="c1"></span>    <span class="n">switch_count</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">prev</span><span class="o">-&gt;</span><span class="n">nvcsw</span><span class="p">;</span>
 <span class="p">}</span>
-</code></pre></div><p>接下來則是呼叫調度器選擇下一個優先度最高的 <code>task</code> 排進 <code>runqueue</code>。</p>
+</code></pre></div><p>接下來則是呼叫排程器選擇下一個優先度最高的 <code>task</code> 排進 <code>runqueue</code>。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 選擇一個優先度最高的 task 放入 runqueue 中
 </span><span class="c1"></span><span class="n">next</span> <span class="o">=</span> <span class="n">pick_next_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
 <span class="c1">// 清除 prev 的 TIF_NEED_RESCHED flag
 </span><span class="c1"></span><span class="n">clear_tsk_need_resched</span><span class="p">(</span><span class="n">prev</span><span class="p">);</span>
-</code></pre></div><p>自從 <code>Linux v2.6.23</code> 開始，<code>Linux</code> 引入了 <code>scheduling class</code> 的概念，大大提昇的調度器的擴展性，用戶可以依照自己的需求實現 <code>interface</code> 直接放入 <code>kernel</code> 中進行調度， 同樣在 <code>Linux v2.6.23</code> 之後 <code>Completely Fair Scheduler(CFS)</code> 取代原先的 <code>O(1) scheduler</code> 成為系統預設的調度器，在 <code>pick_next_task</code> 中就會實際根據調度器選擇出一個優先度最高的 <code>task</code>，但因為篇幅問題，之後有機會再深入研究調度器的實現。</p>
+</code></pre></div><p>自從 <code>Linux v2.6.23</code> 開始，<code>Linux</code> 引入了 <code>scheduling class</code> 的概念，大大提昇的排程器的擴展性，用戶可以依照自己的需求實現 <code>interface</code> 直接放入 <code>kernel</code> 中進行排程， 同樣在 <code>Linux v2.6.23</code> 之後 <code>Completely Fair Scheduler(CFS)</code> 取代原先的 <code>O(1) scheduler</code> 成為系統預設的排程器，在 <code>pick_next_task</code> 中就會實際根據排程器選擇出一個優先度最高的 <code>task</code>，但因為篇幅問題，之後有機會再深入研究排程器的實現。</p>
 <p>處理完 <code>prev</code>，也選擇了 <code>next</code>，接著就是要進行 <code>context switch</code> 的部份。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 如果 prev 不是 next (也有機率 prev 放入 runqueue 中之後又被挑選到)
 </span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">prev</span> <span class="o">!=</span> <span class="n">next</span><span class="p">))</span> <span class="p">{</span>
@@ -395,7 +395,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 </span><span class="cm">     * finish_lock_switch().
 </span><span class="cm">     */</span>
     
-    <span class="c1">// 增加一次被調度的次數
+    <span class="c1">// 增加一次被排程的次數
 </span><span class="c1"></span>    <span class="c1">// 上面的判斷可以得知，如果是搶佔會加 nivcsw，非搶佔則是會加 nvcsw 
 </span><span class="c1"></span>    <span class="o">++*</span><span class="n">switch_count</span><span class="p">;</span> 
     <span class="n">trace_sched_switch</span><span class="p">(</span><span class="n">preempt</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">next</span><span class="p">);</span>
@@ -410,7 +410,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <span class="n">rq_unlock_irq</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div><h2 id="get-the-number-of-context-switches">get the number of context switches</h2>
-<p>回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被調度的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
+<p>回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被排程的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
 <p>在驗證自己程式的正確性時，我們會參考 <code>/proc/{pid}/sched</code> 中的 <code>nr_switches</code>，實際找到 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924" target="_blank" rel="noopener noreffer">proc_sched_show_task</a> 就會發現 <code>nr_switches</code> 也是用 <code>nivcsw + nvcse</code> 來實現。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">proc_sched_show_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="k">struct</span> <span class="n">pid_namespace</span> <span class="o">*</span><span class="n">ns</span><span class="p">,</span>
 						  <span class="k">struct</span> <span class="n">seq_file</span> <span class="o">*</span><span class="n">m</span><span class="p">)</span> 

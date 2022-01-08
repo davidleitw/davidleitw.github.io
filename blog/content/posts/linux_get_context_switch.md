@@ -11,11 +11,11 @@ categories: ["linux_kernel"]
 
 > 本文章環境基於 Linux v4.14.259
 
-第一次 `trace` 整個調度的流程，`kernel` 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 `function` 的作用都沒辦法很好的說明，希望之後可以多閱讀 `source code`，把相關的知識慢慢補齊，拼湊成完整的知識。
+第一次 `trace` 整個排程的流程，`kernel` 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 `function` 的作用都沒辦法很好的說明，希望之後可以多閱讀 `source code`，把相關的知識慢慢補齊，拼湊成完整的知識。
 
 ## [schedule](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424)
 
-要 `trace` 調度器要先找到 `schedule` 的入口，定義在 `kernel/sched/core.c`，函式定義如下
+要 `trace` 排程器要先找到 `schedule` 的入口，定義在 `kernel/sched/core.c`，函式定義如下
 
 ```c
 asmlinkage __visible void __sched schedule(void)
@@ -25,14 +25,14 @@ asmlinkage __visible void __sched schedule(void)
     // 避免 deadlock
 	sched_submit_work(tsk);
 	do {
-        // 調度本身無法搶佔，等調度完畢再開啟
+        // 排程本身無法搶佔，等排程完畢再開啟
 	preempt_disable();
 		
         __schedule(false);
         
-        // 調度完成，開啟搶佔功能
+        // 排程完成，開啟搶佔功能
 	sched_preempt_enable_no_resched();
-	} while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度
+	} while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程
 }
 EXPORT_SYMBOL(schedule);
 ```
@@ -58,11 +58,11 @@ static inline void sched_submit_work(struct task_struct *tsk)
 在 `sched_submit_work` 中先檢查 `tsk->state` 是否為 0(`runnable`)，如果是就直接返回。
 `tsk_is_pi_blocked` 檢查 `tsk` 的 `deadlock` 檢測器是否為空。
 
-注意到 `schedule` 的 `while` 迴圈中的 `__schedule(false)`，`__schedule` 是真正調度執行的地方，所以繼續往下 `trace`
+注意到 `schedule` 的 `while` 迴圈中的 `__schedule(false)`，`__schedule` 是真正排程執行的地方，所以繼續往下 `trace`
 
 ## [_schedule](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299)
 
-在 `__schedule()` 定義上方有一段註解說明**調度時機**，主要是說明 `task_struct` 在什麼情況會被調度，底下會大概敘述一下調度器在什麼情況下會考慮調度。
+在 `__schedule()` 定義上方有一段註解說明**排程時機**，主要是說明 `task_struct` 在什麼情況會被排程，底下會大概敘述一下排程器在什麼情況下會考慮排程。
 
 
 ```c
@@ -106,16 +106,16 @@ static inline void sched_submit_work(struct task_struct *tsk)
  * WARNING: must be called with preemption disabled!
  */
 ```
-在這段註解中大致說明了幾個調度的場景跟時機
+在這段註解中大致說明了幾個排程的場景跟時機
 
 - 自願切換(`Voluntary`)
     - `sleep`，定時任務場景
     - `mutex`, `semaphore` `waitqueue` 等
-    - 在呼叫 [do_exit](https://elixir.bootlin.com/linux/latest/source/kernel/exit.c#L727) 時，主動釋放資源，並且最後會調用一次`主調度器`。
+    - 在呼叫 [do_exit](https://elixir.bootlin.com/linux/latest/source/kernel/exit.c#L727) 時，主動釋放資源，並且最後會調用一次`主排程器`。
 - 強制切換(`Involuntary`), 也被稱為搶佔(`Preemption`)
     - `TIF_NEED_RESCHED`, `TIF` 開頭代表是 `thread information flags`，詳細有哪些 `flag` 可以參考 [arch/x86/include/asm/thread_info.h](https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/thread_info.h#L80)，`kernel` 透過這個 `flag` 來判斷這個 `task_struct` 是否要被**搶佔(`Preemption`)**
         - 具體 `TIF_NEED_RESCHED` 的細節可以參考[這篇文章](http://linuxperf.com/?p=211)
-        - 當 `TIF_NEED_RESCHED` 被設置後並不是馬上被調度，而是會在最近的**調度點**被調度
+        - 當 `TIF_NEED_RESCHED` 被設置後並不是馬上被排程，而是會在最近的**排程點**被排程
 - `wake_up` 只是把 `task` 加入 `runqueue` 中，之後根據 `preempts` 的設置會有不同的處理方式。
 
 ```c
@@ -218,7 +218,7 @@ static void __sched notrace __schedule(bool preempt)
 ```
 
 
-`task_struct` 中 `nivcsw` 變數來計算搶佔的調度次數，`nvcsw` 代表非搶佔調度。
+`task_struct` 中 `nivcsw` 變數來計算搶佔的排程次數，`nvcsw` 代表非搶佔排程。
 
 
 ```c
@@ -261,7 +261,7 @@ if (!preempt && prev->state) {
 }
 ```
 
-接下來則是呼叫調度器選擇下一個優先度最高的 `task` 排進 `runqueue`。
+接下來則是呼叫排程器選擇下一個優先度最高的 `task` 排進 `runqueue`。
 
 ```c
 // 選擇一個優先度最高的 task 放入 runqueue 中
@@ -270,7 +270,7 @@ next = pick_next_task(rq, prev, &rf);
 clear_tsk_need_resched(prev);
 ```
 
-自從 `Linux v2.6.23` 開始，`Linux` 引入了 `scheduling class` 的概念，大大提昇的調度器的擴展性，用戶可以依照自己的需求實現 `interface` 直接放入 `kernel` 中進行調度， 同樣在 `Linux v2.6.23` 之後 `Completely Fair Scheduler(CFS)` 取代原先的 `O(1) scheduler` 成為系統預設的調度器，在 `pick_next_task` 中就會實際根據調度器選擇出一個優先度最高的 `task`，但因為篇幅問題，之後有機會再深入研究調度器的實現。
+自從 `Linux v2.6.23` 開始，`Linux` 引入了 `scheduling class` 的概念，大大提昇的排程器的擴展性，用戶可以依照自己的需求實現 `interface` 直接放入 `kernel` 中進行排程， 同樣在 `Linux v2.6.23` 之後 `Completely Fair Scheduler(CFS)` 取代原先的 `O(1) scheduler` 成為系統預設的排程器，在 `pick_next_task` 中就會實際根據排程器選擇出一個優先度最高的 `task`，但因為篇幅問題，之後有機會再深入研究排程器的實現。
  
 處理完 `prev`，也選擇了 `next`，接著就是要進行 `context switch` 的部份。
 
@@ -295,7 +295,7 @@ if (likely(prev != next)) {
      * finish_lock_switch().
      */
     
-    // 增加一次被調度的次數
+    // 增加一次被排程的次數
     // 上面的判斷可以得知，如果是搶佔會加 nivcsw，非搶佔則是會加 nvcsw 
     ++*switch_count; 
     trace_sched_switch(preempt, prev, next);
@@ -313,7 +313,7 @@ if (likely(prev != next)) {
 
 ## get the number of context switches
 
-回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 `counter` 來計算被調度的次數，只要把 `task_struct` 中的 `tsk->nivcsw + tsk->nvcse` 就可以得到這個 `task_struct` 被 `context switch` 的次數了，甚至可以用 `nr_switches` 這個變數來直接獲得答案。
+回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 `counter` 來計算被排程的次數，只要把 `task_struct` 中的 `tsk->nivcsw + tsk->nvcse` 就可以得到這個 `task_struct` 被 `context switch` 的次數了，甚至可以用 `nr_switches` 這個變數來直接獲得答案。
 
 在驗證自己程式的正確性時，我們會參考 `/proc/{pid}/sched` 中的 `nr_switches`，實際找到 [proc_sched_show_task](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924) 就會發現 `nr_switches` 也是用 `nivcsw + nvcse` 來實現。
 
