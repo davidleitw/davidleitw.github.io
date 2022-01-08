@@ -6,7 +6,8 @@
         <meta name="robots" content="noodp" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>Linux schedule 原始碼解讀 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux schedule 原始碼解讀" />
-<meta property="og:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+<meta property="og:description" content="本文章環境基於 Linux v4.14.259
+ 第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks." />
 <meta property="og:type" content="article" />
@@ -16,7 +17,8 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Linux schedule 原始碼解讀"/>
-<meta name="twitter:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+<meta name="twitter:description" content="本文章環境基於 Linux v4.14.259
+ 第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks."/>
 <meta name="application-name" content="davidLei">
@@ -31,7 +33,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/linux_get_context_switch\/"
-        },"genre": "posts","keywords": "linux_kernel, system_call, scheduler","wordcount":  1217 ,
+        },"genre": "posts","keywords": "linux_kernel, system_call, scheduler","wordcount":  1220 ,
         "url": "http:\/\/example.org\/posts\/linux_get_context_switch\/","datePublished": "2022-01-07T03:12:53+08:00","dateModified": "2022-01-07T03:12:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -108,7 +110,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">Linux schedule 原始碼解讀</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-07">2022-01-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1217 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-07">2022-01-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1220 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;6 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -132,7 +134,10 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     </li>
   </ul>
 </nav></div>
-            </div><div class="content" id="content"><p>第一次 <code>trace</code> 整個調度的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
+            </div><div class="content" id="content"><blockquote>
+<p>本文章環境基於 Linux v4.14.259</p>
+</blockquote>
+<p>第一次 <code>trace</code> 整個調度的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
 <h2 id="schedulehttpselixirbootlincomlinuxv414259sourcekernelschedcorecl3424"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424" target="_blank" rel="noopener noreffer">schedule</a></h2>
 <p>要 <code>trace</code> 調度器要先找到 <code>schedule</code> 的入口，定義在 <code>kernel/sched/core.c</code>，函式定義如下</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">asmlinkage</span> <span class="n">__visible</span> <span class="kt">void</span> <span class="n">__sched</span> <span class="nf">schedule</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>

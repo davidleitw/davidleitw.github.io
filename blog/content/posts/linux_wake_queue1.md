@@ -845,3 +845,4 @@ sudo sysctl kernel.sched_schedstats=1
 - [linux 内核 wait queue源码分析](https://blog.csdn.net/lian494362816/article/details/111188298)
 - [Linux Preemption - 2](http://oliveryang.net/2016/03/linux-scheduler-2/#22-wakeup-preemption)
 - [源码解读Linux等待队列](http://gityuan.com/2018/12/02/linux-wait-queue/) 
+- [Linux等待佇列原理與實現](https://www.gushiciku.cn/pl/px3g/zh-tw)

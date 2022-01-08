@@ -21,7 +21,8 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct
     <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>http://example.org/posts/linux_get_context_switch/</guid>
-    <description><![CDATA[第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+    <description><![CDATA[本文章環境基於 Linux v4.14.259
+ 第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
 </item><item>
@@ -30,7 +31,8 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <pubDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>http://example.org/posts/linux_fork_01/</guid>
-    <description><![CDATA[因為作業需要在 task_struct 中加入 counter 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
+    <description><![CDATA[本文章環境基於 Linux v4.14.259
+ 因為作業需要在 task_struct 中加入 counter 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
  kernel 版本使用 v4.14.259
  在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:

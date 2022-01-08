@@ -9,6 +9,8 @@ tags:
 categories: ["linux_kernel"]
 ---
 
+> 本文章環境基於 Linux v4.14.259
+
 第一次 `trace` 整個調度的流程，`kernel` 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 `function` 的作用都沒辦法很好的說明，希望之後可以多閱讀 `source code`，把相關的知識慢慢補齊，拼湊成完整的知識。
 
 ## [schedule](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424)

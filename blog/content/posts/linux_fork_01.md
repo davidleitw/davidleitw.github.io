@@ -9,6 +9,8 @@ tags:
 categories: ["linux_kernel"]
 ---
 
+> 本文章環境基於 Linux v4.14.259
+
 因為作業需要在 `task_struct` 中加入 `counter` 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 `linux` 中一個 `process` 建立的時候在哪裡初始化，從 `fork()` 開始慢慢 `trace` 下去。
 
 > kernel 版本使用 `v4.14.259`
