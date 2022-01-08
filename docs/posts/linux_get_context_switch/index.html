@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>Linux schedule 流程研究 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux schedule 流程研究" />
+        <title>Linux schedule 原始碼解讀 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux schedule 原始碼解讀" />
 <meta property="og:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks." />
@@ -15,18 +15,18 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 <meta property="article:modified_time" content="2022-01-07T03:12:53+08:00" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Linux schedule 流程研究"/>
+<meta name="twitter:title" content="Linux schedule 原始碼解讀"/>
 <meta name="twitter:description" content="第一次 trace 整個調度的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 調度器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 調度本身無法搶佔，等調度完畢再開啟 	preempt_disable(); __schedule(false); // 調度完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新調度 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks."/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/linux_get_context_switch/" /><link rel="prev" href="http://example.org/posts/linux_fork_01/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/linux_get_context_switch/" /><link rel="prev" href="http://example.org/posts/linux_fork_01/" /><link rel="next" href="http://example.org/posts/linux_wake_queue1/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
-        "headline": "Linux schedule 流程研究",
+        "headline": "Linux schedule 原始碼解讀",
         "inLanguage": "en",
         "mainEntityOfPage": {
             "@type": "WebPage",
@@ -106,7 +106,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
                 <div class="container"><div class="toc" id="toc-auto">
             <h2 class="toc-title">Contents</h2>
             <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animated flipInX">Linux schedule 流程研究</h1><div class="post-meta">
+        </div><article class="page single"><h1 class="single-title animated flipInX">Linux schedule 原始碼解讀</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div>
             <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-07">2022-01-07</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1217 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;6 minutes&nbsp;</div>
@@ -405,7 +405,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <span class="n">rq_unlock_irq</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div><h2 id="get-the-number-of-context-switches">get the number of context switches</h2>
-<p>回到作業的要求(一)，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被調度的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
+<p>回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被調度的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
 <p>在驗證自己程式的正確性時，我們會參考 <code>/proc/{pid}/sched</code> 中的 <code>nr_switches</code>，實際找到 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924" target="_blank" rel="noopener noreffer">proc_sched_show_task</a> 就會發現 <code>nr_switches</code> 也是用 <code>nivcsw + nvcse</code> 來實現。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">void</span> <span class="nf">proc_sched_show_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="k">struct</span> <span class="n">pid_namespace</span> <span class="o">*</span><span class="n">ns</span><span class="p">,</span>
 						  <span class="k">struct</span> <span class="n">seq_file</span> <span class="o">*</span><span class="n">m</span><span class="p">)</span> 
@@ -490,7 +490,7 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-hashtags="linux_kernel,system_call,scheduler"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/linux_get_context_switch/" data-hashtag="linux_kernel"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 流程研究"><i class="fab fa-evernote fa-fw"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 原始碼解讀" data-hashtags="linux_kernel,system_call,scheduler"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/linux_get_context_switch/" data-hashtag="linux_kernel"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 原始碼解讀" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 原始碼解讀"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 原始碼解讀"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 原始碼解讀" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 原始碼解讀" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/linux_get_context_switch/" data-title="Linux schedule 原始碼解讀"><i class="fab fa-evernote fa-fw"></i></a></span>
             </div>
         </div>
     </div>
@@ -502,7 +502,8 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/linux_fork_01/" class="prev" rel="prev" title="Linux fork() 底層實作流程整理"><i class="fas fa-angle-left fa-fw"></i>Linux fork() 底層實作流程整理</a></div>
+    <div class="post-nav"><a href="/posts/linux_fork_01/" class="prev" rel="prev" title="Linux fork() 底層實作流程整理"><i class="fas fa-angle-left fa-fw"></i>Linux fork() 底層實作流程整理</a>
+            <a href="/posts/linux_wake_queue1/" class="next" rel="next" title="Linux waitqueue 原始碼解讀">Linux waitqueue 原始碼解讀<i class="fas fa-angle-right fa-fw"></i></a></div>
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">

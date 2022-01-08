@@ -4,8 +4,19 @@
         <link>http://example.org/tags/system_call/</link>
         <description>system_call - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/system_call/" rel="self" type="application/rss+xml" /><item>
-    <title>Linux schedule 流程研究</title>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/system_call/" rel="self" type="application/rss+xml" /><item>
+    <title>Linux waitqueue 原始碼解讀</title>
+    <link>http://example.org/posts/linux_wake_queue1/</link>
+    <pubDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/linux_wake_queue1/</guid>
+    <description><![CDATA[本文章環境基於 Linux v4.14.259
+ 概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。
+waitqueue 有定義兩種資料結構
+ wait_queue_head: waitqueue 的 head wait_queue_entry: 來表示每個在 waitqueue 的元素  waitqueue 所有的實現都是基於 kernel 內建的 double circular linked list 來實現，所以本身的設計非常簡潔。 以下為 waitqueue 基本的 data struct 定義，位在 /include/linux/wait.h
+wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct list_head	head; // 指向 prev, next entry. }; typedef struct wait_queue_head wait_queue_head_t; 初始化 waitqueue 要建立新的 waitqueue，必須要先初始化 wait_queue_head_t 結構，透過 init_waitqueue_head，定義如下]]></description>
+</item><item>
+    <title>Linux schedule 原始碼解讀</title>
     <link>http://example.org/posts/linux_get_context_switch/</link>
     <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>

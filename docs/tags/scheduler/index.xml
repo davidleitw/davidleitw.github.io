@@ -5,7 +5,7 @@
         <description>scheduler - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
             <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/scheduler/" rel="self" type="application/rss+xml" /><item>
-    <title>Linux schedule 流程研究</title>
+    <title>Linux schedule 原始碼解讀</title>
     <link>http://example.org/posts/linux_get_context_switch/</link>
     <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>

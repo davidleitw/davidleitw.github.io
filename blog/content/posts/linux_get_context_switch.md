@@ -1,5 +1,5 @@
 ---
-title: "Linux schedule 流程研究"
+title: "Linux schedule 原始碼解讀"
 date: 2022-01-07T03:12:53+08:00
 draft: false
 tags: 
@@ -311,7 +311,7 @@ if (likely(prev != next)) {
 
 ## get the number of context switches
 
-回到作業的要求(一)，其實可以發現沒有必要再自己加上一個 `counter` 來計算被調度的次數，只要把 `task_struct` 中的 `tsk->nivcsw + tsk->nvcse` 就可以得到這個 `task_struct` 被 `context switch` 的次數了，甚至可以用 `nr_switches` 這個變數來直接獲得答案。
+回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 `counter` 來計算被調度的次數，只要把 `task_struct` 中的 `tsk->nivcsw + tsk->nvcse` 就可以得到這個 `task_struct` 被 `context switch` 的次數了，甚至可以用 `nr_switches` 這個變數來直接獲得答案。
 
 在驗證自己程式的正確性時，我們會參考 `/proc/{pid}/sched` 中的 `nr_switches`，實際找到 [proc_sched_show_task](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924) 就會發現 `nr_switches` 也是用 `nivcsw + nvcse` 來實現。
 
