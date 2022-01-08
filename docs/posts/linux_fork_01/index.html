@@ -8,8 +8,7 @@
         <title>Linux fork() 底層實作流程整理 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux fork() 底層實作流程整理" />
 <meta property="og:description" content="本文章環境基於 Linux v4.14.259
  因為作業需要在 task_struct 中加入 counter 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
- kernel 版本使用 v4.14.259
- 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
+在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
  建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()" />
 <meta property="og:type" content="article" />
@@ -21,8 +20,7 @@
 <meta name="twitter:title" content="Linux fork() 底層實作流程整理"/>
 <meta name="twitter:description" content="本文章環境基於 Linux v4.14.259
  因為作業需要在 task_struct 中加入 counter 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
- kernel 版本使用 v4.14.259
- 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
+在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
  建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()"/>
 <meta name="application-name" content="davidLei">
@@ -37,7 +35,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/linux_fork_01\/"
-        },"genre": "posts","keywords": "linux_kernel, system_call, fork","wordcount":  2127 ,
+        },"genre": "posts","keywords": "linux_kernel, system_call, fork","wordcount":  2124 ,
         "url": "http:\/\/example.org\/posts\/linux_fork_01\/","datePublished": "2022-01-05T00:12:53+08:00","dateModified": "2022-01-05T00:12:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -114,7 +112,7 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">Linux fork() 底層實作流程整理</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-05">2022-01-05</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2127 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-05">2022-01-05</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2124 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;10 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -138,9 +136,6 @@
 <p>本文章環境基於 Linux v4.14.259</p>
 </blockquote>
 <p>因為作業需要在 <code>task_struct</code> 中加入 <code>counter</code> 並且觀察調度器的行為，所以在這邊寫一份筆記來紀錄一下在 <code>linux</code> 中一個 <code>process</code> 建立的時候在哪裡初始化，從 <code>fork()</code> 開始慢慢 <code>trace</code> 下去。</p>
-<blockquote>
-<p>kernel 版本使用 <code>v4.14.259</code></p>
-</blockquote>
 <p>在 <code>Linux</code> 中並沒有明確區分 <code>process</code> 跟 <code>thread</code>, <code>task_struct</code> 可以根據創立條件的不同代表 <code>process</code> 或者 <code>thread</code>。</p>
 <p>從實作的角度看可以有以下幾種 <code>system call</code> 建立新的 <code>task_struct</code>:</p>
 <ul>
