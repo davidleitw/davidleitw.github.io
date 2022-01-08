@@ -696,7 +696,7 @@ int main()
 
 ![](https://i.imgur.com/FAvy2t5.png)
 
-其實這個值是在 `ttwu_stat` 這個 `function` 去更新的，在 `try_to_wake_up` 的後面會呼叫 `ttwu_stat` 來更新相關的資料，~~其實題目二也不用另外加 counter~~，具體實現如下
+`nr_wakeups` 這個值是在 `ttwu_stat` 這個 `function` 去更新的，在 `try_to_wake_up` 的後面會呼叫 `ttwu_stat` 來更新相關的資料，~~所以其實題目二也不用另外加 counter~~，具體實現如下
 
 ### [ttwu_stat](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630)
 

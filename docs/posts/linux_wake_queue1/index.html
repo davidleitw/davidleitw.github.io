@@ -35,7 +35,7 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "http:\/\/example.org\/posts\/linux_wake_queue1\/"
-        },"genre": "posts","keywords": "linux_kernel, system_call, wait_queue","wordcount":  2319 ,
+        },"genre": "posts","keywords": "linux_kernel, system_call, wait_queue","wordcount":  2320 ,
         "url": "http:\/\/example.org\/posts\/linux_wake_queue1\/","datePublished": "2022-01-08T03:12:53+08:00","dateModified": "2022-01-08T03:12:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -112,7 +112,7 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">Linux waitqueue 原始碼解讀</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-08">2022-01-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2319 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-08">2022-01-08</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2320 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;11 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -738,7 +738,7 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct
         data-sizes="auto"
         alt="https://i.imgur.com/FAvy2t5.png"
         title="https://i.imgur.com/FAvy2t5.png" /></p>
-<p>其實這個值是在 <code>ttwu_stat</code> 這個 <code>function</code> 去更新的，在 <code>try_to_wake_up</code> 的後面會呼叫 <code>ttwu_stat</code> 來更新相關的資料，<del>其實題目二也不用另外加 counter</del>，具體實現如下</p>
+<p><code>nr_wakeups</code> 這個值是在 <code>ttwu_stat</code> 這個 <code>function</code> 去更新的，在 <code>try_to_wake_up</code> 的後面會呼叫 <code>ttwu_stat</code> 來更新相關的資料，<del>所以其實題目二也不用另外加 counter</del>，具體實現如下</p>
 <h3 id="ttwu_stathttpselixirbootlincomlinuxv414259sourcekernelschedcorecl1630"><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630" target="_blank" rel="noopener noreffer">ttwu_stat</a></h3>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="kt">void</span>
 <span class="nf">ttwu_stat</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">int</span> <span class="n">cpu</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">)</span>
