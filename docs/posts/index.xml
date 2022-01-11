@@ -4,7 +4,17 @@
         <link>http://example.org/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]</title>
+    <link>http://example.org/posts/lc1022/</link>
+    <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/lc1022/</guid>
+    <description><![CDATA[題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1] Output: 22 Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
+ 給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
+解題紀錄 利用 DFS 去尋訪，如果 !root-&gt;left &amp;&amp; !root-&gt;right 就代表到達 leaf，直接回傳算出來的值。
+class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!]]></description>
+</item><item>
     <title>Linux waitqueue 原始碼解讀</title>
     <link>http://example.org/posts/linux_wake_queue1/</link>
     <pubDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</pubDate>
@@ -94,18 +104,5 @@ $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo 
     <description><![CDATA[題目敘述 獲得 linked list 的 middle 節點。
 經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
 解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; ]]></description>
-</item><item>
-    <title>leetcode 476. Number Complement [Medium]</title>
-    <link>http://example.org/posts/lc476/</link>
-    <pubDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc476/</guid>
-    <description><![CDATA[題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
-思路 這題算是 Bit Manipulation 的入門題目，很適合練習 bit 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。
-因為這題的範圍限制 1 &lt;= num &lt; 2^31，所以可確保第一個 bit 為0
-找第一個有效位元 我的想法是先從左邊第一個 bit 開始找，找到第一個 1 ，後面所有的 bit 就都是有效位數，再一一反轉。
-要判斷左邊第一個位元是不是 1 可以寫成
-if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方式先找到第一個 1 的所在，在對於後面的 bit 做反轉。
-反轉 bits  (一): 逐個 bit 反轉, 利用 XOR  class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !]]></description>
 </item></channel>
 </rss>
