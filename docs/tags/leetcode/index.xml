@@ -10,7 +10,9 @@
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>http://example.org/posts/lc1022/</guid>
-    <description><![CDATA[題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1] Output: 22 Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
+    <description><![CDATA[題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
+Output: 22
+Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
  給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
 解題紀錄 利用 DFS 去尋訪，如果 !root-&gt;left &amp;&amp; !root-&gt;right 就代表到達 leaf，直接回傳算出來的值。
 class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!]]></description>
