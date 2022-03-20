@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-	<meta name="generator" content="Hugo 0.90.0" />
+	<meta name="generator" content="Hugo 0.91.0-DEV" />
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
@@ -100,6 +100,16 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/db01/">資料庫 ER Model(一): Entity 與 Attribute</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-03-21">2022-03-21</time></span>&nbsp;<span class="post-category">included in <a href="/categories/database/"><i class="far fa-folder fa-fw"></i>database</a></span></div><div class="content">收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
+type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
+Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
+在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
+Simple Simple attribute 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 data type，像是 student 的 age 就是單純的 int。
+Composite Composite attribute 是由多個不同的部份組成一起的概念，像是外國的名字可能有 FirstNAme, MiddleName, LastName 等等</div><div class="post-footer">
+        <a href="/posts/db01/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/database/">database</a>,&nbsp;<a href="/tags/er_model/">ER_Model</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc1022/">leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-01-11">2022-01-11</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
 Output: 22
@@ -142,14 +152,6 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
 解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; </div><div class="post-footer">
         <a href="/posts/lc997/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc1010/">leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-01-02">2022-01-02</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。
-解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。
-假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。
-class Solution { public: int numPairsDivisibleBy60(vector&lt;int&gt;&amp; time) { int cnt = 0; int m[60] = {0}; for (int i = 0; i &lt; time.size(); ++i) { cnt += m[time[i]%60 == 0 ?</div><div class="post-footer">
-        <a href="/posts/lc1010/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>
@@ -170,7 +172,7 @@ class Solution { public: int numPairsDivisibleBy60(vector&lt;int&gt;&amp; time) 
                     </span>
                 </li></ul></div></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.90.0">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

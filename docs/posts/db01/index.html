@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>資料庫 ER Model(一): Entity 與 Attribute - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="資料庫 ER Model(一): Entity 與 Attribute" />
+<meta property="og:description" content="收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
+type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
+Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
+在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
+Simple Simple attribute 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 data type，像是 student 的 age 就是單純的 int。
+Composite Composite attribute 是由多個不同的部份組成一起的概念，像是外國的名字可能有 FirstNAme, MiddleName, LastName 等等" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/db01/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-03-21T00:12:53+08:00" />
+<meta property="article:modified_time" content="2022-03-21T00:12:53+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="資料庫 ER Model(一): Entity 與 Attribute"/>
+<meta name="twitter:description" content="收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
+type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
+Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
+在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
+Simple Simple attribute 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 data type，像是 student 的 age 就是單純的 int。
+Composite Composite attribute 是由多個不同的部份組成一起的概念，像是外國的名字可能有 FirstNAme, MiddleName, LastName 等等"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/db01/" /><link rel="prev" href="http://example.org/posts/lc1022/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "資料庫 ER Model(一): Entity 與 Attribute",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/db01\/"
+        },"genre": "posts","keywords": "database, ER_Model","wordcount":  335 ,
+        "url": "http:\/\/example.org\/posts\/db01\/","datePublished": "2022-03-21T00:12:53+08:00","dateModified": "2022-03-21T00:12:53+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">資料庫 ER Model(一): Entity 與 Attribute</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/database/"><i class="far fa-folder fa-fw"></i>database</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-21">2022-03-21</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;335 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;2 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#entity">Entity</a></li>
+        <li><a href="#attribute">Attribute</a></li>
+        <li><a href="#key-attribute">Key Attribute</a></li>
+        <li><a href="#entity-setentity-collection">Entity Set(Entity collection)</a></li>
+      </ul>
+    </li>
+    <li><a href="#er-diagrams">ER diagrams</a>
+      <ul>
+        <li><a href="#example-company-db">Example Company DB</a></li>
+        <li><a href="#relationship">Relationship</a></li>
+        <li><a href="#relationship-degree">Relationship degree</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/elz2mBg.png"
+        data-srcset="https://i.imgur.com/elz2mBg.png, https://i.imgur.com/elz2mBg.png 1.5x, https://i.imgur.com/elz2mBg.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/elz2mBg.png"
+        title="https://i.imgur.com/elz2mBg.png" /></p>
+<ul>
+<li>收集到 Requirements 最難，很難提出&quot;精準&quot;的需求</li>
+</ul>
+<h3 id="entity">Entity</h3>
+<p><code>entity</code> 是 <code>RDBMS</code> 中實際的資料實體，可以用程式的概念理解，定義好 <code>struct</code> 之後一定會在某個地方建立一個實體，裡面會根據 <code>struct field type</code> 去存放資料。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">student</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">name</span> <span class="kt">string</span>
+    <span class="nx">age</span> <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nx">studentA</span> <span class="o">:=</span> <span class="nx">student</span><span class="p">{</span><span class="s">&#34;david&#34;</span><span class="p">,</span> <span class="s">&#34;20&#34;</span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><p><code>studentA</code> 就可以視為一個 <code>entity</code>，擁有真正資料的實體。</p>
+<h3 id="attribute">Attribute</h3>
+<p><code>attribute</code> 描述 <code>entity</code> 的屬性，拿上面 <code>student</code> 的例子，<code>name</code>, <code>age</code> 都可以當作 <code>attribute</code>。</p>
+<p>在資料庫內 <code>attribute</code> 分成很多不同類型，大致可以分成 <code>Simple</code>, <code>Composite</code>, <code>Multi-valued</code>。</p>
+<h4 id="simple">Simple</h4>
+<p><code>Simple attribute</code> 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 <code>data type</code>，像是 <code>student</code> 的 <code>age</code> 就是單純的 <code>int</code>。</p>
+<h4 id="composite">Composite</h4>
+<p><code>Composite attribute</code> 是由多個不同的部份組成一起的概念，像是外國的名字可能有 <code>FirstNAme</code>, <code>MiddleName</code>, <code>LastName</code> 等等</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">name</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">FirstName</span> <span class="kt">string</span>
+    <span class="nx">MiddleName</span> <span class="kt">string</span>
+    <span class="nx">LastName</span> <span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">student</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">studentName</span> <span class="nx">name</span>
+    <span class="nx">studentAge</span> <span class="kt">int</span>
+<span class="p">}</span>
+</code></pre></div><p>這種時候 <code>name</code> 代表著三個 <code>string</code> 的集合，就可以視為一個 <code>Composite attribute</code>。</p>
+<h4 id="multi-valued">Multi-valued</h4>
+<p><code>Multi-valued attribute</code> 代表單個 <code>attribute</code> 內有多個 <code>value</code>，像是上課舉例是用車子的顏色，一個車子不可能從頭到尾只有一個顏色，不同區域可能會有不同的顏色，這時候如果我們資料庫需要描述這個車子的外觀顏色，就會用到 <code>Multi-valued attribute</code>，雖然有 <code>Multi-valued attribute</code>，但實際設計上通常都會把它拆開，實際怎麼分解的之後會再介紹。</p>
+<p><code>Multi-valued</code> 跟 <code>Composite</code> 是有可能同時出現的，彼此之間不衝突。</p>
+<h3 id="key-attribute">Key Attribute</h3>
+<p><code>key attribute</code> 可以識別唯一的 <code>entity</code>。</p>
+<p>對於 <code>key attribute</code> 沒有特別限制，所以也有機會是 <code>Composite attribute</code>。某些情形可以需要利用多個 <code>attribute</code> 才能識別唯一的 <code>entity</code>。</p>
+<blockquote>
+<p>Key attribute 跟 Primary key 的差別是什麼?</p>
+</blockquote>
+<h3 id="entity-setentity-collection">Entity Set(Entity collection)</h3>
+<p>代表當下所有 <code>entity</code> 的集合。</p>
+<h2 id="er-diagrams">ER diagrams</h2>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/qu56dyT.png"
+        data-srcset="https://i.imgur.com/qu56dyT.png, https://i.imgur.com/qu56dyT.png 1.5x, https://i.imgur.com/qu56dyT.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/qu56dyT.png"
+        title="https://i.imgur.com/qu56dyT.png" /></p>
+<p>課本上用 <code>CAR</code> 來當 <code>ER diagrams</code> 的範例，這邊我試著用 <code>go</code> 語言的宣告去理解</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Composite 
+</span><span class="c1"></span><span class="kd">type</span> <span class="nx">registration</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">State</span> <span class="kt">string</span>
+    <span class="nx">Number</span> <span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">Car</span> <span class="kd">struct</span> <span class="p">{</span>
+    <span class="nx">VehicleID</span> <span class="kt">string</span>
+    <span class="nx">Registration</span> <span class="nx">registration</span>
+    <span class="nx">Year</span> <span class="kt">int</span>
+    <span class="nx">Color</span> <span class="p">[]</span><span class="nx">color</span> 
+    <span class="nx">Make</span> <span class="kt">string</span>
+    <span class="nx">Model</span> <span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></div><p>其中 <code>Registration</code> 是 <code>Composite attribute</code>，<code>Color</code> 是 <code>Multi-valued attribute</code>，畫出來的圖會長這樣</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/tS1EsmM.png"
+        data-srcset="https://i.imgur.com/tS1EsmM.png, https://i.imgur.com/tS1EsmM.png 1.5x, https://i.imgur.com/tS1EsmM.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/tS1EsmM.png"
+        title="https://i.imgur.com/tS1EsmM.png" /></p>
+<p><code>Vehicle_id</code> 跟 <code>Registration</code> 都可以當作 <code>Key attribute</code>，所以有加上底線。</p>
+<p><code>Color</code> 的雙框代表 <code>Multi-valued attribute</code>。</p>
+<h3 id="example-company-db">Example Company DB</h3>
+<p><code>Company DB</code> 是課本最常用的例子，目前到第三章的初步設計如下，之後會根據課程進度去逐漸優化。</p>
+<ul>
+<li>Department
+<ul>
+<li>name</li>
+<li>number</li>
+<li>employees</li>
+<li>start date of the department manager</li>
+<li>locations</li>
+<li>projects</li>
+</ul>
+</li>
+<li>Project
+<ul>
+<li>department</li>
+<li>unique name</li>
+<li>unique number</li>
+<li>single location</li>
+</ul>
+</li>
+<li>Employee
+<ul>
+<li>SSN</li>
+<li>name</li>
+<li>address</li>
+<li>sex</li>
+<li>birthdate</li>
+<li>salary</li>
+</ul>
+</li>
+</ul>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/fzdYHie.png"
+        data-srcset="https://i.imgur.com/fzdYHie.png, https://i.imgur.com/fzdYHie.png 1.5x, https://i.imgur.com/fzdYHie.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/fzdYHie.png"
+        title="https://i.imgur.com/fzdYHie.png" /></p>
+<h3 id="relationship">Relationship</h3>
+<p>上面最初步的設計少了 <code>relationship</code> 的部份，我們沒辦法從上圖得知每個 <code>entity type</code> 彼此之間的關係。</p>
+<p><code>relationship</code> 只能描述 <code>entity type</code> 與 <code>entity type</code> 之間的關係，並不能用在 <code>attribute</code> 之間。</p>
+<p><code>relationship</code> 其實沒有規定只能用在兩個 <code>entity type</code> 之間，可以多個 <code>entity type</code> 建立 <code>relationship</code>，不過大部分設計都是建立在兩個不同的 <code>entity type</code> 之間。</p>
+<p><code>entity type</code> 之間可能不只有一個 <code>relationship type</code>，如果這種情況發生要都畫出來，不能遷就於數學的定義而不畫。</p>
+<blockquote>
+<p>每個 employee 都為 department 工作，<code>WORKS_FOR</code> 的關係
+應該也有一個 employee 是主管，負責管理 department，<code>MANAGES</code> 的關係
+這種情況雖然兩者涉及的 <code>entity type</code> 一樣，但是因為關係的意義不同，要分成兩個 <code>relationship</code></p>
+</blockquote>
+<h3 id="relationship-degree">Relationship degree</h3>
+<p><code>degree</code> 來代表這個 <code>relationship</code> 關聯了幾個 <code>entity type</code>，如果關聯了兩個 <code>entity type</code>，可以稱為 <code>binary relationships</code>，所以 <code>degree=2</code>。</p>
+<h4 id="example">example</h4>
+<p>回到上面 <code>Company DB</code> 的示意圖，我們可以每個 <code>Employee</code> 都應該隸屬於某個 <code>Department</code>，所以這兩個 <code>entity type</code> 之間會有 <code>relationship</code>，這個 <code>relationship</code> 是一對一的關係。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/nNiLtOI.png"
+        data-srcset="https://i.imgur.com/nNiLtOI.png, https://i.imgur.com/nNiLtOI.png 1.5x, https://i.imgur.com/nNiLtOI.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/nNiLtOI.png"
+        title="https://i.imgur.com/nNiLtOI.png" /></p>
+<p>然後每個 <code>Employee</code> 可能會負責多個 <code>Project</code>，所以 <code>Employee</code> 跟 <code>Project</code> 之間也可以畫出一個 <code>relationship</code>，這個 <code>relationship</code> 是屬於多對多的關係。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/GqFcRf0.png"
+        data-srcset="https://i.imgur.com/GqFcRf0.png, https://i.imgur.com/GqFcRf0.png 1.5x, https://i.imgur.com/GqFcRf0.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/GqFcRf0.png"
+        title="https://i.imgur.com/GqFcRf0.png" /></p>
+<h4 id="relationship-set">Relationship Set</h4>
+<p>上圖 r1 ~ r7 總共有七條 <code>relationships</code>，這些實際存在的 <code>relationship</code> 集合
+被統稱為 <code>Relationship Set</code>。</p>
+<h4 id="relationship-type">Relationship type</h4>
+<p><code>WORKS_ON</code> 的關係被稱為 <code>Relationship type</code>。</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2022-03-21</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/db01/" data-title="資料庫 ER Model(一): Entity 與 Attribute" data-hashtags="database,ER_Model"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/db01/" data-hashtag="database"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/db01/" data-title="資料庫 ER Model(一): Entity 與 Attribute" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/db01/" data-title="資料庫 ER Model(一): Entity 與 Attribute"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/db01/" data-title="資料庫 ER Model(一): Entity 與 Attribute"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/db01/" data-title="資料庫 ER Model(一): Entity 與 Attribute" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/db01/" data-title="資料庫 ER Model(一): Entity 與 Attribute" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/db01/" data-title="資料庫 ER Model(一): Entity 與 Attribute"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/database/">database</a>,&nbsp;<a href="/tags/er_model/">ER_Model</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/lc1022/" class="prev" rel="prev" title="leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]"><i class="fas fa-angle-left fa-fw"></i>leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":130},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

@@ -4,7 +4,19 @@
         <link>http://example.org/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>資料庫 ER Model(一): Entity 與 Attribute</title>
+    <link>http://example.org/posts/db01/</link>
+    <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/db01/</guid>
+    <description><![CDATA[收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
+type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
+Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
+在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
+Simple Simple attribute 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 data type，像是 student 的 age 就是單純的 int。
+Composite Composite attribute 是由多個不同的部份組成一起的概念，像是外國的名字可能有 FirstNAme, MiddleName, LastName 等等]]></description>
+</item><item>
     <title>leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]</title>
     <link>http://example.org/posts/lc1022/</link>
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
@@ -97,14 +109,5 @@ class Solution { public: Node* connect(Node* root) { if (!root) return root; que
 這學期在修 linux 的課程會有添加 system call 或者改 kernel 的需求，所以這篇文章紀錄一下如何使用 vagrant 來執行自己編譯好的 kernel，以及一些 vagrant 的基本用法，用虛擬機做實驗也降低了把自己的環境搞壞的風險。
 install 安裝可以參考 官方網站，在 ubuntu 的環境安裝 vagrant 可以用以下指令:
 $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo apt-add-repository &#34;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs)main&#34; $ sudo apt-get update &amp;&amp; sudo apt-get install vagrant $ vagrant plugin install vagrant-vbguest vagrant 只是一個管理虛擬機的工具，底層可以選擇 VirtualBox, VMware, AWS.. 等不同的虛擬機環境，在 linux 的主機中最方便安裝的就是 VirtualBox，所以在正式使用之前要記得先安裝 VirtualBox。]]></description>
-</item><item>
-    <title>leetcode 876. Middle of the Linked List [Medium]</title>
-    <link>http://example.org/posts/lc876/</link>
-    <pubDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc876/</guid>
-    <description><![CDATA[題目敘述 獲得 linked list 的 middle 節點。
-經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
-解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; ]]></description>
 </item></channel>
 </rss>

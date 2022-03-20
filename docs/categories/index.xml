@@ -4,7 +4,14 @@
         <link>http://example.org/categories/</link>
         <description>Categories - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/" rel="self" type="application/rss+xml" /><item>
+    <title>database</title>
+    <link>http://example.org/categories/database/</link>
+    <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/categories/database/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>leetcode</title>
     <link>http://example.org/categories/leetcode/</link>
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
@@ -66,13 +73,6 @@
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
     <author>Author</author>
     <guid>http://example.org/categories/paper/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>SDN</title>
-    <link>http://example.org/categories/sdn/</link>
-    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/categories/sdn/</guid>
     <description><![CDATA[]]></description>
 </item></channel>
 </rss>
