@@ -204,7 +204,14 @@ Parallelism 更強調的是同時的概念，不同的任務可以分配給不�
         alt="https://i.imgur.com/F4uHK2q.png"
         title="https://i.imgur.com/F4uHK2q.png" /></p>
 <p>以<a href="https://zh.wikipedia.org/wiki/%E6%9A%97%E6%AE%BA%E6%95%99%E5%AE%A4" target="_blank" rel="noopener noreffer">暗殺教室</a>的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下</p>
-<!-- raw HTML omitted -->
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://imgur.com/1esyuuQ.gif"
+        data-srcset="https://imgur.com/1esyuuQ.gif, https://imgur.com/1esyuuQ.gif 1.5x, https://imgur.com/1esyuuQ.gif 2x"
+        data-sizes="auto"
+        alt="https://imgur.com/1esyuuQ.gif"
+        title="https://imgur.com/1esyuuQ.gif" /></p>
 <p><del>找不到上課的素材，只能用體育課的快速切換當示意圖</del></p>
 <p>因為殺老師只有單一個體，所以可以視作單一 cpu，在不同使用者之間快速切換，這樣就可以說他是 Concurrency，但是不能稱為 Parallelism，不能稱為 Parallelism 是因為即使移動的再快，都不符合<strong>同時</strong>的要求。</p>
 <p>那動漫界最適合解釋 Parallelism 的角色是誰呢? 當然是火影忍者的漩渦鳴人了，他的招牌多重影分身之術就很適合拿來解釋 Parallelism 的概念。</p>

@@ -50,7 +50,7 @@ Parallelism 更強調的是**同時**的概念，不同的任務可以分配給�
 
 以[暗殺教室](https://zh.wikipedia.org/wiki/%E6%9A%97%E6%AE%BA%E6%95%99%E5%AE%A4)的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下
 
-<iframe src="https://gifmagazine.net/embed/glp/1278421" width="300" height="168" frameBorder="0" class="gifmagazine-embed" allowFullScreen></iframe><p><a href="https://gifmagazine.net/post_images/1278421" target="_blank"></a></p>
+![](https://imgur.com/1esyuuQ.gif)
 
 ~~找不到上課的素材，只能用體育課的快速切換當示意圖~~
 
