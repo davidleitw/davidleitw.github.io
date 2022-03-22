@@ -1,0 +1,31 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Concurrency - Category - davidLei</title>
+        <link>http://example.org/categories/concurrency/</link>
+        <description>Concurrency - Category - davidLei</description>
+        <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/concurrency/" rel="self" type="application/rss+xml" /><item>
+    <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
+    <link>http://example.org/posts/concurrency01/</link>
+    <pubDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/concurrency01/</guid>
+    <description><![CDATA[前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。
+裡面有些說法跟圖片是參考 jserv 老師的講座，裡面內容非常精彩，有機會的話一定要挑戰看看!
+Concurrency(並行) vs Parallelism(平行) 常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。
+Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調同時執行多個程式，底下會詳細舉例說明兩者的差異。
+Concurrency 把程式功能拆分的小的 Task 後，如果同時運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。
+Concurrency 只有強調把程式拆開成多個可獨立執行的模組，但沒有強調這些拆開的模組一定要同時執行。
+Parallelism 更強調的是同時的概念，不同的任務可以分配給不同的硬體，同一時間會有多個任務一起同時執行。
+所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。
+單一 cpu 的 Concurrency 在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。
+底下的 jserv 老師上課給的範例
+可以看到在單一 cpu 的場景，意味著同一時間只能有一個任務被執行，所以硬體需要在不同任務之間快速切換，在人類的角度，每個電腦的使用者都覺得自己有著所有的資源，但其實只是切換的速度很快，讓使用者有種錯覺。
+以暗殺教室的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下
+找不到上課的素材，只能用體育課的快速切換當示意圖
+因為殺老師只有單一個體，所以可以視作單一 cpu，在不同使用者之間快速切換，這樣就可以說他是 Concurrency，但是不能稱為 Parallelism，不能稱為 Parallelism 是因為即使移動的再快，都不符合同時的要求。
+那動漫界最適合解釋 Parallelism 的角色是誰呢? 當然是火影忍者的漩渦鳴人了，他的招牌多重影分身之術就很適合拿來解釋 Parallelism 的概念。
+在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身同時進行著某個任務的話，我們就可以說符合 Parallelism 的概念。
+今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。]]></description>
+</item></channel>
+</rss>

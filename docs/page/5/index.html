@@ -100,6 +100,13 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/jserv_linux_w1_q2/">jserv - linux 核心設計 第一周題目二解題紀錄</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-09-01">2021-09-01</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">單向 linked list
+typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
+list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!</div><div class="post-footer">
+        <a href="/posts/jserv_linux_w1_q2/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/cdll_bubblesort/">Circular Doubly linked list 實作 bubble sort </a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-25">2021-08-25</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
 在這篇文章會紀錄關於 bubble sort 的實現。
@@ -150,15 +157,6 @@ void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer �
 hugo -d ../docs cd .. git add . git commit -m &#34;update&#34; git push reference  使用 GitHub Pages 展示你的 Single Page Application 使用 Github Pages 和 Hugo 搭建个人博客教程 使用hugo生成静态博客并部署在GitHub上 LoveIt 官方 blog  </div><div class="post-footer">
         <a href="/posts/lovelt/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/blog/">blog</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/dockervolume/">docker volume 用法整理</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/docker/"><i class="far fa-folder fa-fw"></i>docker</a></span></div><div class="content">因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 Volume 的方式對資料庫做持久化。在這邊紀錄一下 Docker Volume 相關的一些用法。
- 很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
- Volume 是什麼 Volume 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:
- Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不會影響 Image Volume 會持續存在，並不會隨著容器刪除而消失  有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 Volume 中。
-創建 Volume ~$ docker volume create volume_name  查看所有 Volume  ~$ docker volume ls  查看指定 Volume 資料  ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \  --name web \  # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \  nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。</div><div class="post-footer">
-        <a href="/posts/dockervolume/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/container/">container</a>,&nbsp;<a href="/tags/docker/">docker</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
                         <a href="/">1</a>

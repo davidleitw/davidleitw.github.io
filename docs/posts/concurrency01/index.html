@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹" />
+<meta property="og:description" content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。
+裡面有些說法跟圖片是參考 jserv 老師的講座，裡面內容非常精彩，有機會的話一定要挑戰看看!
+Concurrency(並行) vs Parallelism(平行) 常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。
+Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調同時執行多個程式，底下會詳細舉例說明兩者的差異。
+Concurrency 把程式功能拆分的小的 Task 後，如果同時運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。
+Concurrency 只有強調把程式拆開成多個可獨立執行的模組，但沒有強調這些拆開的模組一定要同時執行。
+Parallelism 更強調的是同時的概念，不同的任務可以分配給不同的硬體，同一時間會有多個任務一起同時執行。
+所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。
+單一 cpu 的 Concurrency 在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。
+底下的 jserv 老師上課給的範例
+可以看到在單一 cpu 的場景，意味著同一時間只能有一個任務被執行，所以硬體需要在不同任務之間快速切換，在人類的角度，每個電腦的使用者都覺得自己有著所有的資源，但其實只是切換的速度很快，讓使用者有種錯覺。
+以暗殺教室的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下
+找不到上課的素材，只能用體育課的快速切換當示意圖
+因為殺老師只有單一個體，所以可以視作單一 cpu，在不同使用者之間快速切換，這樣就可以說他是 Concurrency，但是不能稱為 Parallelism，不能稱為 Parallelism 是因為即使移動的再快，都不符合同時的要求。
+那動漫界最適合解釋 Parallelism 的角色是誰呢? 當然是火影忍者的漩渦鳴人了，他的招牌多重影分身之術就很適合拿來解釋 Parallelism 的概念。
+在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身同時進行著某個任務的話，我們就可以說符合 Parallelism 的概念。
+今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/concurrency01/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-03-23T00:12:53+08:00" />
+<meta property="article:modified_time" content="2022-03-23T00:12:53+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹"/>
+<meta name="twitter:description" content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。
+裡面有些說法跟圖片是參考 jserv 老師的講座，裡面內容非常精彩，有機會的話一定要挑戰看看!
+Concurrency(並行) vs Parallelism(平行) 常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。
+Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調同時執行多個程式，底下會詳細舉例說明兩者的差異。
+Concurrency 把程式功能拆分的小的 Task 後，如果同時運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。
+Concurrency 只有強調把程式拆開成多個可獨立執行的模組，但沒有強調這些拆開的模組一定要同時執行。
+Parallelism 更強調的是同時的概念，不同的任務可以分配給不同的硬體，同一時間會有多個任務一起同時執行。
+所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。
+單一 cpu 的 Concurrency 在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。
+底下的 jserv 老師上課給的範例
+可以看到在單一 cpu 的場景，意味著同一時間只能有一個任務被執行，所以硬體需要在不同任務之間快速切換，在人類的角度，每個電腦的使用者都覺得自己有著所有的資源，但其實只是切換的速度很快，讓使用者有種錯覺。
+以暗殺教室的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下
+找不到上課的素材，只能用體育課的快速切換當示意圖
+因為殺老師只有單一個體，所以可以視作單一 cpu，在不同使用者之間快速切換，這樣就可以說他是 Concurrency，但是不能稱為 Parallelism，不能稱為 Parallelism 是因為即使移動的再快，都不符合同時的要求。
+那動漫界最適合解釋 Parallelism 的角色是誰呢? 當然是火影忍者的漩渦鳴人了，他的招牌多重影分身之術就很適合拿來解釋 Parallelism 的概念。
+在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身同時進行著某個任務的話，我們就可以說符合 Parallelism 的概念。
+今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/concurrency01/" /><link rel="prev" href="http://example.org/posts/db01/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Concurrency vs Parallelism 淺談兩者區別以及名詞介紹",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/concurrency01\/"
+        },"genre": "posts","keywords": "concurrency, parallelism, linux, linux_kernel","wordcount":  207 ,
+        "url": "http:\/\/example.org\/posts\/concurrency01\/","datePublished": "2022-03-23T00:12:53+08:00","dateModified": "2022-03-23T00:12:53+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/concurrency/"><i class="far fa-folder fa-fw"></i>Concurrency</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-03-23">2022-03-23</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;207 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#concurrency並行-vs-parallelism平行">Concurrency(並行) vs Parallelism(平行)</a>
+      <ul>
+        <li><a href="#單一-cpu-的-concurrency">單一 cpu 的 Concurrency</a></li>
+      </ul>
+    </li>
+    <li><a href="#process-and-thread">Process and Thread</a></li>
+    <li><a href="#工作切換-context-switch">工作切換 (context switch)</a></li>
+    <li><a href="#排程器-scheduler">排程器 (scheduler)</a></li>
+    <li><a href="#preemptive-vs-non-preemptive">Preemptive vs Non-preemptive</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="前言">前言</h2>
+<p>最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。</p>
+<p>裡面有些說法跟圖片是參考 <a href="https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2FS1AMIFt0D" target="_blank" rel="noopener noreffer">jserv 老師的講座</a>，裡面內容非常精彩，有機會的話一定要挑戰看看!</p>
+<h2 id="concurrency並行-vs-parallelism平行">Concurrency(並行) vs Parallelism(平行)</h2>
+<p>常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。</p>
+<p>Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調<strong>同時</strong>執行多個程式，底下會詳細舉例說明兩者的差異。</p>
+<p>Concurrency 把程式功能拆分的小的 Task 後，如果<strong>同時</strong>運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。</p>
+<p>Concurrency 只有強調把程式<strong>拆</strong>開成多個可獨立執行的模組，但沒有強調這些拆開的模組一定要<strong>同時執行</strong>。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/6F2ptaH.png"
+        data-srcset="https://i.imgur.com/6F2ptaH.png, https://i.imgur.com/6F2ptaH.png 1.5x, https://i.imgur.com/6F2ptaH.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/6F2ptaH.png"
+        title="https://i.imgur.com/6F2ptaH.png" /></p>
+<p>Parallelism 更強調的是<strong>同時</strong>的概念，不同的任務可以分配給不同的硬體，同一時間會有多個任務一起同時執行。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/qW0Whec.png"
+        data-srcset="https://i.imgur.com/qW0Whec.png, https://i.imgur.com/qW0Whec.png 1.5x, https://i.imgur.com/qW0Whec.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/qW0Whec.png"
+        title="https://i.imgur.com/qW0Whec.png" /></p>
+<p>所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。</p>
+<h3 id="單一-cpu-的-concurrency">單一 cpu 的 Concurrency</h3>
+<p>在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。</p>
+<p>底下的 jserv 老師上課給的範例</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/4nZ9RVx.png"
+        data-srcset="https://i.imgur.com/4nZ9RVx.png, https://i.imgur.com/4nZ9RVx.png 1.5x, https://i.imgur.com/4nZ9RVx.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/4nZ9RVx.png"
+        title="https://i.imgur.com/4nZ9RVx.png" /></p>
+<p>可以看到在單一 cpu 的場景，意味著同一時間只能有一個任務被執行，所以硬體需要在不同任務之間快速切換，在人類的角度，每個電腦的使用者都覺得自己有著所有的資源，但其實只是切換的速度很快，讓使用者有種錯覺。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/F4uHK2q.png"
+        data-srcset="https://i.imgur.com/F4uHK2q.png, https://i.imgur.com/F4uHK2q.png 1.5x, https://i.imgur.com/F4uHK2q.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/F4uHK2q.png"
+        title="https://i.imgur.com/F4uHK2q.png" /></p>
+<p>以<a href="https://zh.wikipedia.org/wiki/%E6%9A%97%E6%AE%BA%E6%95%99%E5%AE%A4" target="_blank" rel="noopener noreffer">暗殺教室</a>的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下</p>
+<!-- raw HTML omitted -->
+<p><del>找不到上課的素材，只能用體育課的快速切換當示意圖</del></p>
+<p>因為殺老師只有單一個體，所以可以視作單一 cpu，在不同使用者之間快速切換，這樣就可以說他是 Concurrency，但是不能稱為 Parallelism，不能稱為 Parallelism 是因為即使移動的再快，都不符合<strong>同時</strong>的要求。</p>
+<p>那動漫界最適合解釋 Parallelism 的角色是誰呢? 當然是火影忍者的漩渦鳴人了，他的招牌多重影分身之術就很適合拿來解釋 Parallelism 的概念。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/jwfYWHM.png"
+        data-srcset="https://i.imgur.com/jwfYWHM.png, https://i.imgur.com/jwfYWHM.png 1.5x, https://i.imgur.com/jwfYWHM.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/jwfYWHM.png"
+        title="https://i.imgur.com/jwfYWHM.png" /></p>
+<p>在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身<strong>同時</strong>進行著某個任務的話，我們就可以說符合 Parallelism 的概念。</p>
+<p>今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。</p>
+<h2 id="process-and-thread">Process and Thread</h2>
+<p>在恐龍書的課本上，對於 process 與 thread 有不同的定義，但在 Linux kernel 中兩者並沒有明確的區分，在程式中都用 <code>task_struct</code> 來表示一個 process 或者 thread，兩者的區別只有呼叫 system call 時傳入不同的參數，但是本質上都是用 <code>task_struct</code> 表示一個執行單元。</p>
+<h2 id="工作切換-context-switch">工作切換 (context switch)</h2>
+<p>context switch 是指 os 想要把目前執行中的 process 暫停，並且切換到下一個要執行的任務，這個動作就被稱為 context switch。</p>
+<p>一般情況下被暫停的任務之後在某個時間點還是會被繼續執行，所以在進行 context switch 時必須要紀錄舊的 process 的相關資料，像是舊的 process 下個要執行指令的 address，或者被停止時暫存器的相關資料等等。</p>
+<p>在後續 context switch 到舊的 process 繼續執行時，整個環境必須要回到舊的 process 被停止時的狀態，context switch 的實現很大一部份決定了整個系統 response 的速度，如果 context switch 做的不好，使用者可能會感受到很明顯的延遲。</p>
+<h2 id="排程器-scheduler">排程器 (scheduler)</h2>
+<p>排程器 (scheduler) 的功能是決定 CPU 下一個要執行的任務，並且執行 context switch 指向新的任務下一個要執行的指令位置。</p>
+<p>排程的演算法也是一個很多人在研究的議題，要如何恰當的分配硬體資源，還要考慮一些工作可能有比較高的 priority，怎麼優先去安排高 priority 的任務等等。</p>
+<p>每一個任務可能都被分配一定的時間去執行，那段執行的時間被稱為 time slice，time slice 也不一定是固定時間，根據排程演算法的不同，有些演算法會動態的決定一個任務分配到的 time slice。</p>
+<h2 id="preemptive-vs-non-preemptive">Preemptive vs Non-preemptive</h2>
+<p>搶佔式(preemptive) 與非搶佔式(non-preemptive) 的差別在於在執行中的工作(process)是否為自願(voluntary)交出 cpu 使用權，又或者被迫放棄 cpu 使用權。</p>
+<p>non-preemptive 的優點在於可預估程式的完成時間(不會突然被中斷)，context switch 的次數也相對較少，但相對的每個 process 的 waiting time 就會上升。</p>
+<p>preemptive 系統中 process 可能會在執行的途中被插隊，<strong>被迫放棄</strong> cpu 週期給另外的 process，被插隊有很多種不同的原因，像是 Time-out, Interrupt 發生，高優先權的 process 插隊等等。</p>
+<p>現在主流的 os 都用了 preemptive 的概念，有優先權的概念會比較彈性，可以根據需求去調整。</p>
+<p>non-preemptive 的 os 比較沒彈性，舉個例子，像是如果有 20 個病人在排隊門診，這時候第 12 號的病人突然暈倒在地上抽搐，這時候醫生說因為我們診所是 non-preemptive 的設計，所以等我看完前面 11 個門診病人，就去幫它急救，<del>然後病人就葛屁了</del>。</p>
+<p>preemptive 的作業系統最大的優點就是 response time 很短，面對不同的需求可以快速的調整排程的優先順序，讓緊急的事件先處理，但是以實作難度來說就會相對於 non-preemptive 高很多，不過真的商用或者伺服器的 os，應該在設計上不會考慮實作難度這件事情。</p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2022-03-23</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/concurrency01/" data-title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹" data-hashtags="concurrency,parallelism,linux,linux_kernel"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/concurrency01/" data-hashtag="concurrency"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/concurrency01/" data-title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/concurrency01/" data-title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/concurrency01/" data-title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/concurrency01/" data-title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/concurrency01/" data-title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/concurrency01/" data-title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/concurrency/">concurrency</a>,&nbsp;<a href="/tags/parallelism/">parallelism</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/db01/" class="prev" rel="prev" title="資料庫 ER Model(一): Entity 與 Attribute"><i class="fas fa-angle-left fa-fw"></i>資料庫 ER Model(一): Entity 與 Attribute</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":130},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>
