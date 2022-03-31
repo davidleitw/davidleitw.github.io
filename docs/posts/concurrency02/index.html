@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="從執行順序來探討 Race condition, go 語言的 happens-before 規則" />
+<meta property="og:description" content="同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
+Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
+可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
+Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
+底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
+#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count &#43; 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; &#43;&#43;i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/concurrency02/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-04-01T00:01:01+08:00" />
+<meta property="article:modified_time" content="2022-04-01T00:01:01+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="從執行順序來探討 Race condition, go 語言的 happens-before 規則"/>
+<meta name="twitter:description" content="同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
+Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
+可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
+Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
+底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
+#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count &#43; 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; &#43;&#43;i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th."/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://example.org/posts/concurrency02/" /><link rel="prev" href="http://example.org/posts/concurrency01/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "從執行順序來探討 Race condition, go 語言的 happens-before 規則",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/example.org\/posts\/concurrency02\/"
+        },"genre": "posts","keywords": "concurrency, parallelism, linux, linux_kernel","wordcount":  623 ,
+        "url": "http:\/\/example.org\/posts\/concurrency02\/","datePublished": "2022-04-01T00:01:01+08:00","dateModified": "2022-04-01T00:01:01+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">從執行順序來探討 Race condition, go 語言的 happens-before 規則</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/concurrency/"><i class="far fa-folder fa-fw"></i>Concurrency</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-04-01">2022-04-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;623 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;3 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#同步處理synchronization">同步處理(Synchronization)</a></li>
+    <li><a href="#race-condition">Race condition</a></li>
+    <li><a href="#執行順序">執行順序</a></li>
+    <li><a href="#evaluation">Evaluation</a>
+      <ul>
+        <li><a href="#evaluation-orders">Evaluation orders</a></li>
+      </ul>
+    </li>
+    <li><a href="#sequenced-before">sequenced-before</a></li>
+    <li><a href="#happens-before">Happens-before</a></li>
+    <li><a href="#synchronized-with">Synchronized-With</a></li>
+    <li><a href="#golang-happens-before">golang happens before</a></li>
+    <li><a href="#reference">reference</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="同步處理synchronization">同步處理(Synchronization)</h2>
+<p>確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。</p>
+<p>Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/D6Yurh7.png"
+        data-srcset="https://i.imgur.com/D6Yurh7.png, https://i.imgur.com/D6Yurh7.png 1.5x, https://i.imgur.com/D6Yurh7.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/D6Yurh7.png"
+        title="https://i.imgur.com/D6Yurh7.png" /></p>
+<p>可以參考 <a href="https://web.fe.up.pt/~pfs/aulas/so2021/at/19conc.pdf" target="_blank" rel="noopener noreffer">Concurrency in the Kernel</a> 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。</p>
+<h2 id="race-condition">Race condition</h2>
+<p>在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為<strong>交錯執行</strong>，導致最後的結果不如預期。</p>
+<p>底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">thread_num</span> <span class="o">=</span> <span class="mi">20000</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">)</span> <span class="p">{</span> <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">threads</span><span class="p">[</span><span class="n">thread_num</span><span class="p">];</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">thread_num</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">threads</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">count</span><span class="p">));</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">th</span> <span class="p">:</span> <span class="n">threads</span><span class="p">)</span>
+    <span class="n">th</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">count</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>今天我們這個程式想要操作 <code>count</code> 變數，總共開了 20000 條 thread，每個 thread 都會執行 <code>func</code>，<code>func</code> 的功能很簡單，把 <code>count</code> 變數傳入，並且+1。</p>
+<p>所以我們 20000 條 thread 各執行一次 <code>func</code>，預期的結果應該會得到 <code>count = 20000</code>，現在來實際執行看看。</p>
+<p>編譯</p>
+<pre tabindex="0"><code class="language-bash=" data-lang="bash=">clang++ -lpthread race.cc -o race
+</code></pre><p>執行幾次會發現每個結果都不太一樣，如下圖所示</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/wOU3OG5.png"
+        data-srcset="https://i.imgur.com/wOU3OG5.png, https://i.imgur.com/wOU3OG5.png 1.5x, https://i.imgur.com/wOU3OG5.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/wOU3OG5.png"
+        title="https://i.imgur.com/wOU3OG5.png" /></p>
+<p>我們利用上面這個累加的例子畫一個簡單的示意圖來說明</p>
+<p>在實行 <code>count = count + 1</code> 的時候其實可以想成分成兩個步驟</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/jRIGuVf.png"
+        data-srcset="https://i.imgur.com/jRIGuVf.png, https://i.imgur.com/jRIGuVf.png 1.5x, https://i.imgur.com/jRIGuVf.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/jRIGuVf.png"
+        title="https://i.imgur.com/jRIGuVf.png" /></p>
+<p>一開始先獲得 <code>count</code> 的值，之後 + 1，最後再存回 <code>count</code> 變數。</p>
+<p>在單一執行緒的情況下不會有錯，但是多執行緒時就可能會造成 race condition 的問題，底下我們用兩條 thread 當作例子</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/kS8oX7Y.png"
+        data-srcset="https://i.imgur.com/kS8oX7Y.png, https://i.imgur.com/kS8oX7Y.png 1.5x, https://i.imgur.com/kS8oX7Y.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/kS8oX7Y.png"
+        title="https://i.imgur.com/kS8oX7Y.png" /></p>
+<p>一開始我們將 <code>count</code> 的初始值設為0，並且有兩條 thread 都呼叫 <code>func</code> 傳入 <code>count</code> 變數，再把 <code>count</code> 加 1。</p>
+<p>按照上面的說法，每個 <code>count = count + 1</code> 都可以簡單的視為兩個獨立的步驟</p>
+<ul>
+<li><code>temp</code> = <code>count + 1</code> (讀取 <code>count</code> 的值並且加一)</li>
+<li><code>count</code> = <code>temp</code> (把計算好的值重新存回 <code>count</code>)</li>
+</ul>
+<p>但是看上面的示意圖，在沒有任何限制的情況下，多條 thread 之間可能會<strong>交互執行</strong>指令，現在按照紅色箭頭的軌跡 trace 一次。</p>
+<ul>
+<li><code>thread 0</code> 先取出 <code>count</code> 並且加一，存到 <code>temp0</code>，所以 <code>temp0 = 1</code></li>
+<li>接著輪到 <code>thread 1</code> 取出 <code>count</code> 並且加一，存到 <code>tmep1</code>，所以 <code>temp1 = 1</code>，這邊思考一下，因為 <code>thread 0</code> 在計算完 <code>temp0</code> 之後還沒做 assign 的動作就被切換了，所以 <code>thread 1</code> 取到的 <code>count</code> 依舊是 0。</li>
+<li>再回到 <code>thread0</code>，把計算好的 <code>temp0</code> assign 給 <code>count</code>，<code>count = temp0 = 1</code>，此時 <code>count</code> 被更新為 1。</li>
+<li>最後輪到 <code>thread1</code>，把計算好的 <code>temp1</code> assign 給 <code>count</code>，<code>count = temp1 = 1</code>，最後結果 <strong>count = 1</strong>，並不符合我們的預期，因為交錯執行導致出現 <strong>race condition</strong>。</li>
+</ul>
+<p>以 2 條 thread 為例就知道為什麼一開始的範例，跑 20000 條 thread 結果可能會每次都不一樣，因為在同時執行時，沒有處理好同步問題，導致不同 thread 之間可能<strong>交互執行</strong>，最後得到錯的結果。</p>
+<h2 id="執行順序">執行順序</h2>
+<p>上面提到了一個簡單的 race condition 例子，在多執行緒環境下，缺乏適度的同步機制，會造成很多無法預期的結果，其實簡單來看，我們的目的就是不要讓 thread 之間交互執行，所以我們應該要關注<strong>執行順序</strong>。</p>
+<p>就是因為<strong>執行順序</strong>沒有按照當初設想，才會出現一些無法預期的結果，在 jserv 老師的 <a href="https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2Fconcurrency-ordering" target="_blank" rel="noopener noreffer">並行程式設計: 執行順序</a> 講座中介紹了幾個程式語言描述<strong>執行順序</strong>的名詞，下面就簡單的做了一下筆記，最後會介紹一下 go 語言 <code>happens-before</code> 的原則。</p>
+<h2 id="evaluation">Evaluation</h2>
+<p>Evaluation 可以想成 value computations 與 side effect 的組合，用上面 <code>func</code> 的例子，value computations 就是把 <code>count+1</code> 計算出來的動作，side effect 就是把計算出來的值 assign 給 <code>count</code> 的步驟。</p>
+<p>side effect 有<strong>改變物件/變數狀態</strong>的語意，你 assign 某個值給變數的同時，如果有另外一個 thread 在呼叫 <code>func</code> 或者訪問被改變的變數，就有可能導致讀到錯誤(不符預期)的值。</p>
+<h3 id="evaluation-orders">Evaluation orders</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="kt">int</span> <span class="n">solution</span> <span class="o">=</span> <span class="n">f1</span><span class="p">()</span> <span class="o">+</span> <span class="n">f2</span><span class="p">()</span> <span class="o">+</span> <span class="n">f3</span><span class="p">();</span>
+</code></pre></div><p>在上面的例子，可以看到 <code>solution</code> 必須要呼叫 <code>f1</code>, <code>f2</code>, <code>f3</code> 來取得最後的結果，每個語言的規範不同，有些語言會依序呼叫 <code>f1()</code>, <code>f2()</code>, <code>f3()</code>。</p>
+<p>有些語言像是 c++ 沒有強制規定運算元的執行先後順序，而是交給編譯器處理，這時候編譯器可能會選擇<a href="https://zh.wikipedia.org/wiki/%E6%8C%87%E4%BB%A4%E8%B0%83%E5%BA%A6" target="_blank" rel="noopener noreffer">指令調度(Instruction scheduling)</a>來優化執行效率，可能會先呼叫 <code>f3()</code> 再去求 <code>f1() + f2()</code>，這種改變順序的行為有時候就會導致 side effect 的發生(可能彼此共有一些變數，使呼叫順序改變結果)。</p>
+<p>Evaluation orders 在每個語言的規範都不相同，真的想深入了解一門語言，應該要花點時間去研究一下那個語言的規範，避免踩到坑。</p>
+<h2 id="sequenced-before">sequenced-before</h2>
+<p>sequenced-before 用來描述<strong>同一個執行緒</strong>下兩個 Evaluation 的先後順序。</p>
+<ul>
+<li>A is sequenced-before B: 代表 A 的 evaluation 會先於 B。</li>
+<li>B is sequenced-before A: 代表 B 的 evaluation 會先於 A。</li>
+</ul>
+<p>如果交錯執行或者順序不定，則可以描述成</p>
+<ul>
+<li>A is not sequenced-before B &amp;&amp; B is not sequenced-before A</li>
+</ul>
+<p>sequenced-before 這個名詞不見得每個人都看過，但編寫程式就是在編寫一連串 sequenced-before 的關係，正常沒有 goto 或者條件判斷的情況，程式都會一行一行的往下執行，像下面這個例子，就可以說 line 87 is sequenced-before line 88。</p>
+<pre tabindex="0"><code class="language-cpp=87" data-lang="cpp=87">int a = getSomethingForA();
+int b = getSomethingForB();
+</code></pre><p>還有一些運算子都有一些基本的 evaluation order 規則</p>
+<ul>
+<li><code>i++</code> 稱為<strong>後置運算子</strong>，value computation 會先於 side effect，所以在使用 <code>i++</code> 的時候會先回傳 <code>i</code> 再對 <code>i+1</code>。</li>
+<li><code>++i</code> 稱為<strong>前置運算子</strong>，side effect 會先於 value computation，使用時則會回傳 <code>i+1</code> 的值。</li>
+</ul>
+<p>在寫 if statement 如果有多個條件，我們都會傾向於把先檢查的放在前面，如果前面是 false 就不需要繼續往後執行了，像是</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">&amp;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">dosomething</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>因為左邊的運算元 <code>a</code> 的 evaluation 會先於右邊的 <code>b</code>，所以在寫 <code>&amp;&amp;</code> 或者 <code>||</code> 的時候可以將比較需要優先檢查的條件放在前面。</p>
+<h2 id="happens-before">Happens-before</h2>
+<p>因為 <a href="https://go.dev/ref/mem" target="_blank" rel="noopener noreffer">go 語言的官方文件</a> 在介紹 Happens-before 的時候有牽扯到一些 go 語言獨有的特性(goroutine)，所以我們先跟 jserv 老師的講座一樣，從 <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5" target="_blank" rel="noopener noreffer">Java 的官方文件</a> 來簡單介紹一下這個名詞。</p>
+<!-- raw HTML omitted -->
+<p>當 A happens-before B，代表 A 的操作對於 B 來說是<strong>可見的(visible)</strong>。</p>
+<pre tabindex="0"><code class="language-cpp=" data-lang="cpp=">int main() {
+    int num = 10;
+    num = num - 2; // num = 8;
+    std::cout &lt;&lt; num &lt;&lt; std::endl; // output: 8
+}
+</code></pre><p>以上面範例第四行的為例，在輸出 <code>num</code> 之前它必須要先被減二，這樣輸出的結果才會符合預期。我們可以說 <code>num = num - 2;</code> 這行必須 <strong>happens-before</strong> <code>std::cout &lt;&lt; num &lt;&lt; std::endl;</code></p>
+<p>那為什麼會強調只要 <strong>visible</strong> 就好呢，因為只要有達成效果就好，實際上編譯器可能會因為優化，私底下改變某些指令的執行順序，這部份可以參考 <a href="https://preshing.com/20120625/memory-ordering-at-compile-time/" target="_blank" rel="noopener noreffer">Memory Ordering at Compile Time</a></p>
+<p>我們用上面那篇參考文章的一個例子來簡單說明</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">B</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><p>使用 <a href="https://gcc.godbolt.org/" target="_blank" rel="noopener noreffer">godbolt</a> 可以直接觀察 gcc 將程式碼轉成對應的程式語言</p>
+<p>在沒有開任何優化的情況下，轉出來的組合語言如下</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/a7V1LdB.png"
+        data-srcset="https://i.imgur.com/a7V1LdB.png, https://i.imgur.com/a7V1LdB.png 1.5x, https://i.imgur.com/a7V1LdB.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/a7V1LdB.png"
+        title="https://i.imgur.com/a7V1LdB.png" /></p>
+<p>轉換的組語就照著我們程式的邏輯，先把 B 放到 eax 暫存器，把 eax + 1 放到 A，最後再做 B = 1</p>
+<p>底下是開了 <code>-O2</code> 的優化，可以觀察到程式的執行順序改變了</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/prwcT9U.png"
+        data-srcset="https://i.imgur.com/prwcT9U.png, https://i.imgur.com/prwcT9U.png 1.5x, https://i.imgur.com/prwcT9U.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/prwcT9U.png"
+        title="https://i.imgur.com/prwcT9U.png" /></p>
+<p>轉換出來，先把 B 放到 eax，先做 B = 1，接著把 eax + 1 的結果放到 A。</p>
+<p>由上面的範例就可以知道為什麼 happens-before 強調的是 <strong>visible</strong>，在 <code>-O2</code> 的優化下，B = 1 這行事實上比 A = B + 1 更早完成，但是就結果來說是沒有錯的，所以寫程式只要在意邏輯的順序，但實際的執行順序可以會因為編譯器的調整而不同。</p>
+<h2 id="synchronized-with">Synchronized-With</h2>
+<p>synchronized-with 用來描述<strong>不同執行緒</strong> 下兩個 Evaluation 的先後順序。</p>
+<p>A, B 兩個操作是在不同執行緒， A synchronized-with B 代表 A 對記憶體的操作對於 B 是 <strong>visible</strong> 的。</p>
+<ul>
+<li><strong>sequenced-before 描述單執行緒版的 happens-before 關係</strong></li>
+<li><strong>synchronized-with 描述多執行緒環境下的 happens-before 關係</strong></li>
+</ul>
+<p>現在的程式語言都會提供很多協助 Synchronization 的語法(ex. Mutex)，目的在於多執行緒環境下程式碼不會交互執行，導致錯誤，這些語法其實就是在提供程式設計師去<strong>定義不同執行緒間 happens-before 的關係</strong>。</p>
+<p>更多詳情可以參考 <a href="https://preshing.com/20130823/the-synchronizes-with-relation/" target="_blank" rel="noopener noreffer">The Synchronizes-With Relation</a> 這篇文章，底下就引用內文的一張圖片來介紹</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/aV6igOi.png"
+        data-srcset="https://i.imgur.com/aV6igOi.png, https://i.imgur.com/aV6igOi.png 1.5x, https://i.imgur.com/aV6igOi.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/aV6igOi.png"
+        title="https://i.imgur.com/aV6igOi.png" /></p>
+<p>可以看到 synchronizes-with 底下有很多不同的方式可以使用，大部份的語言也都有支援很多套定義多執行緒 happens-before 關係的語法。</p>
+<h2 id="golang-happens-before">golang happens before</h2>
+<p>待補</p>
+<h2 id="reference">reference</h2>
+<ul>
+<li><a href="https://go.dev/ref/mem" target="_blank" rel="noopener noreffer">The Go Memory Model</a></li>
+<li><a href="https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2Fconcurrency-ordering" target="_blank" rel="noopener noreffer">並行程式設計: 執行順序</a></li>
+<li><a href="https://segmentfault.com/a/1190000039729417" target="_blank" rel="noopener noreffer">go 語言 happens-before 原則及應用</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2022-04-01</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="http://example.org/posts/concurrency02/" data-title="從執行順序來探討 Race condition, go 語言的 happens-before 規則" data-hashtags="concurrency,parallelism,linux,linux_kernel"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="http://example.org/posts/concurrency02/" data-hashtag="concurrency"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="http://example.org/posts/concurrency02/" data-title="從執行順序來探討 Race condition, go 語言的 happens-before 規則" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="http://example.org/posts/concurrency02/" data-title="從執行順序來探討 Race condition, go 語言的 happens-before 規則"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="http://example.org/posts/concurrency02/" data-title="從執行順序來探討 Race condition, go 語言的 happens-before 規則"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="http://example.org/posts/concurrency02/" data-title="從執行順序來探討 Race condition, go 語言的 happens-before 規則" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="http://example.org/posts/concurrency02/" data-title="從執行順序來探討 Race condition, go 語言的 happens-before 規則" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="http://example.org/posts/concurrency02/" data-title="從執行順序來探討 Race condition, go 語言的 happens-before 規則"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/concurrency/">concurrency</a>,&nbsp;<a href="/tags/parallelism/">parallelism</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/concurrency01/" class="prev" rel="prev" title="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹"><i class="fas fa-angle-left fa-fw"></i>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":130},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

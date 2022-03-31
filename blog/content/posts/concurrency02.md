@@ -1,6 +1,6 @@
 ---
 title: "從執行順序來探討 Race condition, go 語言的 happens-before 規則"
-date: 2022-04-01T00:12:01+08:00
+date: 2022-04-01T00:01:01+08:00
 draft: false
 tags: 
     - concurrency

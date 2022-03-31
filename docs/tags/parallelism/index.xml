@@ -4,7 +4,19 @@
         <link>http://example.org/tags/parallelism/</link>
         <description>parallelism - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/parallelism/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/parallelism/" rel="self" type="application/rss+xml" /><item>
+    <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則</title>
+    <link>http://example.org/posts/concurrency02/</link>
+    <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/concurrency02/</guid>
+    <description><![CDATA[同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
+Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
+可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
+Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
+底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
+#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
+</item><item>
     <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
     <link>http://example.org/posts/concurrency01/</link>
     <pubDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</pubDate>

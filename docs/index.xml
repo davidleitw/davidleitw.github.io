@@ -4,9 +4,21 @@
         <link>http://example.org/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</lastBuildDate>
             <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則</title>
+    <link>http://example.org/posts/concurrency02/</link>
+    <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/concurrency02/</guid>
+    <description><![CDATA[同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
+Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
+可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
+Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
+底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
+#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
+</item><item>
     <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
     <link>http://example.org/posts/concurrency01/</link>
     <pubDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</pubDate>
@@ -113,16 +125,5 @@ class Solution { public: int numPairsDivisibleBy60(vector&lt;int&gt;&amp; time) 
     <description><![CDATA[題目敘述 給一棵二元樹，回傳某個節點與其祖先節點的最大的差(絕對值)。
 解題紀錄 DFS 用 DFS 尋訪每個節點，並且順便紀錄到這個節點之前的 max, min value，這樣子最大的差就是 max - min。
 class Solution { public: int maxAncestorDiff(TreeNode* root) { return get_max_different(root, root-&gt;val, root-&gt;val); } int get_max_different(TreeNode *root, int maxv, int minv) { if (!root) return maxv - minv; maxv = max(maxv, root-&gt;val); minv = min(minv, root-&gt;val); return max(get_max_different(root-&gt;left, maxv, minv), get_max_different(root-&gt;right, maxv, minv)); } }; #pragma GCC optimize(&#34;Ofast&#34;) #pragma GCC target(&#34;avx,avx2,fma&#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); ]]></description>
-</item><item>
-    <title>leetcode 116. Populating Next Right Pointers in Each Node [Medium]</title>
-    <link>http://example.org/posts/lc116/</link>
-    <pubDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>http://example.org/posts/lc116/</guid>
-    <description><![CDATA[題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。
-用中文有點難表達，直接看圖吧。
-解題流程 這題跟很多 tree 的題目一樣，可以用 BFS 或者 DFS 兩種方式去實現。
-BFS 用 BFS 的解法，就是在每個 level 找到最左邊的 Node 當作開頭，往右開始每個節點都用 next 指標連結。
-class Solution { public: Node* connect(Node* root) { if (!root) return root; queue&lt;Node*&gt; q; q.push(root); while (!q.empty()) { Node *curr; const int qsize = q.size(); for (int i = 0; i &lt; qsize; ++i) { Node *n = q.]]></description>
 </item></channel>
 </rss>
