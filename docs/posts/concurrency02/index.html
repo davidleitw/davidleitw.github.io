@@ -258,12 +258,12 @@ int b = getSomethingForB();
 <p>因為 <a href="https://go.dev/ref/mem" target="_blank" rel="noopener noreffer">go 語言的官方文件</a> 在介紹 Happens-before 的時候有牽扯到一些 go 語言獨有的特性(goroutine)，所以我們先跟 jserv 老師的講座一樣，從 <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5" target="_blank" rel="noopener noreffer">Java 的官方文件</a> 來簡單介紹一下這個名詞。</p>
 <!-- raw HTML omitted -->
 <p>當 A happens-before B，代表 A 的操作對於 B 來說是<strong>可見的(visible)</strong>。</p>
-<pre tabindex="0"><code class="language-cpp=" data-lang="cpp=">int main() {
-    int num = 10;
-    num = num - 2; // num = 8;
-    std::cout &lt;&lt; num &lt;&lt; std::endl; // output: 8
-}
-</code></pre><p>以上面範例第四行的為例，在輸出 <code>num</code> 之前它必須要先被減二，這樣輸出的結果才會符合預期。我們可以說 <code>num = num - 2;</code> 這行必須 <strong>happens-before</strong> <code>std::cout &lt;&lt; num &lt;&lt; std::endl;</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span> <span class="c1">// num = 8;
+</span><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">num</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// output: 8
+</span><span class="c1"></span><span class="p">}</span>
+</code></pre></div><p>以上面範例第四行的為例，在輸出 <code>num</code> 之前它必須要先被減二，這樣輸出的結果才會符合預期。我們可以說 <code>num = num - 2;</code> 這行必須 <strong>happens-before</strong> <code>std::cout &lt;&lt; num &lt;&lt; std::endl;</code></p>
 <p>那為什麼會強調只要 <strong>visible</strong> 就好呢，因為只要有達成效果就好，實際上編譯器可能會因為優化，私底下改變某些指令的執行順序，這部份可以參考 <a href="https://preshing.com/20120625/memory-ordering-at-compile-time/" target="_blank" rel="noopener noreffer">Memory Ordering at Compile Time</a></p>
 <p>我們用上面那篇參考文章的一個例子來簡單說明</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">;</span>

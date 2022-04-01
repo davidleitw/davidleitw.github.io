@@ -159,7 +159,7 @@ if (a && b) {
 
 當 A happens-before B，代表 A 的操作對於 B 來說是**可見的(visible)**。
 
-```cpp=
+```cpp
 int main() {
     int num = 10;
     num = num - 2; // num = 8;
