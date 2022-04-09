@@ -4,7 +4,16 @@
         <link>http://example.org/tags/shell/</link>
         <description>shell - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/shell/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/shell/" rel="self" type="application/rss+xml" /><item>
+    <title>sudo go: command not found 問題解決</title>
+    <link>http://example.org/posts/sudogo/</link>
+    <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>http://example.org/posts/sudogo/</guid>
+    <description><![CDATA[這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(然後每次都忘記解決方式跑去google)，所以在這邊紀錄一下解決方式
+/etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行
+/etc/sudoers 裡面有個 secure_path，把 usr/local/go/bin 加到那個字串即可]]></description>
+</item><item>
     <title>Linux shell 變數相關用法整理(一): assign, echo, export, unset</title>
     <link>http://example.org/posts/linux_shell_var1/</link>
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>

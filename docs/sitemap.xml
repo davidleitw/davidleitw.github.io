@@ -2,15 +2,19 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
-            <loc>http://example.org/categories/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/categories/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/tags/go/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/tags/linux/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/posts/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/tags/shell/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/categories/shell/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/posts/sudogo/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
+            <loc>http://example.org/tags/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod></url><url>
             <loc>http://example.org/categories/concurrency/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
             <loc>http://example.org/tags/concurrency/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/tags/linux/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
             <loc>http://example.org/tags/linux_kernel/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
             <loc>http://example.org/tags/parallelism/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/posts/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/tags/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/concurrency02/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/concurrency01/</loc><lastmod>2022-03-23T00:12:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/tags/database/</loc><lastmod>2022-03-21T00:12:53&#43;08:00</lastmod></url><url>
@@ -41,7 +45,6 @@
             <loc>http://example.org/posts/lc198/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/lc973/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/lc227/</loc><lastmod>2021-12-25T01:04:53&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/tags/go/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/categories/go/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/time01/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/lc56/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod></url><url>
@@ -80,6 +83,4 @@
             <loc>http://example.org/categories/sdn/</loc><lastmod>2021-08-13T21:34:43&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/sdn1/</loc><lastmod>2021-08-13T21:34:43&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/sdn2/</loc><lastmod>2021-08-13T21:34:43&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/tags/shell/</loc><lastmod>2021-08-13T21:34:43&#43;08:00</lastmod></url><url>
-            <loc>http://example.org/categories/shell/</loc><lastmod>2021-08-13T21:34:43&#43;08:00</lastmod></url><url>
             <loc>http://example.org/posts/gfs/</loc><lastmod>2021-08-13T21:34:43&#43;08:00</lastmod></url></urlset>
