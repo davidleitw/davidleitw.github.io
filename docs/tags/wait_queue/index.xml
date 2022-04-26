@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>wait_queue - Tag - davidLei</title>
-        <link>http://example.org/tags/wait_queue/</link>
+        <link>https://davidleitw.github.io/tags/wait_queue/</link>
         <description>wait_queue - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/wait_queue/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/wait_queue/" rel="self" type="application/rss+xml" /><item>
     <title>Linux waitqueue 原始碼解讀</title>
-    <link>http://example.org/posts/linux_wake_queue1/</link>
+    <link>https://davidleitw.github.io/posts/linux_wake_queue1/</link>
     <pubDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_wake_queue1/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_wake_queue1/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。
 waitqueue 有定義兩種資料結構

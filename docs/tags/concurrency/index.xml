@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>concurrency - Tag - davidLei</title>
-        <link>http://example.org/tags/concurrency/</link>
+        <link>https://davidleitw.github.io/tags/concurrency/</link>
         <description>concurrency - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/concurrency/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/concurrency/" rel="self" type="application/rss+xml" /><item>
     <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則</title>
-    <link>http://example.org/posts/concurrency02/</link>
+    <link>https://davidleitw.github.io/posts/concurrency02/</link>
     <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/concurrency02/</guid>
+    <guid>https://davidleitw.github.io/posts/concurrency02/</guid>
     <description><![CDATA[同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
 Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
 可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
@@ -18,10 +18,10 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
 #include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
 </item><item>
     <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
-    <link>http://example.org/posts/concurrency01/</link>
+    <link>https://davidleitw.github.io/posts/concurrency01/</link>
     <pubDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/concurrency01/</guid>
+    <guid>https://davidleitw.github.io/posts/concurrency01/</guid>
     <description><![CDATA[前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。
 裡面有些說法跟圖片是參考 jserv 老師的講座，裡面內容非常精彩，有機會的話一定要挑戰看看!
 Concurrency(並行) vs Parallelism(平行) 常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。

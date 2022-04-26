@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>SDN - Category - davidLei</title>
-        <link>http://example.org/categories/sdn/</link>
+        <link>https://davidleitw.github.io/categories/sdn/</link>
         <description>SDN - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/sdn/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/categories/sdn/" rel="self" type="application/rss+xml" /><item>
     <title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
-    <link>http://example.org/posts/sdn1/</link>
+    <link>https://davidleitw.github.io/posts/sdn1/</link>
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/sdn1/</guid>
+    <guid>https://davidleitw.github.io/posts/sdn1/</guid>
     <description><![CDATA[此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
 當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
 預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
@@ -21,10 +21,10 @@ SDN 並非一種技術，而是一種設計的理念，只要符合控制面以�
 常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。]]></description>
 </item><item>
     <title>SDN 學習筆記(二): OpenFlow 1.0 介紹</title>
-    <link>http://example.org/posts/sdn2/</link>
+    <link>https://davidleitw.github.io/posts/sdn2/</link>
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/sdn2/</guid>
+    <guid>https://davidleitw.github.io/posts/sdn2/</guid>
     <description><![CDATA[前言 想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹OpenFlow 1.0的架構，以及一些 spec 的整理.
 之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。
 為什麼會著重在1.0與1.3兩個版本呢？  1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3

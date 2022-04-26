@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>linux_kernel - Tag - davidLei</title>
-        <link>http://example.org/tags/linux_kernel/</link>
+        <link>https://davidleitw.github.io/tags/linux_kernel/</link>
         <description>linux_kernel - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/linux_kernel/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/linux_kernel/" rel="self" type="application/rss+xml" /><item>
     <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則</title>
-    <link>http://example.org/posts/concurrency02/</link>
+    <link>https://davidleitw.github.io/posts/concurrency02/</link>
     <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/concurrency02/</guid>
+    <guid>https://davidleitw.github.io/posts/concurrency02/</guid>
     <description><![CDATA[同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
 Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
 可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
@@ -18,10 +18,10 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
 #include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
 </item><item>
     <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
-    <link>http://example.org/posts/concurrency01/</link>
+    <link>https://davidleitw.github.io/posts/concurrency01/</link>
     <pubDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/concurrency01/</guid>
+    <guid>https://davidleitw.github.io/posts/concurrency01/</guid>
     <description><![CDATA[前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。
 裡面有些說法跟圖片是參考 jserv 老師的講座，裡面內容非常精彩，有機會的話一定要挑戰看看!
 Concurrency(並行) vs Parallelism(平行) 常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。
@@ -41,10 +41,10 @@ Parallelism 更強調的是同時的概念，不同的任務可以分配給不�
 今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。]]></description>
 </item><item>
     <title>Linux waitqueue 原始碼解讀</title>
-    <link>http://example.org/posts/linux_wake_queue1/</link>
+    <link>https://davidleitw.github.io/posts/linux_wake_queue1/</link>
     <pubDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_wake_queue1/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_wake_queue1/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。
 waitqueue 有定義兩種資料結構
@@ -52,20 +52,20 @@ waitqueue 有定義兩種資料結構
 wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct list_head	head; // 指向 prev, next entry. }; typedef struct wait_queue_head wait_queue_head_t; 初始化 waitqueue 要建立新的 waitqueue，必須要先初始化 wait_queue_head_t 結構，透過 init_waitqueue_head，定義如下]]></description>
 </item><item>
     <title>Linux schedule 原始碼解讀</title>
-    <link>http://example.org/posts/linux_get_context_switch/</link>
+    <link>https://davidleitw.github.io/posts/linux_get_context_switch/</link>
     <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_get_context_switch/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_get_context_switch/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 	preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
 </item><item>
     <title>Linux fork() 底層實作流程整理</title>
-    <link>http://example.org/posts/linux_fork_01/</link>
+    <link>https://davidleitw.github.io/posts/linux_fork_01/</link>
     <pubDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_fork_01/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_fork_01/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。

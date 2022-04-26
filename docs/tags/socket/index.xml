@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>socket - Tag - davidLei</title>
-        <link>http://example.org/tags/socket/</link>
+        <link>https://davidleitw.github.io/tags/socket/</link>
         <description>socket - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/socket/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/socket/" rel="self" type="application/rss+xml" /><item>
     <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
-    <link>http://example.org/posts/socket3/</link>
+    <link>https://davidleitw.github.io/posts/socket3/</link>
     <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/socket3/</guid>
+    <guid>https://davidleitw.github.io/posts/socket3/</guid>
     <description><![CDATA[一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
 一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
@@ -19,20 +19,20 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
 </item><item>
     <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
-    <link>http://example.org/posts/socker2/</link>
+    <link>https://davidleitw.github.io/posts/socker2/</link>
     <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/socker2/</guid>
+    <guid>https://davidleitw.github.io/posts/socker2/</guid>
     <description><![CDATA[sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
 typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
 IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
 </item><item>
     <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
-    <link>http://example.org/posts/socket1/</link>
+    <link>https://davidleitw.github.io/posts/socket1/</link>
     <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/socket1/</guid>
+    <guid>https://davidleitw.github.io/posts/socket1/</guid>
     <description><![CDATA[socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
 在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
 我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。

@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>leetcode - Tag - davidLei</title>
-        <link>http://example.org/tags/leetcode/</link>
+        <link>https://davidleitw.github.io/tags/leetcode/</link>
         <description>leetcode - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/leetcode/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/leetcode/" rel="self" type="application/rss+xml" /><item>
     <title>leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]</title>
-    <link>http://example.org/posts/lc1022/</link>
+    <link>https://davidleitw.github.io/posts/lc1022/</link>
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc1022/</guid>
+    <guid>https://davidleitw.github.io/posts/lc1022/</guid>
     <description><![CDATA[題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
 Output: 22
 Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
@@ -18,38 +18,38 @@ Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
 class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!]]></description>
 </item><item>
     <title>leetcode 997. Find the Town Judge [Easy]</title>
-    <link>http://example.org/posts/lc997/</link>
+    <link>https://davidleitw.github.io/posts/lc997/</link>
     <pubDate>Tue, 04 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc997/</guid>
+    <guid>https://davidleitw.github.io/posts/lc997/</guid>
     <description><![CDATA[題目敘述 在小鎮中有 N 個人，其中裡面有一個是 Judge，成為 Judge 要滿足兩個條件
  Judge 本身不相信任何人 其他 N-1 個人都相信 Judge  一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
 解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; ]]></description>
 </item><item>
     <title>leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</title>
-    <link>http://example.org/posts/lc1010/</link>
+    <link>https://davidleitw.github.io/posts/lc1010/</link>
     <pubDate>Sun, 02 Jan 2022 01:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc1010/</guid>
+    <guid>https://davidleitw.github.io/posts/lc1010/</guid>
     <description><![CDATA[題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。
 解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。
 假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。
 class Solution { public: int numPairsDivisibleBy60(vector&lt;int&gt;&amp; time) { int cnt = 0; int m[60] = {0}; for (int i = 0; i &lt; time.size(); ++i) { cnt += m[time[i]%60 == 0 ?]]></description>
 </item><item>
     <title>leetcode 1026. Maximum Difference Between Node and Ancestor [Medium]</title>
-    <link>http://example.org/posts/lc1026/</link>
+    <link>https://davidleitw.github.io/posts/lc1026/</link>
     <pubDate>Sat, 01 Jan 2022 01:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc1026/</guid>
+    <guid>https://davidleitw.github.io/posts/lc1026/</guid>
     <description><![CDATA[題目敘述 給一棵二元樹，回傳某個節點與其祖先節點的最大的差(絕對值)。
 解題紀錄 DFS 用 DFS 尋訪每個節點，並且順便紀錄到這個節點之前的 max, min value，這樣子最大的差就是 max - min。
 class Solution { public: int maxAncestorDiff(TreeNode* root) { return get_max_different(root, root-&gt;val, root-&gt;val); } int get_max_different(TreeNode *root, int maxv, int minv) { if (!root) return maxv - minv; maxv = max(maxv, root-&gt;val); minv = min(minv, root-&gt;val); return max(get_max_different(root-&gt;left, maxv, minv), get_max_different(root-&gt;right, maxv, minv)); } }; #pragma GCC optimize(&#34;Ofast&#34;) #pragma GCC target(&#34;avx,avx2,fma&#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); ]]></description>
 </item><item>
     <title>leetcode 116. Populating Next Right Pointers in Each Node [Medium]</title>
-    <link>http://example.org/posts/lc116/</link>
+    <link>https://davidleitw.github.io/posts/lc116/</link>
     <pubDate>Wed, 29 Dec 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc116/</guid>
+    <guid>https://davidleitw.github.io/posts/lc116/</guid>
     <description><![CDATA[題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。
 用中文有點難表達，直接看圖吧。
 解題流程 這題跟很多 tree 的題目一樣，可以用 BFS 或者 DFS 兩種方式去實現。
@@ -57,19 +57,19 @@ BFS 用 BFS 的解法，就是在每個 level 找到最左邊的 Node 當作開�
 class Solution { public: Node* connect(Node* root) { if (!root) return root; queue&lt;Node*&gt; q; q.push(root); while (!q.empty()) { Node *curr; const int qsize = q.size(); for (int i = 0; i &lt; qsize; ++i) { Node *n = q.]]></description>
 </item><item>
     <title>leetcode 876. Middle of the Linked List [Medium]</title>
-    <link>http://example.org/posts/lc876/</link>
+    <link>https://davidleitw.github.io/posts/lc876/</link>
     <pubDate>Tue, 28 Dec 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc876/</guid>
+    <guid>https://davidleitw.github.io/posts/lc876/</guid>
     <description><![CDATA[題目敘述 獲得 linked list 的 middle 節點。
 經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
 解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; ]]></description>
 </item><item>
     <title>leetcode 476. Number Complement [Medium]</title>
-    <link>http://example.org/posts/lc476/</link>
+    <link>https://davidleitw.github.io/posts/lc476/</link>
     <pubDate>Mon, 27 Dec 2021 01:05:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc476/</guid>
+    <guid>https://davidleitw.github.io/posts/lc476/</guid>
     <description><![CDATA[題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
 思路 這題算是 Bit Manipulation 的入門題目，很適合練習 bit 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。
 因為這題的範圍限制 1 &lt;= num &lt; 2^31，所以可確保第一個 bit 為0
@@ -79,28 +79,28 @@ if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方�
 反轉 bits  (一): 逐個 bit 反轉, 利用 XOR  class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !]]></description>
 </item><item>
     <title>leetcode 198. House Robber [Medium]</title>
-    <link>http://example.org/posts/lc198/</link>
+    <link>https://davidleitw.github.io/posts/lc198/</link>
     <pubDate>Sun, 26 Dec 2021 01:05:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc198/</guid>
+    <guid>https://davidleitw.github.io/posts/lc198/</guid>
     <description><![CDATA[題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
 這題算是基本的 dp 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。
 解題紀錄 class Solution { public: int rob(vector&lt;int&gt;&amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; ]]></description>
 </item><item>
     <title>leetcode 973. K Closest Points to Origin [Medium]</title>
-    <link>http://example.org/posts/lc973/</link>
+    <link>https://davidleitw.github.io/posts/lc973/</link>
     <pubDate>Sun, 26 Dec 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc973/</guid>
+    <guid>https://davidleitw.github.io/posts/lc973/</guid>
     <description><![CDATA[題目敘述 給 n 個座標，返回距離原點最近的 k 個座標
 解題紀錄 解法一 因為要返回的只有座標點，所以其實不需要開根號，直接用 (x^2 + y^2) 比較即可。
 class Solution { public: vector&lt;vector&lt;int&gt;&gt; kClosest(vector&lt;vector&lt;int&gt;&gt;&amp; points, int k) { sort(points.begin(), points.end(), [this](vector&lt;int&gt; &amp;a, vector&lt;int&gt; &amp;b) { return get_distance(a) &lt; get_distance(b); }); return vector&lt;vector&lt;int&gt;&gt;(points.begin(), points.begin() + k); } inline int get_distance(vector&lt;int&gt; &amp;point) { return point[0] * point[0] + point[1] * point[1]; } }; #pragma GCC optimize(&#34;Ofast&#34;) #pragma GCC target(&#34;avx,avx2,fma&#34;) static auto _ = [] () {ios_base::sync_with_stdio(false);cin.tie(nullptr);cout.tie(nullptr);return 0;}(); 解法二 求最近的 k 個節點，其實可以換個思路，利用 maxHeap 來實現。]]></description>
 </item><item>
     <title>leetcode 227. Basic Calculator II [Medium]</title>
-    <link>http://example.org/posts/lc227/</link>
+    <link>https://davidleitw.github.io/posts/lc227/</link>
     <pubDate>Sat, 25 Dec 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc227/</guid>
+    <guid>https://davidleitw.github.io/posts/lc227/</guid>
     <description><![CDATA[題目敘述 輸入算式的字串，返回解答。運算子只有 +, -, *, /，這題還沒有出現包含括號的情況。
 解題紀錄 這次是直覺的用 stack 解出來，但是仔細思考過後發覺好像不一定要用 stack，可以用變數去存資料，之後待補XD
 class Solution { public: int calculate(string s) { long long int tmp; long long int num = 0; int len = s.size(); stack&lt;long long int&gt; result; char op_code = &#39;+&#39;; for (int i = 0; i &lt; len; ++i) { if (isnumber(s[i])) { num = num * 10 + s[i] - &#39;0&#39;; } if (!isnumber(s[i]) &amp;&amp; s[i] != &#39; &#39; || i == len-1) { switch (op_code) { case &#39;+&#39;: result.]]></description>

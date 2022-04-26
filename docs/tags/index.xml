@@ -1,78 +1,78 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>Tags - Tag - davidLei</title>
-        <link>http://example.org/tags/</link>
+        <link>https://davidleitw.github.io/tags/</link>
         <description>Tags - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
     <title>go</title>
-    <link>http://example.org/tags/go/</link>
+    <link>https://davidleitw.github.io/tags/go/</link>
     <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/go/</guid>
+    <guid>https://davidleitw.github.io/tags/go/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>linux</title>
-    <link>http://example.org/tags/linux/</link>
+    <link>https://davidleitw.github.io/tags/linux/</link>
     <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/linux/</guid>
+    <guid>https://davidleitw.github.io/tags/linux/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>shell</title>
-    <link>http://example.org/tags/shell/</link>
+    <link>https://davidleitw.github.io/tags/shell/</link>
     <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/shell/</guid>
+    <guid>https://davidleitw.github.io/tags/shell/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>concurrency</title>
-    <link>http://example.org/tags/concurrency/</link>
+    <link>https://davidleitw.github.io/tags/concurrency/</link>
     <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/concurrency/</guid>
+    <guid>https://davidleitw.github.io/tags/concurrency/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>linux_kernel</title>
-    <link>http://example.org/tags/linux_kernel/</link>
+    <link>https://davidleitw.github.io/tags/linux_kernel/</link>
     <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/linux_kernel/</guid>
+    <guid>https://davidleitw.github.io/tags/linux_kernel/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>parallelism</title>
-    <link>http://example.org/tags/parallelism/</link>
+    <link>https://davidleitw.github.io/tags/parallelism/</link>
     <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/parallelism/</guid>
+    <guid>https://davidleitw.github.io/tags/parallelism/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>database</title>
-    <link>http://example.org/tags/database/</link>
+    <link>https://davidleitw.github.io/tags/database/</link>
     <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/database/</guid>
+    <guid>https://davidleitw.github.io/tags/database/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>ER_Model</title>
-    <link>http://example.org/tags/er_model/</link>
+    <link>https://davidleitw.github.io/tags/er_model/</link>
     <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/er_model/</guid>
+    <guid>https://davidleitw.github.io/tags/er_model/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>leetcode</title>
-    <link>http://example.org/tags/leetcode/</link>
+    <link>https://davidleitw.github.io/tags/leetcode/</link>
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/leetcode/</guid>
+    <guid>https://davidleitw.github.io/tags/leetcode/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>system_call</title>
-    <link>http://example.org/tags/system_call/</link>
+    <link>https://davidleitw.github.io/tags/system_call/</link>
     <pubDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/tags/system_call/</guid>
+    <guid>https://davidleitw.github.io/tags/system_call/</guid>
     <description><![CDATA[]]></description>
 </item></channel>
 </rss>

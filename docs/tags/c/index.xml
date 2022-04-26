@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>c - Tag - davidLei</title>
-        <link>http://example.org/tags/c/</link>
+        <link>https://davidleitw.github.io/tags/c/</link>
         <description>c - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/c/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/c/" rel="self" type="application/rss+xml" /><item>
     <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
-    <link>http://example.org/posts/socket3/</link>
+    <link>https://davidleitw.github.io/posts/socket3/</link>
     <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/socket3/</guid>
+    <guid>https://davidleitw.github.io/posts/socket3/</guid>
     <description><![CDATA[一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
 一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
@@ -19,20 +19,20 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
 </item><item>
     <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
-    <link>http://example.org/posts/socker2/</link>
+    <link>https://davidleitw.github.io/posts/socker2/</link>
     <pubDate>Tue, 26 Oct 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/socker2/</guid>
+    <guid>https://davidleitw.github.io/posts/socker2/</guid>
     <description><![CDATA[sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
 typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
 IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
 </item><item>
     <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
-    <link>http://example.org/posts/socket1/</link>
+    <link>https://davidleitw.github.io/posts/socket1/</link>
     <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/socket1/</guid>
+    <guid>https://davidleitw.github.io/posts/socket1/</guid>
     <description><![CDATA[socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
 在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
 我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
@@ -42,19 +42,19 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
  AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page]]></description>
 </item><item>
     <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
-    <link>http://example.org/posts/jserv_linux_w1_q2/</link>
+    <link>https://davidleitw.github.io/posts/jserv_linux_w1_q2/</link>
     <pubDate>Wed, 01 Sep 2021 01:04:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/jserv_linux_w1_q2/</guid>
+    <guid>https://davidleitw.github.io/posts/jserv_linux_w1_q2/</guid>
     <description><![CDATA[單向 linked list
 typedef struct __list { int data; struct __list *next; } list; 在不存在環狀結構的狀況下，以下函式能夠對 linked list 元素從小到大排序: 請補完 LL0 ~ LL6 程式碼。
 list *sort(list *start) { if (!start || !start-&gt;next) return start; list *left = start; list *right = left-&gt;next; /* LL0; (a): left-&gt;next = NULL; (b): right-&gt;next = NULL; (c): left = left-&gt;next; (d): left = right-&gt;next; */ left = sort(left); right = sort(right); for (list *merge = NULL; left || right; ) { if (!]]></description>
 </item><item>
     <title>Circular Doubly linked list 實作 bubble sort </title>
-    <link>http://example.org/posts/cdll_bubblesort/</link>
+    <link>https://davidleitw.github.io/posts/cdll_bubblesort/</link>
     <pubDate>Wed, 25 Aug 2021 04:16:48 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/cdll_bubblesort/</guid>
+    <guid>https://davidleitw.github.io/posts/cdll_bubblesort/</guid>
     <description><![CDATA[前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
 在這篇文章會紀錄關於 bubble sort 的實現。
 node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
@@ -62,10 +62,10 @@ swap 之後要把 node 的 prev 跟 next pointer 處理好。
 Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!]]></description>
 </item><item>
     <title>C Function Pointer 基礎用法整理</title>
-    <link>http://example.org/posts/c_functionpointer/</link>
+    <link>https://davidleitw.github.io/posts/c_functionpointer/</link>
     <pubDate>Sun, 15 Aug 2021 00:04:43 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/c_functionpointer/</guid>
+    <guid>https://davidleitw.github.io/posts/c_functionpointer/</guid>
     <description><![CDATA[這最近在看 jserv 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 function pointer 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。
 之後在學習的過程中如果遇到 function pointer 的應用也會一併整理在這篇文章中。
 function pointer function pointer 顧名思義就是指向某個 function 的 pointer，有了 function pointer 我們就可以實現把 function 當作參數，傳進一個 function 之中，或者更加彈性的設計我們的程式，減少多餘的 if/else, switch case。

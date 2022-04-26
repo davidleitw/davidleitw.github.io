@@ -1,24 +1,24 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>All Posts - davidLei</title>
-        <link>http://example.org/posts/</link>
+        <link>https://davidleitw.github.io/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="http://example.org/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/posts/" rel="self" type="application/rss+xml" /><item>
     <title>sudo go: command not found 問題解決</title>
-    <link>http://example.org/posts/sudogo/</link>
+    <link>https://davidleitw.github.io/posts/sudogo/</link>
     <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/sudogo/</guid>
+    <guid>https://davidleitw.github.io/posts/sudogo/</guid>
     <description><![CDATA[這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(然後每次都忘記解決方式跑去google)，所以在這邊紀錄一下解決方式
 /etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行.
 /etc/sudoers 裡面有個 secure_path，把 usr/local/go/bin 加到那個字串即可]]></description>
 </item><item>
     <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則</title>
-    <link>http://example.org/posts/concurrency02/</link>
+    <link>https://davidleitw.github.io/posts/concurrency02/</link>
     <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/concurrency02/</guid>
+    <guid>https://davidleitw.github.io/posts/concurrency02/</guid>
     <description><![CDATA[同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
 Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
 可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
@@ -27,10 +27,10 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
 #include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
 </item><item>
     <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
-    <link>http://example.org/posts/concurrency01/</link>
+    <link>https://davidleitw.github.io/posts/concurrency01/</link>
     <pubDate>Wed, 23 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/concurrency01/</guid>
+    <guid>https://davidleitw.github.io/posts/concurrency01/</guid>
     <description><![CDATA[前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。
 裡面有些說法跟圖片是參考 jserv 老師的講座，裡面內容非常精彩，有機會的話一定要挑戰看看!
 Concurrency(並行) vs Parallelism(平行) 常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。
@@ -50,10 +50,10 @@ Parallelism 更強調的是同時的概念，不同的任務可以分配給不�
 今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。]]></description>
 </item><item>
     <title>資料庫 ER Model(一): Entity 與 Attribute</title>
-    <link>http://example.org/posts/db01/</link>
+    <link>https://davidleitw.github.io/posts/db01/</link>
     <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/db01/</guid>
+    <guid>https://davidleitw.github.io/posts/db01/</guid>
     <description><![CDATA[收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
 type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
 Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
@@ -62,10 +62,10 @@ Simple Simple attribute 通常指那些無法繼續再分割的 field，對應�
 Composite Composite attribute 是由多個不同的部份組成一起的概念，像是外國的名字可能有 FirstNAme, MiddleName, LastName 等等]]></description>
 </item><item>
     <title>leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]</title>
-    <link>http://example.org/posts/lc1022/</link>
+    <link>https://davidleitw.github.io/posts/lc1022/</link>
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc1022/</guid>
+    <guid>https://davidleitw.github.io/posts/lc1022/</guid>
     <description><![CDATA[題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
 Output: 22
 Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
@@ -74,10 +74,10 @@ Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
 class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!]]></description>
 </item><item>
     <title>Linux waitqueue 原始碼解讀</title>
-    <link>http://example.org/posts/linux_wake_queue1/</link>
+    <link>https://davidleitw.github.io/posts/linux_wake_queue1/</link>
     <pubDate>Sat, 08 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_wake_queue1/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_wake_queue1/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。
 waitqueue 有定義兩種資料結構
@@ -85,20 +85,20 @@ waitqueue 有定義兩種資料結構
 wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct list_head	head; // 指向 prev, next entry. }; typedef struct wait_queue_head wait_queue_head_t; 初始化 waitqueue 要建立新的 waitqueue，必須要先初始化 wait_queue_head_t 結構，透過 init_waitqueue_head，定義如下]]></description>
 </item><item>
     <title>Linux schedule 原始碼解讀</title>
-    <link>http://example.org/posts/linux_get_context_switch/</link>
+    <link>https://davidleitw.github.io/posts/linux_get_context_switch/</link>
     <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_get_context_switch/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_get_context_switch/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 	preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
 </item><item>
     <title>Linux fork() 底層實作流程整理</title>
-    <link>http://example.org/posts/linux_fork_01/</link>
+    <link>https://davidleitw.github.io/posts/linux_fork_01/</link>
     <pubDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_fork_01/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_fork_01/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
@@ -106,19 +106,19 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
  建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()]]></description>
 </item><item>
     <title>leetcode 997. Find the Town Judge [Easy]</title>
-    <link>http://example.org/posts/lc997/</link>
+    <link>https://davidleitw.github.io/posts/lc997/</link>
     <pubDate>Tue, 04 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc997/</guid>
+    <guid>https://davidleitw.github.io/posts/lc997/</guid>
     <description><![CDATA[題目敘述 在小鎮中有 N 個人，其中裡面有一個是 Judge，成為 Judge 要滿足兩個條件
  Judge 本身不相信任何人 其他 N-1 個人都相信 Judge  一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
 解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; ]]></description>
 </item><item>
     <title>leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</title>
-    <link>http://example.org/posts/lc1010/</link>
+    <link>https://davidleitw.github.io/posts/lc1010/</link>
     <pubDate>Sun, 02 Jan 2022 01:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lc1010/</guid>
+    <guid>https://davidleitw.github.io/posts/lc1010/</guid>
     <description><![CDATA[題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。
 解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。
 假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。

@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>scheduler - Tag - davidLei</title>
-        <link>http://example.org/tags/scheduler/</link>
+        <link>https://davidleitw.github.io/tags/scheduler/</link>
         <description>scheduler - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/scheduler/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/scheduler/" rel="self" type="application/rss+xml" /><item>
     <title>Linux schedule 原始碼解讀</title>
-    <link>http://example.org/posts/linux_get_context_switch/</link>
+    <link>https://davidleitw.github.io/posts/linux_get_context_switch/</link>
     <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/linux_get_context_switch/</guid>
+    <guid>https://davidleitw.github.io/posts/linux_get_context_switch/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
  第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下

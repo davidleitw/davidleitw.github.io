@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>database - Category - davidLei</title>
-        <link>http://example.org/categories/database/</link>
+        <link>https://davidleitw.github.io/categories/database/</link>
         <description>database - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/database/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/categories/database/" rel="self" type="application/rss+xml" /><item>
     <title>資料庫 ER Model(一): Entity 與 Attribute</title>
-    <link>http://example.org/posts/db01/</link>
+    <link>https://davidleitw.github.io/posts/db01/</link>
     <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/db01/</guid>
+    <guid>https://davidleitw.github.io/posts/db01/</guid>
     <description><![CDATA[收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
 type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
 Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。

@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>paper - Tag - davidLei</title>
-        <link>http://example.org/tags/paper/</link>
+        <link>https://davidleitw.github.io/tags/paper/</link>
         <description>paper - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="http://example.org/tags/paper/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/paper/" rel="self" type="application/rss+xml" /><item>
     <title>The Google File System (GFS) 論文心得</title>
-    <link>http://example.org/posts/gfs/</link>
+    <link>https://davidleitw.github.io/posts/gfs/</link>
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/gfs/</guid>
+    <guid>https://davidleitw.github.io/posts/gfs/</guid>
     <description><![CDATA[跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
 背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
  用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量

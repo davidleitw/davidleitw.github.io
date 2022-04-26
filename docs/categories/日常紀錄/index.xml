@@ -1,15 +1,15 @@
 <rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
     <channel>
         <title>日常紀錄 - Category - davidLei</title>
-        <link>http://example.org/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</link>
+        <link>https://davidleitw.github.io/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</link>
         <description>日常紀錄 - Category - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 23:01:13 &#43;0800</lastBuildDate><atom:link href="http://example.org/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 23:01:13 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/" rel="self" type="application/rss+xml" /><item>
     <title>使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</title>
-    <link>http://example.org/posts/lovelt/</link>
+    <link>https://davidleitw.github.io/posts/lovelt/</link>
     <pubDate>Fri, 13 Aug 2021 23:01:13 &#43;0800</pubDate>
     <author>Author</author>
-    <guid>http://example.org/posts/lovelt/</guid>
+    <guid>https://davidleitw.github.io/posts/lovelt/</guid>
     <description><![CDATA[這次新架的 blog 使用了 LoveIt 這個主題
 詳細的架設參數設定都是參考其官方部落格，寫的算是滿詳細的，值得參考。
 至於跟 github page 連動的部份，這方面很多文章都有不同的解決方案，我在這篇分享一下我的解決方法。
