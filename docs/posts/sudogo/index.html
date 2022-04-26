@@ -7,7 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>sudo go: command not found 問題解決 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="sudo go: command not found 問題解決" />
 <meta property="og:description" content="這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(然後每次都忘記解決方式跑去google)，所以在這邊紀錄一下解決方式
-/etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行
+/etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行.
 /etc/sudoers 裡面有個 secure_path，把 usr/local/go/bin 加到那個字串即可" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://example.org/posts/sudogo/" /><meta property="article:section" content="posts" />
@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="sudo go: command not found 問題解決"/>
 <meta name="twitter:description" content="這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(然後每次都忘記解決方式跑去google)，所以在這邊紀錄一下解決方式
-/etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行
+/etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行.
 /etc/sudoers 裡面有個 secure_path，把 usr/local/go/bin 加到那個字串即可"/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -122,7 +122,7 @@
 </nav></div>
             </div><div class="content" id="content"><p>這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(<del>然後每次都忘記解決方式跑去google</del>)，所以在這邊紀錄一下解決方式</p>
 <h2 id="etcsudoers">/etc/sudoers</h2>
-<p>在用 <code>sudo</code> 下指令時，系統會從 <code>/etc/sudoers</code> 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 <code>/usr/local/go/bin</code> 放到 <code>/etc/sudoers</code> 裡面，讓系統知道 go 指令要去哪執行</p>
+<p>在用 <code>sudo</code> 下指令時，系統會從 <code>/etc/sudoers</code> 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 <code>/usr/local/go/bin</code> 放到 <code>/etc/sudoers</code> 裡面，讓系統知道 go 指令要去哪執行.</p>
 <p><code>/etc/sudoers</code> 裡面有個 secure_path，把 <code>usr/local/go/bin</code> 加到那個字串即可</p>
 <p><img
         class="lazyload"
