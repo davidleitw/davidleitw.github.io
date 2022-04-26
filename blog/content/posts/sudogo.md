@@ -15,6 +15,6 @@ categories: ["shell"]
 
 在用 `sudo` 下指令時，系統會從 `/etc/sudoers` 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 `/usr/local/go/bin` 放到 `/etc/sudoers` 裡面，讓系統知道 go 指令要去哪執行
 
-`/etc/sudoers` 裡面有個 secure_path，把 `usr/local/go/bin` 加到那個字串即可
+`/etc/sudoers` 裡面有個 secure_path，把 `usr/local/go/bin` 加到那個字串即可.
 
 ![](https://i.imgur.com/k4QKhFj.png)
