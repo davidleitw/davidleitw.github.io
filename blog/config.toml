@@ -8,6 +8,9 @@ title = "davidLei"
 # Change the default theme to be use when building the site with Hugo
 theme = "LoveIt"
 
+[sitemap]
+filename = "sitemap.xml"
+
 [params]
   # LoveIt theme version
   version = "0.2.X"
