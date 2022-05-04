@@ -4,7 +4,19 @@
         <link>https://davidleitw.github.io/tags/docker/</link>
         <description>docker - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/docker/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 04 May 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/docker/" rel="self" type="application/rss+xml" /><item>
+    <title>Docker 網路模型與 Linux namespace, bridge 機制探討</title>
+    <link>https://davidleitw.github.io/posts/docker_network_ns/</link>
+    <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/docker_network_ns/</guid>
+    <description><![CDATA[在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
+Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
+ A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+ 也可以查看 NETWORK_NAMESPACES(7)
+因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
+如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。]]></description>
+</item><item>
     <title>docker volume 用法整理</title>
     <link>https://davidleitw.github.io/posts/dockervolume/</link>
     <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>

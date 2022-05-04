@@ -4,9 +4,21 @@
         <link>https://davidleitw.github.io/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 04 May 2022 00:01:01 &#43;0800</lastBuildDate>
             <atom:link href="https://davidleitw.github.io/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>Docker 網路模型與 Linux namespace, bridge 機制探討</title>
+    <link>https://davidleitw.github.io/posts/docker_network_ns/</link>
+    <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/docker_network_ns/</guid>
+    <description><![CDATA[在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
+Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
+ A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+ 也可以查看 NETWORK_NAMESPACES(7)
+因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
+如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。]]></description>
+</item><item>
     <title>sudo go: command not found 問題解決</title>
     <link>https://davidleitw.github.io/posts/sudogo/</link>
     <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
@@ -115,15 +127,5 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <description><![CDATA[題目敘述 在小鎮中有 N 個人，其中裡面有一個是 Judge，成為 Judge 要滿足兩個條件
  Judge 本身不相信任何人 其他 N-1 個人都相信 Judge  一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
 解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; ]]></description>
-</item><item>
-    <title>leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</title>
-    <link>https://davidleitw.github.io/posts/lc1010/</link>
-    <pubDate>Sun, 02 Jan 2022 01:12:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/posts/lc1010/</guid>
-    <description><![CDATA[題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。
-解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。
-假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。
-class Solution { public: int numPairsDivisibleBy60(vector&lt;int&gt;&amp; time) { int cnt = 0; int m[60] = {0}; for (int i = 0; i &lt; time.size(); ++i) { cnt += m[time[i]%60 == 0 ?]]></description>
 </item></channel>
 </rss>

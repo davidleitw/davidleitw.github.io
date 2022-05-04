@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>Docker 網路模型與 Linux namespace, bridge 機制探討 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Docker 網路模型與 Linux namespace, bridge 機制探討" />
+<meta property="og:description" content="在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
+Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
+ A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+ 也可以查看 NETWORK_NAMESPACES(7)
+因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
+如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://davidleitw.github.io/posts/docker_network_ns/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-05-04T00:01:01+08:00" />
+<meta property="article:modified_time" content="2022-05-04T00:01:01+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Docker 網路模型與 Linux namespace, bridge 機制探討"/>
+<meta name="twitter:description" content="在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
+Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
+ A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+ 也可以查看 NETWORK_NAMESPACES(7)
+因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
+如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://davidleitw.github.io/posts/docker_network_ns/" /><link rel="prev" href="https://davidleitw.github.io/posts/sudogo/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Docker 網路模型與 Linux namespace, bridge 機制探討",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/davidleitw.github.io\/posts\/docker_network_ns\/"
+        },"genre": "posts","keywords": "docker, container, linux, network","wordcount":  1109 ,
+        "url": "https:\/\/davidleitw.github.io\/posts\/docker_network_ns\/","datePublished": "2022-05-04T00:01:01+08:00","dateModified": "2022-05-04T00:01:01+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">Docker 網路模型與 Linux namespace, bridge 機制探討</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/docker/"><i class="far fa-folder fa-fw"></i>docker</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-05-04">2022-05-04</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;1109 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;6 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#network-namespace">Network Namespace</a>
+      <ul>
+        <li><a href="#建立新的-network-namespace">建立新的 network namespace</a></li>
+        <li><a href="#執行-cmd-在特定的-network-namespace">執行 cmd 在特定的 network namespace</a></li>
+      </ul>
+    </li>
+    <li><a href="#veth---virtual-ethernet-device">veth - Virtual Ethernet Device</a>
+      <ul>
+        <li><a href="#建立新的-veth-pair">建立新的 veth Pair</a></li>
+        <li><a href="#將-veth-連結到-network-namespace">將 veth 連結到 network namespace</a></li>
+        <li><a href="#啟動-veth-並且分配一個私有的-ip">啟動 veth 並且分配一個私有的 ip</a></li>
+      </ul>
+    </li>
+    <li><a href="#用-bridge-串連多個不同的-namespace">用 bridge 串連多個不同的 namespace</a>
+      <ul>
+        <li><a href="#建立-bridge-device">建立 bridge device</a></li>
+      </ul>
+    </li>
+    <li><a href="#docker-network-drivers">Docker network drivers</a>
+      <ul>
+        <li><a href="#建立一個新的-container">建立一個新的 container</a></li>
+        <li><a href="#兩個-containers-透過預設的-bridge-互連">兩個 containers 透過預設的 bridge 互連</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。</p>
+<h2 id="network-namespace">Network Namespace</h2>
+<p>在 command line 操作 network namespace 通常會使用 <code>ip netns</code> 來操作，先引用 <code>ip-netns</code> 的 <a href="https://man7.org/linux/man-pages/man8/ip-netns.8.html" target="_blank" rel="noopener noreffer">man page</a> 來介紹一下 network namespace 的定義</p>
+<blockquote>
+<p>A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.</p>
+</blockquote>
+<p>也可以查看 <a href="https://www.man7.org/linux/man-pages/man7/network_namespaces.7.html" target="_blank" rel="noopener noreffer">NETWORK_NAMESPACES(7)</a></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/DHg0aoM.png"
+        data-srcset="https://i.imgur.com/DHg0aoM.png, https://i.imgur.com/DHg0aoM.png 1.5x, https://i.imgur.com/DHg0aoM.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/DHg0aoM.png"
+        title="https://i.imgur.com/DHg0aoM.png" /></p>
+<p>因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。</p>
+<p>如果有牽涉到 <code>fork()</code> 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。</p>
+<p>一開始可以用 <code>ip netns help</code> 來查看大概有哪些指令可以使用</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/3FdIjWB.png"
+        data-srcset="https://i.imgur.com/3FdIjWB.png, https://i.imgur.com/3FdIjWB.png 1.5x, https://i.imgur.com/3FdIjWB.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/3FdIjWB.png"
+        title="https://i.imgur.com/3FdIjWB.png" /></p>
+<h3 id="建立新的-network-namespace">建立新的 network namespace</h3>
+<p>建立一個新的 network namespace 可以使用 <code>sudo ip netns add</code> 加上想要的 namespace 名稱，建立之後用 <code>ip netns ls</code> 就可以看到多了一個剛剛建立的 network namespace。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns add ns0
+$ ip netns ls
+</code></pre></div><p>使用 <code>ip netns</code> 建立的 network namespace 會出現在 <code>/var/run/netns</code> 底下。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/9suVUf7.png"
+        data-srcset="https://i.imgur.com/9suVUf7.png, https://i.imgur.com/9suVUf7.png 1.5x, https://i.imgur.com/9suVUf7.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/9suVUf7.png"
+        title="https://i.imgur.com/9suVUf7.png" /></p>
+<p>在本地端我們常常會使用 <code>ifconfig</code> 或者 <code>ip addr</code> 來檢查一些網路的配置情況，所以 <code>ip netns</code> 工具為了讓我們更方便的操作，提供了 <code>ip netns exec</code> 的子命令讓我們可以在對應的 network namespace 執行命令，我們下面的幾個範例都會使用剛剛建立的 <code>ns0</code> 來操作，先來看看在 <code>ns0</code> 中執行 <code>ifconfig</code> 或者 <code>ip addr</code> 的情況。</p>
+<h3 id="執行-cmd-在特定的-network-namespace">執行 cmd 在特定的 network namespace</h3>
+<p><strong>ip netns exec &lt;network namespace name&gt; + cmd</strong></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/QSffLmE.png"
+        data-srcset="https://i.imgur.com/QSffLmE.png, https://i.imgur.com/QSffLmE.png 1.5x, https://i.imgur.com/QSffLmE.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/QSffLmE.png"
+        title="https://i.imgur.com/QSffLmE.png" /></p>
+<p>可以觀察到，新建立的 <code>ns0</code> 目前只有預設的 <code>lo (loopback interface)</code>，這個 <code>lo</code> 也可以說是 <code>localhost</code> 的虛擬網路 interface。</p>
+<p>想要了解更多可以參考</p>
+<ul>
+<li><a href="https://www.cnblogs.com/hustcat/p/3920940.html" target="_blank" rel="noopener noreffer">這篇文章</a></li>
+<li><a href="https://askubuntu.com/questions/247625/what-is-the-loopback-device-and-how-do-i-use-it" target="_blank" rel="noopener noreffer">What is the loopback device and how do I use it?</a></li>
+</ul>
+<h2 id="veth---virtual-ethernet-device">veth - Virtual Ethernet Device</h2>
+<p>Linux 中有 <a href="https://man7.org/linux/man-pages/man4/veth.4.html" target="_blank" rel="noopener noreffer">veth - Virtual Ethernet Device</a> 的概念， <code>veth</code> 可以拿來建立不同虛擬網路裝置之間的橋樑，讓不同虛擬裝置之間可以連線，像是不同的 network namespace，又或者是 docker container 之間的連線, ovs 內的應用等等，都有使用到 <code>veth</code> 的概念。</p>
+<p><code>veth</code> 都是成對出現的，所以很多文章也把它稱為 <code>veth-pair</code>，在後續的實驗中我們也可以觀察到 Docker 彼此之間的 <code>veth-pair</code>。</p>
+<p>為了實驗兩個 network namespace 的連線，我們再建立一個 <code>ns1</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns add ns1
+$ ip netns ls
+ns1
+ns0
+</code></pre></div><h3 id="建立新的-veth-pair">建立新的 veth Pair</h3>
+<p>上面有提到 <code>veth</code> 都是成對出現的，所以在建立的時候也要同時建立兩端，這邊我們將兩端分別取名 <code>vth0</code> 以及 <code>vth1</code> 代表等等要接在 <code>ns0</code> 與 <code>ns1</code> 上面。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link add vth0 <span class="nb">type</span> veth peer vth1
+$ ip link show
+</code></pre></div><p>接著用 <code>ip link show</code> 就可以看到剛剛建立的 <code>veth pair</code></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/KfnBEla.png"
+        data-srcset="https://i.imgur.com/KfnBEla.png, https://i.imgur.com/KfnBEla.png 1.5x, https://i.imgur.com/KfnBEla.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/KfnBEla.png"
+        title="https://i.imgur.com/KfnBEla.png" /></p>
+<h3 id="將-veth-連結到-network-namespace">將 veth 連結到 network namespace</h3>
+<p>建立好了兩端的 <code>veth</code> 之後我們就需要把它接到對應的 network namespace</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link <span class="nb">set</span> vth0 netns ns0
+$ sudo ip link <span class="nb">set</span> vth1 netns ns2
+</code></pre></div><p>這時候我們再使用 <code>ip link show</code> 確認一下</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/Xxv9YDk.png"
+        data-srcset="https://i.imgur.com/Xxv9YDk.png, https://i.imgur.com/Xxv9YDk.png 1.5x, https://i.imgur.com/Xxv9YDk.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/Xxv9YDk.png"
+        title="https://i.imgur.com/Xxv9YDk.png" /></p>
+<p>發現剛剛建立的 <code>vth0</code> 與 <code>vth1</code> 不見了，因為我們已經把他們移動到新建立的 network namespace 之中，我們可以在 <code>ns0</code> 與 <code>ns1</code> 中用 <code>ip addr</code> 觀察到。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/FoVEZnV.png"
+        data-srcset="https://i.imgur.com/FoVEZnV.png, https://i.imgur.com/FoVEZnV.png 1.5x, https://i.imgur.com/FoVEZnV.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/FoVEZnV.png"
+        title="https://i.imgur.com/FoVEZnV.png" /></p>
+<h3 id="啟動-veth-並且分配一個私有的-ip">啟動 veth 並且分配一個私有的 ip</h3>
+<p>光是把 <code>vth0</code>, <code>vth1</code> 連結到 <code>ns0</code>, <code>ns1</code> 還不夠，為了後續 ping 的實驗我們必須在 <code>ns0</code>, <code>ns1</code> 中啟動 <code>veth</code> 並且分配一個私有的 ip 位置。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> vth0 up
+$ sudo ip netns <span class="nb">exec</span> ns0 ip addr add 172.0.0.2/24 dev vth0
+$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> vth1 up
+$ sudo ip netns <span class="nb">exec</span> ns1 ip addr add 172.0.0.3/24 dev vth1
+</code></pre></div><p>我們為 <code>vth0</code> 分配了 172.0.0.2/24，<code>vth1</code> 分配了 172.0.0.3/24，我們一樣分別進入 <code>ns0</code>, <code>ns1</code> 用 <code>ip addr</code> 確認他們對應的 <code>veth</code> 是否開啟並且正確的被分配了 ip</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/gz0Ro7m.png"
+        data-srcset="https://i.imgur.com/gz0Ro7m.png, https://i.imgur.com/gz0Ro7m.png 1.5x, https://i.imgur.com/gz0Ro7m.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/gz0Ro7m.png"
+        title="https://i.imgur.com/gz0Ro7m.png" /></p>
+<p>經過一系列的操作之後我們現在的網路拓樸如下</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/MhsCm9a.png"
+        data-srcset="https://i.imgur.com/MhsCm9a.png, https://i.imgur.com/MhsCm9a.png 1.5x, https://i.imgur.com/MhsCm9a.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/MhsCm9a.png"
+        title="https://i.imgur.com/MhsCm9a.png" /></p>
+<p>因為設置的 ip 在同一個網域下，而且也經過 <code>ip addr</code> 確認綁定到 <code>veth</code> 上，現在可以用 ping 指令發現兩個 network namespace 之間可以通了!</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/AgY7egp.png"
+        data-srcset="https://i.imgur.com/AgY7egp.png, https://i.imgur.com/AgY7egp.png 1.5x, https://i.imgur.com/AgY7egp.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/AgY7egp.png"
+        title="https://i.imgur.com/AgY7egp.png" /></p>
+<h2 id="用-bridge-串連多個不同的-namespace">用 bridge 串連多個不同的 namespace</h2>
+<p>上面的情境是兩個 network namespace 想要互相連結，但真實世界的網路拓樸通常都是多個不同的 device 要互相連結，這時候如果再用 <code>veth</code> 一個一個設置就不切實際，在一般的網路環境我們會想到用 switch 一類的裝置處理，在 Linux 中也可以透過 <code>bridge</code> 的概念，用類似虛擬 switch 的方式解決多個不同 network namespace 互連的場景。</p>
+<p>從頭開始，目標是建立 <code>ns0</code>, <code>ns1</code>, <code>ns2</code> 三個 network namespace 並且讓他們可以透過 <code>bridge</code>互相連結。</p>
+<p>最後目標的網路拓樸如下圖</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/bC0mjXe.png"
+        data-srcset="https://i.imgur.com/bC0mjXe.png, https://i.imgur.com/bC0mjXe.png 1.5x, https://i.imgur.com/bC0mjXe.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/bC0mjXe.png"
+        title="https://i.imgur.com/bC0mjXe.png" /></p>
+<p>注意，這次我們有做一點調整，把 <code>veth</code> 連結到 network namespace 之後統一改名成 <code>eth0</code></p>
+<h3 id="建立-bridge-device">建立 bridge device</h3>
+<p>先建立一個 <code>bridge device</code> 並且取名為 <code>br0</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link add br0 <span class="nb">type</span> bridge
+$ sudo ip link <span class="nb">set</span> br0 up
+</code></pre></div><p>建立三個 network namespace 以及建立三對 <code>veth-pair</code> 分別對應 <code>ns0</code>, <code>ns1</code>, <code>ns2</code> 連結到 <code>br0</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns add ns0
+$ sudo ip netns add ns1
+$ sudo ip netns add ns2
+$ sudo ip link add <span class="nb">type</span> veth
+$ sudo ip link add <span class="nb">type</span> veth
+$ sudo ip link add <span class="nb">type</span> veth
+</code></pre></div><p>這次換了一種建立方式，直接 <code>ip link add type veth</code>，不用自己取名字，系統會幫你分配好，如下圖所示</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/OB3MrnC.png"
+        data-srcset="https://i.imgur.com/OB3MrnC.png, https://i.imgur.com/OB3MrnC.png 1.5x, https://i.imgur.com/OB3MrnC.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/OB3MrnC.png"
+        title="https://i.imgur.com/OB3MrnC.png" /></p>
+<p>先處理對接 <code>br0</code> 的部份，把 <code>veth0</code>, <code>veth2</code>, <code>veth4</code> 連接到 <code>br0</code>，一定要記得把他們 set up。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link <span class="nb">set</span> veth0 up
+$ sudo ip link <span class="nb">set</span> veth0 master br0
+$ sudo ip link <span class="nb">set</span> veth2 up
+$ sudo ip link <span class="nb">set</span> veth2 master br0
+$ sudo ip link <span class="nb">set</span> veth4 up
+$ sudo ip link <span class="nb">set</span> veth4 master br0
+</code></pre></div><p>接著處理對接到 network namespace 的部份</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 設置 ns0</span>
+$ sudo ip link <span class="nb">set</span> veth1 netns ns0
+$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> veth1 name eth0
+$ sudo ip netns <span class="nb">exec</span> ns0 ip addr add 10.0.0.1/24 dev eth0
+$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> eth0 up
+
+<span class="c1"># 設置 ns1</span>
+$ sudo ip link <span class="nb">set</span> dev veth3 netns ns1
+$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> dev veth3 name eth0
+$ sudo ip netns <span class="nb">exec</span> ns1 ip addr add 10.0.0.2/24 dev eth0
+$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> dev eth0 up
+
+<span class="c1"># 設置 ns2</span>
+$ sudo ip link <span class="nb">set</span> dev veth5 netns ns2
+$ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</span> dev veth5 name eth0
+$ sudo ip netns <span class="nb">exec</span> ns2 ip addr add 10.0.0.3/24 dev eth0
+$ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</span> dev eth0 up
+</code></pre></div><p>設置好之後可以去每個 network namespace 用 <code>ip addr</code> 查看是否設置完成</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/HxAIpep.jpg"
+        data-srcset="https://i.imgur.com/HxAIpep.jpg, https://i.imgur.com/HxAIpep.jpg 1.5x, https://i.imgur.com/HxAIpep.jpg 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/HxAIpep.jpg"
+        title="https://i.imgur.com/HxAIpep.jpg" /></p>
+<p>可以用 ping 測試是否成功</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/reV0urc.png"
+        data-srcset="https://i.imgur.com/reV0urc.png, https://i.imgur.com/reV0urc.png 1.5x, https://i.imgur.com/reV0urc.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/reV0urc.png"
+        title="https://i.imgur.com/reV0urc.png" /></p>
+<p>正常來說會發現還是無法成功 ping</p>
+<p>這時候針對 <code>br0</code> 改一下配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo iptables -A FORWARD -i br0 -j ACCEPT
+</code></pre></div><p>接著就可以測試，發現三個 network namespace 可以互通了</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/fZYLfQW.png"
+        data-srcset="https://i.imgur.com/fZYLfQW.png, https://i.imgur.com/fZYLfQW.png 1.5x, https://i.imgur.com/fZYLfQW.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/fZYLfQW.png"
+        title="https://i.imgur.com/fZYLfQW.png" /></p>
+<h2 id="docker-network-drivers">Docker network drivers</h2>
+<p>再來介紹完基礎的 network namespace, veth, bridge 之後我們再來看看 Docker 的網路模型。</p>
+<p>Docker 在設計的時候就提供了很多種不同的 Network drivers 可以替換，不同 Network drivers 代表著不同的網路模型，使用 <code>docker</code> 指令建立容器時，可以透過 <code>--network</code> 參數選擇想要的網路模型。</p>
+<p>大致上可以分為這幾種</p>
+<ul>
+<li><code>bridge</code></li>
+<li><code>host</code></li>
+<li><code>overlay</code></li>
+<li><code>ipvlan</code></li>
+<li><code>macvlan</code></li>
+<li><code>none</code></li>
+</ul>
+<p>這篇文章主要會介紹 <code>bridge</code> 模式，一方面是因為上面的範例也讓我們對於 Linux 的 bridge 機制有了初步的了解，另一方面是如果不特別選擇的話，Docker 預設的網路模型就是 <code>bridge</code> 模式。</p>
+<blockquote>
+<p>In terms of networking, a bridge network is a Link Layer device which forwards traffic between network segments. A bridge can be a hardware device or a software device running within a host machine’s kernel.</p>
+</blockquote>
+<p>在<a href="https://docs.docker.com/network/bridge/" target="_blank" rel="noopener noreffer">官方文檔</a>中從定義開始介紹，<code>bridge network</code> 專門用在同個網段(Network segmentation) 的流量轉發，<code>bridge</code> 可以是硬體也可以是 kernel 的機制，前文中我們介紹的 bridge 就是 kernel 提供的 software device。</p>
+<p>在一開始安裝完 Docker 之後可以用 <code>ip addr</code> 指令看到一個新的 <code>docker0</code> 的裝置，這就是預設 <code>bridge</code> 模式使用的 bridge，每次在建立新的容器的時候，預設情況 Docker 都會建立一個新的 network namespace，並且透過 <code>docker0</code> 來彼此溝通。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/l8FXB2A.png"
+        data-srcset="https://i.imgur.com/l8FXB2A.png, https://i.imgur.com/l8FXB2A.png 1.5x, https://i.imgur.com/l8FXB2A.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/l8FXB2A.png"
+        title="https://i.imgur.com/l8FXB2A.png" /></p>
+<blockquote>
+<p>在實驗或者本地端執行的時候使用預設的網路模式很方便，但是在正式的環境往往會複雜許多。</p>
+</blockquote>
+<p>也可以使用 <code>docker network ls</code> 來看到 driver 的 type 是 <code>bridge</code>。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/MJvRh3C.png"
+        data-srcset="https://i.imgur.com/MJvRh3C.png, https://i.imgur.com/MJvRh3C.png 1.5x, https://i.imgur.com/MJvRh3C.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/MJvRh3C.png"
+        title="https://i.imgur.com/MJvRh3C.png" /></p>
+<p>想繼續看 <code>bridge</code> 的詳細資料可以使用 <code>docker network inspect bridge</code>，可以看到 <code>bridge</code> 的 <code>subnet</code>, <code>gateway IP</code> 等等更詳細的設定</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/LYB4sEG.png"
+        data-srcset="https://i.imgur.com/LYB4sEG.png, https://i.imgur.com/LYB4sEG.png 1.5x, https://i.imgur.com/LYB4sEG.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/LYB4sEG.png"
+        title="https://i.imgur.com/LYB4sEG.png" /></p>
+<h3 id="建立一個新的-container">建立一個新的 container</h3>
+<p>先建立一個 container 來試試預設的網路功能</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run --name nginx_test1 -d -p 8081:80 nginx
+$ sudo docker ps -a
+</code></pre></div><p>使用 <code>docker ps -a</code> 確定 <code>nginx_test1</code> 有跑起來</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/bvwRulh.png"
+        data-srcset="https://i.imgur.com/bvwRulh.png, https://i.imgur.com/bvwRulh.png 1.5x, https://i.imgur.com/bvwRulh.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/bvwRulh.png"
+        title="https://i.imgur.com/bvwRulh.png" /></p>
+<p>詳細資料可以使用 <code>docker inspect nginx_test1</code> 來查看，注意最下面 <code>Networks</code> 的地方，可以看到剛剛建立的 <code>nginx_test1</code> 連結到預設的 <code>bridge</code>，並且配了 <code>172.17.0.2</code> 的 ip address 給它</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/cKlyBb4.png"
+        data-srcset="https://i.imgur.com/cKlyBb4.png, https://i.imgur.com/cKlyBb4.png 1.5x, https://i.imgur.com/cKlyBb4.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/cKlyBb4.png"
+        title="https://i.imgur.com/cKlyBb4.png" /></p>
+<p>在建立 <code>nginx_test1</code> 的時候有設定 <code>8081:80</code> 的映射，所以打開瀏覽器訪問 <code>localhost:8081</code> 應該可以看到 <code>nginx</code> 的首頁</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/kwOliZn.png"
+        data-srcset="https://i.imgur.com/kwOliZn.png, https://i.imgur.com/kwOliZn.png 1.5x, https://i.imgur.com/kwOliZn.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/kwOliZn.png"
+        title="https://i.imgur.com/kwOliZn.png" /></p>
+<p>用 <code>curl localhost:8081</code> 也可以獲得正確的 html</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/OtdrnLj.png"
+        data-srcset="https://i.imgur.com/OtdrnLj.png, https://i.imgur.com/OtdrnLj.png 1.5x, https://i.imgur.com/OtdrnLj.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/OtdrnLj.png"
+        title="https://i.imgur.com/OtdrnLj.png" /></p>
+<p>我們再次確認 <code>bridge</code> 的配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker inspect bridge
+</code></pre></div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/KELXW9t.png"
+        data-srcset="https://i.imgur.com/KELXW9t.png, https://i.imgur.com/KELXW9t.png 1.5x, https://i.imgur.com/KELXW9t.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/KELXW9t.png"
+        title="https://i.imgur.com/KELXW9t.png" /></p>
+<p>可以注意到 <code>Containers</code> 的地方多了剛剛建立的 <code>nginx_test1</code> 的資料，代表說 <code>nginx_test1</code> 是透過 <code>bridge</code> 跟外部建立連線的，這也是為什麼剛剛可以訪問 <code>nginx_test1</code> 的原因。</p>
+<h3 id="兩個-containers-透過預設的-bridge-互連">兩個 containers 透過預設的 bridge 互連</h3>
+<p>接著來觀察在預設的網路環境， container 之間是否也可以藉由 <code>bridge</code> 互連，先用 <code>alpine</code> 的 image 建立兩個 container</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run -dit --name a1 alpine ash
+$ sudo docker run -dit --name a2 alpine ash
+</code></pre></div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/f97aohR.png"
+        data-srcset="https://i.imgur.com/f97aohR.png, https://i.imgur.com/f97aohR.png 1.5x, https://i.imgur.com/f97aohR.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/f97aohR.png"
+        title="https://i.imgur.com/f97aohR.png" /></p>
+<p>確認 <code>a1</code>, <code>a2</code> 的 ip</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/OD0d2PV.png"
+        data-srcset="https://i.imgur.com/OD0d2PV.png, https://i.imgur.com/OD0d2PV.png 1.5x, https://i.imgur.com/OD0d2PV.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/OD0d2PV.png"
+        title="https://i.imgur.com/OD0d2PV.png" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/jmBZggO.jpg"
+        data-srcset="https://i.imgur.com/jmBZggO.jpg, https://i.imgur.com/jmBZggO.jpg 1.5x, https://i.imgur.com/jmBZggO.jpg 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/jmBZggO.jpg"
+        title="https://i.imgur.com/jmBZggO.jpg" /></p>
+<p>利用 <code>docker exec</code> 進入 <code>a1</code> 之後 ping <code>a2</code> 還有 <code>8.8.8.8</code> 試試看是否能連通隔壁的 <code>a2</code> 還有實際的網路</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/WAnNM09.png"
+        data-srcset="https://i.imgur.com/WAnNM09.png, https://i.imgur.com/WAnNM09.png 1.5x, https://i.imgur.com/WAnNM09.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/WAnNM09.png"
+        title="https://i.imgur.com/WAnNM09.png" /></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/xqhpuxc.png"
+        data-srcset="https://i.imgur.com/xqhpuxc.png, https://i.imgur.com/xqhpuxc.png 1.5x, https://i.imgur.com/xqhpuxc.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/xqhpuxc.png"
+        title="https://i.imgur.com/xqhpuxc.png" /></p>
+<p>因為前面已經介紹過 veth, network namespace 的概念了，所以可以來觀察一下在預設的模式中， docker 是如何把多個 container 連在一起，讓彼此可以連通</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ ip addr
+</code></pre></div><p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/8DDjgxS.jpg"
+        data-srcset="https://i.imgur.com/8DDjgxS.jpg, https://i.imgur.com/8DDjgxS.jpg 1.5x, https://i.imgur.com/8DDjgxS.jpg 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/8DDjgxS.jpg"
+        title="https://i.imgur.com/8DDjgxS.jpg" /></p>
+<p>使用 <code>ip addr</code> 發現多了兩個 veth 開頭的裝置，分別是</p>
+<ul>
+<li><code>vethd1d03d7@1f5</code></li>
+<li><code>veth6e0f94d@if7</code></li>
+</ul>
+<p><code>veth</code> 總是成對出現，所以這邊應該可以意識到這是 <code>a1</code>, <code>a2</code> 與 <code>docker0</code> 對接的 <code>veth</code>。</p>
+<p>接著進入 <code>a1</code>, <code>a2</code> 對應的 <code>veth</code> 裝置</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/YG8Ru1b.png"
+        data-srcset="https://i.imgur.com/YG8Ru1b.png, https://i.imgur.com/YG8Ru1b.png 1.5x, https://i.imgur.com/YG8Ru1b.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/YG8Ru1b.png"
+        title="https://i.imgur.com/YG8Ru1b.png" /></p>
+<p>所以這邊可以畫出目前的網路拓樸</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/dDqeeAL.png"
+        data-srcset="https://i.imgur.com/dDqeeAL.png, https://i.imgur.com/dDqeeAL.png 1.5x, https://i.imgur.com/dDqeeAL.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/dDqeeAL.png"
+        title="https://i.imgur.com/dDqeeAL.png" /></p>
+<p>在預設模式下，每個 container 都可以透過 <code>docker0</code> 互連，也可以對外連線，那如果每個 container 都會建立一個新的 network namespace，使用 <code>ip netns ls</code> 應該可以看到才對</p>
+<pre tabindex="0"><code>$ ip netns ls
+</code></pre><p>用 <code>ip netns ls</code> 查詢的結果應該會是空的，上面有簡單提到，每個建立的 network namespace 都會在 <code>/var/run/netns</code> 底下建立一個新的文件，但是 docker 特別建立了一個新的資料夾擺放建立 container 之後產生的 network namespace，在 <code>/var/run/docker/netns</code> 底下</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/cyh3TVU.png"
+        data-srcset="https://i.imgur.com/cyh3TVU.png, https://i.imgur.com/cyh3TVU.png 1.5x, https://i.imgur.com/cyh3TVU.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/cyh3TVU.png"
+        title="https://i.imgur.com/cyh3TVU.png" /></p>
+<h1 id="reference">reference</h1>
+<ul>
+<li><a href="https://hackmd.io/@0xff07/network/https%3A%2F%2Fhackmd.io%2F%400xff07%2FSJzOwViYF" target="_blank" rel="noopener noreffer">計算機網路 - Network Namespace</a></li>
+<li><a href="https://cizixs.com/2017/02/10/network-virtualization-network-namespace/" target="_blank" rel="noopener noreffer">Linux 網路虛擬化: network namespace</a></li>
+<li><a href="https://www.cnblogs.com/bakari/p/10443484.html" target="_blank" rel="noopener noreffer">一文搞懂 Linux network namespace</a></li>
+<li><a href="https://segmentfault.com/a/1190000009491002" target="_blank" rel="noopener noreffer">Linux 虛擬網路設備 - bridge</a></li>
+<li><a href="https://azole.medium.com/docker-container-%E5%9F%BA%E7%A4%8E%E5%85%A5%E9%96%80%E7%AF%87-2-c14d8f852ae4" target="_blank" rel="noopener noreffer">Docker Container 基礎入門篇 2</a></li>
+<li><a href="https://www.hwchiu.com/docker-network-model-lab.html" target="_blank" rel="noopener noreffer">Docker 網路入門篇(二) - Bridge 網路模型</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2022-05-04</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-title="Docker 網路模型與 Linux namespace, bridge 機制探討" data-hashtags="docker,container,linux,network"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-hashtag="docker"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-title="Docker 網路模型與 Linux namespace, bridge 機制探討" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-title="Docker 網路模型與 Linux namespace, bridge 機制探討"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-title="Docker 網路模型與 Linux namespace, bridge 機制探討"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-title="Docker 網路模型與 Linux namespace, bridge 機制探討" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-title="Docker 網路模型與 Linux namespace, bridge 機制探討" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="https://davidleitw.github.io/posts/docker_network_ns/" data-title="Docker 網路模型與 Linux namespace, bridge 機制探討"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/docker/">docker</a>,&nbsp;<a href="/tags/container/">container</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/network/">network</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/sudogo/" class="prev" rel="prev" title="sudo go: command not found 問題解決"><i class="fas fa-angle-left fa-fw"></i>sudo go: command not found 問題解決</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":130},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>
