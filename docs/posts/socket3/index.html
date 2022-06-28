@@ -10,9 +10,10 @@
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
 一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
 typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
- 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
-#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
-回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE" />
+只能用在 IPv4 的處理 inet_addr inet_aton inet_ntoa 兼容 Ipv4 與 IPv6 inet_pton inet_ntop 使用前必須先
+#include &lt;arpa/inet.h&gt; inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE
+INADDR_NODE = 0xFFFFFFFF (32 個 bits 全部填一)" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://davidleitw.github.io/posts/socket3/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-11-12T01:04:53+08:00" />
@@ -24,9 +25,10 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
 一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
 typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
- 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
-#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
-回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE"/>
+只能用在 IPv4 的處理 inet_addr inet_aton inet_ntoa 兼容 Ipv4 與 IPv6 inet_pton inet_ntop 使用前必須先
+#include &lt;arpa/inet.h&gt; inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE
+INADDR_NODE = 0xFFFFFFFF (32 個 bits 全部填一)"/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -39,7 +41,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/davidleitw.github.io\/posts\/socket3\/"
-        },"genre": "posts","keywords": "linux, network, socket, c","wordcount":  204 ,
+        },"genre": "posts","keywords": "linux, network, socket, c","wordcount":  206 ,
         "url": "https:\/\/davidleitw.github.io\/posts\/socket3\/","datePublished": "2021-11-12T01:04:53+08:00","dateModified": "2021-11-12T01:04:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -116,7 +118,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">linux socket programming(三): socket programming 中常用的位置轉換函數</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/socket/"><i class="far fa-folder fa-fw"></i>socket</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-11-12">2021-11-12</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;204 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2021-11-12">2021-11-12</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;206 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -139,11 +141,11 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 <p>以 <code>ipv4</code> 來說，<code>address</code> 是由4個 <code>byte</code>，32個 <code>bit</code>所組成，在實務上我們常常需要做字串與實際數值(<code>uint32_t</code>)的轉換，<code>linux</code> 函式庫提供了一系列輔助位置轉換的 <code>function</code>。</p>
 <p>一般來說，<code>address</code> 的實際數值都會用 <code>in_addr</code> 或者 <code>in_addr_t</code> 來表示
 其本質就是 <code>uint32_t</code>，用總共 32 個 <code>bits</code> 來表示一個 <code>IPv4</code> 的地址</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="kt">uint32_t</span> <span class="n">in_addr_t</span><span class="p">;</span> <span class="c1">// 4 byte
-</span><span class="c1"></span><span class="k">struct</span> <span class="n">in_addr</span> <span class="p">{</span>
-    <span class="n">in_addr_t</span> <span class="n">s_addr</span><span class="p">;</span>
-<span class="p">};</span>
-</code></pre></div><p>常用的有以下這五種</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">uint32_t</span> <span class="n">in_addr_t</span><span class="p">;</span> <span class="c1">// 4 byte
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">struct</span> <span class="n">in_addr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">in_addr_t</span> <span class="n">s_addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div><p>常用的有以下這五種</p>
 <ul>
 <li>只能用在 <code>IPv4</code> 的處理
 <ul>
@@ -160,49 +162,49 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 </li>
 </ul>
 <p>使用前必須先</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
-</span></code></pre></div><h3 id="inet_addr">inet_addr</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">in_addr_t</span> <span class="n">inet_addr</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">cp</span><span class="p">)</span>
-</code></pre></div><p><strong>功能</strong>: 將字串轉換成數值表示的 <code>ip address</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
+</span></span></span></code></pre></div><h3 id="inet_addr">inet_addr</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="n">in_addr_t</span> <span class="n">inet_addr</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">cp</span><span class="p">)</span>
+</span></span></code></pre></div><p><strong>功能</strong>: 將字串轉換成數值表示的 <code>ip address</code></p>
 <p><strong>回傳</strong>: 假如輸入的地址合法，會回傳 <code>uint32_t</code> 的數值，若不合法則回傳 <code>INADDR_NONE</code></p>
 <blockquote>
 <p>INADDR_NODE = 0xFFFFFFFF (32 個 bits 全部填一)</p>
 </blockquote>
 <p><a href="https://github.com/davidleitw/socket/blob/master/address/inet_addr_ex.c" target="_blank" rel="noopener noreffer">範例程式: inet_addr_ex.c</a></p>
 <h3 id="inet_aton">inet_aton</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">int</span> <span class="n">inet_aton</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">string</span><span class="p">,</span> <span class="k">struct</span> <span class="n">in_addr</span> <span class="o">*</span><span class="n">addr</span><span class="p">)</span>
-</code></pre></div><p><strong>功能</strong>: 將字串轉換成數值表示的 <code>ip address</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">inet_aton</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">string</span><span class="p">,</span> <span class="k">struct</span> <span class="n">in_addr</span> <span class="o">*</span><span class="n">addr</span><span class="p">)</span>
+</span></span></code></pre></div><p><strong>功能</strong>: 將字串轉換成數值表示的 <code>ip address</code></p>
 <p><strong>回傳</strong>: 轉換成功，會回傳一個非零的值，失敗則會回傳 <code>0</code></p>
 <p><a href="https://github.com/davidleitw/socket/blob/master/address/inet_aton_ex.c" target="_blank" rel="noopener noreffer">範例程式: inet_aton_ex.c</a></p>
 <h3 id="inet_ntoa">inet_ntoa</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">char</span> <span class="o">*</span><span class="n">inet_ntoa</span><span class="p">(</span><span class="k">struct</span> <span class="n">in_addr</span><span class="p">)</span>
-</code></pre></div><p><strong>功能</strong>: 將 <code>in_addr</code> 轉換成字串形式的 <code>ip address</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">char</span> <span class="o">*</span><span class="n">inet_ntoa</span><span class="p">(</span><span class="k">struct</span> <span class="n">in_addr</span><span class="p">)</span>
+</span></span></code></pre></div><p><strong>功能</strong>: 將 <code>in_addr</code> 轉換成字串形式的 <code>ip address</code></p>
 <p><strong>回傳</strong>: 如果沒有錯誤，會傳回成功轉換的字串，失敗時則會回傳 <code>NULL</code></p>
 <p><a href="https://github.com/davidleitw/socket/blob/master/address/inet_ntoa_ex.c" target="_blank" rel="noopener noreffer">範例程式: inet_ntoa_ex.c</a></p>
 <blockquote>
 <p><a href="https://blog.hubert.tw/2009/04/18/%E5%BE%9E-inet_ntoa-%E7%9C%8B-thread-safe-%E7%9A%84-api/" target="_blank" rel="noopener noreffer">可怕的坑</a></p>
 </blockquote>
 <h3 id="inet_pton--inet_ntop">inet_pton &amp; inet_ntop</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">inet_pton</span><span class="p">(</span><span class="kt">int</span> <span class="n">domain</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">addr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">str</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="n">size</span><span class="p">)</span>
-<span class="kt">int</span> <span class="n">inet_pton</span><span class="p">(</span><span class="kt">int</span> <span class="n">domain</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">str</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">addr</span><span class="p">)</span>
-</code></pre></div><p>最後這兩個函式是為了因應 <code>IPv6</code> 而新增的，除了轉換 <code>IPv6</code> 之外，也可以兼容之前 <code>IPv4</code> 相關的轉換，本文章主要是介紹 <code>IPv4</code> 相關的用法，<code>IPv6</code> 的轉換有興趣的可以自己去查資料。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">inet_pton</span><span class="p">(</span><span class="kt">int</span> <span class="n">domain</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">addr</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">str</span><span class="p">,</span> <span class="n">socklen_t</span> <span class="n">size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">inet_pton</span><span class="p">(</span><span class="kt">int</span> <span class="n">domain</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">str</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="kr">restrict</span> <span class="n">addr</span><span class="p">)</span>
+</span></span></code></pre></div><p>最後這兩個函式是為了因應 <code>IPv6</code> 而新增的，除了轉換 <code>IPv6</code> 之外，也可以兼容之前 <code>IPv4</code> 相關的轉換，本文章主要是介紹 <code>IPv4</code> 相關的用法，<code>IPv6</code> 的轉換有興趣的可以自己去查資料。</p>
 <p>要做 <code>IPv6</code> 相關的轉換，要把 <code>domain</code> 填入 <code>AF_INET6</code> 即可，後面需要搭配 <code>IPv6</code> 相關的 <code>struct</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
-<span class="p">{</span>
-    <span class="k">struct</span> <span class="n">in_addr</span> <span class="n">addr</span><span class="p">;</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="s">&#34;8.8.8.8&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">.</span><span class="n">s_addr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
-        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Ip address: %u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">addr</span><span class="p">.</span><span class="n">s_addr</span><span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="kt">char</span> <span class="n">ip_addr</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">inet_ntop</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">.</span><span class="n">s_addr</span><span class="p">,</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ip_addr</span><span class="p">)))</span> <span class="p">{</span>
-        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;After inet_ntop function, ip address: %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ip_addr</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div><p><a href="https://man7.org/linux/man-pages/man3/inet_pton.3.html" target="_blank" rel="noopener noreffer">inet_pton man page</a>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">in_addr</span> <span class="n">addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="s">&#34;8.8.8.8&#34;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">.</span><span class="n">s_addr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Ip address: %u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">addr</span><span class="p">.</span><span class="n">s_addr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">ip_addr</span><span class="p">[</span><span class="mi">20</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">inet_ntop</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">addr</span><span class="p">.</span><span class="n">s_addr</span><span class="p">,</span> <span class="n">ip_addr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">ip_addr</span><span class="p">)))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;After inet_ntop function, ip address: %s</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">ip_addr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><a href="https://man7.org/linux/man-pages/man3/inet_pton.3.html" target="_blank" rel="noopener noreffer">inet_pton man page</a>
 <a href="https://man7.org/linux/man-pages/man3/inet_ntop.3.html" target="_blank" rel="noopener noreffer">inet_ntop man page</a></p>
 <p><a href="https://github.com/davidleitw/socket/blob/master/address/inet_ntop_pton_ex.c" target="_blank" rel="noopener noreffer">範例程式碼 inet_ntop_pton_ex.c</a></p>
 <p>轉換相關的 <code>function</code> 我每個都寫了一個簡單的範例，可以參考 <a href="https://github.com/davidleitw/socket/tree/master/address" target="_blank" rel="noopener noreffer">完整程式碼</a></p>
@@ -234,7 +236,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

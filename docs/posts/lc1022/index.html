@@ -6,10 +6,10 @@
         <meta name="robots" content="noodp" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy] - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]" />
-<meta property="og:description" content="題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
+<meta property="og:description" content="題目敘述 Input: root = [1, 0, 1, 0, 1, 0, 1]
 Output: 22
 Explanation: (100) &#43; (101) &#43; (110) &#43; (111) = 4 &#43; 5 &#43; 6 &#43; 7 = 22
- 給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
+給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
 解題紀錄 利用 DFS 去尋訪，如果 !root-&gt;left &amp;&amp; !root-&gt;right 就代表到達 leaf，直接回傳算出來的值。
 class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!" />
 <meta property="og:type" content="article" />
@@ -19,10 +19,10 @@ class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(roo
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]"/>
-<meta name="twitter:description" content="題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
+<meta name="twitter:description" content="題目敘述 Input: root = [1, 0, 1, 0, 1, 0, 1]
 Output: 22
 Explanation: (100) &#43; (101) &#43; (110) &#43; (111) = 4 &#43; 5 &#43; 6 &#43; 7 = 22
- 給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
+給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
 解題紀錄 利用 DFS 去尋訪，如果 !root-&gt;left &amp;&amp; !root-&gt;right 就代表到達 leaf，直接回傳算出來的值。
 class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!"/>
 <meta name="application-name" content="davidLei">
@@ -144,20 +144,20 @@ class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(roo
 <p>給一個節點為 0 或者 1 的 <code>binary tree</code>，回傳從 <code>root</code> 為起點到各個 <code>leaf</code> 節點路徑組成二進位數的合。</p>
 <h2 id="解題紀錄">解題紀錄</h2>
 <p>利用 <code>DFS</code> 去尋訪，如果 <code>!root-&gt;left &amp;&amp; !root-&gt;right</code> 就代表到達 <code>leaf</code>，直接回傳算出來的值。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
-<span class="k">public</span><span class="o">:</span>
-    <span class="kt">int</span> <span class="n">sumRootToLeaf</span><span class="p">(</span><span class="n">TreeNode</span><span class="o">*</span> <span class="n">root</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nf">solution</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-    <span class="p">}</span>
-    
-    <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="n">TreeNode</span> <span class="o">*</span><span class="n">root</span><span class="p">,</span> <span class="kt">int</span> <span class="n">bin</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">root</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="n">bin</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">root</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
-        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">)</span> <span class="k">return</span> <span class="n">bin</span><span class="p">;</span> 
-        <span class="k">return</span> <span class="n">solution</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">bin</span><span class="p">)</span> <span class="o">+</span> <span class="n">solution</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span> <span class="n">bin</span><span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">};</span>
-</code></pre></div></div><div class="post-footer" id="post-footer">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">sumRootToLeaf</span><span class="p">(</span><span class="n">TreeNode</span><span class="o">*</span> <span class="n">root</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="nf">solution</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">solution</span><span class="p">(</span><span class="n">TreeNode</span> <span class="o">*</span><span class="n">root</span><span class="p">,</span> <span class="kt">int</span> <span class="n">bin</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">root</span><span class="p">)</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bin</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">root</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">left</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">)</span> <span class="k">return</span> <span class="n">bin</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">solution</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span> <span class="n">bin</span><span class="p">)</span> <span class="o">+</span> <span class="n">solution</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span> <span class="n">bin</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></div></div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
@@ -185,7 +185,7 @@ class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(roo
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

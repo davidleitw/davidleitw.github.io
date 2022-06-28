@@ -8,7 +8,7 @@
         <title>golang 定時器(一) Time, Ticker 基本用法整理 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="golang 定時器(一) Time, Ticker 基本用法整理" />
 <meta property="og:description" content="在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。
 所有有關定時器的功能都在 time 內，使用前必須先
-import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下" />
+import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://davidleitw.github.io/posts/time01/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-12-24T01:04:53+08:00" />
@@ -18,7 +18,7 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
 <meta name="twitter:title" content="golang 定時器(一) Time, Ticker 基本用法整理"/>
 <meta name="twitter:description" content="在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。
 所有有關定時器的功能都在 time 內，使用前必須先
-import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下"/>
+import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go // The Timer type represents a single event. // When the Timer expires, the current time will be sent on C, // unless the Timer was created by AfterFunc. // A Timer must be created with NewTimer or AfterFunc. type Timer struct { C &lt;- chan Time r runtimeTimer } 在 golang 中 Timer 可以用來表示一個單一事件，可以用 NewTimer 或者 AfterFunc 兩個 function 去建立一個新的 Timer，簡單的使用範例如下"/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -131,38 +131,38 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
 </nav></div>
             </div><div class="content" id="content"><p>在後端中常常會有需要定時的場景出現，像是如果處理 <code>request</code> 超過一定時間就觸發 <code>timeout</code>，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 <code>golang</code> 內建的定時器功能，以及可能會遇到的坑。</p>
 <p>所有有關定時器的功能都在 <code>time</code> 內，使用前必須先</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="s">&#34;time&#34;</span>
-</code></pre></div><h3 id="單次定時事件---timer">單次定時事件 - Timer</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="c1">// src/time/sleep.go
-</span><span class="c1"></span>
-<span class="c1">// The Timer type represents a single event.
-</span><span class="c1">// When the Timer expires, the current time will be sent on C,
-</span><span class="c1">// unless the Timer was created by AfterFunc.
-</span><span class="c1">// A Timer must be created with NewTimer or AfterFunc.
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">Timer</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">C</span> <span class="o">&lt;-</span> <span class="kd">chan</span> <span class="nx">Time</span>
-    <span class="nx">r</span> <span class="nx">runtimeTimer</span>
-<span class="p">}</span>
-</code></pre></div><p>在 <code>golang</code> 中 <code>Timer</code> 可以用來表示一個單一事件，可以用 <code>NewTimer</code> 或者 <code>AfterFunc</code> 兩個 <code>function</code> 去建立一個新的 <code>Timer</code>，簡單的使用範例如下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">))</span>
-
-    <span class="c1">// 定時三秒之後觸發
-</span><span class="c1"></span>    <span class="nx">timer</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTimer</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="nx">c</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">timer</span><span class="p">.</span><span class="nx">C</span>
-    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
-
-    <span class="c1">// 在 &lt;-timer.C 那行會等待三秒倒數完成事件發生，才會繼續往下
-</span><span class="c1"></span>    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">))</span>
-<span class="p">}</span>
-</code></pre></div><p>執行結果如下
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span> <span class="s">&#34;time&#34;</span>
+</span></span></code></pre></div><h3 id="單次定時事件---timer">單次定時事件 - Timer</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// src/time/sleep.go
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// The Timer type represents a single event.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// When the Timer expires, the current time will be sent on C,
+</span></span></span><span class="line"><span class="cl"><span class="c1">// unless the Timer was created by AfterFunc.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// A Timer must be created with NewTimer or AfterFunc.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">Timer</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">C</span> <span class="o">&lt;-</span> <span class="kd">chan</span> <span class="nx">Time</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">r</span> <span class="nx">runtimeTimer</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>在 <code>golang</code> 中 <code>Timer</code> 可以用來表示一個單一事件，可以用 <code>NewTimer</code> 或者 <code>AfterFunc</code> 兩個 <code>function</code> 去建立一個新的 <code>Timer</code>，簡單的使用範例如下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 定時三秒之後觸發
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">timer</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTimer</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">timer</span><span class="p">.</span><span class="nx">C</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// 在 &lt;-timer.C 那行會等待三秒倒數完成事件發生，才會繼續往下
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>執行結果如下
 <img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -172,143 +172,143 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
         alt="https://i.imgur.com/NREJhL9.png"
         title="https://i.imgur.com/NREJhL9.png" /></p>
 <h3 id="newtimer">NewTimer</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="c1">// NewTimer creates a new Timer that will send
-</span><span class="c1">// the current time on its channel after at least duration d.
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewTimer</span><span class="p">(</span><span class="nx">d</span> <span class="nx">Duration</span><span class="p">)</span> <span class="o">*</span><span class="nx">Timer</span> <span class="p">{</span>
-    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Time</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="nx">t</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Timer</span><span class="p">{</span>
-        <span class="nx">C</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
-        <span class="nx">r</span><span class="p">:</span> <span class="nx">runtimeTimer</span><span class="p">{</span>
-            <span class="nx">when</span><span class="p">:</span> <span class="nf">when</span><span class="p">(</span><span class="nx">d</span><span class="p">),</span>
-            <span class="nx">f</span><span class="p">:</span> <span class="nx">sendTime</span><span class="p">,</span>
-            <span class="nx">arg</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
-    <span class="nf">startTimer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">t</span><span class="p">.</span><span class="nx">r</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">t</span>
-<span class="p">}</span>
-</code></pre></div><p><code>NewTimer</code> 的 <code>d</code> 參數代 <code>Timer</code> 需要等待多長時間，<code>Timer.C</code> 是一個帶有 <code>buffer</code> 的 <code>channel</code>，在上面的範例中，<code>&lt;-timer.C</code> 那行會把程式阻塞直到 <code>Timer</code> 往 <code>Timer.C</code> 裡面傳送時間(當時倒數完的結果)，阻塞解除後才可以繼續往下執行，達到延遲執行，或者定時觸發的目的。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// NewTimer creates a new Timer that will send
+</span></span></span><span class="line"><span class="cl"><span class="c1">// the current time on its channel after at least duration d.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">NewTimer</span><span class="p">(</span><span class="nx">d</span> <span class="nx">Duration</span><span class="p">)</span> <span class="o">*</span><span class="nx">Timer</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Time</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">t</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Timer</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">C</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">r</span><span class="p">:</span> <span class="nx">runtimeTimer</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">when</span><span class="p">:</span> <span class="nf">when</span><span class="p">(</span><span class="nx">d</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">f</span><span class="p">:</span> <span class="nx">sendTime</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">arg</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">startTimer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">t</span><span class="p">.</span><span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">t</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><code>NewTimer</code> 的 <code>d</code> 參數代 <code>Timer</code> 需要等待多長時間，<code>Timer.C</code> 是一個帶有 <code>buffer</code> 的 <code>channel</code>，在上面的範例中，<code>&lt;-timer.C</code> 那行會把程式阻塞直到 <code>Timer</code> 往 <code>Timer.C</code> 裡面傳送時間(當時倒數完的結果)，阻塞解除後才可以繼續往下執行，達到延遲執行，或者定時觸發的目的。</p>
 <h3 id="循環執行的定時任務---ticker">循環執行的定時任務 - Ticker</h3>
 <p>對於有持續執行的定時任務，可以使用 <code>time.Sleep</code> 或者 <code>time.Ticker</code> 兩種方式來實現。</p>
 <p>用 <code>time.Sleep</code> 方式實現</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">sleepTime</span> <span class="o">:=</span> <span class="mi">4</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span> <span class="c1">// 設定每四秒執行一次
-</span><span class="c1"></span>
-    <span class="k">for</span> <span class="p">{</span>
-        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">sleepTime</span><span class="p">)</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">))</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div><p>用 <code>time.Ticker</code> 方式實現</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">count</span> <span class="o">:=</span> <span class="mi">0</span>
-    <span class="nx">IntervalTime</span> <span class="o">:=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span>      <span class="c1">// 觸發間隔時間
-</span><span class="c1"></span>    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="nx">IntervalTime</span><span class="p">)</span> <span class="c1">// 設定 2 秒觸發一次
-</span><span class="c1"></span>
-<span class="nx">finish</span><span class="p">:</span>
-    <span class="k">for</span> <span class="p">{</span>
-        <span class="k">select</span> <span class="p">{</span>
-        <span class="k">case</span> <span class="nx">c</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="p">:</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
-            <span class="nx">count</span><span class="o">++</span>
-            <span class="c1">// 設定 4 輪之後結束工作
-</span><span class="c1"></span>            <span class="k">if</span> <span class="nx">count</span> <span class="o">==</span> <span class="mi">4</span> <span class="p">{</span>
-                <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
-                <span class="k">break</span> <span class="nx">finish</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div><p>如果是定時任務的需求，還是建議使用 <code>time.Ticker</code> 去實現，雖然沒有仔細去比較過兩種方式的時間誤差，不過 <code>time.Ticker</code> 利用 <code>channel</code> 的方式可以帶來比較高的彈性，用 <code>select</code> 可以設置超時條件，或者設定 <code>default</code> 的執行方式。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">sleepTime</span> <span class="o">:=</span> <span class="mi">4</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span> <span class="c1">// 設定每四秒執行一次
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="nx">sleepTime</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">time</span><span class="p">.</span><span class="nf">Now</span><span class="p">().</span><span class="nf">Format</span><span class="p">(</span><span class="s">&#34;2006-01-02 15:04:05&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>用 <code>time.Ticker</code> 方式實現</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">count</span> <span class="o">:=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">IntervalTime</span> <span class="o">:=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span>      <span class="c1">// 觸發間隔時間
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="nx">IntervalTime</span><span class="p">)</span> <span class="c1">// 設定 2 秒觸發一次
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="nx">finish</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">case</span> <span class="nx">c</span> <span class="o">:=</span> <span class="o">&lt;-</span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;now: &#34;</span><span class="p">,</span> <span class="nx">c</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">count</span><span class="o">++</span>
+</span></span><span class="line"><span class="cl">            <span class="c1">// 設定 4 輪之後結束工作
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>            <span class="k">if</span> <span class="nx">count</span> <span class="o">==</span> <span class="mi">4</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                <span class="k">break</span> <span class="nx">finish</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>如果是定時任務的需求，還是建議使用 <code>time.Ticker</code> 去實現，雖然沒有仔細去比較過兩種方式的時間誤差，不過 <code>time.Ticker</code> 利用 <code>channel</code> 的方式可以帶來比較高的彈性，用 <code>select</code> 可以設置超時條件，或者設定 <code>default</code> 的執行方式。</p>
 <p>請一定要記得在使用完畢之後呼叫 <code>Stop</code>，不然會造成 <code>memory leak</code> 的問題，假設定時任務跑在背景的 <code>goroutine</code> 上一定要記得在結束前呼叫 <code>Stop()</code>，可以養成下例的好習慣:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="k">defer</span> <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
-
-    <span class="k">for</span> <span class="nx">now</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
-        <span class="c1">// do something
-</span><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="nx">exception</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">break</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}()</span>
-</code></pre></div><p>利用 <code>defer</code> 的機制讓退出時自動呼叫 <code>Stop</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="k">go</span> <span class="kd">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">defer</span> <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="nx">now</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// do something
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">if</span> <span class="p">(</span><span class="nx">exception</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">break</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}()</span>
+</span></span></code></pre></div><p>利用 <code>defer</code> 的機制讓退出時自動呼叫 <code>Stop</code></p>
 <h3 id="ticker-的一些注意事項">Ticker 的一些注意事項</h3>
 <p>以下是 <code>NewTicker</code> 與 <code>Stop</code> 的具體實現，位置在 <code>src/time/tick.go</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="c1">// NewTicker returns a new Ticker containing a channel that will send
-</span><span class="c1">// the current time on the channel after each tick. The period of the
-</span><span class="c1">// ticks is specified by the duration argument. The ticker will adjust
-</span><span class="c1">// the time interval or drop ticks to make up for slow receivers.
-</span><span class="c1">// The duration d must be greater than zero; if not, NewTicker will
-</span><span class="c1">// panic. Stop the ticker to release associated resources.
-</span><span class="c1"></span><span class="kd">func</span> <span class="nf">NewTicker</span><span class="p">(</span><span class="nx">d</span> <span class="nx">Duration</span><span class="p">)</span> <span class="o">*</span><span class="nx">Ticker</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="nx">d</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
-        <span class="nb">panic</span><span class="p">(</span><span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;non-positive interval for NewTicker&#34;</span><span class="p">))</span>
-    <span class="p">}</span>
-    <span class="c1">// Give the channel a 1-element time buffer.
-</span><span class="c1"></span>    <span class="c1">// If the client falls behind while reading, we drop ticks
-</span><span class="c1"></span>    <span class="c1">// on the floor until the client catches up.
-</span><span class="c1"></span>    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Time</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="nx">t</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Ticker</span><span class="p">{</span>
-        <span class="nx">C</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
-        <span class="nx">r</span><span class="p">:</span> <span class="nx">runtimeTimer</span><span class="p">{</span>
-                <span class="nx">when</span><span class="p">:</span> <span class="nf">when</span><span class="p">(</span><span class="nx">d</span><span class="p">),</span>
-                <span class="nx">period</span><span class="p">:</span> <span class="nb">int64</span><span class="p">(</span><span class="nx">d</span><span class="p">),</span>
-                <span class="nx">f</span><span class="p">:</span> <span class="nx">sendTime</span><span class="p">,</span>
-                <span class="nx">arg</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>	
-    <span class="nf">startTimer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">t</span><span class="p">.</span><span class="nx">r</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">t</span>
-<span class="p">}</span>
-
-<span class="c1">// Stop turns off a ticker. After Stop, no more ticks will be sent.
-</span><span class="c1">// Stop does not close the channel, to prevent a concurrent goroutine
-</span><span class="c1">// reading from the channel from seeing an erroneous &#34;tick&#34;.
-</span><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">Ticker</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nf">stopTimer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">t</span><span class="p">.</span><span class="nx">r</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div><p>有時候一些問題一定要看文檔才會注意到，在 <code>Stop</code> 的註解中有講到 <code>Stop does not close the channel, to prevent a concurrent goroutine reading from the channel from seeing an erroneous &quot;tick&quot;.</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// NewTicker returns a new Ticker containing a channel that will send
+</span></span></span><span class="line"><span class="cl"><span class="c1">// the current time on the channel after each tick. The period of the
+</span></span></span><span class="line"><span class="cl"><span class="c1">// ticks is specified by the duration argument. The ticker will adjust
+</span></span></span><span class="line"><span class="cl"><span class="c1">// the time interval or drop ticks to make up for slow receivers.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// The duration d must be greater than zero; if not, NewTicker will
+</span></span></span><span class="line"><span class="cl"><span class="c1">// panic. Stop the ticker to release associated resources.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">NewTicker</span><span class="p">(</span><span class="nx">d</span> <span class="nx">Duration</span><span class="p">)</span> <span class="o">*</span><span class="nx">Ticker</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="nx">d</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">panic</span><span class="p">(</span><span class="nx">errors</span><span class="p">.</span><span class="nf">New</span><span class="p">(</span><span class="s">&#34;non-positive interval for NewTicker&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// Give the channel a 1-element time buffer.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// If the client falls behind while reading, we drop ticks
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">// on the floor until the client catches up.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="nx">c</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">Time</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">t</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Ticker</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">C</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">r</span><span class="p">:</span> <span class="nx">runtimeTimer</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">when</span><span class="p">:</span> <span class="nf">when</span><span class="p">(</span><span class="nx">d</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">period</span><span class="p">:</span> <span class="nb">int64</span><span class="p">(</span><span class="nx">d</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">f</span><span class="p">:</span> <span class="nx">sendTime</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">arg</span><span class="p">:</span> <span class="nx">c</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>	
+</span></span><span class="line"><span class="cl">    <span class="nf">startTimer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">t</span><span class="p">.</span><span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">t</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Stop turns off a ticker. After Stop, no more ticks will be sent.
+</span></span></span><span class="line"><span class="cl"><span class="c1">// Stop does not close the channel, to prevent a concurrent goroutine
+</span></span></span><span class="line"><span class="cl"><span class="c1">// reading from the channel from seeing an erroneous &#34;tick&#34;.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="p">(</span><span class="nx">t</span> <span class="o">*</span><span class="nx">Ticker</span><span class="p">)</span> <span class="nf">Stop</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">stopTimer</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">t</span><span class="p">.</span><span class="nx">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>有時候一些問題一定要看文檔才會注意到，在 <code>Stop</code> 的註解中有講到 <code>Stop does not close the channel, to prevent a concurrent goroutine reading from the channel from seeing an erroneous &quot;tick&quot;.</code></p>
 <p>這句話代表什麼呢? 下面用一個簡單的範例來說明，如果今天的場景是</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span> 
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">NewCronJob</span><span class="p">()</span> <span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Ticker</span> <span class="p">{</span>
-    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ticker</span> <span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Ticker</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">for</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Cron job...&#34;</span><span class="p">)</span>
-        <span class="p">}</span>
-        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Ticker Stop! Channel must be closed.&#34;</span><span class="p">)</span>
-    <span class="p">}(</span><span class="nx">ticker</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="nx">ticker</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nf">NewCronJob</span><span class="p">()</span>
-    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></div><p>實際運作情況:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span> 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewCronJob</span><span class="p">()</span> <span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Ticker</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ticker</span> <span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Ticker</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="k">range</span> <span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Cron job...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Ticker Stop! Channel must be closed.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}(</span><span class="nx">ticker</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">ticker</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nf">NewCronJob</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>實際運作情況:</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -319,42 +319,42 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
         title="https://i.imgur.com/vfpu568.png" /></p>
 <p>單從程式看 <code>fmt.Println(&quot;Ticker Stop! Channel must be closed.&quot;)</code> 這行會發生在 <code>ticker.C</code> 關閉後，實際執行結果並沒有執行到這行，意味著其實 <code>Ticker</code> 內部的 <code>Channel</code> 是沒有關閉的，如果今天程式不斷的使用這種寫法，最終會導致主機嚴重的 <code>memory leak</code> 發生。</p>
 <p>如果沒有看過實際的 <code>source code</code>，就不會發現其實在註解的時候已經有明確說明了，<code>Stop</code> 並不會關閉 <code>channel</code>，預防讀取 <code>channel</code> 發生錯誤，所以在 <code>Ticker</code> 的使用上，比較推薦下方這種寫法，可以有效的執行超時之後下方的程式碼，實現起來也比較優雅。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="p">(</span>
-    <span class="s">&#34;fmt&#34;</span>
-    <span class="s">&#34;time&#34;</span>
-<span class="p">)</span>
-
-<span class="kd">func</span> <span class="nf">NewCronJob</span><span class="p">()</span> <span class="kd">chan</span> <span class="kt">bool</span> <span class="p">{</span>
-    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="nx">stopChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">bool</span><span class="p">)</span>
-
-    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ticker</span> <span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Ticker</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">defer</span> <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
-        <span class="k">for</span> <span class="p">{</span>
-            <span class="k">select</span> <span class="p">{</span>
-            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="p">:</span>
-            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Cron job...&#34;</span><span class="p">)</span>
-            <span class="k">case</span> <span class="nx">stop</span> <span class="o">:=</span> <span class="o">&lt;-</span> <span class="nx">stopChan</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nx">stop</span> <span class="p">{</span>
-                    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Ticker Stop! Channel must be closed&#34;</span><span class="p">)</span>
-                    <span class="k">return</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}(</span><span class="nx">ticker</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="nx">stopChan</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">stopController</span> <span class="o">:=</span> <span class="nf">NewCronJob</span><span class="p">()</span>
-    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
-    <span class="nx">stopController</span> <span class="o">&lt;-</span> <span class="kc">true</span>
-    <span class="nb">close</span><span class="p">(</span><span class="nx">stopController</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div><p>實際運行結果如下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">NewCronJob</span><span class="p">()</span> <span class="kd">chan</span> <span class="kt">bool</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">stopChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">bool</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">go</span> <span class="kd">func</span><span class="p">(</span><span class="nx">ticker</span> <span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Ticker</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">defer</span> <span class="nx">ticker</span><span class="p">.</span><span class="nf">Stop</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Cron job...&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="nx">stop</span> <span class="o">:=</span> <span class="o">&lt;-</span> <span class="nx">stopChan</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="k">if</span> <span class="nx">stop</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Ticker Stop! Channel must be closed&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">return</span>
+</span></span><span class="line"><span class="cl">                <span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}(</span><span class="nx">ticker</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nx">stopChan</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">stopController</span> <span class="o">:=</span> <span class="nf">NewCronJob</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">time</span><span class="p">.</span><span class="nf">Sleep</span><span class="p">(</span><span class="mi">5</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">stopController</span> <span class="o">&lt;-</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">close</span><span class="p">(</span><span class="nx">stopController</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>實際運行結果如下</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -400,7 +400,7 @@ import &#34;time&#34; 單次定時事件 - Timer // src/time/sleep.go  // The Ti
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

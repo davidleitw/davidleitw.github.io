@@ -7,10 +7,11 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>Linux fork() 底層實作流程整理 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Linux fork() 底層實作流程整理" />
 <meta property="og:description" content="本文章環境基於 Linux v4.14.259
- 因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
+因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
- 建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()" />
+建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create 以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()
+但是如果看最新幾版的 kernel source code 會發現怎麼樣都沒辦法找到 _do_fork 這個 function 了，仔細找了一下原因，發現在 linux v5." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://davidleitw.github.io/posts/linux_fork_01/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-01-05T00:12:53+08:00" />
@@ -19,10 +20,11 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Linux fork() 底層實作流程整理"/>
 <meta name="twitter:description" content="本文章環境基於 Linux v4.14.259
- 因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
+因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
- 建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()"/>
+建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create 以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()
+但是如果看最新幾版的 kernel source code 會發現怎麼樣都沒辦法找到 _do_fork 這個 function 了，仔細找了一下原因，發現在 linux v5."/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -35,7 +37,7 @@
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/davidleitw.github.io\/posts\/linux_fork_01\/"
-        },"genre": "posts","keywords": "linux_kernel, system_call, fork","wordcount":  2124 ,
+        },"genre": "posts","keywords": "linux_kernel, system_call, fork","wordcount":  2149 ,
         "url": "https:\/\/davidleitw.github.io\/posts\/linux_fork_01\/","datePublished": "2022-01-05T00:12:53+08:00","dateModified": "2022-01-05T00:12:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -112,8 +114,8 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">Linux fork() 底層實作流程整理</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-05">2022-01-05</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2124 words&nbsp;
-                <i class="far fa-clock fa-fw"></i>&nbsp;10 minutes&nbsp;</div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-01-05">2022-01-05</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;2149 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;11 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
                     <span>Contents</span>
@@ -147,351 +149,351 @@
 <p><code>_do_fork()</code> 更改為 <code>kernel_thread()</code> 的原因可以參考 <a href="https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/" target="_blank" rel="noopener noreffer">fork: introduce kernel_clone()</a></p>
 <p>在深入看 <code>source code</code> 之前最重要的就是先把 <code>man page</code> 看過一次，看完 <code>man page</code> 會對要研究的 <code>system call</code> 有初步的了解，接著再往下看 <code>source code</code> 才不會沒有概念的死讀程式碼。</p>
 <h2 id="fork---create-a-child-processhttpsman7orglinuxman-pagesman2fork2html"><a href="https://man7.org/linux/man-pages/man2/fork.2.html" target="_blank" rel="noopener noreffer">fork - create a child process</a></h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// kernel/fork.c
-</span><span class="c1">// https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2159
-</span><span class="c1"></span><span class="cp">#ifdef __ARCH_WANT_SYS_FORK
-</span><span class="cp"></span><span class="n">SYSCALL_DEFINE0</span><span class="p">(</span><span class="n">fork</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="cp">#ifdef CONFIG_MMU
-</span><span class="cp"></span>    <span class="k">return</span> <span class="n">_do_fork</span><span class="p">(</span><span class="n">SIGCHLD</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-<span class="cp">#else
-</span><span class="cp"></span>    <span class="cm">/* can not support in nommu mode */</span>
-    <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
-<span class="cp">#endif
-</span><span class="cp"></span><span class="p">}</span>
-<span class="cp">#endif
-</span></code></pre></div><p><code>fork</code> 在 <code>kernel/fork.c</code> 的定義，可以看到它使用了 <code>SIGCHLD</code> 的 <code>flag</code>，這代表如果 <code>child process</code> 終止會發送 <code>SIGCHLD</code> 通知 <code>parent process</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c
+</span></span></span><span class="line"><span class="cl"><span class="c1">// https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2159
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="cp">#ifdef __ARCH_WANT_SYS_FORK
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="n">SYSCALL_DEFINE0</span><span class="p">(</span><span class="n">fork</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_MMU
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="k">return</span> <span class="n">_do_fork</span><span class="p">(</span><span class="n">SIGCHLD</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#else
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>    <span class="cm">/* can not support in nommu mode */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span></code></pre></div><p><code>fork</code> 在 <code>kernel/fork.c</code> 的定義，可以看到它使用了 <code>SIGCHLD</code> 的 <code>flag</code>，這代表如果 <code>child process</code> 終止會發送 <code>SIGCHLD</code> 通知 <code>parent process</code>.</p>
 <h3 id="_do_fork">_do_fork</h3>
 <p>第一段有簡單提到，不論是使用 <code>fork</code> 或者 <code>clone</code> 等方式，到最後都會呼叫 <code>_do_fork()</code> 來建立一個新的 <code>task struct</code>，<code>_do_fork()</code> 在 <code>kernel v4.14.259</code> 中定義在 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2063" target="_blank" rel="noopener noreffer">kernel/fork.c line.2063</a>，定義如下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="kt">long</span> <span class="n">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span> 
-			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
-			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
-			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
-			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
-			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
-</code></pre></div><p>因為在 <code>linux</code> 中 <code>process</code> 跟 <code>thread</code> 沒有明確的區分，都是以 <code>task_struct</code> 的形式存在，所以 <code>task_struct</code> 的性質就要在呼叫 <code>system call</code> 的時候藉由傳入的 <code>clone flags</code> 來決定性質。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">long</span> <span class="n">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
+</span></span></code></pre></div><p>因為在 <code>linux</code> 中 <code>process</code> 跟 <code>thread</code> 沒有明確的區分，都是以 <code>task_struct</code> 的形式存在，所以 <code>task_struct</code> 的性質就要在呼叫 <code>system call</code> 的時候藉由傳入的 <code>clone flags</code> 來決定性質。</p>
 <p><code>clone flags</code> 定義在 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/include/uapi/linux/sched.h#L5" target="_blank" rel="noopener noreffer">/include/uapi/linux/sched.h</a>中，定義如下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
-</span><span class="cm">* cloning flags:
-</span><span class="cm">*/</span>
-<span class="cp">#define CSIGNAL 0x000000ff </span><span class="cm">/* signal mask to be sent at exit */</span><span class="cp">
-</span><span class="cp">#define CLONE_VM 0x00000100 </span><span class="cm">/* set if VM shared between processes */</span><span class="cp">
-</span><span class="cp">#define CLONE_FS 0x00000200 </span><span class="cm">/* set if fs info shared between processes */</span><span class="cp">
-</span><span class="cp">#define CLONE_FILES 0x00000400 </span><span class="cm">/* set if open files shared between processes */</span><span class="cp">
-</span><span class="cp">#define CLONE_SIGHAND 0x00000800 </span><span class="cm">/* set if signal handlers and blocked signals shared */</span><span class="cp">
-</span><span class="cp">#define CLONE_PIDFD 0x00001000 </span><span class="cm">/* set if a pidfd should be placed in parent */</span><span class="cp">
-</span><span class="cp">#define CLONE_PTRACE 0x00002000 </span><span class="cm">/* set if we want to let tracing continue on the child too */</span><span class="cp">
-</span><span class="cp">#define CLONE_VFORK 0x00004000 </span><span class="cm">/* set if the parent wants the child to wake it up on mm_release */</span><span class="cp">
-</span><span class="cp">#define CLONE_PARENT 0x00008000 </span><span class="cm">/* set if we want to have the same parent as the cloner */</span><span class="cp">
-</span><span class="cp">#define CLONE_THREAD 0x00010000 </span><span class="cm">/* Same thread group? */</span><span class="cp">
-</span><span class="cp">#define CLONE_NEWNS 0x00020000 </span><span class="cm">/* New mount namespace group */</span><span class="cp">
-</span><span class="cp">#define CLONE_SYSVSEM 0x00040000 </span><span class="cm">/* share system V SEM_UNDO semantics */</span><span class="cp">
-</span><span class="cp">#define CLONE_SETTLS 0x00080000 </span><span class="cm">/* create a new TLS for the child */</span><span class="cp">
-</span><span class="cp">#define CLONE_PARENT_SETTID 0x00100000 </span><span class="cm">/* set the TID in the parent */</span><span class="cp">
-</span><span class="cp">#define CLONE_CHILD_CLEARTID 0x00200000 </span><span class="cm">/* clear the TID in the child */</span><span class="cp">
-</span><span class="cp">#define CLONE_DETACHED 0x00400000 </span><span class="cm">/* Unused, ignored */</span><span class="cp">
-</span><span class="cp">#define CLONE_UNTRACED 0x00800000 </span><span class="cm">/* set if the tracing process can&#39;t force CLONE_PTRACE on this clone */</span><span class="cp">
-</span><span class="cp">#define CLONE_CHILD_SETTID 0x01000000 </span><span class="cm">/* set the TID in the child */</span><span class="cp">
-</span><span class="cp">#define CLONE_NEWCGROUP 0x02000000 </span><span class="cm">/* New cgroup namespace */</span><span class="cp">
-</span><span class="cp">#define CLONE_NEWUTS 0x04000000 </span><span class="cm">/* New utsname namespace */</span><span class="cp">
-</span><span class="cp">#define CLONE_NEWIPC 0x08000000 </span><span class="cm">/* New ipc namespace */</span><span class="cp">
-</span><span class="cp">#define CLONE_NEWUSER 0x10000000 </span><span class="cm">/* New user namespace */</span><span class="cp">
-</span><span class="cp">#define CLONE_NEWPID 0x20000000 </span><span class="cm">/* New pid namespace */</span><span class="cp">
-</span><span class="cp">#define CLONE_NEWNET 0x40000000 </span><span class="cm">/* New network namespace */</span><span class="cp">
-</span><span class="cp">#define CLONE_IO 0x80000000 </span><span class="cm">/* Clone io context */</span><span class="cp">
-</span></code></pre></div><p>透過組合不同的 <code>clone flag</code> 可以決定 <code>task_struct</code> 的一些特性，詳細解說每個 <code>clone flag</code> 有什麼用途可以參考  <a href="https://man7.org/linux/man-pages/man2/clone.2.html" target="_blank" rel="noopener noreffer">clone(2)</a>，之後有機會再針對 <code>clone</code> 整理一篇文章。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* cloning flags:
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define CSIGNAL 0x000000ff </span><span class="cm">/* signal mask to be sent at exit */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_VM 0x00000100 </span><span class="cm">/* set if VM shared between processes */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_FS 0x00000200 </span><span class="cm">/* set if fs info shared between processes */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_FILES 0x00000400 </span><span class="cm">/* set if open files shared between processes */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_SIGHAND 0x00000800 </span><span class="cm">/* set if signal handlers and blocked signals shared */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PIDFD 0x00001000 </span><span class="cm">/* set if a pidfd should be placed in parent */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PTRACE 0x00002000 </span><span class="cm">/* set if we want to let tracing continue on the child too */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_VFORK 0x00004000 </span><span class="cm">/* set if the parent wants the child to wake it up on mm_release */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PARENT 0x00008000 </span><span class="cm">/* set if we want to have the same parent as the cloner */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_THREAD 0x00010000 </span><span class="cm">/* Same thread group? */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWNS 0x00020000 </span><span class="cm">/* New mount namespace group */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_SYSVSEM 0x00040000 </span><span class="cm">/* share system V SEM_UNDO semantics */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_SETTLS 0x00080000 </span><span class="cm">/* create a new TLS for the child */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PARENT_SETTID 0x00100000 </span><span class="cm">/* set the TID in the parent */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_CHILD_CLEARTID 0x00200000 </span><span class="cm">/* clear the TID in the child */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_DETACHED 0x00400000 </span><span class="cm">/* Unused, ignored */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_UNTRACED 0x00800000 </span><span class="cm">/* set if the tracing process can&#39;t force CLONE_PTRACE on this clone */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_CHILD_SETTID 0x01000000 </span><span class="cm">/* set the TID in the child */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWCGROUP 0x02000000 </span><span class="cm">/* New cgroup namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWUTS 0x04000000 </span><span class="cm">/* New utsname namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWIPC 0x08000000 </span><span class="cm">/* New ipc namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWUSER 0x10000000 </span><span class="cm">/* New user namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWPID 0x20000000 </span><span class="cm">/* New pid namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWNET 0x40000000 </span><span class="cm">/* New network namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_IO 0x80000000 </span><span class="cm">/* Clone io context */</span><span class="cp">
+</span></span></span></code></pre></div><p>透過組合不同的 <code>clone flag</code> 可以決定 <code>task_struct</code> 的一些特性，詳細解說每個 <code>clone flag</code> 有什麼用途可以參考  <a href="https://man7.org/linux/man-pages/man2/clone.2.html" target="_blank" rel="noopener noreffer">clone(2)</a>，之後有機會再針對 <code>clone</code> 整理一篇文章。</p>
 <p>接下來繼續看 <code>_do_fork</code> 的實現</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="kt">long</span> <span class="nf">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
-			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
-			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
-			<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
-			<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
-			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
-	<span class="kt">int</span> <span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="kt">long</span> <span class="n">nr</span><span class="p">;</span>
-
-	<span class="cm">/*
-</span><span class="cm">	* Determine whether and which event to report to ptracer. When
-</span><span class="cm">	* called from kernel_thread or CLONE_UNTRACED is explicitly
-</span><span class="cm">	* requested, no event is reported; otherwise, report if the event
-</span><span class="cm">	* for the type of forking is enabled.
-</span><span class="cm">	*/</span>
-
-	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_UNTRACED</span><span class="p">))</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span>
-			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_VFORK</span><span class="p">;</span>
-		<span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">)</span> <span class="o">!=</span> <span class="n">SIGCHLD</span><span class="p">)</span>
-			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_CLONE</span><span class="p">;</span>
-		<span class="k">else</span>
-			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_FORK</span><span class="p">;</span>
-		
-		<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="o">!</span><span class="n">ptrace_event_enabled</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">trace</span><span class="p">)))</span>
-			<span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="p">}</span>
-
-	<span class="c1">// 回傳新創立的 task_struct 指標
-</span><span class="c1"></span>	<span class="n">p</span> <span class="o">=</span> <span class="n">copy_process</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">stack_start</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">,</span>
-					 <span class="n">cild_tidptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">NUMA_NO_NODE</span><span class="p">);</span>
-	<span class="n">add_latent_entropy</span><span class="p">();</span>
-	<span class="p">.</span>
-	<span class="p">.</span>
-	<span class="p">.</span>
-<span class="p">}</span>
-</code></pre></div><p>一開始的段落是有關於 <code>ptrace</code> 的邏輯處理，<code>trace</code> 變數代表 <code>child process</code> 是否可以被追蹤，如果可以，則 <code>trace</code> 代表這個 <code>child process</code> 是由哪個 <code>system call</code> 創立的(<code>vfork</code>, <code>clone</code>, <code>fork</code>)，重點在於後面的 <code>copy_process</code>，其實講的直觀一點，<code>copy_process</code> 做的事情就是回傳一個新的 <code>task_struct</code>，但是在回傳新的 <code>task_struct</code> 的時候，該 <code>task_struct</code> 是還沒有開啟的狀態，我們先繼續往 <code>copy_process</code> 去 <code>trace</code>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">nr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Determine whether and which event to report to ptracer. When
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* called from kernel_thread or CLONE_UNTRACED is explicitly
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* requested, no event is reported; otherwise, report if the event
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* for the type of forking is enabled.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_UNTRACED</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_VFORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">)</span> <span class="o">!=</span> <span class="n">SIGCHLD</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_CLONE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_FORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="o">!</span><span class="n">ptrace_event_enabled</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">trace</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 回傳新創立的 task_struct 指標
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">p</span> <span class="o">=</span> <span class="n">copy_process</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">stack_start</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">					 <span class="n">cild_tidptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">NUMA_NO_NODE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">add_latent_entropy</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>一開始的段落是有關於 <code>ptrace</code> 的邏輯處理，<code>trace</code> 變數代表 <code>child process</code> 是否可以被追蹤，如果可以，則 <code>trace</code> 代表這個 <code>child process</code> 是由哪個 <code>system call</code> 創立的(<code>vfork</code>, <code>clone</code>, <code>fork</code>)，重點在於後面的 <code>copy_process</code>，其實講的直觀一點，<code>copy_process</code> 做的事情就是回傳一個新的 <code>task_struct</code>，但是在回傳新的 <code>task_struct</code> 的時候，該 <code>task_struct</code> 是還沒有開啟的狀態，我們先繼續往 <code>copy_process</code> 去 <code>trace</code>。</p>
 <h3 id="_do_fork---copy_process">_do_fork() -&gt; copy_process</h3>
 <p><code>copy_process</code> 同樣定義在 <a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L1575" target="_blank" rel="noopener noreffer"><code>/kerenl/fork.c</code></a>內，底下是它的實現</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cm">/*
-</span><span class="cm">* This creates a new process as a copy of the old one,
-</span><span class="cm">* but does not actually start it yet.
-</span><span class="cm">*
-</span><span class="cm">* It copies the registers, and all the appropriate
-</span><span class="cm">* parts of the process environment (as per the clone
-</span><span class="cm">* flags). The actual kick-off is left to the caller.
-</span><span class="cm">*/</span>
-<span class="k">static</span> <span class="n">__latent_entropy</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">copy_process</span><span class="p">(</span>
-								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
-								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
-								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
-								<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
-								<span class="k">struct</span> <span class="n">pid</span> <span class="o">*</span><span class="n">pid</span><span class="p">,</span>
-								<span class="kt">int</span> <span class="n">trace</span><span class="p">,</span>
-								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">,</span>
-								<span class="kt">int</span> <span class="n">node</span><span class="p">)</span>
-</code></pre></div><p>由於 <code>copy_process</code> 牽扯到 <code>linux</code> 中非常多子系統，所以這邊就簡單的討論一下整個執行 <code>copy_process</code> 的流程，關於錯誤處理相關的程式碼則是會快速帶過。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// kernel/fork.c/copy_process 內部
-</span><span class="c1"></span>
-<span class="kt">int</span> <span class="n">retval</span><span class="p">;</span>
-<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
-
-<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWNS</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span> <span class="o">==</span> <span class="p">(</span><span class="n">CLONE_NEWNS</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span>
-	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
-
-<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span> <span class="o">==</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span>
-	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
-
-<span class="cm">/*
-</span><span class="cm">* Thread groups must share signals as well, and detached threads
-</span><span class="cm">* can only be started up within the thread group.
-</span><span class="cm">*/</span>
-<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_SIGHAND</span><span class="p">))</span>
-	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
-
-<span class="cm">/*
-</span><span class="cm">* Shared signal handlers imply shared VM. By way of the above,
-</span><span class="cm">* thread groups also imply shared VM. Blocking this case allows
-</span><span class="cm">* for various simplifications in other code.
-</span><span class="cm">*/</span>
-<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_SIGHAND</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VM</span><span class="p">))</span>
-	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
-
-<span class="cm">/*
-</span><span class="cm">* Siblings of global init remain as zombies on exit since they are
-</span><span class="cm">* not reaped by their parent (swapper). To solve this and to avoid
-</span><span class="cm">* multi-rooted process trees, prevent global and container-inits
-</span><span class="cm">* from creating siblings.
-</span><span class="cm">*/</span>
-<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PARENT</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
-		<span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">SIGNAL_UNKILLABLE</span><span class="p">)</span>
-	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
-
-<span class="cm">/*
-</span><span class="cm">* If the new process will be in a different pid or user namespace
-</span><span class="cm">* do not allow it to share a thread group with the forking task.
-</span><span class="cm">*/</span>
-<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="p">{</span>
-	<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span> <span class="o">|</span> <span class="n">CLONE_NEWPID</span><span class="p">))</span> <span class="o">||</span>
-	<span class="p">(</span><span class="n">task_active_pid_ns</span><span class="p">(</span><span class="n">current</span><span class="p">)</span> <span class="o">!=</span>
-		<span class="n">current</span><span class="o">-&gt;</span><span class="n">nsproxy</span><span class="o">-&gt;</span><span class="n">pid_ns_for_children</span><span class="p">))</span>
-	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div><p>一開始都是一些有關於 <code>clone_flags</code> 的處理，之後會呼叫 <code>dup_task_struct(current, node);</code>，<code>dup_task_struct</code> 是真正建立 <code>task_struct</code> 的地方，<code>parent process</code> 會初始化 <code>child process</code> 之後回傳指標 <code>p</code>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* This creates a new process as a copy of the old one,
+</span></span></span><span class="line"><span class="cl"><span class="cm">* but does not actually start it yet.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* It copies the registers, and all the appropriate
+</span></span></span><span class="line"><span class="cl"><span class="cm">* parts of the process environment (as per the clone
+</span></span></span><span class="line"><span class="cl"><span class="cm">* flags). The actual kick-off is left to the caller.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="n">__latent_entropy</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">copy_process</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="k">struct</span> <span class="n">pid</span> <span class="o">*</span><span class="n">pid</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">int</span> <span class="n">trace</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">int</span> <span class="n">node</span><span class="p">)</span>
+</span></span></code></pre></div><p>由於 <code>copy_process</code> 牽扯到 <code>linux</code> 中非常多子系統，所以這邊就簡單的討論一下整個執行 <code>copy_process</code> 的流程，關於錯誤處理相關的程式碼則是會快速帶過。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內部
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">retval</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWNS</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span> <span class="o">==</span> <span class="p">(</span><span class="n">CLONE_NEWNS</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span> <span class="o">==</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* Thread groups must share signals as well, and detached threads
+</span></span></span><span class="line"><span class="cl"><span class="cm">* can only be started up within the thread group.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_SIGHAND</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* Shared signal handlers imply shared VM. By way of the above,
+</span></span></span><span class="line"><span class="cl"><span class="cm">* thread groups also imply shared VM. Blocking this case allows
+</span></span></span><span class="line"><span class="cl"><span class="cm">* for various simplifications in other code.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_SIGHAND</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VM</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* Siblings of global init remain as zombies on exit since they are
+</span></span></span><span class="line"><span class="cl"><span class="cm">* not reaped by their parent (swapper). To solve this and to avoid
+</span></span></span><span class="line"><span class="cl"><span class="cm">* multi-rooted process trees, prevent global and container-inits
+</span></span></span><span class="line"><span class="cl"><span class="cm">* from creating siblings.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PARENT</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">SIGNAL_UNKILLABLE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* If the new process will be in a different pid or user namespace
+</span></span></span><span class="line"><span class="cl"><span class="cm">* do not allow it to share a thread group with the forking task.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span> <span class="o">|</span> <span class="n">CLONE_NEWPID</span><span class="p">))</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">	<span class="p">(</span><span class="n">task_active_pid_ns</span><span class="p">(</span><span class="n">current</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">		<span class="n">current</span><span class="o">-&gt;</span><span class="n">nsproxy</span><span class="o">-&gt;</span><span class="n">pid_ns_for_children</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>一開始都是一些有關於 <code>clone_flags</code> 的處理，之後會呼叫 <code>dup_task_struct(current, node);</code>，<code>dup_task_struct</code> 是真正建立 <code>task_struct</code> 的地方，<code>parent process</code> 會初始化 <code>child process</code> 之後回傳指標 <code>p</code>。</p>
 <h3 id="_do_fork---copy_process---dup_task_struct">_do_fork() -&gt; copy_process -&gt; dup_task_struct</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// kernel/fork.c/copy_process 內
-</span><span class="c1"></span>
-<span class="c1">// 獲得實際的 task_struct 實例
-</span><span class="c1"></span><span class="n">p</span> <span class="o">=</span> <span class="n">dup_task_struct</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">node</span><span class="p">);</span>
-<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span>
-	<span class="k">goto</span> <span class="n">fork_out</span><span class="p">;</span>
-</code></pre></div><p><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L506" target="_blank" rel="noopener noreffer"><code>dup_task_struct</code></a>同樣也定義在 <code>kernel/fork.c</code> 之中。具體實現如下:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">static</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="nf">dup_task_struct</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">orig</span><span class="p">,</span> <span class="kt">int</span> <span class="n">node</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span><span class="p">;</span>
-	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">stack</span><span class="p">;</span>
-	<span class="k">struct</span> <span class="n">vm_struct</span> <span class="o">*</span><span class="n">stack_vm_area</span><span class="p">;</span>
-	<span class="kt">int</span> <span class="n">err</span><span class="p">;</span>
-		
-	<span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="n">NUMA_NO_NODE</span><span class="p">)</span>
-		<span class="n">node</span> <span class="o">=</span> <span class="n">tsk_fork_get_node</span><span class="p">(</span><span class="n">orig</span><span class="p">);</span>
-
-	<span class="c1">// 申請一塊新的 memory 空間給 task_struct
-</span><span class="c1"></span>	<span class="n">tsk</span> <span class="o">=</span> <span class="n">alloc_task_struct_node</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
-	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">tsk</span><span class="p">)</span>
-		<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-
-	<span class="n">stack</span> <span class="o">=</span> <span class="n">alloc_thread_stack_node</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">node</span><span class="p">);</span>
-	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">stack</span><span class="p">)</span>
-		<span class="k">goto</span> <span class="n">free_tsk</span><span class="p">;</span>
-	
-	<span class="n">stack_vm_area</span> <span class="o">=</span> <span class="n">task_stack_vm_area</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
-
-	<span class="c1">// 可以想成 tsk = orig, 把 current process memcpy to tsk.
-</span><span class="c1"></span>	<span class="c1">// 其實看過 source code 就會發現 4.14.259 版本中根本沒有在這段做錯誤處理，不太清楚這個 return err 的用意在哪
-</span><span class="c1"></span>	<span class="n">err</span> <span class="o">=</span> <span class="n">arch_dup_task_struct</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">orig</span><span class="p">);</span>
-	<span class="cm">/*
-</span><span class="cm">	* arch_dup_task_struct() clobbers the stack-related fields. Make
-</span><span class="cm">	* sure they&#39;re properly initialized before using any stack-related
-</span><span class="cm">	* functions again.
-</span><span class="cm">	*/</span>
-	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">;</span>	
-<span class="cp">#ifdef CONFIG_VMAP_STACK
-</span><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_vm_area</span> <span class="o">=</span> <span class="n">stack_vm_area</span><span class="p">;</span>
-<span class="cp">#endif
-</span><span class="cp">#ifdef CONFIG_THREAD_INFO_IN_TASK
-</span><span class="cp"></span>	<span class="n">atomic_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_refcount</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-<span class="cp">#endif
-</span><span class="cp"></span>		
-	<span class="k">if</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span>
-		<span class="k">goto</span> <span class="n">free_stack</span><span class="p">;</span>
-<span class="cp">#ifdef CONFIG_SECCOMP
-</span><span class="cp"></span>	<span class="cm">/*
-</span><span class="cm">	* We must handle setting up seccomp filters once we&#39;re under
-</span><span class="cm">	* the sighand lock in case orig has changed between now and
-</span><span class="cm">	* then. Until then, filter must be NULL to avoid messing up
-</span><span class="cm">	* the usage counts on the error path calling free_task.
-</span><span class="cm">	*/</span>
-	
-	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">seccomp</span><span class="p">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-<span class="cp">#endif
-</span><span class="cp"></span>
-	<span class="c1">// 將 current 的 threadinfo 複製給 tsk
-</span><span class="c1"></span>	<span class="n">setup_thread_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">orig</span><span class="p">);</span>
-	<span class="n">clear_user_return_notifier</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
-	<span class="n">clear_tsk_need_resched</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
-	<span class="c1">// 設置 stack 結束位置，為了檢測 stack overflow
-</span><span class="c1"></span>	<span class="n">set_task_stack_end_magic</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
-
-<span class="cp">#ifdef CONFIG_CC_STACKPROTECTOR
-</span><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_canary</span> <span class="o">=</span> <span class="n">get_random_canary</span><span class="p">();</span>	
-<span class="cp">#endif
-</span><span class="cp"></span>	<span class="cm">/*
-</span><span class="cm">	* One for us, one for whoever does the &#34;release_task()&#34; (usually
-</span><span class="cm">	* parent)
-</span><span class="cm">	*/</span>
-	<span class="n">atomic_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">usage</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
-	
-<span class="cp">#ifdef CONFIG_BLK_DEV_IO_TRACE
-</span><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">btrace_seq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="cp">#endif
-</span><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">splice_pipe</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">task_frag</span><span class="p">.</span><span class="n">page</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">wake_q</span><span class="p">.</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
-	
-	<span class="n">account_kernel_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-	
-	<span class="n">kcov_task_init</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
-	
-<span class="cp">#ifdef CONFIG_FAULT_INJECTION
-</span><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">fail_nth</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="cp">#endif
-</span><span class="cp"></span>	<span class="c1">// 最終回傳一個指向新的 task_struct 的指標
-</span><span class="c1"></span>	<span class="k">return</span> <span class="n">tsk</span><span class="p">;</span>
-
-<span class="nl">free_stack</span><span class="p">:</span>
-	<span class="n">free_thread_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
-<span class="nl">free_tsk</span><span class="p">:</span>
-	<span class="n">free_task_struct</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
-	<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div><p>接著從 <code>copy_process</code> 呼叫 <code>dup_task_struct</code> 之後繼續往下看，因為篇幅問題所以只把重要的標記出來</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// kernel/fork.c/copy_process 內
-</span><span class="c1"></span>
-<span class="c1">// 複製 parent process 的權限
-</span><span class="c1"></span><span class="n">retval</span> <span class="o">=</span> <span class="n">copy_creds</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">clone_flags</span><span class="p">);</span>
-
-<span class="c1">// delays 成員紀錄等待的統計資料
-</span><span class="c1"></span><span class="n">delayacct_tsk_init</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-
-<span class="c1">// 設定 process 為 非 super user, 非 worker, idle 狀態
-</span><span class="c1"></span><span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="n">PF_SUPERPRIV</span> <span class="o">|</span> <span class="n">PF_WQ_WORKER</span> <span class="o">|</span> <span class="n">PF_IDLE</span><span class="p">);</span>
-<span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">|=</span> <span class="n">PF_FORKNOEXEC</span><span class="p">;</span>
-
-<span class="c1">// Initial child process list and sibling process list
-</span><span class="c1"></span><span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">);</span>
-<span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sibling</span><span class="p">);</span>
-
-<span class="c1">// 初始化 PREMPT_RCU, TASKS_RCU
-</span><span class="c1"></span><span class="n">rcu_copy_process</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-
-<span class="p">.</span>
-<span class="p">.</span> <span class="err">大量相關初始化，作業要添加的</span> <span class="n">counter</span> <span class="err">可以寫在這邊</span>
-<span class="p">.</span>
-
-<span class="c1">// 排程器相關的初始化，之後會再研究這部份整理一篇文章
-</span><span class="c1">// 初始化的時候還會一併將此 process 分派到某個 cpu 上
-</span><span class="c1"></span><span class="n">retval</span> <span class="o">=</span> <span class="n">sched_fork</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-<span class="n">copy_semundo</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-<span class="c1">// 複製 parent process 的 files_strcut 相關資料
-</span><span class="c1"></span><span class="n">copy_files</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span> 
-<span class="c1">// 複製 parent process 的 fs_struct
-</span><span class="c1"></span><span class="n">copy_fs</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-<span class="c1">// 複製 parent process 訊號系統
-</span><span class="c1"></span><span class="n">copy_sighand</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-<span class="n">copy_signal</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-<span class="c1">// 複製 parent process 的 mm struct
-</span><span class="c1">// copy_mm 其實跟後續 copy on write 機制有點關係，但不是本篇的重點
-</span><span class="c1"></span><span class="n">copy_mm</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-<span class="c1">// 複製 parent process namespace
-</span><span class="c1"></span><span class="n">copy_namespaces</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-<span class="c1">// 複製 parent process io 相關
-</span><span class="c1"></span><span class="n">copy_io</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-<span class="n">copy_thread</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">stack</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">stack_size</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">tls</span><span class="p">);</span>
-</code></pre></div><p>上面的段落帶過了 <code>copy_process</code> 的資源分配流程，可以看到幾乎每個 <code>copy_</code> 開頭的 <code>function</code> 都必須要把 <code>clone_flags</code> 傳入，藉由傳入不同的 <code>clone_flags</code>，最後 <code>fork/clone</code> 出來的 <code>process</code> 會有不同的性質。接下來繼續往下看到發配 <code>pid</code> 的段落</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// kernel/fork.c/copy_process 內
-</span><span class="c1"></span>
-<span class="c1">// 為新的 process 分配 struct pid
-</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">init_struct_pid</span><span class="p">)</span> <span class="p">{</span>
-	<span class="n">pid</span> <span class="o">=</span> <span class="n">alloc_pid</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">nsproxy</span><span class="o">-&gt;</span><span class="n">pid_ns_for_children</span><span class="p">);</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">IS_ERR</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
-		<span class="n">retval</span> <span class="o">=</span> <span class="n">PTR_ERR</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
-		<span class="k">goto</span> <span class="n">bad_fork_cleanup_thread</span><span class="p">;</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-
-<span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="n">pid_nr</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
-
-<span class="c1">// 設定新的 process 的 process groups
-</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="p">{</span> 
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="p">;</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">tgid</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">tgid</span><span class="p">;</span> 
-<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">tgid</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="c1">// 設定 parent process 相關資料
-</span><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_PARENT</span><span class="o">|</span><span class="n">CLONE_THREAD</span><span class="p">))</span> <span class="p">{</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="p">;</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span><span class="p">;</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span>
-		<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-	<span class="k">else</span>
-		<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="o">-&gt;</span><span class="n">exit_signal</span><span class="p">;</span>
-<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">self_exec_id</span><span class="p">;</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div><p>到這邊為止新的 <code>process</code> 基本的屬性大致上都配置完成了，接下來初始化 <code>p</code> 的 <code>pid</code> 結構，這部份因為沒有仔細研究過所以不是很熟，只要知道很可能會有多個 <code>process</code> 使用同一個 <code>pid</code>，一定要有個 <code>struct pid</code> 負責管理，要達到的目的只有兩點:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 獲得實際的 task_struct 實例
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">p</span> <span class="o">=</span> <span class="n">dup_task_struct</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">node</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">goto</span> <span class="n">fork_out</span><span class="p">;</span>
+</span></span></code></pre></div><p><a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L506" target="_blank" rel="noopener noreffer"><code>dup_task_struct</code></a>同樣也定義在 <code>kernel/fork.c</code> 之中。具體實現如下:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="nf">dup_task_struct</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">orig</span><span class="p">,</span> <span class="kt">int</span> <span class="n">node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">stack</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">vm_struct</span> <span class="o">*</span><span class="n">stack_vm_area</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">err</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="n">NUMA_NO_NODE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">node</span> <span class="o">=</span> <span class="n">tsk_fork_get_node</span><span class="p">(</span><span class="n">orig</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 申請一塊新的 memory 空間給 task_struct
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">tsk</span> <span class="o">=</span> <span class="n">alloc_task_struct_node</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">tsk</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">stack</span> <span class="o">=</span> <span class="n">alloc_thread_stack_node</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">node</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">stack</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">free_tsk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">stack_vm_area</span> <span class="o">=</span> <span class="n">task_stack_vm_area</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 可以想成 tsk = orig, 把 current process memcpy to tsk.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="c1">// 其實看過 source code 就會發現 4.14.259 版本中根本沒有在這段做錯誤處理，不太清楚這個 return err 的用意在哪
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">err</span> <span class="o">=</span> <span class="n">arch_dup_task_struct</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">orig</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* arch_dup_task_struct() clobbers the stack-related fields. Make
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* sure they&#39;re properly initialized before using any stack-related
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* functions again.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">;</span>	
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_VMAP_STACK
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_vm_area</span> <span class="o">=</span> <span class="n">stack_vm_area</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_THREAD_INFO_IN_TASK
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">atomic_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_refcount</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>		
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">free_stack</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SECCOMP
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* We must handle setting up seccomp filters once we&#39;re under
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* the sighand lock in case orig has changed between now and
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* then. Until then, filter must be NULL to avoid messing up
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* the usage counts on the error path calling free_task.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">seccomp</span><span class="p">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 將 current 的 threadinfo 複製給 tsk
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">setup_thread_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">orig</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">clear_user_return_notifier</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">clear_tsk_need_resched</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 設置 stack 結束位置，為了檢測 stack overflow
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">set_task_stack_end_magic</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_CC_STACKPROTECTOR
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_canary</span> <span class="o">=</span> <span class="n">get_random_canary</span><span class="p">();</span>	
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* One for us, one for whoever does the &#34;release_task()&#34; (usually
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* parent)
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	<span class="n">atomic_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">usage</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_BLK_DEV_IO_TRACE
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">btrace_seq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">splice_pipe</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">task_frag</span><span class="p">.</span><span class="n">page</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">wake_q</span><span class="p">.</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">account_kernel_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">kcov_task_init</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_FAULT_INJECTION
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">fail_nth</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="c1">// 最終回傳一個指向新的 task_struct 的指標
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">return</span> <span class="n">tsk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">free_stack</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="n">free_thread_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">free_tsk</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="n">free_task_struct</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>接著從 <code>copy_process</code> 呼叫 <code>dup_task_struct</code> 之後繼續往下看，因為篇幅問題所以只把重要的標記出來</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的權限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">retval</span> <span class="o">=</span> <span class="n">copy_creds</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">clone_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// delays 成員紀錄等待的統計資料
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">delayacct_tsk_init</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 設定 process 為 非 super user, 非 worker, idle 狀態
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="n">PF_SUPERPRIV</span> <span class="o">|</span> <span class="n">PF_WQ_WORKER</span> <span class="o">|</span> <span class="n">PF_IDLE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">|=</span> <span class="n">PF_FORKNOEXEC</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Initial child process list and sibling process list
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sibling</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 初始化 PREMPT_RCU, TASKS_RCU
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">rcu_copy_process</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span> <span class="err">大量相關初始化，作業要添加的</span> <span class="n">counter</span> <span class="err">可以寫在這邊</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 排程器相關的初始化，之後會再研究這部份整理一篇文章
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 初始化的時候還會一併將此 process 分派到某個 cpu 上
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">retval</span> <span class="o">=</span> <span class="n">sched_fork</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">copy_semundo</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的 files_strcut 相關資料
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">copy_files</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的 fs_struct
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">copy_fs</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 訊號系統
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">copy_sighand</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">copy_signal</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的 mm struct
+</span></span></span><span class="line"><span class="cl"><span class="c1">// copy_mm 其實跟後續 copy on write 機制有點關係，但不是本篇的重點
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">copy_mm</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process namespace
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">copy_namespaces</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process io 相關
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">copy_io</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">copy_thread</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">stack</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">stack_size</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">tls</span><span class="p">);</span>
+</span></span></code></pre></div><p>上面的段落帶過了 <code>copy_process</code> 的資源分配流程，可以看到幾乎每個 <code>copy_</code> 開頭的 <code>function</code> 都必須要把 <code>clone_flags</code> 傳入，藉由傳入不同的 <code>clone_flags</code>，最後 <code>fork/clone</code> 出來的 <code>process</code> 會有不同的性質。接下來繼續往下看到發配 <code>pid</code> 的段落</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 為新的 process 分配 struct pid
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">init_struct_pid</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">pid</span> <span class="o">=</span> <span class="n">alloc_pid</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">nsproxy</span><span class="o">-&gt;</span><span class="n">pid_ns_for_children</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">IS_ERR</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">retval</span> <span class="o">=</span> <span class="n">PTR_ERR</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad_fork_cleanup_thread</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="n">pid_nr</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 設定新的 process 的 process groups
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">tgid</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">tgid</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">tgid</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 設定 parent process 相關資料
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_PARENT</span><span class="o">|</span><span class="n">CLONE_THREAD</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="o">-&gt;</span><span class="n">exit_signal</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">self_exec_id</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>到這邊為止新的 <code>process</code> 基本的屬性大致上都配置完成了，接下來初始化 <code>p</code> 的 <code>pid</code> 結構，這部份因為沒有仔細研究過所以不是很熟，只要知道很可能會有多個 <code>process</code> 使用同一個 <code>pid</code>，一定要有個 <code>struct pid</code> 負責管理，要達到的目的只有兩點:</p>
 <ul>
 <li>從 <code>task_struct</code> 中快速找到對應的 <code>struct pid</code></li>
 <li>從 <code>struct pid</code> 能夠走訪所有使用該 <code>pid</code> 的 <code>task_struct</code></li>
@@ -506,205 +508,205 @@
         title="https://www.pianshen.com/images/530/0c4ac21f0f941205b191d98081227a6a.png" /></p>
 <p><a href="https://blog.csdn.net/weijitao/article/details/79918013" target="_blank" rel="noopener noreffer">來源</a></p>
 <p>這種設計可以讓一個 <code>process</code> 屬於多個不同的 <code>namespace</code>, 同一個 <code>process</code> 可以在不同的 <code>namespace</code> 有不同的局部 <code>pid</code>，多個 <code>task_struct</code> 可以共用一個 <code>pid</code>，關於 <code>copy_process</code> 中有關於 <code>pid struct</code> 初始化的程式如下:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// kernel/fork.c/copy_process 內
-</span><span class="c1"></span>
-<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
-	<span class="n">ptrace_init_task</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PTRACE</span><span class="p">)</span> <span class="o">||</span> <span class="n">trace</span><span class="p">);</span>
-	
-	<span class="n">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
-	<span class="c1">// 如果建立的 process 是 thread group 的 leader
-</span><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">thread_group_leader</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span>
-		<span class="n">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PGID</span><span class="p">,</span> <span class="n">task_pgrp</span><span class="p">(</span><span class="n">current</span><span class="p">));</span>
-		<span class="n">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_SID</span><span class="p">,</span> <span class="n">task_session</span><span class="p">(</span><span class="n">current</span><span class="p">));</span>
-
-		<span class="k">if</span> <span class="p">(</span><span class="n">is_child_reaper</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
-			<span class="n">ns_of_pid</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">child_reaper</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
-			<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">|=</span> <span class="n">SIGNAL_UNKILLABLE</span><span class="p">;</span>
-		<span class="p">}</span>
-		
-		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">leader_pid</span> <span class="o">=</span> <span class="n">pid</span><span class="p">;</span>
-		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">tty</span> <span class="o">=</span> <span class="n">tty_kref_get</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">tty</span><span class="p">);</span>
-		
-		<span class="cm">/*
-</span><span class="cm">		* Inherit has_child_subreaper flag under the same
-</span><span class="cm">		* tasklist_lock with adding child to the process tree
-</span><span class="cm">		* for propagate_has_child_subreaper optimization.
-</span><span class="cm">		*/</span>
-		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">has_child_subreaper</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">has_child_subreaper</span> <span class="o">||</span>
-						<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">is_child_subreaper</span><span class="p">;</span>
-		
-		<span class="n">list_add_tail</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sibling</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">);</span>
-		<span class="n">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">tasks</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">init_task</span><span class="p">.</span><span class="n">tasks</span><span class="p">);</span>
-		<span class="n">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PGID</span><span class="p">);</span>
-		<span class="n">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_SID</span><span class="p">);</span>
-		<span class="n">__this_cpu_inc</span><span class="p">(</span><span class="n">process_counts</span><span class="p">);</span>
-	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-	<span class="c1">// 不是 thread group leader
-</span><span class="c1"></span>		<span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">nr_threads</span><span class="o">++</span><span class="p">;</span>
-		<span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">live</span><span class="p">);</span>
-		<span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">sigcnt</span><span class="p">);</span>
-		<span class="n">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">thread_group</span><span class="p">,</span>
-		<span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="o">-&gt;</span><span class="n">thread_group</span><span class="p">);</span>
-		<span class="n">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">thread_node</span><span class="p">,</span>
-		<span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">thread_head</span><span class="p">);</span>
-	<span class="p">}</span>
-	<span class="n">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">);</span>
-	<span class="n">nr_threads</span><span class="o">++</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="p">.</span>
-<span class="p">.</span>
-<span class="p">.</span>
-
-<span class="c1">// 回傳新的 task_struct
-</span><span class="c1"></span><span class="k">return</span> <span class="n">p</span><span class="p">;</span>
-</code></pre></div><p>之後會找時間好好研究再來整理成文章(<del>又在挖坑</del>)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ptrace_init_task</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PTRACE</span><span class="p">)</span> <span class="o">||</span> <span class="n">trace</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 如果建立的 process 是 thread group 的 leader
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">thread_group_leader</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PGID</span><span class="p">,</span> <span class="n">task_pgrp</span><span class="p">(</span><span class="n">current</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="n">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_SID</span><span class="p">,</span> <span class="n">task_session</span><span class="p">(</span><span class="n">current</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">is_child_reaper</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">ns_of_pid</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">child_reaper</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">|=</span> <span class="n">SIGNAL_UNKILLABLE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">leader_pid</span> <span class="o">=</span> <span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">tty</span> <span class="o">=</span> <span class="n">tty_kref_get</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">tty</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* Inherit has_child_subreaper flag under the same
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* tasklist_lock with adding child to the process tree
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* for propagate_has_child_subreaper optimization.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		*/</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">has_child_subreaper</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">has_child_subreaper</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">						<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">is_child_subreaper</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="n">list_add_tail</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sibling</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">tasks</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">init_task</span><span class="p">.</span><span class="n">tasks</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PGID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_SID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">__this_cpu_inc</span><span class="p">(</span><span class="n">process_counts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 不是 thread group leader
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">nr_threads</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">live</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">sigcnt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">thread_group</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="o">-&gt;</span><span class="n">thread_group</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">thread_node</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">thread_head</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="n">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">nr_threads</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 回傳新的 task_struct
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">return</span> <span class="n">p</span><span class="p">;</span>
+</span></span></code></pre></div><p>之後會找時間好好研究再來整理成文章(<del>又在挖坑</del>)</p>
 <p>接下來又回到 <code>_do_fork()</code> 的部份，上面已經大概介紹了 <code>copy_process</code> 從 <code>parent process</code> 建立一個新的 <code>task_struct</code> 的流程，最後回傳了新的 <code>task_struct</code>。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// kernel/fork.c/do_fork
-</span><span class="c1"></span>
-<span class="kt">long</span> <span class="nf">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
-		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
-		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
-		<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
-		<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
-		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
-<span class="p">{</span>
-
-	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
-	<span class="kt">int</span> <span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="kt">long</span> <span class="n">nr</span><span class="p">;</span>
-	
-	<span class="cm">/*
-</span><span class="cm">	* Determine whether and which event to report to ptracer. When
-</span><span class="cm">	* called from kernel_thread or CLONE_UNTRACED is explicitly
-</span><span class="cm">	* requested, no event is reported; otherwise, report if the event
-</span><span class="cm">	* for the type of forking is enabled.
-</span><span class="cm">	*/</span>
-	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_UNTRACED</span><span class="p">))</span> <span class="p">{</span>
-	
-		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span>
-			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_VFORK</span><span class="p">;</span>
-		<span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">)</span> <span class="o">!=</span> <span class="n">SIGCHLD</span><span class="p">)</span>
-			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_CLONE</span><span class="p">;</span>	
-		<span class="k">else</span>
-			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_FORK</span><span class="p">;</span>
-
-		<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="o">!</span><span class="n">ptrace_event_enabled</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">trace</span><span class="p">)))</span>		
-			<span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="p">}</span>
-	
-	<span class="n">p</span> <span class="o">=</span> <span class="n">copy_process</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">stack_start</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">,</span>
-	<span class="n">child_tidptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">NUMA_NO_NODE</span><span class="p">);</span>
-	<span class="n">add_latent_entropy</span><span class="p">();</span>
-	
-	<span class="cm">/*
-</span><span class="cm">	* Do this prior waking up the new thread - the thread pointer
-</span><span class="cm">	* might get invalid after that point, if the thread exits quickly.
-</span><span class="cm">	*/</span>
-
-	<span class="c1">// 底下這個區域只有 parent process 才會走到
-</span><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">IS_ERR</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span>
-		<span class="k">struct</span> <span class="n">completion</span> <span class="n">vfork</span><span class="p">;</span>
-		<span class="k">struct</span> <span class="n">pid</span> <span class="o">*</span><span class="n">pid</span><span class="p">;</span>
-		
-		<span class="n">trace_sched_process_fork</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-
-		<span class="c1">// parent process 獲得新的 task struct 的 pid
-</span><span class="c1"></span>		<span class="n">pid</span> <span class="o">=</span> <span class="n">get_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">);</span>
-		<span class="n">nr</span> <span class="o">=</span> <span class="n">pid_vnr</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
-		
-		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PARENT_SETTID</span><span class="p">)</span>
-			<span class="n">put_user</span><span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">parent_tidptr</span><span class="p">);</span>
-
-		<span class="c1">// 查看 parent process 是否調用 vfork, 如果是就初始化 vfork_done
-</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span> <span class="p">{</span>
-			<span class="n">p</span><span class="o">-&gt;</span><span class="n">vfork_done</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">vfork</span><span class="p">;</span>
-			<span class="n">init_completion</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vfork</span><span class="p">);</span>
-			<span class="n">get_task_struct</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-			
-		<span class="p">}</span>
-
-		<span class="c1">// 將新的 task_struct 加入 runqueue 中
-</span><span class="c1"></span>		<span class="n">wake_up_new_task</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-		
-		<span class="cm">/* forking complete and child started to run, tell ptracer */</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">trace</span><span class="p">))</span>	
-			<span class="n">ptrace_event_pid</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
-
-		<span class="c1">// 因為 vfork 的機制，必須要等 child process 執行完,
-</span><span class="c1"></span>		<span class="c1">// parent process 的 vfork() 才會返回, 因此 vfork 產生的
-</span><span class="c1"></span>		<span class="c1">// child process 總是優先於 parent process 執行
-</span><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span> <span class="p">{</span>
-			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">wait_for_vfork_done</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">vfork</span><span class="p">))</span>
-				<span class="n">ptrace_event_pid</span><span class="p">(</span><span class="n">PTRACE_EVENT_VFORK_DONE</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
-			<span class="p">}</span>
-		
-		<span class="n">put_pid</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
-	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-		<span class="n">nr</span> <span class="o">=</span> <span class="n">PTR_ERR</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-	<span class="p">}</span>
-	<span class="k">return</span> <span class="n">nr</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div><h3 id="_do_fork---wake_up_new_taskp">_do_fork() -&gt; wake_up_new_task(p)</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/do_fork
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">nr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Determine whether and which event to report to ptracer. When
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* called from kernel_thread or CLONE_UNTRACED is explicitly
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* requested, no event is reported; otherwise, report if the event
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* for the type of forking is enabled.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_UNTRACED</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_VFORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">)</span> <span class="o">!=</span> <span class="n">SIGCHLD</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_CLONE</span><span class="p">;</span>	
+</span></span><span class="line"><span class="cl">		<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_FORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="o">!</span><span class="n">ptrace_event_enabled</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">trace</span><span class="p">)))</span>		
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">p</span> <span class="o">=</span> <span class="n">copy_process</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">stack_start</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">child_tidptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">NUMA_NO_NODE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">add_latent_entropy</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Do this prior waking up the new thread - the thread pointer
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* might get invalid after that point, if the thread exits quickly.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 底下這個區域只有 parent process 才會走到
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">IS_ERR</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">completion</span> <span class="n">vfork</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">pid</span> <span class="o">*</span><span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="n">trace_sched_process_fork</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// parent process 獲得新的 task struct 的 pid
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="n">pid</span> <span class="o">=</span> <span class="n">get_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">nr</span> <span class="o">=</span> <span class="n">pid_vnr</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PARENT_SETTID</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">put_user</span><span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">parent_tidptr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 查看 parent process 是否調用 vfork, 如果是就初始化 vfork_done
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">p</span><span class="o">-&gt;</span><span class="n">vfork_done</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">vfork</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="n">init_completion</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vfork</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="n">get_task_struct</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 將新的 task_struct 加入 runqueue 中
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="n">wake_up_new_task</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="cm">/* forking complete and child started to run, tell ptracer */</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">trace</span><span class="p">))</span>	
+</span></span><span class="line"><span class="cl">			<span class="n">ptrace_event_pid</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 因為 vfork 的機制，必須要等 child process 執行完,
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">// parent process 的 vfork() 才會返回, 因此 vfork 產生的
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="c1">// child process 總是優先於 parent process 執行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">wait_for_vfork_done</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">vfork</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">				<span class="n">ptrace_event_pid</span><span class="p">(</span><span class="n">PTRACE_EVENT_VFORK_DONE</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="n">put_pid</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">nr</span> <span class="o">=</span> <span class="n">PTR_ERR</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">nr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="_do_fork---wake_up_new_taskp">_do_fork() -&gt; wake_up_new_task(p)</h3>
 <p><code>wake_up_new_task</code> 的作用是把新創立的 <code>task_struct</code> 加入排程的 <code>runqueue</code> 當中，實現<a href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459" target="_blank" rel="noopener noreffer">如下</a>:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="c1">// 位於 kernel/sched/core.c
-</span><span class="c1"></span>
-<span class="cm">/*
-</span><span class="cm">* wake_up_new_task - wake up a newly created task for the first time.
-</span><span class="cm">*
-</span><span class="cm">* This function will do some initial scheduler statistics housekeeping
-</span><span class="cm">* that must be done for every newly created context, then puts the task
-</span><span class="cm">* on the runqueue and wakes it.
-</span><span class="cm">*/</span>
-<span class="kt">void</span> <span class="nf">wake_up_new_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="k">struct</span> <span class="n">rq_flags</span> <span class="n">rf</span><span class="p">;</span>
-	<span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">;</span>
-
-	<span class="n">raw_spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pi_lock</span><span class="p">,</span> <span class="n">rf</span><span class="p">.</span><span class="n">flags</span><span class="p">);</span>
-	<span class="c1">// 將新的 task_struct 狀態設為 TASK_RUNNING
-</span><span class="c1"></span>	<span class="n">p</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_RUNNING</span><span class="p">;</span>
-
-<span class="cp">#ifdef CONFIG_SMP
-</span><span class="cp"></span>	<span class="cm">/*
-</span><span class="cm">	* Fork balancing, do it here and not earlier because:
-</span><span class="cm">	* - cpus_allowed can change in the fork path
-</span><span class="cm">	* - any previously selected CPU might disappear through hotplug
-</span><span class="cm">	*
-</span><span class="cm">	* Use __set_task_cpu() to avoid calling sched_class::migrate_task_rq,
-</span><span class="cm">	* as we&#39;re not fully set-up yet.
-</span><span class="cm">	*/</span>
-
-	<span class="c1">// select_task_rq 會調用 CFS 的 select_task_rq 來選擇一個合適的 cpu
-</span><span class="c1"></span>	<span class="n">__set_task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">select_task_rq</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">SD_BALANCE_FORK</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
-<span class="cp">#endif
-</span><span class="cp"></span>
-	<span class="c1">// 獲得當前 task_struct 所在的 cpu 的 runqueue
-</span><span class="c1"></span>	<span class="n">rq</span> <span class="o">=</span> <span class="n">__task_rq_lock</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
-	<span class="n">update_rq_clock</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
-	<span class="n">post_init_entity_util_avg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">);</span>
-
-	<span class="c1">// 將 task_struct p 加入 runqueue 當中
-</span><span class="c1"></span>	<span class="n">activate_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ENQUEUE_NOCLOCK</span><span class="p">);</span>
-	<span class="n">p</span><span class="o">-&gt;</span><span class="n">on_rq</span> <span class="o">=</span> <span class="n">TASK_ON_RQ_QUEUED</span><span class="p">;</span>
-	<span class="n">trace_sched_wakeup_new</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
-	<span class="c1">// 檢查新的 task_struct 是否滿足搶佔目前執行 process 的條件
-</span><span class="c1"></span>	<span class="n">check_preempt_curr</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">WF_FORK</span><span class="p">);</span>
-
-<span class="cp">#ifdef CONFIG_SMP
-</span><span class="cp"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="n">task_woken</span><span class="p">)</span> <span class="p">{</span>
-		<span class="cm">/*
-</span><span class="cm">		* Nothing relies on rq-&gt;lock after this, so its fine to
-</span><span class="cm">		* drop it.
-</span><span class="cm">		*/</span>
-		<span class="n">rq_unpin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
-		<span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="n">task_woken</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
-		<span class="n">rq_repin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
-	<span class="p">}</span>
-<span class="cp">#endif
-</span><span class="cp"></span>	<span class="n">task_rq_unlock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div><h3 id="reference">reference</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// 位於 kernel/sched/core.c
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* wake_up_new_task - wake up a newly created task for the first time.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* This function will do some initial scheduler statistics housekeeping
+</span></span></span><span class="line"><span class="cl"><span class="cm">* that must be done for every newly created context, then puts the task
+</span></span></span><span class="line"><span class="cl"><span class="cm">* on the runqueue and wakes it.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">wake_up_new_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">rq_flags</span> <span class="n">rf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">raw_spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pi_lock</span><span class="p">,</span> <span class="n">rf</span><span class="p">.</span><span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 將新的 task_struct 狀態設為 TASK_RUNNING
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">p</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_RUNNING</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Fork balancing, do it here and not earlier because:
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* - cpus_allowed can change in the fork path
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* - any previously selected CPU might disappear through hotplug
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Use __set_task_cpu() to avoid calling sched_class::migrate_task_rq,
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* as we&#39;re not fully set-up yet.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// select_task_rq 會調用 CFS 的 select_task_rq 來選擇一個合適的 cpu
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">__set_task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">select_task_rq</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">SD_BALANCE_FORK</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 獲得當前 task_struct 所在的 cpu 的 runqueue
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">rq</span> <span class="o">=</span> <span class="n">__task_rq_lock</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">update_rq_clock</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">post_init_entity_util_avg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 將 task_struct p 加入 runqueue 當中
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">activate_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ENQUEUE_NOCLOCK</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">on_rq</span> <span class="o">=</span> <span class="n">TASK_ON_RQ_QUEUED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">trace_sched_wakeup_new</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 檢查新的 task_struct 是否滿足搶佔目前執行 process 的條件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">check_preempt_curr</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">WF_FORK</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="n">task_woken</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* Nothing relies on rq-&gt;lock after this, so its fine to
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* drop it.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		*/</span>
+</span></span><span class="line"><span class="cl">		<span class="n">rq_unpin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="n">task_woken</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">rq_repin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>	<span class="n">task_rq_unlock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="reference">reference</h3>
 <ul>
 <li><a href="https://www.cnblogs.com/linhaostudy/p/9644736.html#autoid-1-4-0" target="_blank" rel="noopener noreffer">_do_fork, do_fork 詳解</a></li>
 <li><a href="https://ithelp.ithome.com.tw/articles/10185342" target="_blank" rel="noopener noreffer">trace 30個基本Linux系統呼叫第七日：fork</a></li>
@@ -743,7 +745,7 @@
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

@@ -4,7 +4,17 @@
         <link>https://davidleitw.github.io/tags/kernel/</link>
         <description>kernel - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/kernel/" rel="self" type="application/rss+xml" /><item>
+    <title>Linux file descriptor 理解</title>
+    <link>https://davidleitw.github.io/posts/fd/</link>
+    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/fd/</guid>
+    <description><![CDATA[前言 file descriptor 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 socket 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 epoll_create 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。
+在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。
+在 File descriptor 中可以簡單看一下，究竟在 Linux 中有多少 system call 使用了 File descriptor 的概念，就知道 fd 在 Linux 中的重要性了。
+Everything is a file Linux 秉持著 UNIX 哲學 Everything is a file，這個概念的好處是可以用一組通用的 Interface 來操作不同資源，在資源跟使用者之間加上一層抽象層，進而延伸出 Universal I/O Model 的概念。]]></description>
+</item><item>
     <title>利用 vagrant 執行自己編譯的 kernel，快速搭建實驗環境</title>
     <link>https://davidleitw.github.io/posts/vagrant_001/</link>
     <pubDate>Tue, 28 Dec 2021 01:05:53 &#43;0800</pubDate>
@@ -13,6 +23,6 @@
     <description><![CDATA[vagrant vagrant 是一款建立及管理虛擬機的工具，利用 vagrant 可以快速在本機端架設實驗環境，並且可以把自己習慣的環境包裝後在任何有安裝 vagrant 的電腦執行，達到 IaC(Infrastructure as Code) 的特性，使用 vagrant 可以大幅降低環境的架設時間，趁這個機會順便學習一下基本的用法。
 這學期在修 linux 的課程會有添加 system call 或者改 kernel 的需求，所以這篇文章紀錄一下如何使用 vagrant 來執行自己編譯好的 kernel，以及一些 vagrant 的基本用法，用虛擬機做實驗也降低了把自己的環境搞壞的風險。
 install 安裝可以參考 官方網站，在 ubuntu 的環境安裝 vagrant 可以用以下指令:
-$ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo apt-add-repository &#34;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs)main&#34; $ sudo apt-get update &amp;&amp; sudo apt-get install vagrant $ vagrant plugin install vagrant-vbguest vagrant 只是一個管理虛擬機的工具，底層可以選擇 VirtualBox, VMware, AWS.. 等不同的虛擬機環境，在 linux 的主機中最方便安裝的就是 VirtualBox，所以在正式使用之前要記得先安裝 VirtualBox。]]></description>
+$ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo apt-add-repository &#34;deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main&#34; $ sudo apt-get update &amp;&amp; sudo apt-get install vagrant $ vagrant plugin install vagrant-vbguest vagrant 只是一個管理虛擬機的工具，底層可以選擇 VirtualBox, VMware, AWS.. 等不同的虛擬機環境，在 linux 的主機中最方便安裝的就是 VirtualBox，所以在正式使用之前要記得先安裝 VirtualBox。]]></description>
 </item></channel>
 </rss>

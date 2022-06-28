@@ -4,7 +4,17 @@
         <link>https://davidleitw.github.io/tags/c/</link>
         <description>c - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/c/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/c/" rel="self" type="application/rss+xml" /><item>
+    <title>Linux file descriptor 理解</title>
+    <link>https://davidleitw.github.io/posts/fd/</link>
+    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/fd/</guid>
+    <description><![CDATA[前言 file descriptor 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 socket 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 epoll_create 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。
+在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。
+在 File descriptor 中可以簡單看一下，究竟在 Linux 中有多少 system call 使用了 File descriptor 的概念，就知道 fd 在 Linux 中的重要性了。
+Everything is a file Linux 秉持著 UNIX 哲學 Everything is a file，這個概念的好處是可以用一組通用的 Interface 來操作不同資源，在資源跟使用者之間加上一層抽象層，進而延伸出 Universal I/O Model 的概念。]]></description>
+</item><item>
     <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
     <link>https://davidleitw.github.io/posts/socket3/</link>
     <pubDate>Fri, 12 Nov 2021 01:04:53 &#43;0800</pubDate>
@@ -14,9 +24,10 @@
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
 一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
 typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
- 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
-#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
-回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
+只能用在 IPv4 的處理 inet_addr inet_aton inet_ntoa 兼容 Ipv4 與 IPv6 inet_pton inet_ntop 使用前必須先
+#include &lt;arpa/inet.h&gt; inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE
+INADDR_NODE = 0xFFFFFFFF (32 個 bits 全部填一)]]></description>
 </item><item>
     <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
     <link>https://davidleitw.github.io/posts/socker2/</link>
@@ -25,7 +36,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
     <guid>https://davidleitw.github.io/posts/socker2/</guid>
     <description><![CDATA[sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
-typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
+typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
 IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
 </item><item>
     <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
@@ -37,9 +48,9 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
 在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
 我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
 本文章所使用的環境
- kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
-#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
- AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page]]></description>
+kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1 在寫 socket 相關的程式的時候，需要先
+#include &lt;arpa/inet.h&gt; // sockaddr 相關 #include &lt;sys/socket.h&gt; socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6 AF_INET: IPv4 協定 AF_INET6: IPv6 協定 詳細的選項可以參考 socket 的 man page]]></description>
 </item><item>
     <title>jserv - linux 核心設計 第一周題目二解題紀錄</title>
     <link>https://davidleitw.github.io/posts/jserv_linux_w1_q2/</link>
@@ -72,7 +83,7 @@ function pointer function pointer 顧名思義就是指向某個 function 的 po
 我們先從一個簡單的 function pointer 宣告開始講起
 int (*myFunc)(int, int); 上面就是一個基本的 function pointer 宣告
 一個 function pointer 變數名稱為 myFunc，可以這麼解讀
- myFunc 是一個指標指向一個 function  該 function 有兩個 int 的 parameters 該 function 會回傳 int    假設今天我有個 function 宣告成以下這種形式
+myFunc 是一個指標指向一個 function 該 function 有兩個 int 的 parameters 該 function 會回傳 int 假設今天我有個 function 宣告成以下這種形式
 void parseFunc(float f1, int i1, char c1); 我們要怎麼宣告一個 pointer 去指向這個 function 呢？]]></description>
 </item></channel>
 </rss>

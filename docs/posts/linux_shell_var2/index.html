@@ -125,12 +125,12 @@
             </div><div class="content" id="content"><p>很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。</p>
 <h2 id="read">read</h2>
 <p>讀取從鍵盤輸入的變數，常常會出現在 <code>shell script</code> 之中</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nb">read</span> <span class="o">[</span>-pt<span class="o">]</span> 變數名稱
-// 參數
-// -p 後面接提示字元
-// -t 後面接等待時間，超過時間沒輸入則取消指令
-$ 
-</code></pre></div><p><img
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ <span class="nb">read</span> <span class="o">[</span>-pt<span class="o">]</span> 變數名稱
+</span></span><span class="line"><span class="cl">// 參數
+</span></span><span class="line"><span class="cl">// -p 後面接提示字元
+</span></span><span class="line"><span class="cl">// -t 後面接等待時間，超過時間沒輸入則取消指令
+</span></span><span class="line"><span class="cl">$ 
+</span></span></code></pre></div><p><img
         class="lazyload"
         src="/svg/loading.min.svg"
         data-src="https://i.imgur.com/ESVYEHs.png"
@@ -140,15 +140,15 @@ $
         title="https://i.imgur.com/ESVYEHs.png" /></p>
 <h2 id="declare">declare</h2>
 <p>可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nb">declare</span> <span class="o">[</span>-aixr<span class="o">]</span> 變數名稱
-// 參數
-// -a 宣告陣列型態的變數
-// -i 宣告整數型態的變數
-// -x 同 <span class="nb">export</span> 指令，宣告的變數變成全域變數<span class="o">(</span>可以讓子程序讀取<span class="o">)</span>
-// -r 宣告 readonly, 不可更改變數內容，也無法被 <span class="nb">unset</span> 取消
-// -p 列出變數資料型態
-$ 
-</code></pre></div><p><img
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ <span class="nb">declare</span> <span class="o">[</span>-aixr<span class="o">]</span> 變數名稱
+</span></span><span class="line"><span class="cl">// 參數
+</span></span><span class="line"><span class="cl">// -a 宣告陣列型態的變數
+</span></span><span class="line"><span class="cl">// -i 宣告整數型態的變數
+</span></span><span class="line"><span class="cl">// -x 同 <span class="nb">export</span> 指令，宣告的變數變成全域變數<span class="o">(</span>可以讓子程序讀取<span class="o">)</span>
+</span></span><span class="line"><span class="cl">// -r 宣告 readonly, 不可更改變數內容，也無法被 <span class="nb">unset</span> 取消
+</span></span><span class="line"><span class="cl">// -p 列出變數資料型態
+</span></span><span class="line"><span class="cl">$ 
+</span></span></code></pre></div><p><img
         class="lazyload"
         src="/svg/loading.min.svg"
         data-src="https://i.imgur.com/f9Dy2zj.png"
@@ -216,7 +216,7 @@ $
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

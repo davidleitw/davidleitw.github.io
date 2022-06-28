@@ -8,7 +8,7 @@
         <title>linux socket programming(二): socket 中用來存放地址的 sockaddr - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="linux socket programming(二): socket 中用來存放地址的 sockaddr" />
 <meta property="og:description" content="sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
-typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
+typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
 IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://davidleitw.github.io/posts/socker2/" /><meta property="article:section" content="posts" />
@@ -19,7 +19,7 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
 <meta name="twitter:title" content="linux socket programming(二): socket 中用來存放地址的 sockaddr"/>
 <meta name="twitter:description" content="sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
-typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
+typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
 IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。"/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
@@ -125,64 +125,64 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
             </div><div class="content" id="content"><h2 id="sockaddr">sockaddr</h2>
 <p><code>sockaddr</code> 是 <code>socket</code> 的通用地址結構，就如同一開始提到的，<code>socket</code> 除了在網路領域之外，也可以在很多不同的地方用來通訊。</p>
 <p><code>sockaddr</code> 結構，定義如下</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sa_family_t</span><span class="p">;</span>
-
-<span class="cp">#define	__SOCKADDR_COMMON(sa_prefix) \
-</span><span class="cp">  sa_family_t sa_prefix##family
-</span><span class="cp"></span>
-<span class="k">struct</span> <span class="n">sockaddr</span> <span class="p">{</span>
-    <span class="n">__SOCKADDR_COMMON</span> <span class="p">(</span><span class="n">sa_</span><span class="p">);</span>	<span class="cm">/* Common data: address family and length.  */</span>
-    <span class="kt">char</span> <span class="n">sa_data</span><span class="p">[</span><span class="mi">14</span><span class="p">];</span>		<span class="cm">/* Address data.  */</span>
-<span class="p">};</span>
-
-<span class="c1">// 上面的結構把巨集展開後，等價於下方的資料結構
-</span><span class="c1"></span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="p">{</span>
-    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sa_family</span><span class="p">;</span> <span class="c1">// 2 bytes
-</span><span class="c1"></span>    <span class="kt">char</span> <span class="n">sa_data</span><span class="p">[</span><span class="mi">14</span><span class="p">];</span>             <span class="c1">// 14 bytes
-</span><span class="c1"></span><span class="p">};</span>
-</code></pre></div><p>後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 <code>sockaddr_in</code> 的結構用來存取網路相關的應用， <code>in</code> 指的是 <code>internet</code>，<code>sockaddr_in</code> 專門用來存 <code>IPv4</code> 的相關地址。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sa_family_t</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define	__SOCKADDR_COMMON(sa_prefix) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">  sa_family_t sa_prefix##family
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">sockaddr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">__SOCKADDR_COMMON</span> <span class="p">(</span><span class="n">sa_</span><span class="p">);</span>	<span class="cm">/* Common data: address family and length.  */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span> <span class="n">sa_data</span><span class="p">[</span><span class="mi">14</span><span class="p">];</span>		<span class="cm">/* Address data.  */</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 上面的結構把巨集展開後，等價於下方的資料結構
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">struct</span> <span class="n">sockaddr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sa_family</span><span class="p">;</span> <span class="c1">// 2 bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">char</span> <span class="n">sa_data</span><span class="p">[</span><span class="mi">14</span><span class="p">];</span>             <span class="c1">// 14 bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></code></pre></div><p>後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 <code>sockaddr_in</code> 的結構用來存取網路相關的應用， <code>in</code> 指的是 <code>internet</code>，<code>sockaddr_in</code> 專門用來存 <code>IPv4</code> 的相關地址。</p>
 <p><code>IPv6</code> 則是使用 <code>sockaddr_in6</code> 結構，在本文章主要會著重在 <code>IPv4</code> 相關的範例。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="k">typedef</span> <span class="kt">uint32_t</span> <span class="n">in_addr_t</span><span class="p">;</span> <span class="c1">// 4 byte
-</span><span class="c1"></span><span class="k">struct</span> <span class="n">in_addr</span> <span class="p">{</span>
-    <span class="n">in_addr_t</span> <span class="n">s_addr</span><span class="p">;</span>
-<span class="p">};</span>
-
-<span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="p">{</span>    
-    <span class="n">__SOCKADDR_COMMON</span> <span class="p">(</span><span class="n">sin_</span><span class="p">);</span>
-    <span class="n">in_port_t</span> <span class="n">sin_port</span><span class="p">;</span>			    <span class="cm">/* Port number.  */</span>
-    <span class="k">struct</span> <span class="n">in_addr</span> <span class="n">sin_addr</span><span class="p">;</span>		<span class="cm">/* Internet address.  */</span>
-
-    <span class="cm">/* Pad to size of `struct sockaddr&#39;.  */</span>
-    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">sin_zero</span><span class="p">[</span><span class="k">sizeof</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="p">)</span>
-			   <span class="o">-</span> <span class="n">__SOCKADDR_COMMON_SIZE</span>
-			   <span class="o">-</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">in_port_t</span><span class="p">)</span>
-			   <span class="o">-</span> <span class="k">sizeof</span> <span class="p">(</span><span class="k">struct</span> <span class="n">in_addr</span><span class="p">)];</span>
-<span class="p">};</span>
-
-<span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="p">{</span>
-    <span class="c1">// sa_family_t sin_family
-</span><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sin_family</span><span class="p">;</span> <span class="c1">// 2 bytes
-</span><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sin_port</span><span class="p">;</span>   <span class="c1">// 2 bytes
-</span><span class="c1"></span>    <span class="k">struct</span> <span class="n">in_addr</span> <span class="n">sin_addr</span><span class="p">;</span>       <span class="c1">// 4 bytes
-</span><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">sin_zero</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>     <span class="c1">// 填充，讓 sockaddr_in 的 size 跟 sockaddr 相同
-</span><span class="c1"></span><span class="p">};</span>
-</code></pre></div><p>這邊觀看原始碼會覺得奇怪，為什麼還需要使用 <code>sin_zero</code> 來做填充的動作。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="kt">uint32_t</span> <span class="n">in_addr_t</span><span class="p">;</span> <span class="c1">// 4 byte
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">struct</span> <span class="n">in_addr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">in_addr_t</span> <span class="n">s_addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="p">{</span>    
+</span></span><span class="line"><span class="cl">    <span class="n">__SOCKADDR_COMMON</span> <span class="p">(</span><span class="n">sin_</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">in_port_t</span> <span class="n">sin_port</span><span class="p">;</span>			    <span class="cm">/* Port number.  */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">in_addr</span> <span class="n">sin_addr</span><span class="p">;</span>		<span class="cm">/* Internet address.  */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/* Pad to size of `struct sockaddr&#39;.  */</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">sin_zero</span><span class="p">[</span><span class="k">sizeof</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			   <span class="o">-</span> <span class="n">__SOCKADDR_COMMON_SIZE</span>
+</span></span><span class="line"><span class="cl">			   <span class="o">-</span> <span class="k">sizeof</span> <span class="p">(</span><span class="n">in_port_t</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			   <span class="o">-</span> <span class="k">sizeof</span> <span class="p">(</span><span class="k">struct</span> <span class="n">in_addr</span><span class="p">)];</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">// sa_family_t sin_family
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sin_family</span><span class="p">;</span> <span class="c1">// 2 bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">short</span> <span class="kt">int</span> <span class="n">sin_port</span><span class="p">;</span>   <span class="c1">// 2 bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">struct</span> <span class="n">in_addr</span> <span class="n">sin_addr</span><span class="p">;</span>       <span class="c1">// 4 bytes
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">sin_zero</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>     <span class="c1">// 填充，讓 sockaddr_in 的 size 跟 sockaddr 相同
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></code></pre></div><p>這邊觀看原始碼會覺得奇怪，為什麼還需要使用 <code>sin_zero</code> 來做填充的動作。</p>
 <p>原因是很多 <code>socket</code> 的 <code>api</code>，參數都需要填入 <code>sockaddr</code>，<code>sockaddr_in</code> 則是後來加入的 <code>struct</code>。 今天如果我們 <code>address</code> 的資料是用 <code>sockaddr_in</code> 來儲存，並且想調用相關的函式時，我們就需要強制轉型。</p>
 <p>假設今天用 <code>socket</code> 的場景不是網路，也會有對應的結構來存地址，在呼叫 <code>socket</code> 通用的 <code>api</code> 時，就可以使用強制轉型的方式，讓不同的結構呼叫同一個函式。</p>
 <p>實際範例: <a href="https://man7.org/linux/man-pages/man7/unix.7.html" target="_blank" rel="noopener noreffer">unix</a></p>
 <p>在後面的例子中也會實際調用，下方的程式碼可以先作為參考。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="cp">#define serverIP
-</span><span class="cp">#define serverPort 12000
-</span><span class="cp"></span>
-<span class="c1">// 建立一個 sockaddr_in 結構，存著 server 的相關資料
-</span><span class="c1"></span><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">serverAddr</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">PF_INET</span><span class="p">,</span>
-    <span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">inet_addr</span><span class="p">(</span><span class="n">serverIP</span><span class="p">),</span>
-    <span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">serverPort</span><span class="p">)</span>
-<span class="p">};</span>
-
-<span class="n">bind</span><span class="p">(</span><span class="n">socket_fd</span><span class="p">,</span> <span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">serverAddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">serverAddr</span><span class="p">));</span>
-</code></pre></div></div><div class="post-footer" id="post-footer">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define serverIP
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define serverPort 12000
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">// 建立一個 sockaddr_in 結構，存著 server 的相關資料
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">serverAddr</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">PF_INET</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">sin_addr</span><span class="p">.</span><span class="n">s_addr</span> <span class="o">=</span> <span class="n">inet_addr</span><span class="p">(</span><span class="n">serverIP</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="p">.</span><span class="n">sin_port</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">serverPort</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">bind</span><span class="p">(</span><span class="n">socket_fd</span><span class="p">,</span> <span class="p">(</span><span class="k">const</span> <span class="k">struct</span> <span class="n">sockaddr</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">serverAddr</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">serverAddr</span><span class="p">));</span>
+</span></span></code></pre></div></div><div class="post-footer" id="post-footer">
     <div class="post-info">
         <div class="post-info-line">
             <div class="post-info-mod">
@@ -210,7 +210,7 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

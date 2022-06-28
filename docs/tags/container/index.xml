@@ -12,8 +12,8 @@
     <guid>https://davidleitw.github.io/posts/docker_network_ns/</guid>
     <description><![CDATA[在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
 Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
- A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
- 也可以查看 NETWORK_NAMESPACES(7)
+A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+也可以查看 NETWORK_NAMESPACES(7)
 因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
 如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。]]></description>
 </item><item>
@@ -23,9 +23,9 @@ Network Namespace 在 command line 操作 network namespace 通常會使用 ip n
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/dockervolume/</guid>
     <description><![CDATA[因為 side project 可能會用簡單的資料庫，為了方便包成 docker 讓大家試玩，想要使用 Volume 的方式對資料庫做持久化。在這邊紀錄一下 Docker Volume 相關的一些用法。
- 很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
- Volume 是什麼 Volume 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:
- Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不會影響 Image Volume 會持續存在，並不會隨著容器刪除而消失  有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 Volume 中。
-創建 Volume ~$ docker volume create volume_name  查看所有 Volume  ~$ docker volume ls  查看指定 Volume 資料  ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \  --name web \  # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \  nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。]]></description>
+很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。
+Volume 是什麼 Volume 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:
+Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不會影響 Image Volume 會持續存在，並不會隨著容器刪除而消失 有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 Volume 中。
+創建 Volume ~$ docker volume create volume_name 查看所有 Volume ~$ docker volume ls 查看指定 Volume 資料 ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \ --name web \ # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \ nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。]]></description>
 </item></channel>
 </rss>

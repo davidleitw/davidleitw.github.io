@@ -4,7 +4,28 @@
         <link>https://davidleitw.github.io/tags/</link>
         <description>Tags - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 04 May 2022 00:01:01 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>c</title>
+    <link>https://davidleitw.github.io/tags/c/</link>
+    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/c/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>file_descriptor</title>
+    <link>https://davidleitw.github.io/tags/file_descriptor/</link>
+    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/file_descriptor/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>kernel</title>
+    <link>https://davidleitw.github.io/tags/kernel/</link>
+    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/kernel/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>container</title>
     <link>https://davidleitw.github.io/tags/container/</link>
     <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
@@ -52,27 +73,6 @@
     <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/tags/concurrency/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>linux_kernel</title>
-    <link>https://davidleitw.github.io/tags/linux_kernel/</link>
-    <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/linux_kernel/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>parallelism</title>
-    <link>https://davidleitw.github.io/tags/parallelism/</link>
-    <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/parallelism/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>database</title>
-    <link>https://davidleitw.github.io/tags/database/</link>
-    <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/database/</guid>
     <description><![CDATA[]]></description>
 </item></channel>
 </rss>

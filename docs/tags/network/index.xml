@@ -12,8 +12,8 @@
     <guid>https://davidleitw.github.io/posts/docker_network_ns/</guid>
     <description><![CDATA[在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
 Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
- A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
- 也可以查看 NETWORK_NAMESPACES(7)
+A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+也可以查看 NETWORK_NAMESPACES(7)
 因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
 如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。]]></description>
 </item><item>
@@ -26,9 +26,10 @@ Network Namespace 在 command line 操作 network namespace 通常會使用 ip n
 以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。
 一般來說，address 的實際數值都會用 in_addr 或者 in_addr_t 來表示 其本質就是 uint32_t，用總共 32 個 bits 來表示一個 IPv4 的地址
 typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常用的有以下這五種
- 只能用在 IPv4 的處理  inet_addr inet_aton inet_ntoa   兼容 Ipv4 與 IPv6  inet_pton inet_ntop    使用前必須先
-#include &lt;arpa/inet.h&gt;inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
-回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE]]></description>
+只能用在 IPv4 的處理 inet_addr inet_aton inet_ntoa 兼容 Ipv4 與 IPv6 inet_pton inet_ntop 使用前必須先
+#include &lt;arpa/inet.h&gt; inet_addr in_addr_t inet_addr(const char *cp) 功能: 將字串轉換成數值表示的 ip address
+回傳: 假如輸入的地址合法，會回傳 uint32_t 的數值，若不合法則回傳 INADDR_NONE
+INADDR_NODE = 0xFFFFFFFF (32 個 bits 全部填一)]]></description>
 </item><item>
     <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
     <link>https://davidleitw.github.io/posts/socker2/</link>
@@ -37,7 +38,7 @@ typedef uint32_t in_addr_t; // 4 byte struct in_addr { in_addr_t s_addr; }; 常�
     <guid>https://davidleitw.github.io/posts/socker2/</guid>
     <description><![CDATA[sockaddr sockaddr 是 socket 的通用地址結構，就如同一開始提到的，socket 除了在網路領域之外，也可以在很多不同的地方用來通訊。
 sockaddr 結構，定義如下
-typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family  struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes  char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
+typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
 IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
 </item><item>
     <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
@@ -49,9 +50,9 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
 在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
 我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
 本文章所使用的環境
- kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1  在寫 socket 相關的程式的時候，需要先
-#include &lt;arpa/inet.h&gt; // sockaddr 相關#include &lt;sys/socket.h&gt;socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
- AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6  AF_INET: IPv4 協定 AF_INET6: IPv6 協定    詳細的選項可以參考 socket 的 man page]]></description>
+kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1 在寫 socket 相關的程式的時候，需要先
+#include &lt;arpa/inet.h&gt; // sockaddr 相關 #include &lt;sys/socket.h&gt; socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
+AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6 AF_INET: IPv4 協定 AF_INET6: IPv6 協定 詳細的選項可以參考 socket 的 man page]]></description>
 </item><item>
     <title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
     <link>https://davidleitw.github.io/posts/sdn1/</link>
@@ -62,11 +63,13 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
 當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
 預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
 之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
-什麼是 SDN 以及 SDN 的發展歷史  參考文章
- SDN 簡介 SDN 發展趨勢   傳統網路的一些特點:
- 每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
+什麼是 SDN 以及 SDN 的發展歷史 參考文章
+SDN 簡介 SDN 發展趨勢 傳統網路的一些特點:
+每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。 SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
 SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
-常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。]]></description>
+常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。
+有時候網路設備也被稱為 Data Plane。
+支援 OpenFlow 的 switch 會有以下功能]]></description>
 </item><item>
     <title>SDN 學習筆記(二): OpenFlow 1.0 介紹</title>
     <link>https://davidleitw.github.io/posts/sdn2/</link>
@@ -75,13 +78,14 @@ SDN 並非一種技術，而是一種設計的理念，只要符合控制面以�
     <guid>https://davidleitw.github.io/posts/sdn2/</guid>
     <description><![CDATA[前言 想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹OpenFlow 1.0的架構，以及一些 spec 的整理.
 之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。
-為什麼會著重在1.0與1.3兩個版本呢？  1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
+為什麼會著重在1.0與1.3兩個版本呢？ 1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
 參考資料: OpenFlow 協定演進
- OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
- Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table
- OpenFlow 1.0 中每個Switch只能存放一個Flow Table
- Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
- Header Fields Counters Actions  Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
-分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec]]></description>
+OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
+Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table
+OpenFlow 1.0 中每個Switch只能存放一個Flow Table
+Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
+Header Fields Counters Actions Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
+分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec
+L1 Ingress Port: 封包進入 Switch 的Port L2 Ether source: 來源Mac Address Ether dst: 目標Mac Address Ether type: 乙太類型 VLAN ID VLAN priority L3 IPv4 source: 來源IP Address IPv4 dst: 目標IP Address IPv4 proto: IP協定表 IPv4 Tos bits: Type of service L4 TCP/UDP source port TCP/UDP dst port Counters Counter 會針對每張 Flow Table, 每條 Flow entry, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。]]></description>
 </item></channel>
 </rss>

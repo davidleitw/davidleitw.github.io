@@ -11,7 +11,7 @@ Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如�
 可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
 Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
 底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
-#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count &#43; 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; &#43;&#43;i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th." />
+#include &lt;thread&gt; #include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count &#43; 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; &#43;&#43;i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://davidleitw.github.io/posts/concurrency02/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2022-04-01T00:01:01+08:00" />
@@ -24,7 +24,7 @@ Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如�
 可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
 Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
 底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
-#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count &#43; 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; &#43;&#43;i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th."/>
+#include &lt;thread&gt; #include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count &#43; 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; &#43;&#43;i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th."/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -37,7 +37,7 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/davidleitw.github.io\/posts\/concurrency02\/"
-        },"genre": "posts","keywords": "concurrency, parallelism, linux, linux_kernel","wordcount":  623 ,
+        },"genre": "posts","keywords": "concurrency, parallelism, linux, linux_kernel","wordcount":  624 ,
         "url": "https:\/\/davidleitw.github.io\/posts\/concurrency02\/","datePublished": "2022-04-01T00:01:01+08:00","dateModified": "2022-04-01T00:01:01+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -114,7 +114,7 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animated flipInX">從執行順序來探討 Race condition, go 語言的 happens-before 規則</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/concurrency/"><i class="far fa-folder fa-fw"></i>Concurrency</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-04-01">2022-04-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;623 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-04-01">2022-04-01</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;624 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;3 minutes&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -153,27 +153,27 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
 <h2 id="race-condition">Race condition</h2>
 <p>在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為<strong>交錯執行</strong>，導致最後的結果不如預期。</p>
 <p>底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="k">const</span> <span class="kt">int</span> <span class="n">thread_num</span> <span class="o">=</span> <span class="mi">20000</span><span class="p">;</span>
-
-<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">)</span> <span class="p">{</span> <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="p">}</span>
-
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-  <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">threads</span><span class="p">[</span><span class="n">thread_num</span><span class="p">];</span>
-
-  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">thread_num</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
-    <span class="n">threads</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">count</span><span class="p">));</span>
-
-  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">th</span> <span class="p">:</span> <span class="n">threads</span><span class="p">)</span>
-    <span class="n">th</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
-
-  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">count</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
-  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div><p>今天我們這個程式想要操作 <code>count</code> 變數，總共開了 20000 條 thread，每個 thread 都會執行 <code>func</code>，<code>func</code> 的功能很簡單，把 <code>count</code> 變數傳入，並且+1。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;thread&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="kt">int</span> <span class="n">thread_num</span> <span class="o">=</span> <span class="mi">20000</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">count</span><span class="p">)</span> <span class="p">{</span> <span class="n">count</span> <span class="o">=</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="n">std</span><span class="o">::</span><span class="kr">thread</span> <span class="n">threads</span><span class="p">[</span><span class="n">thread_num</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">thread_num</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">threads</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kr">thread</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">count</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">th</span> <span class="p">:</span> <span class="n">threads</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">th</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">count</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>今天我們這個程式想要操作 <code>count</code> 變數，總共開了 20000 條 thread，每個 thread 都會執行 <code>func</code>，<code>func</code> 的功能很簡單，把 <code>count</code> 變數傳入，並且+1。</p>
 <p>所以我們 20000 條 thread 各執行一次 <code>func</code>，預期的結果應該會得到 <code>count = 20000</code>，現在來實際執行看看。</p>
 <p>編譯</p>
 <pre tabindex="0"><code class="language-bash=" data-lang="bash=">clang++ -lpthread race.cc -o race
@@ -227,8 +227,8 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
 <p>Evaluation 可以想成 value computations 與 side effect 的組合，用上面 <code>func</code> 的例子，value computations 就是把 <code>count+1</code> 計算出來的動作，side effect 就是把計算出來的值 assign 給 <code>count</code> 的步驟。</p>
 <p>side effect 有<strong>改變物件/變數狀態</strong>的語意，你 assign 某個值給變數的同時，如果有另外一個 thread 在呼叫 <code>func</code> 或者訪問被改變的變數，就有可能導致讀到錯誤(不符預期)的值。</p>
 <h3 id="evaluation-orders">Evaluation orders</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="kt">int</span> <span class="n">solution</span> <span class="o">=</span> <span class="n">f1</span><span class="p">()</span> <span class="o">+</span> <span class="n">f2</span><span class="p">()</span> <span class="o">+</span> <span class="n">f3</span><span class="p">();</span>
-</code></pre></div><p>在上面的例子，可以看到 <code>solution</code> 必須要呼叫 <code>f1</code>, <code>f2</code>, <code>f3</code> 來取得最後的結果，每個語言的規範不同，有些語言會依序呼叫 <code>f1()</code>, <code>f2()</code>, <code>f3()</code>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">solution</span> <span class="o">=</span> <span class="n">f1</span><span class="p">()</span> <span class="o">+</span> <span class="n">f2</span><span class="p">()</span> <span class="o">+</span> <span class="n">f3</span><span class="p">();</span>
+</span></span></code></pre></div><p>在上面的例子，可以看到 <code>solution</code> 必須要呼叫 <code>f1</code>, <code>f2</code>, <code>f3</code> 來取得最後的結果，每個語言的規範不同，有些語言會依序呼叫 <code>f1()</code>, <code>f2()</code>, <code>f3()</code>。</p>
 <p>有些語言像是 c++ 沒有強制規定運算元的執行先後順序，而是交給編譯器處理，這時候編譯器可能會選擇<a href="https://zh.wikipedia.org/wiki/%E6%8C%87%E4%BB%A4%E8%B0%83%E5%BA%A6" target="_blank" rel="noopener noreffer">指令調度(Instruction scheduling)</a>來優化執行效率，可能會先呼叫 <code>f3()</code> 再去求 <code>f1() + f2()</code>，這種改變順序的行為有時候就會導致 side effect 的發生(可能彼此共有一些變數，使呼叫順序改變結果)。</p>
 <p>Evaluation orders 在每個語言的規範都不相同，真的想深入了解一門語言，應該要花點時間去研究一下那個語言的規範，避免踩到坑。</p>
 <h2 id="sequenced-before">sequenced-before</h2>
@@ -250,29 +250,29 @@ int b = getSomethingForB();
 <li><code>++i</code> 稱為<strong>前置運算子</strong>，side effect 會先於 value computation，使用時則會回傳 <code>i+1</code> 的值。</li>
 </ul>
 <p>在寫 if statement 如果有多個條件，我們都會傾向於把先檢查的放在前面，如果前面是 false 就不需要繼續往後執行了，像是</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">&amp;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">dosomething</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div><p>因為左邊的運算元 <code>a</code> 的 evaluation 會先於右邊的 <code>b</code>，所以在寫 <code>&amp;&amp;</code> 或者 <code>||</code> 的時候可以將比較需要優先檢查的條件放在前面。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">&amp;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dosomething</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>因為左邊的運算元 <code>a</code> 的 evaluation 會先於右邊的 <code>b</code>，所以在寫 <code>&amp;&amp;</code> 或者 <code>||</code> 的時候可以將比較需要優先檢查的條件放在前面。</p>
 <h2 id="happens-before">Happens-before</h2>
 <p>因為 <a href="https://go.dev/ref/mem" target="_blank" rel="noopener noreffer">go 語言的官方文件</a> 在介紹 Happens-before 的時候有牽扯到一些 go 語言獨有的特性(goroutine)，所以我們先跟 jserv 老師的講座一樣，從 <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5" target="_blank" rel="noopener noreffer">Java 的官方文件</a> 來簡單介紹一下這個名詞。</p>
 <!-- raw HTML omitted -->
 <p>當 A happens-before B，代表 A 的操作對於 B 來說是<strong>可見的(visible)</strong>。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
-    <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span> <span class="c1">// num = 8;
-</span><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">num</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// output: 8
-</span><span class="c1"></span><span class="p">}</span>
-</code></pre></div><p>以上面範例第四行的為例，在輸出 <code>num</code> 之前它必須要先被減二，這樣輸出的結果才會符合預期。我們可以說 <code>num = num - 2;</code> 這行必須 <strong>happens-before</strong> <code>std::cout &lt;&lt; num &lt;&lt; std::endl;</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span> <span class="c1">// num = 8;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">num</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// output: 8
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div><p>以上面範例第四行的為例，在輸出 <code>num</code> 之前它必須要先被減二，這樣輸出的結果才會符合預期。我們可以說 <code>num = num - 2;</code> 這行必須 <strong>happens-before</strong> <code>std::cout &lt;&lt; num &lt;&lt; std::endl;</code></p>
 <p>那為什麼會強調只要 <strong>visible</strong> 就好呢，因為只要有達成效果就好，實際上編譯器可能會因為優化，私底下改變某些指令的執行順序，這部份可以參考 <a href="https://preshing.com/20120625/memory-ordering-at-compile-time/" target="_blank" rel="noopener noreffer">Memory Ordering at Compile Time</a></p>
 <p>我們用上面那篇參考文章的一個例子來簡單說明</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">;</span>
-
-<span class="kt">void</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
-    <span class="n">A</span> <span class="o">=</span> <span class="n">B</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
-    <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div><p>使用 <a href="https://gcc.godbolt.org/" target="_blank" rel="noopener noreffer">godbolt</a> 可以直接觀察 gcc 將程式碼轉成對應的程式語言</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">A</span> <span class="o">=</span> <span class="n">B</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">B</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>使用 <a href="https://gcc.godbolt.org/" target="_blank" rel="noopener noreffer">godbolt</a> 可以直接觀察 gcc 將程式碼轉成對應的程式語言</p>
 <p>在沒有開任何優化的情況下，轉出來的組合語言如下</p>
 <p><img
         class="lazyload"
@@ -348,7 +348,7 @@ int b = getSomethingForB();
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

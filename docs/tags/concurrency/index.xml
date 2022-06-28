@@ -15,7 +15,7 @@ Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如�
 可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
 Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
 底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
-#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
+#include &lt;thread&gt; #include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
 </item><item>
     <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
     <link>https://davidleitw.github.io/posts/concurrency01/</link>

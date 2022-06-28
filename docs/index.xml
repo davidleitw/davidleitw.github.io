@@ -4,9 +4,19 @@
         <link>https://davidleitw.github.io/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Wed, 04 May 2022 00:01:01 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</lastBuildDate>
             <atom:link href="https://davidleitw.github.io/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>Linux file descriptor 理解</title>
+    <link>https://davidleitw.github.io/posts/fd/</link>
+    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/fd/</guid>
+    <description><![CDATA[前言 file descriptor 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 socket 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 epoll_create 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。
+在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。
+在 File descriptor 中可以簡單看一下，究竟在 Linux 中有多少 system call 使用了 File descriptor 的概念，就知道 fd 在 Linux 中的重要性了。
+Everything is a file Linux 秉持著 UNIX 哲學 Everything is a file，這個概念的好處是可以用一組通用的 Interface 來操作不同資源，在資源跟使用者之間加上一層抽象層，進而延伸出 Universal I/O Model 的概念。]]></description>
+</item><item>
     <title>Docker 網路模型與 Linux namespace, bridge 機制探討</title>
     <link>https://davidleitw.github.io/posts/docker_network_ns/</link>
     <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
@@ -14,8 +24,8 @@
     <guid>https://davidleitw.github.io/posts/docker_network_ns/</guid>
     <description><![CDATA[在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
 Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
- A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
- 也可以查看 NETWORK_NAMESPACES(7)
+A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+也可以查看 NETWORK_NAMESPACES(7)
 因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
 如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。]]></description>
 </item><item>
@@ -38,7 +48,7 @@ Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如�
 可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
 Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
 底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
-#include &lt;thread&gt;#include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
+#include &lt;thread&gt; #include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.]]></description>
 </item><item>
     <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
     <link>https://davidleitw.github.io/posts/concurrency01/</link>
@@ -68,7 +78,7 @@ Parallelism 更強調的是同時的概念，不同的任務可以分配給不�
     <pubDate>Mon, 21 Mar 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/db01/</guid>
-    <description><![CDATA[收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
+    <description><![CDATA[收集到 Requirements 最難，很難提出&quot;精準&quot;的需求 Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
 type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
 Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
 在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
@@ -80,10 +90,10 @@ Composite Composite attribute 是由多個不同的部份組成一起的概念�
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/lc1022/</guid>
-    <description><![CDATA[題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
+    <description><![CDATA[題目敘述 Input: root = [1, 0, 1, 0, 1, 0, 1]
 Output: 22
 Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
- 給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
+給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
 解題紀錄 利用 DFS 去尋訪，如果 !root-&gt;left &amp;&amp; !root-&gt;right 就代表到達 leaf，直接回傳算出來的值。
 class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!]]></description>
 </item><item>
@@ -93,10 +103,10 @@ class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(roo
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/linux_wake_queue1/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
- 概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。
+概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。
 waitqueue 有定義兩種資料結構
- wait_queue_head: waitqueue 的 head wait_queue_entry: 來表示每個在 waitqueue 的元素  waitqueue 所有的實現都是基於 kernel 內建的 double circular linked list 來實現，所以本身的設計非常簡潔。 以下為 waitqueue 基本的 data struct 定義，位在 /include/linux/wait.h
-wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct list_head	head; // 指向 prev, next entry. }; typedef struct wait_queue_head wait_queue_head_t; 初始化 waitqueue 要建立新的 waitqueue，必須要先初始化 wait_queue_head_t 結構，透過 init_waitqueue_head，定義如下]]></description>
+wait_queue_head: waitqueue 的 head wait_queue_entry: 來表示每個在 waitqueue 的元素 waitqueue 所有的實現都是基於 kernel 內建的 double circular linked list 來實現，所以本身的設計非常簡潔。 以下為 waitqueue 基本的 data struct 定義，位在 /include/linux/wait.h
+wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 struct list_head	head; // 指向 prev, next entry. }; typedef struct wait_queue_head wait_queue_head_t; 初始化 waitqueue 要建立新的 waitqueue，必須要先初始化 wait_queue_head_t 結構，透過 init_waitqueue_head，定義如下]]></description>
 </item><item>
     <title>Linux schedule 原始碼解讀</title>
     <link>https://davidleitw.github.io/posts/linux_get_context_switch/</link>
@@ -104,9 +114,9 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 	struct
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/linux_get_context_switch/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
- 第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
+第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
-asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock 	sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 	preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 	sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
+asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
 </item><item>
     <title>Linux fork() 底層實作流程整理</title>
     <link>https://davidleitw.github.io/posts/linux_fork_01/</link>
@@ -114,18 +124,10 @@ asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = cur
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/linux_fork_01/</guid>
     <description><![CDATA[本文章環境基於 Linux v4.14.259
- 因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
+因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
 在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
 從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
- 建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create  以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()]]></description>
-</item><item>
-    <title>leetcode 997. Find the Town Judge [Easy]</title>
-    <link>https://davidleitw.github.io/posts/lc997/</link>
-    <pubDate>Tue, 04 Jan 2022 00:12:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/posts/lc997/</guid>
-    <description><![CDATA[題目敘述 在小鎮中有 N 個人，其中裡面有一個是 Judge，成為 Judge 要滿足兩個條件
- Judge 本身不相信任何人 其他 N-1 個人都相信 Judge  一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
-解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; ]]></description>
+建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create 以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()
+但是如果看最新幾版的 kernel source code 會發現怎麼樣都沒辦法找到 _do_fork 這個 function 了，仔細找了一下原因，發現在 linux v5.]]></description>
 </item></channel>
 </rss>

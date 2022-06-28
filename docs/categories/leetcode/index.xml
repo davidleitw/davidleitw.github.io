@@ -10,10 +10,10 @@
     <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/lc1022/</guid>
-    <description><![CDATA[題目敘述  Input: root = [1, 0, 1, 0, 1, 0, 1]
+    <description><![CDATA[題目敘述 Input: root = [1, 0, 1, 0, 1, 0, 1]
 Output: 22
 Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
- 給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
+給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
 解題紀錄 利用 DFS 去尋訪，如果 !root-&gt;left &amp;&amp; !root-&gt;right 就代表到達 leaf，直接回傳算出來的值。
 class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!]]></description>
 </item><item>
@@ -23,7 +23,7 @@ class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(roo
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/lc997/</guid>
     <description><![CDATA[題目敘述 在小鎮中有 N 個人，其中裡面有一個是 Judge，成為 Judge 要滿足兩個條件
- Judge 本身不相信任何人 其他 N-1 個人都相信 Judge  一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
+Judge 本身不相信任何人 其他 N-1 個人都相信 Judge 一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
 解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; ]]></description>
 </item><item>
     <title>leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</title>
@@ -76,7 +76,7 @@ class Solution { public: Node* connect(Node* root) { if (!root) return root; que
 找第一個有效位元 我的想法是先從左邊第一個 bit 開始找，找到第一個 1 ，後面所有的 bit 就都是有效位數，再一一反轉。
 要判斷左邊第一個位元是不是 1 可以寫成
 if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方式先找到第一個 1 的所在，在對於後面的 bit 做反轉。
-反轉 bits  (一): 逐個 bit 反轉, 利用 XOR  class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !]]></description>
+反轉 bits (一): 逐個 bit 反轉, 利用 XOR class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !]]></description>
 </item><item>
     <title>leetcode 198. House Robber [Medium]</title>
     <link>https://davidleitw.github.io/posts/lc198/</link>

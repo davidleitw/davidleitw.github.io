@@ -8,8 +8,8 @@
         <title>Docker 網路模型與 Linux namespace, bridge 機制探討 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Docker 網路模型與 Linux namespace, bridge 機制探討" />
 <meta property="og:description" content="在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
 Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
- A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
- 也可以查看 NETWORK_NAMESPACES(7)
+A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+也可以查看 NETWORK_NAMESPACES(7)
 因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
 如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。" />
 <meta property="og:type" content="article" />
@@ -21,14 +21,14 @@ Network Namespace 在 command line 操作 network namespace 通常會使用 ip n
 <meta name="twitter:title" content="Docker 網路模型與 Linux namespace, bridge 機制探討"/>
 <meta name="twitter:description" content="在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。
 Network Namespace 在 command line 操作 network namespace 通常會使用 ip netns 來操作，先引用 ip-netns 的 man page 來介紹一下 network namespace 的定義
- A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
- 也可以查看 NETWORK_NAMESPACES(7)
+A network namespace is logically another copy of the network stack, with its own routes, firewall rules, and network devices.
+也可以查看 NETWORK_NAMESPACES(7)
 因為 network namespace 本身隔離了整個 network stack, 所以幾乎所有關於 network 的資源都會被隔離，每個 namespace 內這些資源都是獨立存在的。
 如果有牽涉到 fork() 等建立新的 process 的行為，原則上 child process 會繼承 parent 的 network space。"/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://davidleitw.github.io/posts/docker_network_ns/" /><link rel="prev" href="https://davidleitw.github.io/posts/sudogo/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://davidleitw.github.io/posts/docker_network_ns/" /><link rel="prev" href="https://davidleitw.github.io/posts/sudogo/" /><link rel="next" href="https://davidleitw.github.io/posts/fd/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
@@ -177,9 +177,9 @@ Network Namespace 在 command line 操作 network namespace 通常會使用 ip n
         title="https://i.imgur.com/3FdIjWB.png" /></p>
 <h3 id="建立新的-network-namespace">建立新的 network namespace</h3>
 <p>建立一個新的 network namespace 可以使用 <code>sudo ip netns add</code> 加上想要的 namespace 名稱，建立之後用 <code>ip netns ls</code> 就可以看到多了一個剛剛建立的 network namespace。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns add ns0
-$ ip netns ls
-</code></pre></div><p>使用 <code>ip netns</code> 建立的 network namespace 會出現在 <code>/var/run/netns</code> 底下。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip netns add ns0
+</span></span><span class="line"><span class="cl">$ ip netns ls
+</span></span></code></pre></div><p>使用 <code>ip netns</code> 建立的 network namespace 會出現在 <code>/var/run/netns</code> 底下。</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -209,15 +209,15 @@ $ ip netns ls
 <p>Linux 中有 <a href="https://man7.org/linux/man-pages/man4/veth.4.html" target="_blank" rel="noopener noreffer">veth - Virtual Ethernet Device</a> 的概念， <code>veth</code> 可以拿來建立不同虛擬網路裝置之間的橋樑，讓不同虛擬裝置之間可以連線，像是不同的 network namespace，又或者是 docker container 之間的連線, ovs 內的應用等等，都有使用到 <code>veth</code> 的概念。</p>
 <p><code>veth</code> 都是成對出現的，所以很多文章也把它稱為 <code>veth-pair</code>，在後續的實驗中我們也可以觀察到 Docker 彼此之間的 <code>veth-pair</code>。</p>
 <p>為了實驗兩個 network namespace 的連線，我們再建立一個 <code>ns1</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns add ns1
-$ ip netns ls
-ns1
-ns0
-</code></pre></div><h3 id="建立新的-veth-pair">建立新的 veth Pair</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip netns add ns1
+</span></span><span class="line"><span class="cl">$ ip netns ls
+</span></span><span class="line"><span class="cl">ns1
+</span></span><span class="line"><span class="cl">ns0
+</span></span></code></pre></div><h3 id="建立新的-veth-pair">建立新的 veth Pair</h3>
 <p>上面有提到 <code>veth</code> 都是成對出現的，所以在建立的時候也要同時建立兩端，這邊我們將兩端分別取名 <code>vth0</code> 以及 <code>vth1</code> 代表等等要接在 <code>ns0</code> 與 <code>ns1</code> 上面。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link add vth0 <span class="nb">type</span> veth peer vth1
-$ ip link show
-</code></pre></div><p>接著用 <code>ip link show</code> 就可以看到剛剛建立的 <code>veth pair</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip link add vth0 <span class="nb">type</span> veth peer vth1
+</span></span><span class="line"><span class="cl">$ ip link show
+</span></span></code></pre></div><p>接著用 <code>ip link show</code> 就可以看到剛剛建立的 <code>veth pair</code></p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -228,9 +228,9 @@ $ ip link show
         title="https://i.imgur.com/KfnBEla.png" /></p>
 <h3 id="將-veth-連結到-network-namespace">將 veth 連結到 network namespace</h3>
 <p>建立好了兩端的 <code>veth</code> 之後我們就需要把它接到對應的 network namespace</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link <span class="nb">set</span> vth0 netns ns0
-$ sudo ip link <span class="nb">set</span> vth1 netns ns2
-</code></pre></div><p>這時候我們再使用 <code>ip link show</code> 確認一下</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> vth0 netns ns0
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> vth1 netns ns2
+</span></span></code></pre></div><p>這時候我們再使用 <code>ip link show</code> 確認一下</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -250,11 +250,11 @@ $ sudo ip link <span class="nb">set</span> vth1 netns ns2
         title="https://i.imgur.com/FoVEZnV.png" /></p>
 <h3 id="啟動-veth-並且分配一個私有的-ip">啟動 veth 並且分配一個私有的 ip</h3>
 <p>光是把 <code>vth0</code>, <code>vth1</code> 連結到 <code>ns0</code>, <code>ns1</code> 還不夠，為了後續 ping 的實驗我們必須在 <code>ns0</code>, <code>ns1</code> 中啟動 <code>veth</code> 並且分配一個私有的 ip 位置。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> vth0 up
-$ sudo ip netns <span class="nb">exec</span> ns0 ip addr add 172.0.0.2/24 dev vth0
-$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> vth1 up
-$ sudo ip netns <span class="nb">exec</span> ns1 ip addr add 172.0.0.3/24 dev vth1
-</code></pre></div><p>我們為 <code>vth0</code> 分配了 172.0.0.2/24，<code>vth1</code> 分配了 172.0.0.3/24，我們一樣分別進入 <code>ns0</code>, <code>ns1</code> 用 <code>ip addr</code> 確認他們對應的 <code>veth</code> 是否開啟並且正確的被分配了 ip</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> vth0 up
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns0 ip addr add 172.0.0.2/24 dev vth0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> vth1 up
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns1 ip addr add 172.0.0.3/24 dev vth1
+</span></span></code></pre></div><p>我們為 <code>vth0</code> 分配了 172.0.0.2/24，<code>vth1</code> 分配了 172.0.0.3/24，我們一樣分別進入 <code>ns0</code>, <code>ns1</code> 用 <code>ip addr</code> 確認他們對應的 <code>veth</code> 是否開啟並且正確的被分配了 ip</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -296,16 +296,16 @@ $ sudo ip netns <span class="nb">exec</span> ns1 ip addr add 172.0.0.3/24 dev vt
 <p>注意，這次我們有做一點調整，把 <code>veth</code> 連結到 network namespace 之後統一改名成 <code>eth0</code></p>
 <h3 id="建立-bridge-device">建立 bridge device</h3>
 <p>先建立一個 <code>bridge device</code> 並且取名為 <code>br0</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link add br0 <span class="nb">type</span> bridge
-$ sudo ip link <span class="nb">set</span> br0 up
-</code></pre></div><p>建立三個 network namespace 以及建立三對 <code>veth-pair</code> 分別對應 <code>ns0</code>, <code>ns1</code>, <code>ns2</code> 連結到 <code>br0</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip netns add ns0
-$ sudo ip netns add ns1
-$ sudo ip netns add ns2
-$ sudo ip link add <span class="nb">type</span> veth
-$ sudo ip link add <span class="nb">type</span> veth
-$ sudo ip link add <span class="nb">type</span> veth
-</code></pre></div><p>這次換了一種建立方式，直接 <code>ip link add type veth</code>，不用自己取名字，系統會幫你分配好，如下圖所示</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip link add br0 <span class="nb">type</span> bridge
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> br0 up
+</span></span></code></pre></div><p>建立三個 network namespace 以及建立三對 <code>veth-pair</code> 分別對應 <code>ns0</code>, <code>ns1</code>, <code>ns2</code> 連結到 <code>br0</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip netns add ns0
+</span></span><span class="line"><span class="cl">$ sudo ip netns add ns1
+</span></span><span class="line"><span class="cl">$ sudo ip netns add ns2
+</span></span><span class="line"><span class="cl">$ sudo ip link add <span class="nb">type</span> veth
+</span></span><span class="line"><span class="cl">$ sudo ip link add <span class="nb">type</span> veth
+</span></span><span class="line"><span class="cl">$ sudo ip link add <span class="nb">type</span> veth
+</span></span></code></pre></div><p>這次換了一種建立方式，直接 <code>ip link add type veth</code>，不用自己取名字，系統會幫你分配好，如下圖所示</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -315,31 +315,31 @@ $ sudo ip link add <span class="nb">type</span> veth
         alt="https://i.imgur.com/OB3MrnC.png"
         title="https://i.imgur.com/OB3MrnC.png" /></p>
 <p>先處理對接 <code>br0</code> 的部份，把 <code>veth0</code>, <code>veth2</code>, <code>veth4</code> 連接到 <code>br0</code>，一定要記得把他們 set up。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo ip link <span class="nb">set</span> veth0 up
-$ sudo ip link <span class="nb">set</span> veth0 master br0
-$ sudo ip link <span class="nb">set</span> veth2 up
-$ sudo ip link <span class="nb">set</span> veth2 master br0
-$ sudo ip link <span class="nb">set</span> veth4 up
-$ sudo ip link <span class="nb">set</span> veth4 master br0
-</code></pre></div><p>接著處理對接到 network namespace 的部份</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># 設置 ns0</span>
-$ sudo ip link <span class="nb">set</span> veth1 netns ns0
-$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> veth1 name eth0
-$ sudo ip netns <span class="nb">exec</span> ns0 ip addr add 10.0.0.1/24 dev eth0
-$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> eth0 up
-
-<span class="c1"># 設置 ns1</span>
-$ sudo ip link <span class="nb">set</span> dev veth3 netns ns1
-$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> dev veth3 name eth0
-$ sudo ip netns <span class="nb">exec</span> ns1 ip addr add 10.0.0.2/24 dev eth0
-$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> dev eth0 up
-
-<span class="c1"># 設置 ns2</span>
-$ sudo ip link <span class="nb">set</span> dev veth5 netns ns2
-$ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</span> dev veth5 name eth0
-$ sudo ip netns <span class="nb">exec</span> ns2 ip addr add 10.0.0.3/24 dev eth0
-$ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</span> dev eth0 up
-</code></pre></div><p>設置好之後可以去每個 network namespace 用 <code>ip addr</code> 查看是否設置完成</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> veth0 up
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> veth0 master br0
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> veth2 up
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> veth2 master br0
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> veth4 up
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> veth4 master br0
+</span></span></code></pre></div><p>接著處理對接到 network namespace 的部份</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 設置 ns0</span>
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> veth1 netns ns0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> veth1 name eth0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns0 ip addr add 10.0.0.1/24 dev eth0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns0 ip link <span class="nb">set</span> eth0 up
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 設置 ns1</span>
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> dev veth3 netns ns1
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> dev veth3 name eth0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns1 ip addr add 10.0.0.2/24 dev eth0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns1 ip link <span class="nb">set</span> dev eth0 up
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 設置 ns2</span>
+</span></span><span class="line"><span class="cl">$ sudo ip link <span class="nb">set</span> dev veth5 netns ns2
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</span> dev veth5 name eth0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns2 ip addr add 10.0.0.3/24 dev eth0
+</span></span><span class="line"><span class="cl">$ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</span> dev eth0 up
+</span></span></code></pre></div><p>設置好之後可以去每個 network namespace 用 <code>ip addr</code> 查看是否設置完成</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -359,8 +359,8 @@ $ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</s
         title="https://i.imgur.com/reV0urc.png" /></p>
 <p>正常來說會發現還是無法成功 ping</p>
 <p>這時候針對 <code>br0</code> 改一下配置</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo iptables -A FORWARD -i br0 -j ACCEPT
-</code></pre></div><p>接著就可以測試，發現三個 network namespace 可以互通了</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo iptables -A FORWARD -i br0 -j ACCEPT
+</span></span></code></pre></div><p>接著就可以測試，發現三個 network namespace 可以互通了</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -418,9 +418,9 @@ $ sudo ip netns <span class="nb">exec</span> ns2 ip link <span class="nb">set</s
         title="https://i.imgur.com/LYB4sEG.png" /></p>
 <h3 id="建立一個新的-container">建立一個新的 container</h3>
 <p>先建立一個 container 來試試預設的網路功能</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run --name nginx_test1 -d -p 8081:80 nginx
-$ sudo docker ps -a
-</code></pre></div><p>使用 <code>docker ps -a</code> 確定 <code>nginx_test1</code> 有跑起來</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo docker run --name nginx_test1 -d -p 8081:80 nginx
+</span></span><span class="line"><span class="cl">$ sudo docker ps -a
+</span></span></code></pre></div><p>使用 <code>docker ps -a</code> 確定 <code>nginx_test1</code> 有跑起來</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -457,8 +457,8 @@ $ sudo docker ps -a
         alt="https://i.imgur.com/OtdrnLj.png"
         title="https://i.imgur.com/OtdrnLj.png" /></p>
 <p>我們再次確認 <code>bridge</code> 的配置</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker inspect bridge
-</code></pre></div><p><img
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo docker inspect bridge
+</span></span></code></pre></div><p><img
         class="lazyload"
         src="/svg/loading.min.svg"
         data-src="https://i.imgur.com/KELXW9t.png"
@@ -469,9 +469,9 @@ $ sudo docker ps -a
 <p>可以注意到 <code>Containers</code> 的地方多了剛剛建立的 <code>nginx_test1</code> 的資料，代表說 <code>nginx_test1</code> 是透過 <code>bridge</code> 跟外部建立連線的，這也是為什麼剛剛可以訪問 <code>nginx_test1</code> 的原因。</p>
 <h3 id="兩個-containers-透過預設的-bridge-互連">兩個 containers 透過預設的 bridge 互連</h3>
 <p>接著來觀察在預設的網路環境， container 之間是否也可以藉由 <code>bridge</code> 互連，先用 <code>alpine</code> 的 image 建立兩個 container</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ sudo docker run -dit --name a1 alpine ash
-$ sudo docker run -dit --name a2 alpine ash
-</code></pre></div><p><img
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ sudo docker run -dit --name a1 alpine ash
+</span></span><span class="line"><span class="cl">$ sudo docker run -dit --name a2 alpine ash
+</span></span></code></pre></div><p><img
         class="lazyload"
         src="/svg/loading.min.svg"
         data-src="https://i.imgur.com/f97aohR.png"
@@ -514,8 +514,8 @@ $ sudo docker run -dit --name a2 alpine ash
         alt="https://i.imgur.com/xqhpuxc.png"
         title="https://i.imgur.com/xqhpuxc.png" /></p>
 <p>因為前面已經介紹過 veth, network namespace 的概念了，所以可以來觀察一下在預設的模式中， docker 是如何把多個 container 連在一起，讓彼此可以連通</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ ip addr
-</code></pre></div><p><img
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ ip addr
+</span></span></code></pre></div><p><img
         class="lazyload"
         src="/svg/loading.min.svg"
         data-src="https://i.imgur.com/8DDjgxS.jpg"
@@ -590,11 +590,12 @@ $ sudo docker run -dit --name a2 alpine ash
         </section>
     </div>
 
-    <div class="post-nav"><a href="/posts/sudogo/" class="prev" rel="prev" title="sudo go: command not found 問題解決"><i class="fas fa-angle-left fa-fw"></i>sudo go: command not found 問題解決</a></div>
+    <div class="post-nav"><a href="/posts/sudogo/" class="prev" rel="prev" title="sudo go: command not found 問題解決"><i class="fas fa-angle-left fa-fw"></i>sudo go: command not found 問題解決</a>
+            <a href="/posts/fd/" class="next" rel="next" title="Linux file descriptor 理解">Linux file descriptor 理解<i class="fas fa-angle-right fa-fw"></i></a></div>
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

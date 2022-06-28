@@ -6,7 +6,7 @@
         <meta name="robots" content="noodp" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
         <title>資料庫 ER Model(一): Entity 與 Attribute - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="資料庫 ER Model(一): Entity 與 Attribute" />
-<meta property="og:description" content="收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
+<meta property="og:description" content="收集到 Requirements 最難，很難提出&quot;精準&quot;的需求 Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
 type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
 Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
 在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
@@ -19,7 +19,7 @@ Composite Composite attribute 是由多個不同的部份組成一起的概念�
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="資料庫 ER Model(一): Entity 與 Attribute"/>
-<meta name="twitter:description" content="收集到 Requirements 最難，很難提出&quot;精準&quot;的需求  Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
+<meta name="twitter:description" content="收集到 Requirements 最難，很難提出&quot;精準&quot;的需求 Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
 type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
 Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
 在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
@@ -153,15 +153,15 @@ Composite Composite attribute 是由多個不同的部份組成一起的概念�
 </ul>
 <h3 id="entity">Entity</h3>
 <p><code>entity</code> 是 <code>RDBMS</code> 中實際的資料實體，可以用程式的概念理解，定義好 <code>struct</code> 之後一定會在某個地方建立一個實體，裡面會根據 <code>struct field type</code> 去存放資料。</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">student</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">name</span> <span class="kt">string</span>
-    <span class="nx">age</span> <span class="kt">int</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nx">studentA</span> <span class="o">:=</span> <span class="nx">student</span><span class="p">{</span><span class="s">&#34;david&#34;</span><span class="p">,</span> <span class="s">&#34;20&#34;</span><span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div><p><code>studentA</code> 就可以視為一個 <code>entity</code>，擁有真正資料的實體。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">student</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">name</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">age</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">studentA</span> <span class="o">:=</span> <span class="nx">student</span><span class="p">{</span><span class="s">&#34;david&#34;</span><span class="p">,</span> <span class="s">&#34;20&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><code>studentA</code> 就可以視為一個 <code>entity</code>，擁有真正資料的實體。</p>
 <h3 id="attribute">Attribute</h3>
 <p><code>attribute</code> 描述 <code>entity</code> 的屬性，拿上面 <code>student</code> 的例子，<code>name</code>, <code>age</code> 都可以當作 <code>attribute</code>。</p>
 <p>在資料庫內 <code>attribute</code> 分成很多不同類型，大致可以分成 <code>Simple</code>, <code>Composite</code>, <code>Multi-valued</code>。</p>
@@ -169,17 +169,17 @@ Composite Composite attribute 是由多個不同的部份組成一起的概念�
 <p><code>Simple attribute</code> 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 <code>data type</code>，像是 <code>student</code> 的 <code>age</code> 就是單純的 <code>int</code>。</p>
 <h4 id="composite">Composite</h4>
 <p><code>Composite attribute</code> 是由多個不同的部份組成一起的概念，像是外國的名字可能有 <code>FirstNAme</code>, <code>MiddleName</code>, <code>LastName</code> 等等</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">name</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">FirstName</span> <span class="kt">string</span>
-    <span class="nx">MiddleName</span> <span class="kt">string</span>
-    <span class="nx">LastName</span> <span class="kt">string</span>
-<span class="p">}</span>
-
-<span class="kd">type</span> <span class="nx">student</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">studentName</span> <span class="nx">name</span>
-    <span class="nx">studentAge</span> <span class="kt">int</span>
-<span class="p">}</span>
-</code></pre></div><p>這種時候 <code>name</code> 代表著三個 <code>string</code> 的集合，就可以視為一個 <code>Composite attribute</code>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">name</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">FirstName</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">MiddleName</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">LastName</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">student</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">studentName</span> <span class="nx">name</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">studentAge</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>這種時候 <code>name</code> 代表著三個 <code>string</code> 的集合，就可以視為一個 <code>Composite attribute</code>。</p>
 <h4 id="multi-valued">Multi-valued</h4>
 <p><code>Multi-valued attribute</code> 代表單個 <code>attribute</code> 內有多個 <code>value</code>，像是上課舉例是用車子的顏色，一個車子不可能從頭到尾只有一個顏色，不同區域可能會有不同的顏色，這時候如果我們資料庫需要描述這個車子的外觀顏色，就會用到 <code>Multi-valued attribute</code>，雖然有 <code>Multi-valued attribute</code>，但實際設計上通常都會把它拆開，實際怎麼分解的之後會再介紹。</p>
 <p><code>Multi-valued</code> 跟 <code>Composite</code> 是有可能同時出現的，彼此之間不衝突。</p>
@@ -201,21 +201,21 @@ Composite Composite attribute 是由多個不同的部份組成一起的概念�
         alt="https://i.imgur.com/qu56dyT.png"
         title="https://i.imgur.com/qu56dyT.png" /></p>
 <p>課本上用 <code>CAR</code> 來當 <code>ER diagrams</code> 的範例，這邊我試著用 <code>go</code> 語言的宣告去理解</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="c1">// Composite 
-</span><span class="c1"></span><span class="kd">type</span> <span class="nx">registration</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">State</span> <span class="kt">string</span>
-    <span class="nx">Number</span> <span class="kt">int</span>
-<span class="p">}</span>
-
-<span class="kd">type</span> <span class="nx">Car</span> <span class="kd">struct</span> <span class="p">{</span>
-    <span class="nx">VehicleID</span> <span class="kt">string</span>
-    <span class="nx">Registration</span> <span class="nx">registration</span>
-    <span class="nx">Year</span> <span class="kt">int</span>
-    <span class="nx">Color</span> <span class="p">[]</span><span class="nx">color</span> 
-    <span class="nx">Make</span> <span class="kt">string</span>
-    <span class="nx">Model</span> <span class="kt">string</span>
-<span class="p">}</span>
-</code></pre></div><p>其中 <code>Registration</code> 是 <code>Composite attribute</code>，<code>Color</code> 是 <code>Multi-valued attribute</code>，畫出來的圖會長這樣</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="c1">// Composite 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">type</span> <span class="nx">registration</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">State</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Number</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Car</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">VehicleID</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Registration</span> <span class="nx">registration</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Year</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Color</span> <span class="p">[]</span><span class="nx">color</span> 
+</span></span><span class="line"><span class="cl">    <span class="nx">Make</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">Model</span> <span class="kt">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>其中 <code>Registration</code> 是 <code>Composite attribute</code>，<code>Color</code> 是 <code>Multi-valued attribute</code>，畫出來的圖會長這樣</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -330,7 +330,7 @@ Composite Composite attribute 是由多個不同的部份組成一起的概念�
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

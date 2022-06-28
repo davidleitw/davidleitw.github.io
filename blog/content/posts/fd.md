@@ -11,7 +11,7 @@ categories: ["linux_kernel"]
 
 ## 前言
 
-**file descriptor** 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或者抽象資源，像是 network programming 中呼叫 `socket` 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 `epoll_create` 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。
+**file descriptor** 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 `socket` 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 `epoll_create` 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。
 
 在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。
 

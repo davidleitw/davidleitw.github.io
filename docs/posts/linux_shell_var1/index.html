@@ -124,16 +124,16 @@
 </nav></div>
             </div><div class="content" id="content"><p>假設今天我們常用的資料夾路徑是在 <code>/path1/workdir/project1/module...</code>
 每次登入 <code>linux</code> 環境都要切換到這個資料夾我們就需要重新輸入路徑</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nb">cd</span> /path1/workdir/project1/module...
-</code></pre></div><p>我們這時候就可以用一個變數來取代常用的字串</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ <span class="nb">cd</span> /path1/workdir/project1/module...
+</span></span></code></pre></div><p>我們這時候就可以用一個變數來取代常用的字串</p>
 <p>在這之前先介紹一下變數的取用</p>
 <h3 id="echo">echo</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nb">echo</span> <span class="nv">$HOME</span>
-/home/davidlei
-
-$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">HOME</span><span class="si">}</span> 
-/home/davidlei
-</code></pre></div><p><img
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ <span class="nb">echo</span> <span class="nv">$HOME</span>
+</span></span><span class="line"><span class="cl">/home/davidlei
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> <span class="si">${</span><span class="nv">HOME</span><span class="si">}</span> 
+</span></span><span class="line"><span class="cl">/home/davidlei
+</span></span></code></pre></div><p><img
         class="lazyload"
         src="/svg/loading.min.svg"
         data-src="https://i.imgur.com/uaQeu5b.png"
@@ -147,12 +147,12 @@ $ <span class="nb">echo</span> <span class="si">${</span><span class="nv">HOME</
 也可以在 $ 符號後面用 {} 把變數名稱框起來</p>
 </blockquote>
 <p>回到一開始提到的案例，我們現在想要設置一個變數 <code>work</code> 來存放 <code>/path/workdir/project1/module</code></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nb">echo</span> <span class="nv">$work</span>
- // 還未設置的變數默認為空，echo 出來的結果是空
-$ <span class="nv">work</span><span class="o">=</span>/path1/workdir/project1/module
-$ <span class="nb">echo</span> <span class="nv">$work</span>
-/path1/workdir/project1/module
-</code></pre></div><p><img
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ <span class="nb">echo</span> <span class="nv">$work</span>
+</span></span><span class="line"><span class="cl"> // 還未設置的變數默認為空，echo 出來的結果是空
+</span></span><span class="line"><span class="cl">$ <span class="nv">work</span><span class="o">=</span>/path1/workdir/project1/module
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> <span class="nv">$work</span>
+</span></span><span class="line"><span class="cl">/path1/workdir/project1/module
+</span></span></code></pre></div><p><img
         class="lazyload"
         src="/svg/loading.min.svg"
         data-src="https://i.imgur.com/afTw2VS.png"
@@ -164,16 +164,16 @@ $ <span class="nb">echo</span> <span class="nv">$work</span>
 <ol>
 <li>設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格</li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nv">var</span><span class="o">=</span>something   // 正確
-$ <span class="nv">var</span> <span class="o">=</span> something // 等號兩邊不得有空格
-</code></pre></div><ol start="2">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ <span class="nv">var</span><span class="o">=</span>something   // 正確
+</span></span><span class="line"><span class="cl">$ <span class="nv">var</span> <span class="o">=</span> something // 等號兩邊不得有空格
+</span></span></code></pre></div><ol start="2">
 <li>變數開頭不能是數字</li>
-<li>變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '' 單引號包起來</li>
+<li>變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '&rsquo; 單引號包起來</li>
 </ol>
 <ul>
 <li>
 <p>如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例
-用 '' 包起來 <code>bash</code> 就不會把 <code>$變數</code> 置換成該變數的內容。</p>
+用 &rsquo;&rsquo; 包起來 <code>bash</code> 就不會把 <code>$變數</code> 置換成該變數的內容。</p>
 <p><img
         class="lazyload"
         src="/svg/loading.min.svg"
@@ -215,9 +215,9 @@ $ <span class="nv">var</span> <span class="o">=</span> something // 等號兩邊
 <ol start="6">
 <li>若要把一個變數設定成全域變數還需要使用 <strong><code>export</code></strong></li>
 </ol>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ <span class="nv">var</span><span class="o">=</span>xxx
-$ <span class="nb">export</span> var
-</code></pre></div><blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ <span class="nv">var</span><span class="o">=</span>xxx
+</span></span><span class="line"><span class="cl">$ <span class="nb">export</span> var
+</span></span></code></pre></div><blockquote>
 <p>此方式宣告的全域變數不等於環境變數，把 bash 關掉之後變數資料就會清除</p>
 </blockquote>
 <ol>
@@ -263,7 +263,7 @@ $ <span class="nb">export</span> var
 </div>
 <div id="comments"></div></article></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>

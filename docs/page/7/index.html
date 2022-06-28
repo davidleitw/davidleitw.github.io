@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-	<meta name="generator" content="Hugo 0.91.0-DEV" />
+	<meta name="generator" content="Hugo 0.102.0-DEV" />
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
@@ -100,40 +100,55 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/linux_shell_var2/">Linux shell 變數相關用法整理(二): read, declare, array</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/shell/"><i class="far fa-folder fa-fw"></i>shell</a></span></div><div class="content">很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。
+read 讀取從鍵盤輸入的變數，常常會出現在 shell script 之中
+$ read [-pt] 變數名稱 // 參數 // -p 後面接提示字元 // -t 後面接等待時間，超過時間沒輸入則取消指令 $ declare 可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型
+$ declare [-aixr] 變數名稱 // 參數 // -a 宣告陣列型態的變數 // -i 宣告整數型態的變數 // -x 同 export 指令，宣告的變數變成全域變數(可以讓子程序讀取) // -r 宣告 readonly, 不可更改變數內容，也無法被 unset 取消 // -p 列出變數資料型態 $ 接著試著把 num 轉成全域變數，並且用 export 指令觀察一下:
+列出指定變數的資料型態
+array 以 arr[index]=content 的形式來指定 array Index 所代表的值。
+reference 鳥哥的 Linux 私房菜 </div><div class="post-footer">
+        <a href="/posts/linux_shell_var2/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/shell/">shell</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/sdn1/">SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/sdn/"><i class="far fa-folder fa-fw"></i>SDN</a></span></div><div class="content">此專案用來整理一些學習 SDN 的相關知識以及參考資料。 由於剛開始學習沒多久，所以會著重於個人學習的順序，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
 當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
 預備知識 在學習 SDN 之前我準備先複習了一輪 computer networking a top-down approach 7th，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
 之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
-什麼是 SDN 以及 SDN 的發展歷史  參考文章
- SDN 簡介 SDN 發展趨勢   傳統網路的一些特點:
- 每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。  SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
+什麼是 SDN 以及 SDN 的發展歷史 參考文章
+SDN 簡介 SDN 發展趨勢 傳統網路的一些特點:
+每個節點是由設備單獨控制，屬於分散式架構。 控制面以及轉接面放在同一個設備上。 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。 SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
 SDN 並非一種技術，而是一種設計的理念，只要符合控制面以及轉接面的分離，以及開放的可程式化設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著集中控制的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
-常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</div><div class="post-footer">
+常用名詞解釋 Network Device 網路設備 網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。
+有時候網路設備也被稱為 Data Plane。
+支援 OpenFlow 的 switch 會有以下功能</div><div class="post-footer">
         <a href="/posts/sdn1/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/sdn/">SDN</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/sdn2/">SDN 學習筆記(二): OpenFlow 1.0 介紹</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/sdn/"><i class="far fa-folder fa-fw"></i>SDN</a></span></div><div class="content">前言 想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹OpenFlow 1.0的架構，以及一些 spec 的整理.
 之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。
-為什麼會著重在1.0與1.3兩個版本呢？  1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
+為什麼會著重在1.0與1.3兩個版本呢？ 1.0版本與之後的版本不兼容，所以1.0要最先介紹。 1.0以及1.3版本被選為長期支持的穩定版本 1.3為目前的主流版本，多數支持OpenFlow的硬體是支援OpenFlow1.3
 參考資料: OpenFlow 協定演進
- OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
- Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table
- OpenFlow 1.0 中每個Switch只能存放一個Flow Table
- Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
- Header Fields Counters Actions  Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
-分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec</div><div class="post-footer">
+OpenFlow 1.0 架構 OpenFlow 1.0 spec 架構圖
+Flow Table 在 OpenFlow Switch 中存放轉發規則的表稱之為 Flow Table
+OpenFlow 1.0 中每個Switch只能存放一個Flow Table
+Flow Table中每個項目被稱為 Flow Entry 在 OpenFlow 1.0 中，每個 Flow Entry 中都包含三個部份
+Header Fields Counters Actions Header Fields OpenFlow 1.0 協定中共有12種可供匹配的條件， IP部份只支援IPv4。
+分別如下，僅列出條列，細節說明請參考 OpenFlow 1.0 spec
+L1 Ingress Port: 封包進入 Switch 的Port L2 Ether source: 來源Mac Address Ether dst: 目標Mac Address Ether type: 乙太類型 VLAN ID VLAN priority L3 IPv4 source: 來源IP Address IPv4 dst: 目標IP Address IPv4 proto: IP協定表 IPv4 Tos bits: Type of service L4 TCP/UDP source port TCP/UDP dst port Counters Counter 會針對每張 Flow Table, 每條 Flow entry, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。</div><div class="post-footer">
         <a href="/posts/sdn2/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/sdn/">SDN</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/gfs/">The Google File System (GFS) 論文心得</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/paper/"><i class="far fa-folder fa-fw"></i>paper</a></span></div><div class="content">跟著 MIT6.824 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，GFS 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 The Google File System 這篇論文來分享一些 GFS 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。
 背景 為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 GFS 這套分散式檔案系統。
- 用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
- 跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
- performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性  因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
-在 Introduction 中也有先簡單介紹了 GFS 的幾個特色</div><div class="post-footer">
+用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量
+跟過往很多分散式系統一樣，GFS 也追求著以下幾點需求:
+performance 性能 scalability 擴展性 reliability 可靠性 availability 可用性 因為成本以及其他因素的考量之下，Google 並沒有選擇商業用的 server 來製作 GFS 這套系統， 而且採用一般的 普通主機(inexpensive commidity hardware) 來作為叢集成員。因為是普通的主機，所以沒有商業用的 server 穩定， 在設計 GFS 的時候必須一併考慮容錯問題來增加穩定性。
+在 Introduction 中也有先簡單介紹了 GFS 的幾個特色
+元件失效(component failures) 被認為是常態 GFS 中包含著數以百計或者更多的儲存機器，每一台都有可能在任何一個時間點發生不可預期的錯誤，也有些錯誤是無法從中恢復的。 所以 GFS 需要實現持續的監控，錯誤偵測，容錯跟自動恢復等功能。</div><div class="post-footer">
         <a href="/posts/gfs/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/distributed/">distributed</a>,&nbsp;<a href="/tags/paper/">paper</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
@@ -156,7 +171,7 @@ SDN 並非一種技術，而是一種設計的理念，只要符合控制面以�
                     </span>
                 </li></ul></div></div>
             </main><footer class="footer">
-        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.91.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
                 </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
         </div>
     </footer></div>
