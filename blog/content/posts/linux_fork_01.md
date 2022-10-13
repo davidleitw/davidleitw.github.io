@@ -23,9 +23,9 @@ categories: ["linux_kernel"]
 以上這些 `API` 最後都會呼叫 `/kernel/fork.c` 中的 [`_do_fork`](https://elixir.free-electrons.com/linux/v4.14.54/source/kernel/fork.c#L2019) 來進行 `create task_struct` 的操作，只是會根據給的參數不同，來決定建立出來的 `task_struct` 的性質，以上幾個 `system call` 的差別也可以參考 [The difference between fork(), vfork(), exec() and clone()](https://stackoverflow.com/questions/4856255/the-difference-between-fork-vfork-exec-and-clone)
 
 
-但是如果看最新幾版的 `kernel source code` 會發現怎麼樣都沒辦法找到 `_do_fork` 這個 `function` 了，仔細找了一下原因，發現在 `linux v5.10` 之後因為命名規則的不同，把 `_do_fork()` 改名為 `kernel_thread()`，不過實作並沒有大幅度的更改，所以以下在研究 `source code` 的時候還是會以 `v4.14.259` 為準。
+但是如果看最新幾版的 `kernel source code` 會發現怎麼樣都沒辦法找到 `_do_fork` 這個 `function` 了，仔細找了一下原因，發現在 `linux v5.10` 之後因為命名規則的不同，把 `_do_fork()` 改名為 `kernel_clone()`，不過實作並沒有大幅度的更改，所以以下在研究 `source code` 的時候還是會以 `v4.14.259` 為準。
 
-`_do_fork()` 更改為 `kernel_thread()` 的原因可以參考 [fork: introduce kernel_clone()](https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/)
+`_do_fork()` 更改為 `kernel_clone()` 的原因可以參考 [fork: introduce kernel_clone()](https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/)
 
 在深入看 `source code` 之前最重要的就是先把 `man page` 看過一次，看完 `man page` 會對要研究的 `system call` 有初步的了解，接著再往下看 `source code` 才不會沒有概念的死讀程式碼。
 
