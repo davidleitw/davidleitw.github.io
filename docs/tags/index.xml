@@ -4,7 +4,21 @@
         <link>https://davidleitw.github.io/tags/</link>
         <description>Tags - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>linux</title>
+    <link>https://davidleitw.github.io/tags/linux/</link>
+    <pubDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/linux/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>shell</title>
+    <link>https://davidleitw.github.io/tags/shell/</link>
+    <pubDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/shell/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>c</title>
     <link>https://davidleitw.github.io/tags/c/</link>
     <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
@@ -40,13 +54,6 @@
     <guid>https://davidleitw.github.io/tags/docker/</guid>
     <description><![CDATA[]]></description>
 </item><item>
-    <title>linux</title>
-    <link>https://davidleitw.github.io/tags/linux/</link>
-    <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/linux/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
     <title>network</title>
     <link>https://davidleitw.github.io/tags/network/</link>
     <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
@@ -59,13 +66,6 @@
     <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/tags/go/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>shell</title>
-    <link>https://davidleitw.github.io/tags/shell/</link>
-    <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/shell/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>concurrency</title>

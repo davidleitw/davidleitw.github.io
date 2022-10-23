@@ -100,6 +100,14 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lc1010/">leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-01-02">2022-01-02</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。
+解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。
+假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。
+class Solution { public: int numPairsDivisibleBy60(vector&lt;int&gt;&amp; time) { int cnt = 0; int m[60] = {0}; for (int i = 0; i &lt; time.size(); ++i) { cnt += m[time[i]%60 == 0 ?</div><div class="post-footer">
+        <a href="/posts/lc1010/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc1026/">leetcode 1026. Maximum Difference Between Node and Ancestor [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-01-01">2022-01-01</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給一棵二元樹，回傳某個節點與其祖先節點的最大的差(絕對值)。
 解題紀錄 DFS 用 DFS 尋訪每個節點，並且順便紀錄到這個節點之前的 max, min value，這樣子最大的差就是 max - min。
@@ -140,13 +148,6 @@ $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo 
 if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方式先找到第一個 1 的所在，在對於後面的 bit 做反轉。
 反轉 bits (一): 逐個 bit 反轉, 利用 XOR class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !</div><div class="post-footer">
         <a href="/posts/lc476/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc198/">leetcode 198. House Robber [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-26">2021-12-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
-這題算是基本的 dp 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。
-解題紀錄 class Solution { public: int rob(vector&lt;int&gt;&amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; </div><div class="post-footer">
-        <a href="/posts/lc198/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">

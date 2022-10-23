@@ -4,7 +4,19 @@
         <link>https://davidleitw.github.io/posts/</link>
         <description>All Posts | davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/posts/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>查找動態庫(.so) 是否安裝過以及路徑使用 ldconfig</title>
+    <link>https://davidleitw.github.io/posts/ldconfig_1/</link>
+    <pubDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/ldconfig_1/</guid>
+    <description><![CDATA[在編譯過程中可能會用到一些動態庫(.so) 來編譯，時常會遇到找不到需要的 .so 檔案
+error while loading shared libraries&hellip; cannot open shared object file: No such file or directory
+像是上面的這個錯誤訊息就是常常會看見的老朋友XD，這時我們就可以使用 ldconfig 來搜索是否有安裝過指定的 .so
+一般來說 Linux 底下的 .so 都存放在 /lib, /usr/lib 底下，ldconfig 指令會在預設的路徑底下查找
+詳細的用法可以參考 ldconfig，一般如果只是要根據關鍵字查找，只要配合 -p 即可，像是我如果想在本地找到 ngtcp2 相關的 .so 我就可以輸入
+$ ldconfig -p | grep ngtcp2 ]]></description>
+</item><item>
     <title>Linux file descriptor 理解</title>
     <link>https://davidleitw.github.io/posts/fd/</link>
     <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
@@ -115,17 +127,5 @@ wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 struct 
 第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
 schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
 asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
-</item><item>
-    <title>Linux fork() 底層實作流程整理</title>
-    <link>https://davidleitw.github.io/posts/linux_fork_01/</link>
-    <pubDate>Wed, 05 Jan 2022 00:12:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/posts/linux_fork_01/</guid>
-    <description><![CDATA[本文章環境基於 Linux v4.14.259
-因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。
-在 Linux 中並沒有明確區分 process 跟 thread, task_struct 可以根據創立條件的不同代表 process 或者 thread。
-從實作的角度看可以有以下幾種 system call 建立新的 task_struct:
-建立 user process: fork, vfork, clone 建立 kernel thread: kernel_thread, kthread_create 以上這些 API 最後都會呼叫 /kernel/fork.c 中的 _do_fork 來進行 create task_struct 的操作，只是會根據給的參數不同，來決定建立出來的 task_struct 的性質，以上幾個 system call 的差別也可以參考 The difference between fork(), vfork(), exec() and clone()
-但是如果看最新幾版的 kernel source code 會發現怎麼樣都沒辦法找到 _do_fork 這個 function 了，仔細找了一下原因，發現在 linux v5.]]></description>
 </item></channel>
 </rss>

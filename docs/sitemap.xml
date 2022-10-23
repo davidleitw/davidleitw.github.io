@@ -2,24 +2,25 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
+            <loc>https://davidleitw.github.io/categories/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/linux/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/posts/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/shell/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/categories/shell/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/posts/ldconfig_1/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
             <loc>https://davidleitw.github.io/tags/c/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/categories/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/file_descriptor/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/kernel/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/fd/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/categories/linux_kernel/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/posts/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/container/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/docker/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/categories/docker/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/docker_network_ns/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/linux/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/network/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/go/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/shell/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/categories/shell/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/sudogo/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/concurrency/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/categories/concurrency/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>

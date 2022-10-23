@@ -100,6 +100,15 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/cdll_bubblesort/">Circular Doubly linked list 實作 bubble sort </a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-25">2021-08-25</time></span>&nbsp;<span class="post-category">included in <a href="/categories/c/"><i class="far fa-folder fa-fw"></i>c</a></span></div><div class="content">前言 本問題出自於 jserv - Linux 核心設計講座 第一周 linked list 和非連續記憶體操作 底下題目一的延伸題目
+在這篇文章會紀錄關於 bubble sort 的實現。
+node 結構 struct node { int data; struct node *next, *prev; }; 本題目 linked list 屬於 circular doubly linked list, 所以處理上還需要考慮循環的問題。
+swap 之後要把 node 的 prev 跟 next pointer 處理好。
+Bubble sort void bubble_sort(int *arr, const int length) { for(int i = 0; i &lt; length-1; i++) { int flag = 0; for(int j = 0; j &lt; length-i-1; j++) { if(arr[j] &gt; arr[j+1]) { int t = arr[j]; arr[j] = arr[j+1]; arr[j+1] = t; flag = 1; } } if(!</div><div class="post-footer">
+        <a href="/posts/cdll_bubblesort/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/c/">c</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/vscode_backup/">備份 vscode 環境紀錄</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-21">2021-08-21</time></span></div><div class="content">參考 將VS Code 工作環境備份到 GitHub上吧~
 可以將 vscode 的環境快速複製到別台電腦，值得注意的是為了安全考量， github 的 token 最好期限設短一點，等備份完成之後就刪掉。</div><div class="post-footer">
@@ -150,17 +159,6 @@ Volume 可以在容器間共享資源，檔案 更新 Volume 內的檔案並不�
 創建 Volume ~$ docker volume create volume_name 查看所有 Volume ~$ docker volume ls 查看指定 Volume 資料 ~$ docker volume inspect volume_name 運行一個掛載 Volume 的 Container ~$ docker run -d -P \ --name web \ # -v my-vol:/usr/share/nginx/html \ --mount source=v1,target=/usr/share/nginx/html \ nginx:alpine 在使用 docker run 指令的時候可以使用 --mount 參數來將創建好的 Volume 掛載到容器內部，一次 docker run 可以掛載多個 Volume。</div><div class="post-footer">
         <a href="/posts/dockervolume/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/container/">container</a>,&nbsp;<a href="/tags/docker/">docker</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/linux_shell_var1/">Linux shell 變數相關用法整理(一): assign, echo, export, unset</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-08-13">2021-08-13</time></span>&nbsp;<span class="post-category">included in <a href="/categories/shell/"><i class="far fa-folder fa-fw"></i>shell</a></span></div><div class="content">假設今天我們常用的資料夾路徑是在 /path1/workdir/project1/module... 每次登入 linux 環境都要切換到這個資料夾我們就需要重新輸入路徑
-$ cd /path1/workdir/project1/module... 我們這時候就可以用一個變數來取代常用的字串
-在這之前先介紹一下變數的取用
-echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這個變數的值並且顯示出來
-在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
-回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
-$ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則 設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格 $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '&rsquo; 單引號包起來 如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例 用 &rsquo;&rsquo; 包起來 bash 就不會把 $變數 置換成該變數的內容。</div><div class="post-footer">
-        <a href="/posts/linux_shell_var1/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/shell/">shell</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
                         <a href="/">1</a>

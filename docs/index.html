@@ -100,6 +100,16 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/ldconfig_1/">查找動態庫(.so) 是否安裝過以及路徑使用 ldconfig</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-10-24">2022-10-24</time></span>&nbsp;<span class="post-category">included in <a href="/categories/shell/"><i class="far fa-folder fa-fw"></i>shell</a></span></div><div class="content">在編譯過程中可能會用到一些動態庫(.so) 來編譯，時常會遇到找不到需要的 .so 檔案
+error while loading shared libraries&hellip; cannot open shared object file: No such file or directory
+像是上面的這個錯誤訊息就是常常會看見的老朋友XD，這時我們就可以使用 ldconfig 來搜索是否有安裝過指定的 .so
+一般來說 Linux 底下的 .so 都存放在 /lib, /usr/lib 底下，ldconfig 指令會在預設的路徑底下查找
+詳細的用法可以參考 ldconfig，一般如果只是要根據關鍵字查找，只要配合 -p 即可，像是我如果想在本地找到 ngtcp2 相關的 .so 我就可以輸入
+$ ldconfig -p | grep ngtcp2 </div><div class="post-footer">
+        <a href="/posts/ldconfig_1/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/shell/">shell</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/fd/">Linux file descriptor 理解</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-06-28">2022-06-28</time></span>&nbsp;<span class="post-category">included in <a href="/categories/linux_kernel/"><i class="far fa-folder fa-fw"></i>linux_kernel</a></span></div><div class="content">前言 file descriptor 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 socket 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 epoll_create 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。
 在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。
@@ -155,16 +165,6 @@ Parallelism 更強調的是同時的概念，不同的任務可以分配給不�
 今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。</div><div class="post-footer">
         <a href="/posts/concurrency01/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/concurrency/">concurrency</a>,&nbsp;<a href="/tags/parallelism/">parallelism</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/db01/">資料庫 ER Model(一): Entity 與 Attribute</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-03-21">2022-03-21</time></span>&nbsp;<span class="post-category">included in <a href="/categories/database/"><i class="far fa-folder fa-fw"></i>database</a></span></div><div class="content">收集到 Requirements 最難，很難提出&quot;精準&quot;的需求 Entity entity 是 RDBMS 中實際的資料實體，可以用程式的概念理解，定義好 struct 之後一定會在某個地方建立一個實體，裡面會根據 struct field type 去存放資料。
-type student struct { name string age int } func main() { studentA := student{&#34;david&#34;, &#34;20&#34;} } studentA 就可以視為一個 entity，擁有真正資料的實體。
-Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name, age 都可以當作 attribute。
-在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
-Simple Simple attribute 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 data type，像是 student 的 age 就是單純的 int。
-Composite Composite attribute 是由多個不同的部份組成一起的概念，像是外國的名字可能有 FirstNAme, MiddleName, LastName 等等</div><div class="post-footer">
-        <a href="/posts/db01/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/database/">database</a>,&nbsp;<a href="/tags/er_model/">ER_Model</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>

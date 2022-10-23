@@ -100,6 +100,13 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lc198/">leetcode 198. House Robber [Medium]</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-26">2021-12-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 看題目直覺想到是 dp 的題型，在一維陣列中取 n 個不相鄰的數字，使其有最大的總和。
+這題算是基本的 dp 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。
+解題紀錄 class Solution { public: int rob(vector&lt;int&gt;&amp; nums) { if (nums.size() == 1) return nums[0]; int dp[100] = {0}; dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]); for (int i = 2; i &lt; nums.size(); ++i) { dp[i] = max(dp[i-1], dp[i-2]+nums[i]); } return dp[nums.size()-1]; } }; </div><div class="post-footer">
+        <a href="/posts/lc198/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc973/">leetcode 973. K Closest Points to Origin [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-26">2021-12-26</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給 n 個座標，返回距離原點最近的 k 個座標
 解題紀錄 解法一 因為要返回的只有座標點，所以其實不需要開根號，直接用 (x^2 + y^2) 比較即可。
@@ -137,15 +144,6 @@ prerequisites[0] = (1, 0), 修課程 1 之前必須修過課程 0 prerequisites[
 在 dfs 的過程中用 status 來紀錄每個節點的狀態，如果 status[cur] == 1，代表這個節點是目前尋訪的點，用 status 來判斷是否有 cycle 的存在。
 解題紀錄 class Solution { public: vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) { vector&lt;vector&lt;int&gt;&gt; graph(numCourses); // 建立有向圖 for (const auto &amp;requisite: prerequisites) { graph[requisite[1]].</div><div class="post-footer">
         <a href="/posts/lc210/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc1306/">leetcode 1306. Jump Game III [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-09">2021-12-09</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。
-注意你在任意時刻都不能跳出陣列。
-限制： 1 ≦ arr.length ≦ 5 × 10 ^ 4 0 ≦ arr[i] &lt; arr.length 0 ≦ start &lt; arr.length
-解題紀錄 簡單的 dfs 解決，用一個 vector&lt;bool&gt; 去紀錄該 index 是否走過，避免發生無限迴圈的情況，如果 record[index] == true 代表已經走過，直接返回 false，記得還要判斷這次 jump 之後有沒有跳出迴圈的範圍。
-static const auto fastIO = []() { ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0); return 0; }(); class Solution { public: int len; vector&lt;bool&gt; record; bool canReach(vector&lt;int&gt; &amp;arr, int start) { len = arr.</div><div class="post-footer">
-        <a href="/posts/lc1306/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">
