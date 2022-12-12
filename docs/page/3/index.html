@@ -100,6 +100,13 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/lc997/">leetcode 997. Find the Town Judge [Easy]</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-01-04">2022-01-04</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 在小鎮中有 N 個人，其中裡面有一個是 Judge，成為 Judge 要滿足兩個條件
+Judge 本身不相信任何人 其他 N-1 個人都相信 Judge 一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 N 的 array 來紀錄，如果 A 信任 B 那就 array[B]++, array[A]--，如果 Judge 存在，它就會有 N-1 票，如果在其中支持的任一個人，在支持的過程就會 -1 票，喪失成為法官的條件。
+解題紀錄 class Solution { public: int findJudge(int n, vector&lt;vector&lt;int&gt;&gt;&amp; trust) { vector&lt;int&gt; record(n+1, 0); for (int i = 0; i &lt; trust.size(); ++i) { record[trust[i][0]]--; record[trust[i][1]]++; } for (int i = 1; i &lt;= n; ++i) { if (record[i] == n-1) { return i; } } return -1; } }; </div><div class="post-footer">
+        <a href="/posts/lc997/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/lc1010/">leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-01-02">2022-01-02</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。
 解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。
@@ -137,17 +144,6 @@ $ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add - $ sudo 
 經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 head 來當 slow 指標。
 解題流程 class Solution { public: ListNode* middleNode(ListNode* head) { ListNode *fast = head; while (fast &amp;&amp; fast-&gt;next) { fast = fast-&gt;next-&gt;next; head = head-&gt;next; } return head; } }; </div><div class="post-footer">
         <a href="/posts/lc876/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/lc476/">leetcode 476. Number Complement [Medium]</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2021-12-27">2021-12-27</time></span>&nbsp;<span class="post-category">included in <a href="/categories/leetcode/"><i class="far fa-folder fa-fw"></i>leetcode</a></span></div><div class="content">題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。
-思路 這題算是 Bit Manipulation 的入門題目，很適合練習 bit 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。
-因為這題的範圍限制 1 &lt;= num &lt; 2^31，所以可確保第一個 bit 為0
-找第一個有效位元 我的想法是先從左邊第一個 bit 開始找，找到第一個 1 ，後面所有的 bit 就都是有效位數，再一一反轉。
-要判斷左邊第一個位元是不是 1 可以寫成
-if ((num &amp; (1 &lt;&lt; 31)) == 1) { // do something } 可以利用這個方式先找到第一個 1 的所在，在對於後面的 bit 做反轉。
-反轉 bits (一): 逐個 bit 反轉, 利用 XOR class Solution { public: int findComplement(int num) { bool flag = false; for (int shift = 31; shift &gt;= 0; shift--) { if ((num &amp; (1 &lt;&lt; shift)) !</div><div class="post-footer">
-        <a href="/posts/lc476/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/leetcode/">leetcode</a></div></div>
 </article><ul class="pagination"><li class="page-item ">
                     <span class="page-link">

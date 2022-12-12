@@ -100,6 +100,17 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/xdp_example_01/">搭建最小化的 xdp 實驗環境</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-12-12">2022-12-12</time></span>&nbsp;<span class="post-category">included in <a href="/categories/ebpf/"><i class="far fa-folder fa-fw"></i>eBPF</a></span></div><div class="content">前言 一般來說學習 xdp 都會參考 xdp-tutorial，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。
+但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:
+/bpf 底下存放 xdp 程式碼 Makefile 只包含 make all, make clean 兩個最簡單的功能，剩下根據需求再自行添加 main.go 負責把編譯好的 byte code 載入 kernel，並且能對 map 進行操作 我認為只要符合以上幾點就能最小化的建立實驗環境，會用 go 語言是因為這樣可以不用處理 c++ 一些要編譯的前置作業。
+理想上我們最後的目錄會長這樣，符合我們希望的最小化專案需求
+實際上可能會因為 go.mod 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。
+底下我們會根據 xdp-tutorial 編寫一個簡單的 xdp 程式，然後編譯成 .o 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。
+編寫 xdp 範例 這邊我們參考 xdp-tutorial 的 packet01-parsing 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。</div><div class="post-footer">
+        <a href="/posts/xdp_example_01/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/ebpf/">eBPF</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a>,&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/xdp/">XDP</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/ldconfig_1/">查找動態庫(.so) 是否安裝過以及路徑使用 ldconfig</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-10-24">2022-10-24</time></span>&nbsp;<span class="post-category">included in <a href="/categories/shell/"><i class="far fa-folder fa-fw"></i>shell</a></span></div><div class="content">在編譯過程中可能會用到一些動態庫(.so) 來編譯，時常會遇到找不到需要的 .so 檔案
 error while loading shared libraries&hellip; cannot open shared object file: No such file or directory
@@ -143,27 +154,6 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
 底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
 #include &lt;thread&gt; #include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.</div><div class="post-footer">
         <a href="/posts/concurrency02/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/concurrency/">concurrency</a>,&nbsp;<a href="/tags/parallelism/">parallelism</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/concurrency01/">Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-03-23">2022-03-23</time></span>&nbsp;<span class="post-category">included in <a href="/categories/concurrency/"><i class="far fa-folder fa-fw"></i>Concurrency</a></span></div><div class="content">前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。
-裡面有些說法跟圖片是參考 jserv 老師的講座，裡面內容非常精彩，有機會的話一定要挑戰看看!
-Concurrency(並行) vs Parallelism(平行) 常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。
-Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調同時執行多個程式，底下會詳細舉例說明兩者的差異。
-Concurrency 把程式功能拆分的小的 Task 後，如果同時運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。
-Concurrency 只有強調把程式拆開成多個可獨立執行的模組，但沒有強調這些拆開的模組一定要同時執行。
-Parallelism 更強調的是同時的概念，不同的任務可以分配給不同的硬體，同一時間會有多個任務一起同時執行。
-所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。
-單一 cpu 的 Concurrency 在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。
-底下的 jserv 老師上課給的範例
-可以看到在單一 cpu 的場景，意味著同一時間只能有一個任務被執行，所以硬體需要在不同任務之間快速切換，在人類的角度，每個電腦的使用者都覺得自己有著所有的資源，但其實只是切換的速度很快，讓使用者有種錯覺。
-以暗殺教室的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下
-找不到上課的素材，只能用體育課的快速切換當示意圖
-因為殺老師只有單一個體，所以可以視作單一 cpu，在不同使用者之間快速切換，這樣就可以說他是 Concurrency，但是不能稱為 Parallelism，不能稱為 Parallelism 是因為即使移動的再快，都不符合同時的要求。
-那動漫界最適合解釋 Parallelism 的角色是誰呢? 當然是火影忍者的漩渦鳴人了，他的招牌多重影分身之術就很適合拿來解釋 Parallelism 的概念。
-在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身同時進行著某個任務的話，我們就可以說符合 Parallelism 的概念。
-今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。</div><div class="post-footer">
-        <a href="/posts/concurrency01/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/concurrency/">concurrency</a>,&nbsp;<a href="/tags/parallelism/">parallelism</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">

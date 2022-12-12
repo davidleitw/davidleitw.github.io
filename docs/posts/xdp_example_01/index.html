@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <title>搭建最小化的 xdp 實驗環境 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="搭建最小化的 xdp 實驗環境" />
+<meta property="og:description" content="前言 一般來說學習 xdp 都會參考 xdp-tutorial，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。
+但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:
+/bpf 底下存放 xdp 程式碼 Makefile 只包含 make all, make clean 兩個最簡單的功能，剩下根據需求再自行添加 main.go 負責把編譯好的 byte code 載入 kernel，並且能對 map 進行操作 我認為只要符合以上幾點就能最小化的建立實驗環境，會用 go 語言是因為這樣可以不用處理 c&#43;&#43; 一些要編譯的前置作業。
+理想上我們最後的目錄會長這樣，符合我們希望的最小化專案需求
+實際上可能會因為 go.mod 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。
+底下我們會根據 xdp-tutorial 編寫一個簡單的 xdp 程式，然後編譯成 .o 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。
+編寫 xdp 範例 這邊我們參考 xdp-tutorial 的 packet01-parsing 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://davidleitw.github.io/posts/xdp_example_01/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2022-12-12T21:00:53+08:00" />
+<meta property="article:modified_time" content="2022-12-12T21:00:53+08:00" />
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="搭建最小化的 xdp 實驗環境"/>
+<meta name="twitter:description" content="前言 一般來說學習 xdp 都會參考 xdp-tutorial，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。
+但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:
+/bpf 底下存放 xdp 程式碼 Makefile 只包含 make all, make clean 兩個最簡單的功能，剩下根據需求再自行添加 main.go 負責把編譯好的 byte code 載入 kernel，並且能對 map 進行操作 我認為只要符合以上幾點就能最小化的建立實驗環境，會用 go 語言是因為這樣可以不用處理 c&#43;&#43; 一些要編譯的前置作業。
+理想上我們最後的目錄會長這樣，符合我們希望的最小化專案需求
+實際上可能會因為 go.mod 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。
+底下我們會根據 xdp-tutorial 編寫一個簡單的 xdp 程式，然後編譯成 .o 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。
+編寫 xdp 範例 這邊我們參考 xdp-tutorial 的 packet01-parsing 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。"/>
+<meta name="application-name" content="davidLei">
+<meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://davidleitw.github.io/posts/xdp_example_01/" /><link rel="prev" href="https://davidleitw.github.io/posts/ldconfig_1/" /><link rel="stylesheet" href="/lib/normalize/normalize.min.css"><link rel="stylesheet" href="/css/style.min.css"><link rel="stylesheet" href="/lib/fontawesome-free/all.min.css"><link rel="stylesheet" href="/lib/animate/animate.min.css"><meta name="google-site-verification" content="googlee1a453a86d1f5e65.html" /><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "搭建最小化的 xdp 實驗環境",
+        "inLanguage": "en",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/davidleitw.github.io\/posts\/xdp_example_01\/"
+        },"genre": "posts","keywords": "eBPF, linux, linux_kernel, network, XDP","wordcount":  536 ,
+        "url": "https:\/\/davidleitw.github.io\/posts\/xdp_example_01\/","datePublished": "2022-12-12T21:00:53+08:00","dateModified": "2022-12-12T21:00:53+08:00","publisher": {
+            "@type": "Organization",
+            "name": "davidlei"},"author": {
+                "@type": "Person",
+                "name": "davidlei"
+            },"description": ""
+    }
+    </script></head>
+    <body header-desktop="fixed" header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : '' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="davidLei">davidLei</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 文章 </a><a class="menu-item" href="/tags/"> 標籤 </a><a class="menu-item" href="/categories/"> 分類 </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                    <i class="fas fa-adjust fa-fw"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="davidLei">davidLei</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="Search titles or contents..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="Search">
+                            <i class="fas fa-search fa-fw"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="Clear">
+                            <i class="fas fa-times-circle fa-fw"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        Cancel
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">文章</a><a class="menu-item" href="/tags/" title="">標籤</a><a class="menu-item" href="/categories/" title="">分類</a><a href="javascript:void(0);" class="menu-item theme-switch" title="Switch Theme">
+                <i class="fas fa-adjust fa-fw"></i>
+            </a></div>
+    </div>
+</header>
+<div class="search-dropdown desktop">
+    <div id="search-dropdown-desktop"></div>
+</div>
+<div class="search-dropdown mobile">
+    <div id="search-dropdown-mobile"></div>
+</div>
+<main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">Contents</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animated flipInX">搭建最小化的 xdp 實驗環境</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/ebpf/"><i class="far fa-folder fa-fw"></i>eBPF</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2022-12-12">2022-12-12</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;536 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>&nbsp;3 minutes&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  kept="true">
+                <div class="details-summary toc-title">
+                    <span>Contents</span>
+                    <span><i class="details-icon fas fa-angle-right"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#heading"></a></li>
+    <li><a href="#編寫-xdp-範例">編寫 xdp 範例</a></li>
+    <li><a href="#user-space-編寫">user space 編寫</a></li>
+    <li><a href="#實測">實測</a>
+      <ul>
+        <li><a href="#reference">reference</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="前言">前言</h2>
+<p>一般來說學習 xdp 都會參考 <a href="https://github.com/xdp-project/xdp-tutorial" target="_blank" rel="noopener noreffer">xdp-tutorial</a>，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。</p>
+<p>但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:</p>
+<ul>
+<li><code>/bpf</code> 底下存放 xdp 程式碼</li>
+<li><code>Makefile</code> 只包含 <code>make all</code>, <code>make clean</code> 兩個最簡單的功能，剩下根據需求再自行添加</li>
+<li><code>main.go</code> 負責把編譯好的 <code>byte code</code> 載入 kernel，並且能對 <code>map</code> 進行操作</li>
+</ul>
+<p>我認為只要符合以上幾點就能最小化的建立實驗環境，會用 go 語言是因為這樣可以不用處理 c++ 一些要編譯的前置作業。</p>
+<p>理想上我們最後的目錄會長這樣，符合我們希望的最小化專案需求</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/4PBV8lj.png"
+        data-srcset="https://i.imgur.com/4PBV8lj.png, https://i.imgur.com/4PBV8lj.png 1.5x, https://i.imgur.com/4PBV8lj.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/4PBV8lj.png"
+        title="https://i.imgur.com/4PBV8lj.png" /></p>
+<p>實際上可能會因為 <code>go.mod</code> 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。</p>
+<p>底下我們會根據 <a href="https://github.com/xdp-project/xdp-tutorial" target="_blank" rel="noopener noreffer">xdp-tutorial</a> 編寫一個簡單的 xdp 程式，然後編譯成 <code>.o</code> 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。</p>
+<h2 id="heading"></h2>
+<h2 id="編寫-xdp-範例">編寫 xdp 範例</h2>
+<p>這邊我們參考 <a href="https://github.com/xdp-project/xdp-tutorial" target="_blank" rel="noopener noreffer">xdp-tutorial</a> 的 <a href="https://github.com/xdp-project/xdp-tutorial/tree/master/packet01-parsing#assignment-3-parsing-the-icmpv6-header-and-reacting-to-it" target="_blank" rel="noopener noreffer">packet01-parsing</a> 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/if_ether.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/ip.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/icmp.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/in.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define __linux__
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;../includes/bpf.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;../includes/bpf_helpers.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&#34;../includes/bpf_endian.h&#34;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="n">SEC</span><span class="p">(</span><span class="s">&#34;xdp&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">xdp_main</span><span class="p">(</span><span class="k">struct</span> <span class="n">xdp_md</span> <span class="o">*</span><span class="n">ctx</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="o">*</span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)(</span><span class="kt">long</span><span class="p">)</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kt">void</span> <span class="o">*</span><span class="n">data_end</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)(</span><span class="kt">long</span><span class="p">)</span><span class="n">ctx</span><span class="o">-&gt;</span><span class="n">data_end</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// L2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">struct</span> <span class="n">ethhdr</span> <span class="o">*</span><span class="n">eth</span> <span class="o">=</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">data</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">eth</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_end</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_ABORTED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Only Ipv4 supported for this example
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// L3
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">eth</span><span class="o">-&gt;</span><span class="n">h_proto</span> <span class="o">!=</span> <span class="n">bpf_htons</span><span class="p">(</span><span class="n">ETH_P_IP</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_PASS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">data</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">eth</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">  
+</span></span><span class="line"><span class="cl">  <span class="k">struct</span> <span class="n">iphdr</span> <span class="o">*</span><span class="n">ip</span> <span class="o">=</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">data</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ip</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_end</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_ABORTED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">// Only need ICMP packet
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">// L4
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="k">if</span> <span class="p">(</span><span class="n">ip</span><span class="o">-&gt;</span><span class="n">protocol</span> <span class="o">!=</span> <span class="n">IPPROTO_ICMP</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_PASS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="n">data</span> <span class="o">+=</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">ip</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">struct</span> <span class="n">icmphdr</span> <span class="o">*</span><span class="n">icmp</span> <span class="o">=</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">data</span> <span class="o">+</span> <span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">icmp</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">data_end</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_ABORTED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">bpf_ntohs</span><span class="p">(</span><span class="n">icmp</span><span class="o">-&gt;</span><span class="n">un</span><span class="p">.</span><span class="n">echo</span><span class="p">.</span><span class="n">sequence</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">XDP_DROP</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">XDP_PASS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">char</span> <span class="n">_license</span><span class="p">[]</span> <span class="n">SEC</span><span class="p">(</span><span class="s">&#34;license&#34;</span><span class="p">)</span> <span class="o">=</span> <span class="s">&#34;GPLv2&#34;</span><span class="p">;</span>
+</span></span></code></pre></div><p>在寫 eBPF 程式的時候會用到很多 bpf helper functions，因為我們的範例沒有使用 <code>libbpf</code>，所以我們需要建立一個資料夾存放那些編譯時所需的<a href="https://github.com/davidleitw/minimalXdpTemplate/tree/master/includes" target="_blank" rel="noopener noreffer">標頭檔</a>，這樣才能順利編譯，通常這些常用的 helper functions 或者符號表都是固定的，可以看到很多基於 eBPF 的專案底下都會有 <code>headers/</code> 或者 <code>includes/</code> 來存放這些檔案。</p>
+<p>接著寫一個 <code>Makefile</code> 腳本負責編譯 <code>xdp_main.c</code> 程式</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">TARGET :<span class="o">=</span> xdp_main.o
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">.PHONY: all
+</span></span><span class="line"><span class="cl">all: build
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">build: <span class="k">$(</span>TARGET<span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">$(</span>TARGET<span class="k">)</span>: xdp_main.c
+</span></span><span class="line"><span class="cl">    clang -I../includes -O2 -target bpf -c $^ -o <span class="nv">$@</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">clean:
+</span></span><span class="line"><span class="cl">    rm <span class="k">$(</span>TARGET<span class="k">)</span>
+</span></span></code></pre></div><h2 id="user-space-編寫">user space 編寫</h2>
+<p>user space 我們使用 go 語言來負責載入編譯好的 <code>elf</code> 檔案，除此之外還需要提供 api 讓我們能在 user space 操作 eBPF map。</p>
+<p>go 語言有非常多 eBPF library 可供選擇，最主流的選擇不外乎是 Cilium 與 Cloudflare 維護的 <a href="https://github.com/cilium/ebpf" target="_blank" rel="noopener noreffer">ebpf-go</a>，IO Visor 提供的 <a href="https://github.com/iovisor/gobpf" target="_blank" rel="noopener noreffer">gobpf</a>，最後就是 Dropbox 開源的 <a href="https://github.com/dropbox/goebpf" target="_blank" rel="noopener noreffer">goebpf</a>。</p>
+<p>其中 IO Visor 維護的 <a href="https://github.com/iovisor/gobpf" target="_blank" rel="noopener noreffer">gobpf</a> 屬於 BCC 框架的體系，比較偏向 trace 方面，但筆者沒有使用經驗，如果有錯請指正。</p>
+<p><a href="https://github.com/cilium/ebpf" target="_blank" rel="noopener noreffer">ebpf-go</a> 應該是最多人使用的一套函式庫了，因為 Cilium 本身也大量使用了這個庫，所以整體的可靠度是有目共睹的。</p>
+<p>本文選擇 Dropbox 維護的 <a href="https://github.com/dropbox/goebpf" target="_blank" rel="noopener noreffer">goebpf</a> 作為開發 user space 的函式庫，有幾個考量，一個是 <a href="https://github.com/dropbox/goebpf" target="_blank" rel="noopener noreffer">goebpf</a> 本身提供了一套非常簡潔的 API，像是載入 eBPF Program 到 Kernel，對於 eBPF map 的操作等等，用起來很像是原生的 <a href="https://github.com/libbpf/libbpf" target="_blank" rel="noopener noreffer">libbpf</a>，這種簡潔的 API 可以讓學習的人專注於 eBPF 本身，不用花費額外的力氣去學習 API 的使用方式，第二個考量就是環境架設也很簡潔，不需要額外設置什麼環境，只要將編譯好的 elf 檔案路徑餵進去，就能協助你載入或者移除 eBPF Program。</p>
+<p>API 設計的簡潔也能體現在範例上，基本上光是看範例就能對用法略知一二，這種開發體驗我覺得可以評為 <strong>直觀</strong>，以下提供範例參考</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;os/signal&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;time&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="s">&#34;github.com/dropbox/goebpf&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">bpf</span> <span class="o">:=</span> <span class="nx">goebpf</span><span class="p">.</span><span class="nf">NewDefaultEbpfSystem</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="o">:=</span> <span class="nx">bpf</span><span class="p">.</span><span class="nf">LoadElf</span><span class="p">(</span><span class="s">&#34;bpf/xdp_main.o&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">printXdpProgramInfo</span><span class="p">(</span><span class="nx">bpf</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">xdp</span> <span class="o">:=</span> <span class="nx">bpf</span><span class="p">.</span><span class="nf">GetProgramByName</span><span class="p">(</span><span class="s">&#34;xdp_root&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">xdp</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="s">&#34;Program &#39;xdp_main&#39; not found.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">xdp</span><span class="p">.</span><span class="nf">Load</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">err</span> <span class="p">=</span> <span class="nx">xdp</span><span class="p">.</span><span class="nf">Attach</span><span class="p">(</span><span class="s">&#34;lo&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	    <span class="nx">log</span><span class="p">.</span><span class="nf">Fatalln</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">defer</span> <span class="nx">xdp</span><span class="p">.</span><span class="nf">Detach</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// Add CTRL+C handler
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">ctrlC</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Signal</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">signal</span><span class="p">.</span><span class="nf">Notify</span><span class="p">(</span><span class="nx">ctrlC</span><span class="p">,</span> <span class="nx">os</span><span class="p">.</span><span class="nx">Interrupt</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;XDP program successfully loaded and attached. Counters refreshed every second.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Press CTRL+C to stop.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">ticker</span> <span class="o">:=</span> <span class="nx">time</span><span class="p">.</span><span class="nf">NewTicker</span><span class="p">(</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">select</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ticker</span><span class="p">.</span><span class="nx">C</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">case</span> <span class="o">&lt;-</span><span class="nx">ctrlC</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                <span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;\nDetaching program and exit&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="k">return</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">printXdpProgramInfo</span><span class="p">(</span><span class="nx">bpfProgram</span> <span class="nx">goebpf</span><span class="p">.</span><span class="nx">System</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;Maps:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">item</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">bpfProgram</span><span class="p">.</span><span class="nf">GetMaps</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;\t%s: %v, Fd %v\n&#34;</span><span class="p">,</span> <span class="nx">item</span><span class="p">.</span><span class="nf">GetName</span><span class="p">(),</span> <span class="nx">item</span><span class="p">.</span><span class="nf">GetType</span><span class="p">(),</span> <span class="nx">item</span><span class="p">.</span><span class="nf">GetFd</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;\nPrograms:&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">_</span><span class="p">,</span> <span class="nx">prog</span> <span class="o">:=</span> <span class="k">range</span> <span class="nx">bpfProgram</span><span class="p">.</span><span class="nf">GetPrograms</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;\t%s: %v, size %d, license \&#34;%s\&#34;\n&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">prog</span><span class="p">.</span><span class="nf">GetName</span><span class="p">(),</span> <span class="nx">prog</span><span class="p">.</span><span class="nf">GetType</span><span class="p">(),</span> <span class="nx">prog</span><span class="p">.</span><span class="nf">GetSize</span><span class="p">(),</span> <span class="nx">prog</span><span class="p">.</span><span class="nf">GetLicense</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">		<span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>詳細的程式請參考 <a href="https://github.com/davidleitw/minimalXdpTemplate" target="_blank" rel="noopener noreffer">GitHub</a>，實際跑一次程式才知道具體運作的流程。</p>
+<h2 id="實測">實測</h2>
+<p>首先需要編譯 xdp 程式</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ <span class="nb">cd</span> bpf/
+</span></span><span class="line"><span class="cl">$ make
+</span></span><span class="line"><span class="cl">$ <span class="nb">cd</span> ..
+</span></span></code></pre></div><p>成功後會出現一個 <code>xdp_main.o</code></p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/D0dwl5i.png"
+        data-srcset="https://i.imgur.com/D0dwl5i.png, https://i.imgur.com/D0dwl5i.png 1.5x, https://i.imgur.com/D0dwl5i.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/D0dwl5i.png"
+        title="https://i.imgur.com/D0dwl5i.png" /></p>
+<p>接著我們需要執行 <code>main.go</code> 來載入編譯好的 <code>xdp_main.o</code>，因為需要載入 Kernel 所以必須加上 <code>sudo</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ sudo go run main.go
+</span></span></code></pre></div><p>正常執行會顯示</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/FRGnK9Y.png"
+        data-srcset="https://i.imgur.com/FRGnK9Y.png, https://i.imgur.com/FRGnK9Y.png 1.5x, https://i.imgur.com/FRGnK9Y.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/FRGnK9Y.png"
+        title="https://i.imgur.com/FRGnK9Y.png" /></p>
+<p>按下 <code>CTRL+C</code> 後會自動幫你 detach 剛剛載入的 xdp_main.o，因為範例只是簡單的 attach 到 <code>lo</code> 上，所以用簡單的 <code>ping 127.0.0.1</code> 即可測試效果。</p>
+<p><img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="https://i.imgur.com/Up4bJRc.png"
+        data-srcset="https://i.imgur.com/Up4bJRc.png, https://i.imgur.com/Up4bJRc.png 1.5x, https://i.imgur.com/Up4bJRc.png 2x"
+        data-sizes="auto"
+        alt="https://i.imgur.com/Up4bJRc.png"
+        title="https://i.imgur.com/Up4bJRc.png" /></p>
+<p>可以看到，偶數的 icmp packet 都被捨棄了，所以剛好會有 50 % 的封包收到回應，效果的確符合預期。</p>
+<p>完整程式碼可以看<a href="https://github.com/davidleitw/minimalXdpTemplate" target="_blank" rel="noopener noreffer">這邊</a>，實際跑一次能學習的更有效率!</p>
+<h3 id="reference">reference</h3>
+<ul>
+<li><a href="https://networkop.co.uk/post/2021-03-ebpf-intro/" target="_blank" rel="noopener noreffer">Getting Started with eBPF and Go</a></li>
+</ul>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>Updated on 2022-12-12</span>
+            </div>
+            <div class="post-info-license"></div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md"></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-title="搭建最小化的 xdp 實驗環境" data-hashtags="eBPF,linux,linux_kernel,network,XDP"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-hashtag="eBPF"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-title="搭建最小化的 xdp 實驗環境" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-title="搭建最小化的 xdp 實驗環境"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-title="搭建最小化的 xdp 實驗環境"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-title="搭建最小化的 xdp 實驗環境" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-title="搭建最小化的 xdp 實驗環境" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="https://davidleitw.github.io/posts/xdp_example_01/" data-title="搭建最小化的 xdp 實驗環境"><i class="fab fa-evernote fa-fw"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/ebpf/">eBPF</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a>,&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/xdp/">XDP</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/posts/ldconfig_1/" class="prev" rel="prev" title="查找動態庫(.so) 是否安裝過以及路徑使用 ldconfig"><i class="fas fa-angle-left fa-fw"></i>查找動態庫(.so) 是否安裝過以及路徑使用 ldconfig</a></div>
+</div>
+<div id="comments"></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">Powered by <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.102.0-DEV">Hugo</a> | Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.10"><i class="far fa-kiss-wink-heart fa-fw"></i> LoveIt</a>
+                </div><div class="footer-line"><i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2022</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://davidleitw.github.io/" target="_blank">davidlei</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="Back to Top">
+                <i class="fas fa-arrow-up fa-fw"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="View Comments">
+                <i class="fas fa-comment fa-fw"></i>
+            </a>
+        </div><link rel="stylesheet" href="/lib/katex/katex.min.css"><link rel="stylesheet" href="/lib/katex/copy-tex.min.css"><script type="text/javascript" src="/lib/smooth-scroll/smooth-scroll.min.js"></script><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/sharer/sharer.min.js"></script><script type="text/javascript" src="/lib/katex/katex.min.js"></script><script type="text/javascript" src="/lib/katex/auto-render.min.js"></script><script type="text/javascript" src="/lib/katex/copy-tex.min.js"></script><script type="text/javascript" src="/lib/katex/mhchem.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"Copy to clipboard","maxShownLines":130},"comment":{},"math":{"delimiters":[{"display":true,"left":"$$","right":"$$"},{"display":true,"left":"\\[","right":"\\]"},{"display":false,"left":"$","right":"$"},{"display":false,"left":"\\(","right":"\\)"}],"strict":false},"search":{"highlightTag":"em","maxResultLength":15,"noResultsFound":"No results found","snippetLength":50}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

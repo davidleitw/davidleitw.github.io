@@ -4,9 +4,22 @@
         <link>https://davidleitw.github.io/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</lastBuildDate>
             <atom:link href="https://davidleitw.github.io/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>搭建最小化的 xdp 實驗環境</title>
+    <link>https://davidleitw.github.io/posts/xdp_example_01/</link>
+    <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/xdp_example_01/</guid>
+    <description><![CDATA[前言 一般來說學習 xdp 都會參考 xdp-tutorial，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。
+但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:
+/bpf 底下存放 xdp 程式碼 Makefile 只包含 make all, make clean 兩個最簡單的功能，剩下根據需求再自行添加 main.go 負責把編譯好的 byte code 載入 kernel，並且能對 map 進行操作 我認為只要符合以上幾點就能最小化的建立實驗環境，會用 go 語言是因為這樣可以不用處理 c++ 一些要編譯的前置作業。
+理想上我們最後的目錄會長這樣，符合我們希望的最小化專案需求
+實際上可能會因為 go.mod 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。
+底下我們會根據 xdp-tutorial 編寫一個簡單的 xdp 程式，然後編譯成 .o 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。
+編寫 xdp 範例 這邊我們參考 xdp-tutorial 的 packet01-parsing 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。]]></description>
+</item><item>
     <title>查找動態庫(.so) 是否安裝過以及路徑使用 ldconfig</title>
     <link>https://davidleitw.github.io/posts/ldconfig_1/</link>
     <pubDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</pubDate>
@@ -119,15 +132,5 @@ class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(roo
 waitqueue 有定義兩種資料結構
 wait_queue_head: waitqueue 的 head wait_queue_entry: 來表示每個在 waitqueue 的元素 waitqueue 所有的實現都是基於 kernel 內建的 double circular linked list 來實現，所以本身的設計非常簡潔。 以下為 waitqueue 基本的 data struct 定義，位在 /include/linux/wait.h
 wait_queue_head_t struct wait_queue_head { spinlock_t	lock; // 自旋鎖 struct list_head	head; // 指向 prev, next entry. }; typedef struct wait_queue_head wait_queue_head_t; 初始化 waitqueue 要建立新的 waitqueue，必須要先初始化 wait_queue_head_t 結構，透過 init_waitqueue_head，定義如下]]></description>
-</item><item>
-    <title>Linux schedule 原始碼解讀</title>
-    <link>https://davidleitw.github.io/posts/linux_get_context_switch/</link>
-    <pubDate>Fri, 07 Jan 2022 03:12:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/posts/linux_get_context_switch/</guid>
-    <description><![CDATA[本文章環境基於 Linux v4.14.259
-第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。
-schedule 要 trace 排程器要先找到 schedule 的入口，定義在 kernel/sched/core.c，函式定義如下
-asmlinkage __visible void __sched schedule(void) { struct task_struct *tsk = current; // 避免 deadlock sched_submit_work(tsk); do { // 排程本身無法搶佔，等排程完畢再開啟 preempt_disable(); __schedule(false); // 排程完成，開啟搶佔功能 sched_preempt_enable_no_resched(); } while (need_resched()); // 檢查是不是被設置 TIF_NEED_RESCHED，如果被設置就重新排程 } EXPORT_SYMBOL(schedule); sched_submit_work static inline void sched_submit_work(struct task_struct *tsk) { if (!tsk-&gt;state || tsk_is_pi_blocked(tsk)) return; /* * If we are going to sleep and we have plugged IO queued, * make sure to submit it to avoid deadlocks.]]></description>
 </item></channel>
 </rss>

@@ -4,12 +4,40 @@
         <link>https://davidleitw.github.io/tags/</link>
         <description>Tags - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>eBPF</title>
+    <link>https://davidleitw.github.io/tags/ebpf/</link>
+    <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/ebpf/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>linux</title>
     <link>https://davidleitw.github.io/tags/linux/</link>
-    <pubDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</pubDate>
+    <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/tags/linux/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>linux_kernel</title>
+    <link>https://davidleitw.github.io/tags/linux_kernel/</link>
+    <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/linux_kernel/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>network</title>
+    <link>https://davidleitw.github.io/tags/network/</link>
+    <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/network/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>XDP</title>
+    <link>https://davidleitw.github.io/tags/xdp/</link>
+    <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/xdp/</guid>
     <description><![CDATA[]]></description>
 </item><item>
     <title>shell</title>
@@ -45,34 +73,6 @@
     <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/tags/container/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>docker</title>
-    <link>https://davidleitw.github.io/tags/docker/</link>
-    <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/docker/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>network</title>
-    <link>https://davidleitw.github.io/tags/network/</link>
-    <pubDate>Wed, 04 May 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/network/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>go</title>
-    <link>https://davidleitw.github.io/tags/go/</link>
-    <pubDate>Sat, 09 Apr 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/go/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>concurrency</title>
-    <link>https://davidleitw.github.io/tags/concurrency/</link>
-    <pubDate>Fri, 01 Apr 2022 00:01:01 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/concurrency/</guid>
     <description><![CDATA[]]></description>
 </item></channel>
 </rss>

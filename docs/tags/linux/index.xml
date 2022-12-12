@@ -4,7 +4,20 @@
         <link>https://davidleitw.github.io/tags/linux/</link>
         <description>linux - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/linux/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/linux/" rel="self" type="application/rss+xml" /><item>
+    <title>搭建最小化的 xdp 實驗環境</title>
+    <link>https://davidleitw.github.io/posts/xdp_example_01/</link>
+    <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/xdp_example_01/</guid>
+    <description><![CDATA[前言 一般來說學習 xdp 都會參考 xdp-tutorial，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。
+但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:
+/bpf 底下存放 xdp 程式碼 Makefile 只包含 make all, make clean 兩個最簡單的功能，剩下根據需求再自行添加 main.go 負責把編譯好的 byte code 載入 kernel，並且能對 map 進行操作 我認為只要符合以上幾點就能最小化的建立實驗環境，會用 go 語言是因為這樣可以不用處理 c++ 一些要編譯的前置作業。
+理想上我們最後的目錄會長這樣，符合我們希望的最小化專案需求
+實際上可能會因為 go.mod 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。
+底下我們會根據 xdp-tutorial 編寫一個簡單的 xdp 程式，然後編譯成 .o 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。
+編寫 xdp 範例 這邊我們參考 xdp-tutorial 的 packet01-parsing 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。]]></description>
+</item><item>
     <title>查找動態庫(.so) 是否安裝過以及路徑使用 ldconfig</title>
     <link>https://davidleitw.github.io/posts/ldconfig_1/</link>
     <pubDate>Mon, 24 Oct 2022 00:12:53 &#43;0800</pubDate>
@@ -119,18 +132,5 @@ IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相�
 kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1 在寫 socket 相關的程式的時候，需要先
 #include &lt;arpa/inet.h&gt; // sockaddr 相關 #include &lt;sys/socket.h&gt; socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
 AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6 AF_INET: IPv4 協定 AF_INET6: IPv6 協定 詳細的選項可以參考 socket 的 man page]]></description>
-</item><item>
-    <title>Linux shell 變數相關用法整理(一): assign, echo, export, unset</title>
-    <link>https://davidleitw.github.io/posts/linux_shell_var1/</link>
-    <pubDate>Fri, 13 Aug 2021 21:34:43 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/posts/linux_shell_var1/</guid>
-    <description><![CDATA[假設今天我們常用的資料夾路徑是在 /path1/workdir/project1/module... 每次登入 linux 環境都要切換到這個資料夾我們就需要重新輸入路徑
-$ cd /path1/workdir/project1/module... 我們這時候就可以用一個變數來取代常用的字串
-在這之前先介紹一下變數的取用
-echo $ echo $HOME /home/davidlei $ echo ${HOME} /home/davidlei 取出 Home 這個變數的值並且顯示出來
-在 Linux 底下變數前面都需要加上 $ 符號來做辨識 也可以在 $ 符號後面用 {} 把變數名稱框起來
-回到一開始提到的案例，我們現在想要設置一個變數 work 來存放 /path/workdir/project1/module
-$ echo $work // 還未設置的變數默認為空，echo 出來的結果是空 $ work=/path1/workdir/project1/module $ echo $work /path1/workdir/project1/module 變數的設定規則 設定變數中間以 &ldquo;=&rdquo; 連結，並且等號兩側不能有空格 $ var=something // 正確 $ var = something // 等號兩邊不得有空格 變數開頭不能是數字 變數內容含有空白字元可以用 &quot;&quot; 雙引號 或者 '&rsquo; 單引號包起來 如果變數內容包含著其他變數，需要用 &quot;&quot; 包起來，請看下方範例 用 &rsquo;&rsquo; 包起來 bash 就不會把 $變數 置換成該變數的內容。]]></description>
 </item></channel>
 </rss>
