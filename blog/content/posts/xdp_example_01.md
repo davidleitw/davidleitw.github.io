@@ -173,15 +173,8 @@ func main() {
 	fmt.Println("Press CTRL+C to stop.")
 	fmt.Println()
 
-	ticker := time.NewTicker(1 * time.Second)
-	for {
-            select {
-            case <-ticker.C:
-            case <-ctrlC:
-                fmt.Println("\nDetaching program and exit")
-                return
-            }
-	}
+	<-ctrlC:
+  fmt.Println("\nDetaching program and exit")
 }
 
 func printXdpProgramInfo(bpfProgram goebpf.System) {
