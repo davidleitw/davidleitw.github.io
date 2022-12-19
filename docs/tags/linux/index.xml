@@ -4,7 +4,18 @@
         <link>https://davidleitw.github.io/tags/linux/</link>
         <description>linux - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/linux/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 19 Dec 2022 22:13:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/linux/" rel="self" type="application/rss+xml" /><item>
+    <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
+    <link>https://davidleitw.github.io/posts/paper01/</link>
+    <pubDate>Mon, 19 Dec 2022 22:13:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/paper01/</guid>
+    <description><![CDATA[前言 最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，這篇 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。
+這篇論文的作者也用了 P4, eBPF 等技術實現了他們的論文，如果有興趣的也可以研究看看實現的 code
+常見 LB 技術分類 這篇論文在前面的幾個段落介紹了常見了 Load Belance 技術，然後規劃了一些簡單的實驗來分析各種不同技術的優劣，文中用以下五個標準/指標來分類不同種類的 LB 技術，如下圖所示
+比較圖表如下:
+其中 L4 的 Load Balancer 以形式可以分成有沒有支援 DSR(Direct Server Return)，又或者分為 Stateless 和 Stateful，以筆者的理解大規模的服務來說會盡量把 Load Balancer 設計成無狀態的，這樣才能把雲端環境的動態優勢發揮出來，像是另一篇關於 LB 的論文 A High-Speed Load-Balancer Design with Guaranteed Per-Connection-Consistency NSDI2020 有提到一個觀點，為什麼現在主流的 LB 技術都不依靠像是 weighted round robin 或者 power of two choices 這種可以根據伺服器狀態來最佳化負載的演算法，以下引用該文章的說法]]></description>
+</item><item>
     <title>搭建最小化的 xdp 實驗環境</title>
     <link>https://davidleitw.github.io/posts/xdp_example_01/</link>
     <pubDate>Mon, 12 Dec 2022 21:00:53 &#43;0800</pubDate>
@@ -119,18 +130,5 @@ INADDR_NODE = 0xFFFFFFFF (32 個 bits 全部填一)]]></description>
 sockaddr 結構，定義如下
 typedef unsigned short int sa_family_t; #define	__SOCKADDR_COMMON(sa_prefix) \ sa_family_t sa_prefix##family struct sockaddr { __SOCKADDR_COMMON (sa_);	/* Common data: address family and length. */ char sa_data[14];	/* Address data. */ }; // 上面的結構把巨集展開後，等價於下方的資料結構 struct sockaddr { unsigned short int sa_family; // 2 bytes char sa_data[14]; // 14 bytes }; 後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 sockaddr_in 的結構用來存取網路相關的應用， in 指的是 internet，sockaddr_in 專門用來存 IPv4 的相關地址。
 IPv6 則是使用 sockaddr_in6 結構，在本文章主要會著重在 IPv4 相關的範例。]]></description>
-</item><item>
-    <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
-    <link>https://davidleitw.github.io/posts/socket1/</link>
-    <pubDate>Mon, 25 Oct 2021 01:04:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/posts/socket1/</guid>
-    <description><![CDATA[socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。
-在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。
-我們在寫 socket programming 的時候會使用 os 提供的 API，來避免重複造輪子，今天的筆記會簡單介紹一下 linux 提供的 socket API，並用兩個簡單的範例介紹如何用 tcp 跟 udp 協定透過 socket 傳輸資料。
-本文章所使用的環境
-kernel: 5.11.0-37-generic gcc version: gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0 GNU Make: 4.2.1 在寫 socket 相關的程式的時候，需要先
-#include &lt;arpa/inet.h&gt; // sockaddr 相關 #include &lt;sys/socket.h&gt; socket int socket(int domain, int type, int protocol) domain 定義要建立哪一種類型的 socket，常用的有以下幾種類型
-AF_UNIX, AF_LOCAL: 用於本機間 process 的溝通 AF_INET, AF_INET6 AF_INET: IPv4 協定 AF_INET6: IPv6 協定 詳細的選項可以參考 socket 的 man page]]></description>
 </item></channel>
 </rss>

@@ -100,6 +100,15 @@
         alt="https://avatars.githubusercontent.com/u/42119758?v=4"
         title="https://avatars.githubusercontent.com/u/42119758?v=4" /></a></div><h1 class="home-title">davidlei blog</h1><h2 class="home-subtitle"><div id="id-1" class="typeit"></div></h2><div class="links"><a href="https://github.com/davidleitw" title="GitHub" target="_blank" rel="noopener noreffer me"><i class="fab fa-github-alt fa-fw"></i></a><a href="https://linkedin.com/in/david-lei-2604121b6" title="LinkedIn" target="_blank" rel="noopener noreffer me"><i class="fab fa-linkedin fa-fw"></i></a><a href="mailto:davidleitw@gmail.com" title="Email" rel=" me"><i class="far fa-envelope fa-fw"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/posts/paper01/">Bypassing the Load Balancer Without Regrets - SoCC ’20</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-12-19">2022-12-19</time></span>&nbsp;<span class="post-category">included in <a href="/categories/paper/"><i class="far fa-folder fa-fw"></i>paper</a></span></div><div class="content">前言 最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，這篇 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。
+這篇論文的作者也用了 P4, eBPF 等技術實現了他們的論文，如果有興趣的也可以研究看看實現的 code
+常見 LB 技術分類 這篇論文在前面的幾個段落介紹了常見了 Load Belance 技術，然後規劃了一些簡單的實驗來分析各種不同技術的優劣，文中用以下五個標準/指標來分類不同種類的 LB 技術，如下圖所示
+比較圖表如下:
+其中 L4 的 Load Balancer 以形式可以分成有沒有支援 DSR(Direct Server Return)，又或者分為 Stateless 和 Stateful，以筆者的理解大規模的服務來說會盡量把 Load Balancer 設計成無狀態的，這樣才能把雲端環境的動態優勢發揮出來，像是另一篇關於 LB 的論文 A High-Speed Load-Balancer Design with Guaranteed Per-Connection-Consistency NSDI2020 有提到一個觀點，為什麼現在主流的 LB 技術都不依靠像是 weighted round robin 或者 power of two choices 這種可以根據伺服器狀態來最佳化負載的演算法，以下引用該文章的說法</div><div class="post-footer">
+        <a href="/posts/paper01/">Read More</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/ebpf/">eBPF</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a>,&nbsp;<a href="/tags/network/">network</a>,&nbsp;<a href="/tags/xdp/">XDP</a>,&nbsp;<a href="/tags/paper/">paper</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/posts/xdp_example_01/">搭建最小化的 xdp 實驗環境</a>
     </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-12-12">2022-12-12</time></span>&nbsp;<span class="post-category">included in <a href="/categories/ebpf/"><i class="far fa-folder fa-fw"></i>eBPF</a></span></div><div class="content">前言 一般來說學習 xdp 都會參考 xdp-tutorial，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。
 但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:
@@ -145,16 +154,6 @@ A network namespace is logically another copy of the network stack, with its own
 /etc/sudoers 裡面有個 secure_path，把 usr/local/go/bin 加到那個字串即可.</div><div class="post-footer">
         <a href="/posts/sudogo/">Read More</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/shell/">shell</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/go/">go</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/posts/concurrency02/">從執行順序來探討 Race condition, go 語言的 happens-before 規則</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-publish">published on <time datetime="2022-04-01">2022-04-01</time></span>&nbsp;<span class="post-category">included in <a href="/categories/concurrency/"><i class="far fa-folder fa-fw"></i>Concurrency</a></span></div><div class="content">同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。
-Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。
-可以參考 Concurrency in the Kernel 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。
-Race condition 在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為交錯執行，導致最後的結果不如預期。
-底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。
-#include &lt;thread&gt; #include &lt;iostream&gt; const int thread_num = 20000; void func(int &amp;count) { count = count + 1; } int main() { int count = 0; std::thread threads[thread_num]; for (int i = 0; i &lt; thread_num; ++i) threads[i] = std::thread(func, std::ref(count)); for (auto &amp;th : threads) th.</div><div class="post-footer">
-        <a href="/posts/concurrency02/">Read More</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw"></i>&nbsp;<a href="/tags/concurrency/">concurrency</a>,&nbsp;<a href="/tags/parallelism/">parallelism</a>,&nbsp;<a href="/tags/linux/">linux</a>,&nbsp;<a href="/tags/linux_kernel/">linux_kernel</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>
@@ -171,7 +170,7 @@ Race condition 在一組執行單元(process/thread)以 shared memory 的方式�
                     <span class="page-link" aria-hidden="true">&hellip;</span>
                 </li><li class="page-item ">
                     <span class="page-link">
-                        <a href="/page/7/">7</a>
+                        <a href="/page/8/">8</a>
                     </span>
                 </li></ul></div></div>
             </main><footer class="footer">
