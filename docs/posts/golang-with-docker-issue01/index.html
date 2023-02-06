@@ -5,20 +5,20 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="robots" content="noodp" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
-        <title>Bypassing the Load Balancer Without Regrets - SoCC ’20 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="Bypassing the Load Balancer Without Regrets - SoCC ’20" />
-<meta property="og:description" content="golang 在 alpine image 的一個常見坑 紀錄一下前幾天在實驗 dapr 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
+        <title>golang 在 alpine image 的一個常見坑 - davidLei</title><meta name="Description" content="一個紀錄心情，技術，人生的網站"><meta property="og:title" content="golang 在 alpine image 的一個常見坑" />
+<meta property="og:description" content="紀錄一下前幾天在實驗 dapr 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
 package main import ( &#34;log&#34; &#34;net/http&#34; ) func main() { log.Println(&#34;Start echo server&#34;) http.HandleFunc(&#34;/echo&#34;, echoHandler) if err := http.ListenAndServe(&#34;:3000&#34;, nil); err != nil { log.Fatal(err) } } func echoHandler(w http.ResponseWriter, r *http.Request) { r.ParseForm() log.Println(&#34;receive message: &#34;, r.Form.Get(&#34;msg&#34;)) w.Write([]byte(r.Form.Get(&#34;msg&#34;) &#43; &#34;www\n&#34;)) } 因為只是要快速實驗，所以 Dockerfile 也寫得很簡略
-FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經過 go build -o echo-server main." />
+FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經過 go build -o echo-server main.go 之後建立 image docker build -t echo-server ." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://davidleitw.github.io/posts/golang-with-docker-issue01/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2023-02-06T21:13:53+08:00" />
 <meta property="article:modified_time" content="2023-02-06T21:13:53+08:00" />
 
 <meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="Bypassing the Load Balancer Without Regrets - SoCC ’20"/>
-<meta name="twitter:description" content="golang 在 alpine image 的一個常見坑 紀錄一下前幾天在實驗 dapr 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
+<meta name="twitter:title" content="golang 在 alpine image 的一個常見坑"/>
+<meta name="twitter:description" content="紀錄一下前幾天在實驗 dapr 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
 package main import ( &#34;log&#34; &#34;net/http&#34; ) func main() { log.Println(&#34;Start echo server&#34;) http.HandleFunc(&#34;/echo&#34;, echoHandler) if err := http.ListenAndServe(&#34;:3000&#34;, nil); err != nil { log.Fatal(err) } } func echoHandler(w http.ResponseWriter, r *http.Request) { r.ParseForm() log.Println(&#34;receive message: &#34;, r.Form.Get(&#34;msg&#34;)) w.Write([]byte(r.Form.Get(&#34;msg&#34;) &#43; &#34;www\n&#34;)) } 因為只是要快速實驗，所以 Dockerfile 也寫得很簡略
-FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經過 go build -o echo-server main."/>
+FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經過 go build -o echo-server main.go 之後建立 image docker build -t echo-server ."/>
 <meta name="application-name" content="davidLei">
 <meta name="apple-mobile-web-app-title" content="davidLei"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -26,12 +26,12 @@ FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經�
     {
         "@context": "http://schema.org",
         "@type": "BlogPosting",
-        "headline": "Bypassing the Load Balancer Without Regrets - SoCC ’20",
+        "headline": "golang 在 alpine image 的一個常見坑",
         "inLanguage": "en",
         "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": "https:\/\/davidleitw.github.io\/posts\/golang-with-docker-issue01\/"
-        },"genre": "posts","keywords": "docker, go","wordcount":  162 ,
+        },"genre": "posts","keywords": "docker, go","wordcount":  157 ,
         "url": "https:\/\/davidleitw.github.io\/posts\/golang-with-docker-issue01\/","datePublished": "2023-02-06T21:13:53+08:00","dateModified": "2023-02-06T21:13:53+08:00","publisher": {
             "@type": "Organization",
             "name": "davidlei"},"author": {
@@ -106,9 +106,9 @@ FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經�
                 <div class="container"><div class="toc" id="toc-auto">
             <h2 class="toc-title">Contents</h2>
             <div class="toc-content" id="toc-content-auto"></div>
-        </div><article class="page single"><h1 class="single-title animated flipInX">Bypassing the Load Balancer Without Regrets - SoCC ’20</h1><div class="post-meta">
+        </div><article class="page single"><h1 class="single-title animated flipInX">golang 在 alpine image 的一個常見坑</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="https://davidleitw.github.io/" title="Author" target="_blank" rel="noopener noreffer author" class="author"><i class="fas fa-user-circle fa-fw"></i>davidlei</a></span>&nbsp;<span class="post-category">included in <a href="/categories/go/"><i class="far fa-folder fa-fw"></i>go</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2023-02-06">2023-02-06</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;162 words&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw"></i>&nbsp;<time datetime="2023-02-06">2023-02-06</time>&nbsp;<i class="fas fa-pencil-alt fa-fw"></i>&nbsp;157 words&nbsp;
                 <i class="far fa-clock fa-fw"></i>&nbsp;One minute&nbsp;</div>
         </div><div class="details toc" id="toc-static"  kept="true">
                 <div class="details-summary toc-title">
@@ -116,8 +116,7 @@ FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經�
                     <span><i class="details-icon fas fa-angle-right"></i></span>
                 </div>
                 <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents"></nav></div>
-            </div><div class="content" id="content"><h1 id="golang-在-alpine-image-的一個常見坑">golang 在 alpine image 的一個常見坑</h1>
-<p>紀錄一下前幾天在實驗 <a href="https://github.com/dapr/dapr" target="_blank" rel="noopener noreffer">dapr</a> 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下</p>
+            </div><div class="content" id="content"><p>紀錄一下前幾天在實驗 <a href="https://github.com/dapr/dapr" target="_blank" rel="noopener noreffer">dapr</a> 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="p">(</span>
@@ -197,7 +196,7 @@ FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經�
         <div class="post-info-line">
             <div class="post-info-md"></div>
             <div class="post-info-share">
-                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="Bypassing the Load Balancer Without Regrets - SoCC ’20" data-hashtags="docker,go"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-hashtag="docker"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="Bypassing the Load Balancer Without Regrets - SoCC ’20" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="Bypassing the Load Balancer Without Regrets - SoCC ’20"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="Bypassing the Load Balancer Without Regrets - SoCC ’20"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="Bypassing the Load Balancer Without Regrets - SoCC ’20" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="Bypassing the Load Balancer Without Regrets - SoCC ’20" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="Bypassing the Load Balancer Without Regrets - SoCC ’20"><i class="fab fa-evernote fa-fw"></i></a></span>
+                <span><a href="javascript:void(0);" title="Share on Twitter" data-sharer="twitter" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="golang 在 alpine image 的一個常見坑" data-hashtags="docker,go"><i class="fab fa-twitter fa-fw"></i></a><a href="javascript:void(0);" title="Share on Facebook" data-sharer="facebook" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-hashtag="docker"><i class="fab fa-facebook-square fa-fw"></i></a><a href="javascript:void(0);" title="Share on WhatsApp" data-sharer="whatsapp" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="golang 在 alpine image 的一個常見坑" data-web><i class="fab fa-whatsapp fa-fw"></i></a><a href="javascript:void(0);" title="Share on Line" data-sharer="line" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="golang 在 alpine image 的一個常見坑"><i data-svg-src="/lib/simple-icons/icons/line.min.svg"></i></a><a href="javascript:void(0);" title="Share on 微博" data-sharer="weibo" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="golang 在 alpine image 的一個常見坑"><i class="fab fa-weibo fa-fw"></i></a><a href="javascript:void(0);" title="Share on Myspace" data-sharer="myspace" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="golang 在 alpine image 的一個常見坑" data-description=""><i data-svg-src="/lib/simple-icons/icons/myspace.min.svg"></i></a><a href="javascript:void(0);" title="Share on Blogger" data-sharer="blogger" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="golang 在 alpine image 的一個常見坑" data-description=""><i class="fab fa-blogger fa-fw"></i></a><a href="javascript:void(0);" title="Share on Evernote" data-sharer="evernote" data-url="https://davidleitw.github.io/posts/golang-with-docker-issue01/" data-title="golang 在 alpine image 的一個常見坑"><i class="fab fa-evernote fa-fw"></i></a></span>
             </div>
         </div>
     </div>

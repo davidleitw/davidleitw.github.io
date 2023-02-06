@@ -7,14 +7,14 @@
             <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 06 Feb 2023 21:13:53 &#43;0800</lastBuildDate>
             <atom:link href="https://davidleitw.github.io/index.xml" rel="self" type="application/rss+xml" />
         <item>
-    <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
+    <title>golang 在 alpine image 的一個常見坑</title>
     <link>https://davidleitw.github.io/posts/golang-with-docker-issue01/</link>
     <pubDate>Mon, 06 Feb 2023 21:13:53 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/posts/golang-with-docker-issue01/</guid>
-    <description><![CDATA[golang 在 alpine image 的一個常見坑 紀錄一下前幾天在實驗 dapr 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
+    <description><![CDATA[紀錄一下前幾天在實驗 dapr 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
 package main import ( &#34;log&#34; &#34;net/http&#34; ) func main() { log.Println(&#34;Start echo server&#34;) http.HandleFunc(&#34;/echo&#34;, echoHandler) if err := http.ListenAndServe(&#34;:3000&#34;, nil); err != nil { log.Fatal(err) } } func echoHandler(w http.ResponseWriter, r *http.Request) { r.ParseForm() log.Println(&#34;receive message: &#34;, r.Form.Get(&#34;msg&#34;)) w.Write([]byte(r.Form.Get(&#34;msg&#34;) + &#34;www\n&#34;)) } 因為只是要快速實驗，所以 Dockerfile 也寫得很簡略
-FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經過 go build -o echo-server main.]]></description>
+FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經過 go build -o echo-server main.go 之後建立 image docker build -t echo-server .]]></description>
 </item><item>
     <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
     <link>https://davidleitw.github.io/posts/paper01/</link>

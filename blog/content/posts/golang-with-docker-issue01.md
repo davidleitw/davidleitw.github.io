@@ -1,5 +1,5 @@
 ---
-title: "Bypassing the Load Balancer Without Regrets - SoCC ’20"
+title: "golang 在 alpine image 的一個常見坑"
 date: 2023-02-06T21:13:53+08:00
 draft: false
 tags: 
@@ -8,7 +8,6 @@ tags:
 categories: ["go"]
 ---
 
-# golang 在 alpine image 的一個常見坑
 
 紀錄一下前幾天在實驗 [dapr](https://github.com/dapr/dapr) 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
 
