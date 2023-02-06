@@ -4,9 +4,18 @@
         <link>https://davidleitw.github.io/</link>
         <description>一個紀錄心情，技術，人生的網站</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 19 Dec 2022 22:13:53 &#43;0800</lastBuildDate>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 06 Feb 2023 21:13:53 &#43;0800</lastBuildDate>
             <atom:link href="https://davidleitw.github.io/index.xml" rel="self" type="application/rss+xml" />
         <item>
+    <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
+    <link>https://davidleitw.github.io/posts/golang-with-docker-issue01/</link>
+    <pubDate>Mon, 06 Feb 2023 21:13:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/posts/golang-with-docker-issue01/</guid>
+    <description><![CDATA[golang 在 alpine image 的一個常見坑 紀錄一下前幾天在實驗 dapr 遇到的一個小問題，通常發生在簡單的 golang 程式使用 apline image 當作基底的時候，程式如下
+package main import ( &#34;log&#34; &#34;net/http&#34; ) func main() { log.Println(&#34;Start echo server&#34;) http.HandleFunc(&#34;/echo&#34;, echoHandler) if err := http.ListenAndServe(&#34;:3000&#34;, nil); err != nil { log.Fatal(err) } } func echoHandler(w http.ResponseWriter, r *http.Request) { r.ParseForm() log.Println(&#34;receive message: &#34;, r.Form.Get(&#34;msg&#34;)) w.Write([]byte(r.Form.Get(&#34;msg&#34;) + &#34;www\n&#34;)) } 因為只是要快速實驗，所以 Dockerfile 也寫得很簡略
+FROM alpine:latest ADD echo-server . ENTRYPOINT [ &#34;/echo-server&#34; ] 經過 go build -o echo-server main.]]></description>
+</item><item>
     <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
     <link>https://davidleitw.github.io/posts/paper01/</link>
     <pubDate>Mon, 19 Dec 2022 22:13:53 &#43;0800</pubDate>
@@ -120,17 +129,5 @@ Attribute attribute 描述 entity 的屬性，拿上面 student 的例子，name
 在資料庫內 attribute 分成很多不同類型，大致可以分成 Simple, Composite, Multi-valued。
 Simple Simple attribute 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 data type，像是 student 的 age 就是單純的 int。
 Composite Composite attribute 是由多個不同的部份組成一起的概念，像是外國的名字可能有 FirstNAme, MiddleName, LastName 等等]]></description>
-</item><item>
-    <title>leetcode 1022. Sum of Root To Leaf Binary Numbers [Easy]</title>
-    <link>https://davidleitw.github.io/posts/lc1022/</link>
-    <pubDate>Tue, 11 Jan 2022 00:12:53 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/posts/lc1022/</guid>
-    <description><![CDATA[題目敘述 Input: root = [1, 0, 1, 0, 1, 0, 1]
-Output: 22
-Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
-給一個節點為 0 或者 1 的 binary tree，回傳從 root 為起點到各個 leaf 節點路徑組成二進位數的合。
-解題紀錄 利用 DFS 去尋訪，如果 !root-&gt;left &amp;&amp; !root-&gt;right 就代表到達 leaf，直接回傳算出來的值。
-class Solution { public: int sumRootToLeaf(TreeNode* root) { return solution(root, 0); } int solution(TreeNode *root, int bin) { if (!]]></description>
 </item></channel>
 </rss>

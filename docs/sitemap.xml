@@ -2,20 +2,24 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
     xmlns:xhtml="http://www.w3.org/1999/xhtml"
     ><url>
-            <loc>https://davidleitw.github.io/posts/paper01/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/categories/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/ebpf/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/linux/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/linux_kernel/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/network/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/paper/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/categories/paper/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/posts/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/xdp/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
-            <loc>https://davidleitw.github.io/categories/ebpf/</loc><lastmod>2022-12-12T21:00:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url><url>
-            <loc>https://davidleitw.github.io/posts/xdp_example_01/</loc><lastmod>2022-12-12T21:00:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url><url>
+            <loc>https://davidleitw.github.io/posts/golang-with-docker-issue01/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/categories/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/docker/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/go/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/categories/go/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/posts/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/</loc><lastmod>2023-02-06T21:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>1</priority></url><url>
+            <loc>https://davidleitw.github.io/posts/paper01/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/ebpf/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/linux/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/linux_kernel/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/network/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/paper/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/categories/paper/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/tags/xdp/</loc><lastmod>2022-12-19T22:13:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/categories/ebpf/</loc><lastmod>2022-12-12T21:00:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
+            <loc>https://davidleitw.github.io/posts/xdp_example_01/</loc><lastmod>2022-12-12T21:00:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/shell/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/categories/shell/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/ldconfig_1/</loc><lastmod>2022-10-24T00:12:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
@@ -25,10 +29,8 @@
             <loc>https://davidleitw.github.io/posts/fd/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/categories/linux_kernel/</loc><lastmod>2022-06-28T04:16:48&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/container/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/docker/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/categories/docker/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/docker_network_ns/</loc><lastmod>2022-05-04T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/tags/go/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/sudogo/</loc><lastmod>2022-04-09T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/concurrency/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/categories/concurrency/</loc><lastmod>2022-04-01T00:01:01&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
@@ -61,7 +63,6 @@
             <loc>https://davidleitw.github.io/posts/lc198/</loc><lastmod>2021-12-26T01:05:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/lc973/</loc><lastmod>2021-12-26T01:04:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/lc227/</loc><lastmod>2021-12-25T01:04:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
-            <loc>https://davidleitw.github.io/categories/go/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/time01/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/posts/lc56/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>
             <loc>https://davidleitw.github.io/tags/timer/</loc><lastmod>2021-12-24T01:04:53&#43;08:00</lastmod><changefreq>weekly</changefreq><priority>0.5</priority></url><url>

@@ -4,7 +4,21 @@
         <link>https://davidleitw.github.io/tags/</link>
         <description>Tags - Tag - davidLei</description>
         <generator>Hugo -- gohugo.io</generator><language>en</language><managingEditor>davidleitw@gmail.com (davidlei)</managingEditor>
-            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 19 Dec 2022 22:13:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+            <webMaster>davidleitw@gmail.com (davidlei)</webMaster><lastBuildDate>Mon, 06 Feb 2023 21:13:53 &#43;0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/" rel="self" type="application/rss+xml" /><item>
+    <title>docker</title>
+    <link>https://davidleitw.github.io/tags/docker/</link>
+    <pubDate>Mon, 06 Feb 2023 21:13:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/docker/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
+    <title>go</title>
+    <link>https://davidleitw.github.io/tags/go/</link>
+    <pubDate>Mon, 06 Feb 2023 21:13:53 &#43;0800</pubDate>
+    <author>Author</author>
+    <guid>https://davidleitw.github.io/tags/go/</guid>
+    <description><![CDATA[]]></description>
+</item><item>
     <title>eBPF</title>
     <link>https://davidleitw.github.io/tags/ebpf/</link>
     <pubDate>Mon, 19 Dec 2022 22:13:53 &#43;0800</pubDate>
@@ -59,20 +73,6 @@
     <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
     <author>Author</author>
     <guid>https://davidleitw.github.io/tags/c/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>file_descriptor</title>
-    <link>https://davidleitw.github.io/tags/file_descriptor/</link>
-    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/file_descriptor/</guid>
-    <description><![CDATA[]]></description>
-</item><item>
-    <title>kernel</title>
-    <link>https://davidleitw.github.io/tags/kernel/</link>
-    <pubDate>Tue, 28 Jun 2022 04:16:48 &#43;0800</pubDate>
-    <author>Author</author>
-    <guid>https://davidleitw.github.io/tags/kernel/</guid>
     <description><![CDATA[]]></description>
 </item></channel>
 </rss>
