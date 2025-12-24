@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-tw" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="SDN 學習筆記第一篇">
+<title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
+
+<link rel='canonical' href='https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
+
+<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹">
+<meta property='og:description' content="SDN 學習筆記第一篇">
+<meta property='og:url' content='https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
+<meta property='og:site_name' content='davidLei'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='network' /><meta property='article:tag' content='SDN' /><meta property='article:published_time' content='2021-08-13T21:34:43&#43;08:00'/><meta property='article:modified_time' content='2021-08-13T21:34:43&#43;08:00'/>
+<meta name="twitter:title" content="SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹">
+<meta name="twitter:description" content="SDN 學習筆記第一篇">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">davidLei</a></h1>
+            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/davidleitw'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/wei-cheng-lei-2604121b6/'
+                        target="_blank"
+                        title="LinkedIn"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <rect x="4" y="4" width="16" height="16" rx="2" />
+  <line x1="8" y1="11" x2="8" y2="16" />
+  <line x1="8" y1="8" x2="8" y2="8.01" />
+  <line x1="12" y1="16" x2="12" y2="11" />
+  <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章歸檔</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>夜晚模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#預備知識">預備知識</a></li>
+    <li><a href="#什麼是-sdn-以及-sdn-的發展歷史">什麼是 SDN 以及 SDN 的發展歷史</a></li>
+    <li><a href="#常用名詞解釋">常用名詞解釋</a>
+      <ol>
+        <li><a href="#network-device-網路設備">Network Device 網路設備</a></li>
+        <li><a href="#南向界面southbound-interface-control-data-plane-interface">南向界面(Southbound Interface/ Control Data Plane Interface)</a></li>
+        <li><a href="#控制器controller">控制器(Controller)</a></li>
+        <li><a href="#北向界面northbound-interface">北向界面(Northbound Interface)</a></li>
+        <li><a href="#applicationservices">Application(Services)</a></li>
+      </ol>
+    </li>
+    <li><a href="#openflow-協定">OpenFlow 協定</a>
+      <ol>
+        <li><a href="#概述維基百科">概述(維基百科)</a></li>
+        <li><a href="#協定內容">協定內容</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/sdn/" >
+                SDN
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/">SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            SDN 學習筆記第一篇
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published" datetime='2021-08-13T21:34:43&#43;08:00'>2021-08-13</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 4 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>此專案用來整理一些學習 SDN 的相關知識以及參考資料。
+由於剛開始學習沒多久，所以會著重於個人學習的<strong>順序</strong>，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。</p>
+<p>當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點</p>
+<h2 id="預備知識">預備知識
+</h2><p>在學習 SDN 之前我準備先複習了一輪 <a class="link" href="https://www.ucg.ac.me/skladiste/blog_44233/objava_64433/fajlovi/Computer%20Networking%20_%20A%20Top%20Down%20Approach,%207th,%20converted.pdf"  target="_blank" rel="noopener"
+    >computer networking a top-down approach 7th</a>，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。</p>
+<p>之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。</p>
+<h2 id="什麼是-sdn-以及-sdn-的發展歷史">什麼是 SDN 以及 SDN 的發展歷史
+</h2><blockquote>
+<p>參考文章</p>
+<ul>
+<li><a class="link" href="https://feisky.gitbooks.io/sdn/content/sdn/"  target="_blank" rel="noopener"
+    >SDN 簡介</a></li>
+<li><a class="link" href="https://hackmd.io/@cnsrl/SJur_2twL"  target="_blank" rel="noopener"
+    >SDN 發展趨勢</a></li>
+</ul>
+</blockquote>
+<p>傳統網路的一些特點:</p>
+<ul>
+<li>每個節點是由設備單獨控制，屬於分散式架構。</li>
+<li>控制面以及轉接面放在同一個設備上。</li>
+<li>管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。</li>
+<li>通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。</li>
+</ul>
+<p>SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。</p>
+<p><img src="https://i.imgur.com/uF2pcH0.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>SDN 並非一種技術，而是一種設計的理念，只要符合<strong>控制面以及轉接面的分離</strong>，以及開放的<strong>可程式化</strong>設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著<strong>集中控制</strong>的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。</p>
+<h2 id="常用名詞解釋">常用名詞解釋
+</h2><p><img src="https://sites.google.com/a/cnsrl.cycu.edu.tw/da-shu-bi-ji/_/rsrc/1565708281052/sdn/sdn_architecture.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<h3 id="network-device-網路設備">Network Device 網路設備
+</h3><p>網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。</p>
+<p>有時候網路設備也被稱為 <strong>Data Plane</strong>。</p>
+<p>支援 OpenFlow 的 switch 會有以下功能</p>
+<ul>
+<li>對於接收到的封包進行修改或針對指定的 port 進行轉送。</li>
+<li>對於接收到的封包進行轉送到 Controller 的動作(Packet-In)。</li>
+<li>對於接收到來自 Controller 的封包轉送到指定的連接埠(Packet-Out)。</li>
+</ul>
+<h3 id="南向界面southbound-interface-control-data-plane-interface">南向界面(Southbound Interface/ Control Data Plane Interface)
+</h3><p>南向界面是指 Data Plane 以及 Controller 之間的界面，在 SDN 架構中，希望南向界面是標準化的，這樣才可以讓軟體可以不受硬體的限制，在任何設備上都能執行，不過現在還只是理想。</p>
+<p>目前主流的南向界面標準是 OpenFlow 協定，雖然還有其他各種南向界面，不過還是 OpenFlow 為大宗。</p>
+<blockquote>
+<p>因為我也還是新手的緣故，所以也是從 OpenFlow 開始學習 SDN 的，此篇心得文也會著重在 OpenFlow 協定上。</p>
+</blockquote>
+<h3 id="控制器controller">控制器(Controller)
+</h3><p><strong>Controller</strong> 是 SDN 的核心，北向有應用程式提供業務邏輯經由 Controller 將轉送的規則藉由 Southbound Interface 傳給網路設備，屬於 SDN 架構中最重要的部份。</p>
+<p>目前 Controller 百家爭鳴，有很多開源的 controller (例如 Ryu, FloodLight, NOX/POX)等等，也有很多公司開發的商用版本，本篇心得文會使用 Ryu 去做一些 OpenFlow 相關的實驗。</p>
+<h3 id="北向界面northbound-interface">北向界面(Northbound Interface)
+</h3><p>北向界面是指應用程式以及 Controller 之間溝通的界面，目前還沒有一個統一的標準，通常會因為狀況不同而採用不同的方案。</p>
+<h3 id="applicationservices">Application(Services)
+</h3><p>這裡的 Application 是指幾乎所有網路的應用，包含load balancing, security, monitoring 等等.. 應用程式的業務邏輯就透過 Controller 傳送規則給網路設備，讓設備彈性的執行我們要的功能。</p>
+<h2 id="openflow-協定">OpenFlow 協定
+</h2><p>OpenFlow 為最有代表性的南向界面，被視為第一個 SDN 的標準之一。它最初在 SDN 環境中定義了通信協定，使 SDN 控制器能夠與物理和虛擬的交換機和路由器等網路裝置的轉發平面直接進行互動，從而更好地適應不斷變化的業務需求。</p>
+<h3 id="概述維基百科">概述(<a class="link" href="https://zh.wikipedia.org/wiki/OpenFlow"  target="_blank" rel="noopener"
+    >維基百科</a>)
+</h3><p>OpenFlow 能夠啟動遠端的控制器，經由網路交換器，決定網路封包要由何種路徑通過網路交換機。這個協定的發明者，將它當成軟體定義網路（Software-defined networking）的啟動器。</p>
+<p>OpenFlow 允許從遠端控制網路交換器的封包轉送表，透過新增、修改與移除封包控制規則與行動，來改變封包轉送的路徑。比起用存取控制列表 (ACLs) 和路由協定，允許更複雜的流量管理。同時，OpenFlow 允許不同供應商用一個簡單，開源的協定去遠端管理交換機（通常提供專有的介面和描述語言)。</p>
+<h3 id="協定內容">協定內容
+</h3><p>因為 OpenFlow 算是一個很有指標性的 SDN 協定，所以對於要學習 SDN 的人來說，他的 specification 也非常值得一看，我們會就 <strong>OpenFlow</strong> 獨立一個章節來談論。請點以下連結:</p>
+<ul>
+<li><a class="link" href="https://github.com/davidleitw/learn_SDN/blob/master/OpenFlow.md"  target="_blank" rel="noopener"
+    >OpenFlow協定</a></li>
+</ul>
+<hr>
+<blockquote>
+<p>參考資料</p>
+<ul>
+<li><a class="link" href="https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf"  target="_blank" rel="noopener"
+    >OpenFlow 1.0 spec</a></li>
+<li><a class="link" href="https://www.researchgate.net/publication/220195143_OpenFlow_Enabling_innovation_in_campus_networks"  target="_blank" rel="noopener"
+    >OpenFlow: Enabling Innovation in Campus Networks</a></li>
+<li><a class="link" href="https://www.cnblogs.com/ssyfj/tag/SDN/"  target="_blank" rel="noopener"
+    >協定心得</a></li>
+</ul>
+</blockquote>
+<p>下一篇文章會從 OpenFlow 1.0 開始講起，後續再補充 OpenFlow 1.3 新增了哪些東西。
+目前最常使用的就是 OpenFlow 1.3 的版本，在商業上的應用最廣泛(支援 OpenFlow 的 Switch很多都是支援 OpenFlow 1.3版本)</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/network/">Network</a>
+        
+            <a href="/tags/sdn/">SDN</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY-NC 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const elementsToRender = [".main-article", ".widget--toc"];
+
+        elementsToRender.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                renderMathInElement(element, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false },
+                        { left: "\\(", right: "\\)", display: false },
+                        { left: "\\[", right: "\\]", display: true }
+                    ],
+                    ignoredClasses: ["gist"]
+                });
+            }
+        });
+    });
+</script>
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">SDN 學習筆記(二): OpenFlow 1.0 介紹</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script
+    src="https://giscus.app/client.js"
+    data-repo="davidleitw/davidleitw.github.io"
+    data-repo-id=""
+    data-category="Announcements"
+    data-category-id=""
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    data-loading=""
+    crossorigin="anonymous"
+    async
+></script>
+<script>
+    function setGiscusTheme(theme) {
+        let giscus = document.querySelector("iframe.giscus-frame");
+        if (giscus) {
+            giscus.contentWindow.postMessage(
+                {
+                    giscus: {
+                        setConfig: {
+                            theme: theme,
+                        },
+                    },
+                },
+                "https://giscus.app"
+            );
+        }
+    }
+
+    (function () {
+        addEventListener("message", (e) => {
+            if (event.origin !== "https://giscus.app") return;
+            handler();
+        });
+        window.addEventListener("onColorSchemeChange", handler);
+
+        function handler() {
+            if (document.documentElement.dataset.scheme === "light") {
+                setGiscusTheme('light');
+            } else {
+                setGiscusTheme('dark');
+            }
+        }
+    })();
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 davidlei
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.33.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+    
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

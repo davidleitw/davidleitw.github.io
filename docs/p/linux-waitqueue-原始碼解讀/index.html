@@ -1,0 +1,2130 @@
+<!DOCTYPE html>
+<html lang="zh-tw" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 本文章環境基於 Linux v4.14.259\n概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。\n">
+<title>Linux waitqueue 原始碼解讀</title>
+
+<link rel='canonical' href='https://davidleitw.github.io/p/linux-waitqueue-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Linux waitqueue 原始碼解讀">
+<meta property='og:description' content=" 本文章環境基於 Linux v4.14.259\n概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。\n">
+<meta property='og:url' content='https://davidleitw.github.io/p/linux-waitqueue-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
+<meta property='og:site_name' content='davidLei'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux_kernel' /><meta property='article:tag' content='system_call' /><meta property='article:tag' content='wait_queue' /><meta property='article:published_time' content='2022-01-08T03:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-01-08T03:12:53&#43;08:00'/>
+<meta name="twitter:title" content="Linux waitqueue 原始碼解讀">
+<meta name="twitter:description" content=" 本文章環境基於 Linux v4.14.259\n概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。\n">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">davidLei</a></h1>
+            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/davidleitw'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/wei-cheng-lei-2604121b6/'
+                        target="_blank"
+                        title="LinkedIn"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <rect x="4" y="4" width="16" height="16" rx="2" />
+  <line x1="8" y1="11" x2="8" y2="16" />
+  <line x1="8" y1="8" x2="8" y2="8.01" />
+  <line x1="12" y1="16" x2="12" y2="11" />
+  <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章歸檔</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>夜晚模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#概述">概述</a></li>
+    <li><a href="#wait_">wait_queue_head_t</a>
+      <ol>
+        <li><a href="#初始化-waitqueue">初始化 <code>waitqueue</code></a></li>
+      </ol>
+    </li>
+    <li><a href="#wait_-1">wait_queue_entry</a>
+      <ol>
+        <li><a href="#新增-wait_queue_entry">新增 wait_queue_entry</a></li>
+        <li><a href="#declare_">DECLARE_WAITQUEUE</a></li>
+        <li><a href="#add_">add_wait_queue</a></li>
+        <li><a href="#remove_">remove_wait_queue</a></li>
+      </ol>
+    </li>
+    <li><a href="#休眠">休眠</a>
+      <ol>
+        <li><a href="#wait_-2">wait_event</a></li>
+        <li><a href="#prepare_">prepare_to_wait_event</a></li>
+      </ol>
+    </li>
+    <li><a href="#喚醒函數">喚醒函數</a>
+      <ol>
+        <li><a href="#default_">default_wake_function</a></li>
+        <li><a href="#try_">try_to_wake_up</a></li>
+        <li><a href="#ttwu_">ttwu_queue</a></li>
+        <li><a href="#ttwu_-1">ttwu_do_activate</a></li>
+      </ol>
+    </li>
+    <li><a href="#get-the-number-of-entering-a-wait-queue">get the number of entering a wait queue</a>
+      <ol>
+        <li><a href="#system-call-definition">system call definition</a></li>
+        <li><a href="#user-space">user space</a></li>
+        <li><a href="#驗證">驗證</a></li>
+        <li><a href="#ttwu_-2">ttwu_stat</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/linux_kernel/" >
+                Linux_kernel
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/linux-waitqueue-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/">Linux waitqueue 原始碼解讀</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published" datetime='2022-01-08T03:12:53&#43;08:00'>2022-01-08</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 10 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <blockquote>
+<p>本文章環境基於 Linux v4.14.259</p>
+</blockquote>
+<h2 id="概述">概述
+</h2><p><code>waitqueue</code> 如同其名，是 <code>kernel</code> 中管理一些在<strong>等待資源</strong>的 <code>task</code> 的資料結構，在 <code>task</code> 還沒辦法獲得資源時，會先將其放入 <code>waitqueue</code> 等待特定條件或者資源準備就緒才會把該 <code>task</code> 喚醒。</p>
+<p><code>waitqueue</code> 有定義兩種資料結構</p>
+<ul>
+<li><code>wait_queue_head</code>: <code>waitqueue</code> 的 <code>head</code></li>
+<li><code>wait_queue_entry</code>: 來表示每個在 <code>waitqueue</code> 的元素</li>
+</ul>
+<p><code>waitqueue</code> 所有的實現都是基於 <code>kernel</code> 內建的 <code>double circular linked list</code> 來實現，所以本身的設計非常簡潔。 以下為 <code>waitqueue</code> 基本的 <code>data struct</code> 定義，位在 <code>/include/linux/wait.h</code></p>
+<p><img src="https://i.imgur.com/jMSsGuq.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<h2 id="wait_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L34"  target="_blank" rel="noopener"
+    >wait_queue_head_t</a>
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">spinlock_t</span>		<span class="n">lock</span><span class="p">;</span>  <span class="c1">// 自旋鎖
+</span></span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">list_head</span>	<span class="n">head</span><span class="p">;</span>  <span class="c1">// 指向 prev, next entry.
+</span></span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="kt">wait_queue_head_t</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="初始化-waitqueue">初始化 <code>waitqueue</code>
+</h3><p>要建立新的 <code>waitqueue</code>，必須要先初始化 <code>wait_queue_head_t</code> 結構，透過 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L63"  target="_blank" rel="noopener"
+    >init_waitqueue_head</a>，定義如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define init_waitqueue_head(wq_head)						\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	do {									\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		static struct lock_class_key __key;				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">										\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		__init_waitqueue_head((wq_head), #wq_head, &amp;__key);		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	} while (0)
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>init_waitqueue_head</code> 這個 <code>macro</code> 展開後會呼叫 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L16"  target="_blank" rel="noopener"
+    >__init_waitqueue_head</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">__init_waitqueue_head</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span><span class="p">,</span> <span class="k">struct</span> <span class="n">lock_class_key</span> <span class="o">*</span><span class="n">key</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">spin_lock_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">lockdep_set_class_and_name</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>但是看了一下好像也可以使用 <a class="link" href="https://elixir.bootlin.com/linux/v5.15.13/source/include/linux/wait.h#L61"  target="_blank" rel="noopener"
+    >DECLARE_WAIT_QUEUE_HEAD</a> 來初始化的樣子，實現如下:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define __WAITQUEUE_INITIALIZER(name, tsk) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	.private	= tsk,							\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	.func		= default_wake_function,				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	.entry		= { NULL, NULL } }
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define DECLARE_WAITQUEUE(name, tsk)						\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	struct wait_queue_entry name = __WAITQUEUE_INITIALIZER(name, tsk)
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>我的理解是如果使用 <code>DECLARE_WAITQUEUE</code> 的話可以直接當成宣告，像是以下的寫法，如果我想宣告一個 <code>wait_queue_head_t</code> 變數名稱為 <code>wq_head</code>，可以直接寫成</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="nf">DECLARE_WAITQUEUE</span><span class="p">(</span><span class="n">wq_head</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>至於 <code>init_waitqueue_head</code> 的話可能需要自己先宣告好變數，才能調用，像是以下的寫法</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="kt">wait_queue_head_t</span> <span class="n">wq_head</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="nf">init_waitqueue_head</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="wait_-1"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L27"  target="_blank" rel="noopener"
+    >wait_queue_entry</a>
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * A single wait-queue entry structure:
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">void</span>			<span class="o">*</span><span class="n">private</span><span class="p">;</span> <span class="c1">// 通常指向正在等待事件的 task_struct
+</span></span></span><span class="line"><span class="cl">	<span class="kt">wait_queue_func_t</span>	<span class="n">func</span><span class="p">;</span>     <span class="c1">// 喚醒函數(wake_up)
+</span></span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">list_head</span>	<span class="n">entry</span><span class="p">;</span>    <span class="c1">// 指向 prev, next entry
+</span></span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一般來說喚醒函數是由排程器實現，所以如果沒有特殊需求，預設的喚醒函數是 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989"  target="_blank" rel="noopener"
+    >kernel/sched/core.c 中的 try_to_wake_up</a>，<code>try_to_wake_up</code> 在後續會有詳細的介紹。</p>
+<h3 id="新增-wait_queue_entry">新增 wait_queue_entry
+</h3><p><code>task_struct</code> 會封裝在 <code>wait_queue_entry</code> 的 <code>private</code> 成員內，所以在新增等待事件之前，需要先把 <code>task_struct</code> 包裝成 <code>wait_queue_entry</code> 的形式，可以通過 <code>DECLARE_WAITQUEUE</code> 這個 <code>macro</code> 來包裝，在建立的過程會把喚醒函數設為 <code>default_wake_function</code>，對於喚醒函數後面會有更詳細的說明。</p>
+<h3 id="declare_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51"  target="_blank" rel="noopener"
+    >DECLARE_WAITQUEUE</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define __WAITQUEUE_INITIALIZER(name, tsk) {					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	.private	= tsk,							\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	.func		= default_wake_function,				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	.entry		= { NULL, NULL } }
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define DECLARE_WAITQUEUE(name, tsk)						\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	struct wait_queue_entry name = __WAITQUEUE_INITIALIZER(name, tsk)
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>把 <code>task</code> 封裝成 <code>wait_queue_entry</code> 之後還需要添加到 <code>waitqueue</code> 當中，可以透過 <code>add_wait_queue</code> 來實現，定義如下:</p>
+<h3 id="add_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25"  target="_blank" rel="noopener"
+    >add_wait_queue</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">add_wait_queue</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">wq_entry</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">WQ_FLAG_EXCLUSIVE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">__add_wait_queue</span><span class="p">(</span><span class="n">wq_head</span><span class="p">,</span> <span class="n">wq_entry</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">spin_unlock_irqrestore</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nf">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">add_wait_queue</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>真正操作 <code>linked list</code> 是在 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L154"  target="_blank" rel="noopener"
+    >__add_wait_queue</a> 當中，<code>__add_wait_queue</code> 會使用 <code>kernel</code> 操作 <code>linked list</code> 的 <code>api</code> 來添加 <code>wait_queue_entry</code> 到 <code>wait_queue</code> 當中。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">__add_wait_queue</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">list_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_entry</span><span class="o">-&gt;</span><span class="n">entry</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">head</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>移除 <code>wait_queue_entry</code> 則是會呼叫 <code>remove_wait_queue</code>，具體實現如下:</p>
+<h3 id="remove_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47"  target="_blank" rel="noopener"
+    >remove_wait_queue</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">remove_wait_queue</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">__remove_wait_queue</span><span class="p">(</span><span class="n">wq_head</span><span class="p">,</span> <span class="n">wq_entry</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">spin_unlock_irqrestore</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nf">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">remove_wait_queue</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="休眠">休眠
+</h2><h3 id="wait_-2"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L310"  target="_blank" rel="noopener"
+    >wait_event</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * wait_event - sleep until a condition gets true
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @wq_head: the waitqueue to wait on
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @condition: a C expression for the event to wait for
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * The process is put to sleep (TASK_UNINTERRUPTIBLE) until the
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @condition evaluates to true. The @condition is checked each time
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * the waitqueue @wq_head is woken up.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * wake_up() has to be called after changing any variable that could
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * change the result of the wait condition.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define wait_event(wq_head, condition)						\
+</span></span></span><span class="line"><span class="cl"><span class="cp">do {										\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	might_sleep();								\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	if (condition)								\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		break;								\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	__wait_event(wq_head, condition);					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">} while (0)
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>如果要讓一個 <code>task</code> 睡眠直到某個條件達成，會使用 <code>wait_event</code> 這個 <code>macro</code>，因為 <code>macro</code> 的關係，可以做到直接把 <code>condition</code> 傳進去的這種靈活度，繼續往下看 <code>__wait_event(wq_head, condition)</code> 的展開，<code>__wait_event()</code> 同樣也是一個 <code>macro</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#define __wait_event(wq_head, condition)					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	(void)___wait_event(wq_head, condition, TASK_UNINTERRUPTIBLE, 0, 0,	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">			    schedule())
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>值得注意的是展開後發現呼叫 <code>___wait_event()</code> 時傳入了 <strong>TASK_UNINTERRUPTIBLE</strong>，所以說 <code>wait_event</code> 中的事件等待是無法中斷的。</p>
+<p>在 <code>include/linux/wait.h</code> 中也定義了各種不同的 <code>wait</code> 事件，像是:</p>
+<ul>
+<li><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L382"  target="_blank" rel="noopener"
+    >wait_event_timeout</a>: 帶有超時時間的等待，不可中斷。</li>
+<li><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L466"  target="_blank" rel="noopener"
+    >wait_event_interruptible</a>: 可中斷的等待。</li>
+<li><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L500"  target="_blank" rel="noopener"
+    >wait_event_interruptible_timeout</a>: 可中斷又帶有超時的等待。</li>
+</ul>
+<p>接著來仔細看一下展開到最後的 <code>___wait_event</code> 內部實作</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * The below macro ___wait_event() has an explicit shadow of the __ret
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * variable when used from the wait_event_*() macros.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * This is so that both can use the ___wait_cond_timeout() construct
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * to wrap the condition.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * The type inconsistency of the wait_event_*() __ret variable is also
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * on purpose; we use long where we can return timeout values and int
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * otherwise.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#define ___wait_event(wq_head, condition, state, exclusive, ret, cmd)		\
+</span></span></span><span class="line"><span class="cl"><span class="cp">({										\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	__label__ __out;							\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	struct wait_queue_entry __wq_entry;					\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	long __ret = ret;	</span><span class="cm">/* explicit shadow */</span><span class="cp">				\
+</span></span></span><span class="line"><span class="cl"><span class="cp">										\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	init_wait_entry(&amp;__wq_entry, exclusive ? WQ_FLAG_EXCLUSIVE : 0);	\
+</span></span></span><span class="line"><span class="cl"><span class="cp">	for (;;) {								\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		long __int = prepare_to_wait_event(&amp;wq_head, &amp;__wq_entry, state);\
+</span></span></span><span class="line"><span class="cl"><span class="cp">										\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		if (condition)							\
+</span></span></span><span class="line"><span class="cl"><span class="cp">			break;							\
+</span></span></span><span class="line"><span class="cl"><span class="cp">		
+</span></span></span><span class="line"><span class="cl">               <span class="c1">// 如果有待處理的 signal 而且 task 的狀態為 TASK_INTERRUPTIBLE 或 TASK_KILLABLE，跳出 loop			
+</span></span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">___wait_is_interruptible</span><span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">__int</span><span class="p">)</span> <span class="p">{</span>			\
+</span></span><span class="line"><span class="cl">			<span class="n">__ret</span> <span class="o">=</span> <span class="n">__int</span><span class="p">;</span>						\
+</span></span><span class="line"><span class="cl">			<span class="k">goto</span> <span class="n">__out</span><span class="p">;</span>						\
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>								\
+</span></span><span class="line"><span class="cl">										\
+</span></span><span class="line"><span class="cl">		<span class="n">cmd</span><span class="p">;</span> <span class="c1">// schedule()，進入睡眠狀態 
+</span></span></span><span class="line"><span class="cl">	<span class="p">}</span>									\
+</span></span><span class="line"><span class="cl">	<span class="nf">finish_wait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">__wq_entry</span><span class="p">);</span>	<span class="c1">// 移出 waitqueue
+</span></span></span><span class="line"><span class="cl"><span class="nl">__out</span><span class="p">:</span>	<span class="n">__ret</span><span class="p">;</span>									\
+</span></span><span class="line"><span class="cl"><span class="p">})</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>prepare_to_wait_event</code> 是會檢查 <code>wait</code> 事件是不是有放到 <code>waitqueue</code> 中避免無法喚醒，本文章是閱讀 <code>Linux v4.14.259</code> 版本，但是看到後面的版本對於 <code>prepare_to_wait_event</code> 好像有稍微修改，有興趣可以去研究一下修改了什麼地方。</p>
+<h3 id="prepare_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273"  target="_blank" rel="noopener"
+    >prepare_to_wait_event</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">prepare_to_wait_event</span><span class="p">(</span><span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="o">*</span><span class="n">wq_head</span><span class="p">,</span> <span class="k">struct</span> <span class="n">wait_queue_entry</span> <span class="o">*</span><span class="n">wq_entry</span><span class="p">,</span> <span class="kt">int</span> <span class="n">state</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">unlikely</span><span class="p">(</span><span class="nf">signal_pending_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">current</span><span class="p">)))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * Exclusive waiter must not fail if it was selected by wakeup,
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * it should &#34;consume&#34; the condition we were waiting for.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * The caller will recheck the condition and return success if
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * we were already woken up, we can not miss the event because
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * wakeup locks/unlocks the same wq_head-&gt;lock.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * But we need to ensure that set-condition + wakeup after that
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * can&#39;t see us, it should wake up another exclusive waiter if
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * we fail.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 */</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">list_del_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_entry</span><span class="o">-&gt;</span><span class="n">entry</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">ERESTARTSYS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">list_empty</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_entry</span><span class="o">-&gt;</span><span class="n">entry</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">wq_entry</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">WQ_FLAG_EXCLUSIVE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="nf">__add_wait_queue_entry_tail</span><span class="p">(</span><span class="n">wq_head</span><span class="p">,</span> <span class="n">wq_entry</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="k">else</span>
+</span></span><span class="line"><span class="cl">				<span class="nf">__add_wait_queue</span><span class="p">(</span><span class="n">wq_head</span><span class="p">,</span> <span class="n">wq_entry</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">set_current_state</span><span class="p">(</span><span class="n">state</span><span class="p">);</span> <span class="c1">// 設置不可中斷
+</span></span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">spin_unlock_irqrestore</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nf">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">prepare_to_wait_event</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>所以總結 <code>wait_event</code> 就是可以讓 <code>task</code> 進入睡眠狀態直到 <code>condition</code> 為 <code>true</code>，在過程中狀態為 <strong>TASK_UNINTERRUPTIBLE</strong>。</p>
+<h2 id="喚醒函數">喚醒函數
+</h2><p>在前面介紹 <code>DECLARE_WAITQUEUE</code> 的時候有講到一個 <code>task</code> 包裝成 <code>wait_queue_entry</code> 時會一併設置喚醒函數為 <code>default_wake_function</code>，用於喚醒一個正在睡眠的 <code>task</code>。</p>
+<h3 id="default_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622"  target="_blank" rel="noopener"
+    >default_wake_function</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">default_wake_function</span><span class="p">(</span><span class="kt">wait_queue_entry_t</span> <span class="o">*</span><span class="n">curr</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="n">mode</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">try_to_wake_up</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">private</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="nf">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">default_wake_function</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看完定義之後會發現 <code>default_wake_function</code> 會呼叫 <code>try_to_wake_up</code>，繼續往下 <code>trace</code></p>
+<h3 id="try_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972"  target="_blank" rel="noopener"
+    >try_to_wake_up</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * try_to_wake_up - wake up a thread
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @p: the thread to be awakened
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @state: the mask of task states that can be woken
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * @wake_flags: wake modifier flags (WF_*)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * If (@state &amp; @p-&gt;state) @p-&gt;state = TASK_RUNNING.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * If the task was not queued/runnable, also place it back on a runqueue.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Atomic against schedule() which would dequeue a task, also see
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * set_current_state().
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Return: %true if @p-&gt;state changes (an actual wakeup was done),
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *	   %false otherwise.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">try_to_wake_up</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">state</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * If we are going to wake up a thread waiting for CONDITION we
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * need to ensure that CONDITION=1 done by the caller can not be
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * reordered with p-&gt;state check below. This pairs with mb() in
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * set_current_state() the waiting thread does.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 關閉本地中斷
+</span></span></span><span class="line"><span class="cl">	<span class="nf">raw_spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pi_lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">smp_mb__after_spinlock</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 如果 task 的 state 屬於不能喚醒的狀態
+</span></span></span><span class="line"><span class="cl">        <span class="c1">// 則無法喚醒該 task
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">&amp;</span> <span class="n">state</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">trace_sched_waking</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/* We&#39;re going to change -&gt;state: */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">success</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">cpu</span> <span class="o">=</span> <span class="nf">task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Ensure we load p-&gt;on_rq _after_ p-&gt;state, otherwise it would
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * be possible to, falsely, observe p-&gt;on_rq == 0 and get stuck
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * in smp_cond_load_acquire() below.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * sched_ttwu_pending()                 try_to_wake_up()
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *   [S] p-&gt;on_rq = 1;                  [L] P-&gt;state
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *       UNLOCK rq-&gt;lock  -----.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *                              \
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *				 +---   RMB
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * schedule()                   /
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *       LOCK rq-&gt;lock    -----&#39;
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *       UNLOCK rq-&gt;lock
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * [task p]
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *   [S] p-&gt;state = UNINTERRUPTIBLE     [L] p-&gt;on_rq
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Pairs with the UNLOCK+LOCK on rq-&gt;lock from the
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * last wakeup of our task and the schedule that got our task
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * current.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">smp_rmb</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 如果 task 已經在 runqueue 當中，則不需要再喚醒
+</span></span></span><span class="line"><span class="cl">        <span class="c1">// 只要更新狀態即可
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">on_rq</span> <span class="o">&amp;&amp;</span> <span class="nf">ttwu_remote</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">stat</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Ensure we load p-&gt;on_cpu _after_ p-&gt;on_rq, otherwise it would be
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * possible to, falsely, observe p-&gt;on_cpu == 0.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * One must be running (-&gt;on_cpu == 1) in order to remove oneself
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * from the runqueue.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *  [S] -&gt;on_cpu = 1;	[L] -&gt;on_rq
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *      UNLOCK rq-&gt;lock
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *			RMB
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *      LOCK   rq-&gt;lock
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *  [S] -&gt;on_rq = 0;    [L] -&gt;on_cpu
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Pairs with the full barrier implied in the UNLOCK+LOCK on rq-&gt;lock
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * from the consecutive calls to schedule(); the first switching to our
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * task, the second putting it to sleep.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">smp_rmb</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * If the owning (remote) CPU is still in the middle of schedule() with
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * this task as prev, wait until its done referencing the task.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * Pairs with the smp_store_release() in finish_lock_switch().
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 *
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * This ensures that tasks getting woken will be fully ordered against
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 * their previous state and preserve Program Order.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	 */</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">smp_cond_load_acquire</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">on_cpu</span><span class="p">,</span> <span class="o">!</span><span class="n">VAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_contributes_to_load</span> <span class="o">=</span> <span class="o">!!</span><span class="nf">task_contributes_to_load</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_WAKING</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">in_iowait</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">delayacct_blkio_end</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">atomic_dec</span><span class="p">(</span><span class="o">&amp;</span><span class="nf">task_rq</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">nr_iowait</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">cpu</span> <span class="o">=</span> <span class="nf">select_task_rq</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">wake_cpu</span><span class="p">,</span> <span class="n">SD_BALANCE_WAKE</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">!=</span> <span class="n">cpu</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">wake_flags</span> <span class="o">|=</span> <span class="n">WF_MIGRATED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">set_task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#else </span><span class="cm">/* CONFIG_SMP */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">in_iowait</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">delayacct_blkio_end</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">atomic_dec</span><span class="p">(</span><span class="o">&amp;</span><span class="nf">task_rq</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">nr_iowait</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#endif </span><span class="cm">/* CONFIG_SMP */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">ttwu_queue</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">stat</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">ttwu_stat</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">out</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1">// 開啟本地中斷
+</span></span></span><span class="line"><span class="cl">	<span class="nf">raw_spin_unlock_irqrestore</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pi_lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">success</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>這段程式碼中我們聚焦在 <code>ttwu_queue</code>, <code>ttwu_stat</code> 中，中間有很大一段在處理 <code>SMP</code> 的機制，不是本文探討的重點，先介紹一下 <code>ttmu</code>，在 <code>kernel/sched/core.c</code> 中有很多 <code>ttmu</code> 開頭的 <code>function</code>，到這邊才理解到其實是 <code>try to wake up</code> 的縮寫。</p>
+<h3 id="ttwu_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862"  target="_blank" rel="noopener"
+    >ttwu_queue</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span> <span class="nf">ttwu_queue</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">int</span> <span class="n">cpu</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span> <span class="o">=</span> <span class="nf">cpu_rq</span><span class="p">(</span><span class="n">cpu</span><span class="p">);</span> <span class="c1">// 獲得現在 cpu 的 runqueue
+</span></span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">rq_flags</span> <span class="n">rf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#if defined(CONFIG_SMP)
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">sched_feat</span><span class="p">(</span><span class="n">TTWU_QUEUE</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nf">cpus_share_cache</span><span class="p">(</span><span class="nf">smp_processor_id</span><span class="p">(),</span> <span class="n">cpu</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">sched_clock_cpu</span><span class="p">(</span><span class="n">cpu</span><span class="p">);</span> <span class="cm">/* Sync clocks across CPUs */</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">ttwu_queue_remote</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">rq_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">update_rq_clock</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">ttwu_do_activate</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">rq_unlock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在 <code>try_to_wake_up</code> 中會調用 <code>select_task_rq</code> 來為要喚醒的 <code>task</code> 選擇一個 <code>runqueue</code>，並且回傳該 <code>runqueue</code> 對應的 <code>cpu</code> 編號。 <code>ttwu_queue</code> 會判斷這個 <code>runqueue</code> 的 <code>cpu</code> 編號是否與正在執行 <code>try_to_wake_up</code> 的 <code>cpu</code> 編號相同，會根據不同情況走不同的路徑喚醒 <code>task</code>，因為具體的機制太複雜了，本篇會先介紹單處理器下的處理方式，繼續往下看 <code>ttwu_do_activate</code> 的實現。</p>
+<blockquote>
+<p><a class="link" href="http://oliveryang.net/2016/03/linux-scheduler-2/#22-wakeup-preemption"  target="_blank" rel="noopener"
+    >reference</a></p>
+</blockquote>
+<h3 id="ttwu_-1"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714"  target="_blank" rel="noopener"
+    >ttwu_do_activate</a>
+</h3><p>為了節省空間，底下的 <code>code</code> 把 <code>ttwu_do_activate</code> 呼叫的 <code>function</code> 實現也放在一起。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">ttwu_do_activate</span><span class="p">(</span><span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">,</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		 <span class="k">struct</span> <span class="n">rq_flags</span> <span class="o">*</span><span class="n">rf</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">en_flags</span> <span class="o">=</span> <span class="n">ENQUEUE_WAKEUP</span> <span class="o">|</span> <span class="n">ENQUEUE_NOCLOCK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">lockdep_assert_held</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_contributes_to_load</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">rq</span><span class="o">-&gt;</span><span class="n">nr_uninterruptible</span><span class="o">--</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">wake_flags</span> <span class="o">&amp;</span> <span class="n">WF_MIGRATED</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">en_flags</span> <span class="o">|=</span> <span class="n">ENQUEUE_MIGRATED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">ttwu_activate</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">en_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">ttwu_do_wakeup</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">,</span> <span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">ttwu_activate</span><span class="p">(</span><span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">,</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">int</span> <span class="n">en_flags</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">activate_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">en_flags</span><span class="p">);</span> <span class="c1">// 將 task 放入 runqueue 當中
+</span></span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">on_rq</span> <span class="o">=</span> <span class="n">TASK_ON_RQ_QUEUED</span><span class="p">;</span>   <span class="c1">// 設置 task 的 state 為 TASK_ON_RQ_QUEUED
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/* If a worker is waking up, notify the workqueue: */</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">PF_WQ_WORKER</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">wq_worker_waking_up</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nf">cpu_of</span><span class="p">(</span><span class="n">rq</span><span class="p">));</span> 
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * Mark the task runnable and perform wakeup-preemption.
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span> <span class="nf">ttwu_do_wakeup</span><span class="p">(</span><span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">,</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			   <span class="k">struct</span> <span class="n">rq_flags</span> <span class="o">*</span><span class="n">rf</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">check_preempt_curr</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">wake_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_RUNNING</span><span class="p">;</span> <span class="c1">// 把 task 的 state 改為 TASK_RUNNING
+</span></span></span><span class="line"><span class="cl">	<span class="nf">trace_sched_wakeup</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="n">task_woken</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * Our task @p is fully woken up and running; so its safe to
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 * drop the rq-&gt;lock, hereafter rq is only used for statistics.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		 */</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">rq_unpin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="nf">task_woken</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">rq_repin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">idle_stamp</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">u64</span> <span class="n">delta</span> <span class="o">=</span> <span class="nf">rq_clock</span><span class="p">(</span><span class="n">rq</span><span class="p">)</span> <span class="o">-</span> <span class="n">rq</span><span class="o">-&gt;</span><span class="n">idle_stamp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">u64</span> <span class="n">max</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">max_idle_balance_cost</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nf">update_avg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">avg_idle</span><span class="p">,</span> <span class="n">delta</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">avg_idle</span> <span class="o">&gt;</span> <span class="n">max</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">rq</span><span class="o">-&gt;</span><span class="n">avg_idle</span> <span class="o">=</span> <span class="n">max</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">rq</span><span class="o">-&gt;</span><span class="n">idle_stamp</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>try_to_wake_up</code> 可以理解成最後會將 <code>task</code> 的 <code>state</code> 由 <code>TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE</code> 改成 <code>TASK_RUNNING</code>，並將其加入 <code>rq</code> 中等待排程器選擇。</p>
+<h2 id="get-the-number-of-entering-a-wait-queue">get the number of entering a wait queue
+</h2><p><del>扯遠了</del>，回到這次作業題目(二)的需求，要寫一個 <code>system call</code> 來獲得 <code>task_struct</code> 進入 <code>wait queue</code> 的次數，先在 <code>task_struct</code> 中加入 <code>wq_cnt</code> 變數</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl">    <span class="c1">// include/linux/sched.h 中加入 wq_cnt
+</span></span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">wq_cnt</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * New fields for task_struct should be added above here, so that
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * they are included in the randomized portion of task_struct.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">randomized_struct_fields_end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/* CPU-specific state of this task: */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">thread_struct</span>		<span class="kr">thread</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * WARNING: on x86, &#39;thread_struct&#39; contains a variable-sized
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * structure.  It *MUST* be at the end of &#39;task_struct&#39;.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     *
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * Do not put anything below here!
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在 <code>copy_process</code> 中對 <code>wq_cnt</code> 初始化。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c copy_process
+</span></span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">-&gt;</span><span class="n">wq_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>進入 <code>wait queue</code> 中一定會 <code>wake up</code>，因為 <code>wait</code> 的事件有很多不同的種類，所以我們換個想法把 <code>wq_cnt</code> 加在 <code>try_to_wake_up</code> 這個 <code>function</code> 內，無論是用哪種方式進入睡眠，最後都會呼叫 <code>try_to_wake_up</code> 來喚醒 <code>task</code>。</p>
+<p>插入點如下所示</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/sched/core.c
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="nf">try_to_wake_up</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">state</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">cpu</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * If we are going to wake up a thread waiting for CONDITION we
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * need to ensure that CONDITION=1 done by the caller can not be
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * reordered with p-&gt;state check below. This pairs with mb() in
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * set_current_state() the waiting thread does.
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">raw_spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pi_lock</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">smp_mb__after_spinlock</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">&amp;</span> <span class="n">state</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">trace_sched_waking</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="cm">/* We&#39;re going to change -&gt;state: */</span>
+</span></span><span class="line"><span class="cl">    <span class="n">success</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">p</span><span class="o">-&gt;</span><span class="n">wq_cnt</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span>
+</span></span><span class="line"><span class="cl">        <span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="system-call-definition">system call definition
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/sched.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/kernel.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/uaccess.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/syscalls.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;linux/resource.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;asm/errno.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">SYSCALL_DEFINE1</span><span class="p">(</span><span class="n">get_number_of_entering_a_wait_queue</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span><span class="o">*</span><span class="p">,</span> <span class="n">cnt</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">wq_cnt</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">wq_cnt</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printk</span><span class="p">(</span><span class="s">&#34;entering wait queue counter = %u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">wq_cnt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">copy_to_user</span><span class="p">(</span><span class="n">cnt</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">wq_cnt</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">)))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="user-space">user space
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;syscall.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define  NUMBER_OF_IO_ITERATIONS     6
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define  NUMBER_OF_ITERATIONS        99999999
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">char</span>         <span class="n">c</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span>          <span class="n">i</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="n">v</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">cnt</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;pid = %u</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="nf">getpid</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUMBER_OF_IO_ITERATIONS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">        <span class="n">v</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">c</span> <span class="o">=</span> <span class="nf">getchar</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUMBER_OF_ITERATIONS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="o">++</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span><span class="o">++</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">syscall</span><span class="p">(</span><span class="mi">333</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cnt</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Error (1)!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;This process encounters %u times context switches.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cnt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">syscall</span><span class="p">(</span><span class="mi">334</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cnt</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Error (2)!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;This process enters a wait queue %u times.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cnt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUMBER_OF_IO_ITERATIONS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">        <span class="n">v</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;I love my home.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">syscall</span><span class="p">(</span><span class="mi">334</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cnt</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Error (3)!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;This process enters a wait queue %u times.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cnt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="nf">syscall</span><span class="p">(</span><span class="mi">333</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">cnt</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;Error (1)!</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="nf">printf</span><span class="p">(</span><span class="s">&#34;This process encounters %u times context switches.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">cnt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nf">getchar</span><span class="p">();</span> <span class="c1">// 在最後加入一個 getchar 方便觀察結果
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="驗證">驗證
+</h3><p>利用 <code>/proc/{pid}/sched</code> 中的 <code>se_statistics.nr_wakeups</code> 來比對結果，如下圖所示</p>
+<p><img src="https://i.imgur.com/FAvy2t5.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p><code>nr_wakeups</code> 這個值是在 <code>ttwu_stat</code> 這個 <code>function</code> 去更新的，在 <code>try_to_wake_up</code> 的後面會呼叫 <code>ttwu_stat</code> 來更新相關的資料，<del>所以其實題目二也不用另外加 counter</del>，具體實現如下</p>
+<h3 id="ttwu_-2"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630"  target="_blank" rel="noopener"
+    >ttwu_stat</a>
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">void</span>
+</span></span><span class="line"><span class="cl"><span class="nf">ttwu_stat</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="kt">int</span> <span class="n">cpu</span><span class="p">,</span> <span class="kt">int</span> <span class="n">wake_flags</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nf">schedstat_enabled</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">rq</span> <span class="o">=</span> <span class="nf">this_rq</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">cpu</span> <span class="o">==</span> <span class="n">rq</span><span class="o">-&gt;</span><span class="n">cpu</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">ttwu_local</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_local</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">sched_domain</span> <span class="o">*</span><span class="n">sd</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_remote</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">rcu_read_lock</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">for_each_domain</span><span class="p">(</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">cpu</span><span class="p">,</span> <span class="n">sd</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="nf">cpumask_test_cpu</span><span class="p">(</span><span class="n">cpu</span><span class="p">,</span> <span class="nf">sched_domain_span</span><span class="p">(</span><span class="n">sd</span><span class="p">)))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">				<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">sd</span><span class="o">-&gt;</span><span class="n">ttwu_wake_remote</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">rcu_read_unlock</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">wake_flags</span> <span class="o">&amp;</span> <span class="n">WF_MIGRATED</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_migrate</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif </span><span class="cm">/* CONFIG_SMP */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">rq</span><span class="o">-&gt;</span><span class="n">ttwu_count</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">wake_flags</span> <span class="o">&amp;</span> <span class="n">WF_SYNC</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">schedstat_inc</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_sync</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在 <code>schedstat_inc</code> 的部份會更新 <code>nr_wakeups</code> 的值，這個值也被用來驗證我們的答案對不對。</p>
+<p>值得注意的是我一開始編譯完之後使用 <code>cat /proc/{pid}/sched</code> 發現漏了很多資料沒有顯示，後來去 <code>trace</code> 一下 <code>proc</code> 的顯示，定義在 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L955"  target="_blank" rel="noopener"
+    >proc_sched_show_task</a> 中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">proc_sched_show_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">,</span> <span class="k">struct</span> <span class="n">pid_namespace</span> <span class="o">*</span><span class="n">ns</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">						  <span class="k">struct</span> <span class="n">seq_file</span> <span class="o">*</span><span class="n">m</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">nr_switches</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">SEQ_printf</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s">&#34;%s (%d, #threads: %d)</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">comm</span><span class="p">,</span> <span class="nf">task_pid_nr_ns</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">ns</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">						<span class="nf">get_nr_threads</span><span class="p">(</span><span class="n">p</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">SEQ_printf</span><span class="p">(</span><span class="n">m</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="s">&#34;---------------------------------------------------------&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="s">&#34;----------</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define __P(F) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">	SEQ_printf(m, &#34;%-45s:%21Ld\n&#34;, #F, (long long)F)
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define P(F) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">	SEQ_printf(m, &#34;%-45s:%21Ld\n&#34;, #F, (long long)p-&gt;F)
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define P_SCHEDSTAT(F) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">	SEQ_printf(m, &#34;%-45s:%21Ld\n&#34;, #F, (long long)schedstat_val(p-&gt;F))
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define __PN(F) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">	SEQ_printf(m, &#34;%-45s:%14Ld.%06ld\n&#34;, #F, SPLIT_NS((long long)F))
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define PN(F) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">	SEQ_printf(m, &#34;%-45s:%14Ld.%06ld\n&#34;, #F, SPLIT_NS((long long)p-&gt;F))
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define PN_SCHEDSTAT(F) \
+</span></span></span><span class="line"><span class="cl"><span class="cp">	SEQ_printf(m, &#34;%-45s:%14Ld.%06ld\n&#34;, #F, SPLIT_NS((long long)schedstat_val(p-&gt;F)))
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">PN</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">exec_start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">PN</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">vruntime</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">PN</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">sum_exec_runtime</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">nr_switches</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">nvcsw</span> <span class="o">+</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">nivcsw</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">P</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">nr_migrations</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">schedstat_enabled</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">u64</span> <span class="n">avg_atom</span><span class="p">,</span> <span class="n">avg_per_cpu</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">sum_sleep_runtime</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">wait_start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">sleep_start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">block_start</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">sleep_max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">block_max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">exec_max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">slice_max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">wait_max</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">wait_sum</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">wait_count</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">PN_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">iowait_sum</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">iowait_count</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_migrations_cold</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_failed_migrations_affine</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_failed_migrations_running</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_failed_migrations_hot</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_forced_migrations</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_sync</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_migrate</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_local</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_remote</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_affine</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_affine_attempts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_passive</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">P_SCHEDSTAT</span><span class="p">(</span><span class="n">se</span><span class="p">.</span><span class="n">statistics</span><span class="p">.</span><span class="n">nr_wakeups_idle</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">avg_atom</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">sum_exec_runtime</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">nr_switches</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">avg_atom</span> <span class="o">=</span> <span class="nf">div64_ul</span><span class="p">(</span><span class="n">avg_atom</span><span class="p">,</span> <span class="n">nr_switches</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="n">avg_atom</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">avg_per_cpu</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">sum_exec_runtime</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">nr_migrations</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">avg_per_cpu</span> <span class="o">=</span> <span class="nf">div64_u64</span><span class="p">(</span><span class="n">avg_per_cpu</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">						<span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">.</span><span class="n">nr_migrations</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">avg_per_cpu</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1LL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nf">__PN</span><span class="p">(</span><span class="n">avg_atom</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">__PN</span><span class="p">(</span><span class="n">avg_per_cpu</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="err">略</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">	<span class="nf">sched_show_numa</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到比較進階的資訊都要 <code>schedstat_enabled()</code> 才能看，不知道為什麼我第一次編譯的時候可能不小心調整到，導致這個 <code>config</code> 為 0。</p>
+<p>要修正這個問題可以不用重新編譯 <code>kernel</code>，直接用</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo sysctl kernel.sched_schedstats<span class="o">=</span><span class="m">1</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="reference">reference
+</h3><ul>
+<li><a class="link" href="https://vflong.github.io/sre/linux/2020/03/12/linux-load-averages.html"  target="_blank" rel="noopener"
+    >【译文】Linux 平均负载：解决这个奥秘</a></li>
+<li><a class="link" href="https://blog.csdn.net/lian494362816/article/details/111188298"  target="_blank" rel="noopener"
+    >linux 内核 wait queue源码分析</a></li>
+<li><a class="link" href="http://oliveryang.net/2016/03/linux-scheduler-2/#22-wakeup-preemption"  target="_blank" rel="noopener"
+    >Linux Preemption - 2</a></li>
+<li><a class="link" href="http://gityuan.com/2018/12/02/linux-wait-queue/"  target="_blank" rel="noopener"
+    >源码解读Linux等待队列</a></li>
+<li><a class="link" href="https://www.gushiciku.cn/pl/px3g/zh-tw"  target="_blank" rel="noopener"
+    >Linux等待佇列原理與實現</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux_kernel/">Linux_kernel</a>
+        
+            <a href="/tags/system_call/">System_call</a>
+        
+            <a href="/tags/wait_queue/">Wait_queue</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY-NC 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const elementsToRender = [".main-article", ".widget--toc"];
+
+        elementsToRender.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                renderMathInElement(element, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false },
+                        { left: "\\(", right: "\\)", display: false },
+                        { left: "\\[", right: "\\]", display: true }
+                    ],
+                    ignoredClasses: ["gist"]
+                });
+            }
+        });
+    });
+</script>
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux schedule 原始碼解讀</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux fork() 底層實作流程整理</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux-file-descriptor-%E7%90%86%E8%A7%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux file descriptor 理解</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script
+    src="https://giscus.app/client.js"
+    data-repo="davidleitw/davidleitw.github.io"
+    data-repo-id=""
+    data-category="Announcements"
+    data-category-id=""
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    data-loading=""
+    crossorigin="anonymous"
+    async
+></script>
+<script>
+    function setGiscusTheme(theme) {
+        let giscus = document.querySelector("iframe.giscus-frame");
+        if (giscus) {
+            giscus.contentWindow.postMessage(
+                {
+                    giscus: {
+                        setConfig: {
+                            theme: theme,
+                        },
+                    },
+                },
+                "https://giscus.app"
+            );
+        }
+    }
+
+    (function () {
+        addEventListener("message", (e) => {
+            if (event.origin !== "https://giscus.app") return;
+            handler();
+        });
+        window.addEventListener("onColorSchemeChange", handler);
+
+        function handler() {
+            if (document.documentElement.dataset.scheme === "light") {
+                setGiscusTheme('light');
+            } else {
+                setGiscusTheme('dark');
+            }
+        }
+    })();
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 davidlei
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.33.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+    
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

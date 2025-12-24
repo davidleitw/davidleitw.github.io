@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="zh-tw" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 本文章環境基於 Linux v4.14.259\n因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。\n">
+<title>Linux fork() 底層實作流程整理</title>
+
+<link rel='canonical' href='https://davidleitw.github.io/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/'>
+
+<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Linux fork() 底層實作流程整理">
+<meta property='og:description' content=" 本文章環境基於 Linux v4.14.259\n因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。\n">
+<meta property='og:url' content='https://davidleitw.github.io/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/'>
+<meta property='og:site_name' content='davidLei'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux_kernel' /><meta property='article:tag' content='system_call' /><meta property='article:tag' content='fork' /><meta property='article:published_time' content='2022-01-05T00:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-01-05T00:12:53&#43;08:00'/>
+<meta name="twitter:title" content="Linux fork() 底層實作流程整理">
+<meta name="twitter:description" content=" 本文章環境基於 Linux v4.14.259\n因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。\n">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">davidLei</a></h1>
+            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/davidleitw'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/wei-cheng-lei-2604121b6/'
+                        target="_blank"
+                        title="LinkedIn"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <rect x="4" y="4" width="16" height="16" rx="2" />
+  <line x1="8" y1="11" x2="8" y2="16" />
+  <line x1="8" y1="8" x2="8" y2="8.01" />
+  <line x1="12" y1="16" x2="12" y2="11" />
+  <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章歸檔</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>夜晚模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#fork---create-a-child-process">fork - create a child process</a>
+      <ol>
+        <li><a href="#_do_fork">_do_fork</a></li>
+        <li><a href="#_do_fork---copy_process">_do_fork() -&gt; copy_process</a></li>
+        <li><a href="#_do_fork---copy_process---dup_task_struct">_do_fork() -&gt; copy_process -&gt; dup_task_struct</a></li>
+        <li><a href="#_do_fork---wake_up_new_taskp">_do_fork() -&gt; wake_up_new_task(p)</a></li>
+        <li><a href="#reference">reference</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/linux_kernel/" >
+                Linux_kernel
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/">Linux fork() 底層實作流程整理</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published" datetime='2022-01-05T00:12:53&#43;08:00'>2022-01-05</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 9 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <blockquote>
+<p>本文章環境基於 Linux v4.14.259</p>
+</blockquote>
+<p>因為作業需要在 <code>task_struct</code> 中加入 <code>counter</code> 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 <code>linux</code> 中一個 <code>process</code> 建立的時候在哪裡初始化，從 <code>fork()</code> 開始慢慢 <code>trace</code> 下去。</p>
+<p>在 <code>Linux</code> 中並沒有明確區分 <code>process</code> 跟 <code>thread</code>, <code>task_struct</code> 可以根據創立條件的不同代表 <code>process</code> 或者 <code>thread</code>。</p>
+<p>從實作的角度看可以有以下幾種 <code>system call</code> 建立新的 <code>task_struct</code>:</p>
+<ul>
+<li>建立 <strong>user process</strong>: <code>fork</code>, <code>vfork</code>, <code>clone</code></li>
+<li>建立 <strong>kernel thread</strong>: <code>kernel_thread</code>, <code>kthread_create</code></li>
+</ul>
+<p>以上這些 <code>API</code> 最後都會呼叫 <code>/kernel/fork.c</code> 中的 <a class="link" href="https://elixir.free-electrons.com/linux/v4.14.54/source/kernel/fork.c#L2019"  target="_blank" rel="noopener"
+    ><code>_do_fork</code></a> 來進行 <code>create task_struct</code> 的操作，只是會根據給的參數不同，來決定建立出來的 <code>task_struct</code> 的性質，以上幾個 <code>system call</code> 的差別也可以參考 <a class="link" href="https://stackoverflow.com/questions/4856255/the-difference-between-fork-vfork-exec-and-clone"  target="_blank" rel="noopener"
+    >The difference between fork(), vfork(), exec() and clone()</a></p>
+<p>但是如果看最新幾版的 <code>kernel source code</code> 會發現怎麼樣都沒辦法找到 <code>_do_fork</code> 這個 <code>function</code> 了，仔細找了一下原因，發現在 <code>linux v5.10</code> 之後因為命名規則的不同，把 <code>_do_fork()</code> 改名為 <code>kernel_clone()</code>，不過實作並沒有大幅度的更改，所以以下在研究 <code>source code</code> 的時候還是會以 <code>v4.14.259</code> 為準。</p>
+<p><code>_do_fork()</code> 更改為 <code>kernel_clone()</code> 的原因可以參考 <a class="link" href="https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/"  target="_blank" rel="noopener"
+    >fork: introduce kernel_clone()</a></p>
+<p>在深入看 <code>source code</code> 之前最重要的就是先把 <code>man page</code> 看過一次，看完 <code>man page</code> 會對要研究的 <code>system call</code> 有初步的了解，接著再往下看 <code>source code</code> 才不會沒有概念的死讀程式碼。</p>
+<h2 id="fork---create-a-child-process"><a class="link" href="https://man7.org/linux/man-pages/man2/fork.2.html"  target="_blank" rel="noopener"
+    >fork - create a child process</a>
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c
+</span></span></span><span class="line"><span class="cl"><span class="c1">// https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2159
+</span></span></span><span class="line"><span class="cl"><span class="cp">#ifdef __ARCH_WANT_SYS_FORK
+</span></span></span><span class="line"><span class="cl"><span class="nf">SYSCALL_DEFINE0</span><span class="p">(</span><span class="n">fork</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_MMU
+</span></span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nf">_do_fork</span><span class="p">(</span><span class="n">SIGCHLD</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#else
+</span></span></span><span class="line"><span class="cl">    <span class="cm">/* can not support in nommu mode */</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="o">-</span><span class="n">EINVAL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>fork</code> 在 <code>kernel/fork.c</code> 的定義，可以看到它使用了 <code>SIGCHLD</code> 的 <code>flag</code>，這代表如果 <code>child process</code> 終止會發送 <code>SIGCHLD</code> 通知 <code>parent process</code>.</p>
+<h3 id="_do_fork">_do_fork
+</h3><p>第一段有簡單提到，不論是使用 <code>fork</code> 或者 <code>clone</code> 等方式，到最後都會呼叫 <code>_do_fork()</code> 來建立一個新的 <code>task struct</code>，<code>_do_fork()</code> 在 <code>kernel v4.14.259</code> 中定義在 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2063"  target="_blank" rel="noopener"
+    >kernel/fork.c line.2063</a>，定義如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c++" data-lang="c++"><span class="line"><span class="cl"><span class="kt">long</span> <span class="n">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			  <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>因為在 <code>linux</code> 中 <code>process</code> 跟 <code>thread</code> 沒有明確的區分，都是以 <code>task_struct</code> 的形式存在，所以 <code>task_struct</code> 的性質就要在呼叫 <code>system call</code> 的時候藉由傳入的 <code>clone flags</code> 來決定性質。</p>
+<p><code>clone flags</code> 定義在 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/uapi/linux/sched.h#L5"  target="_blank" rel="noopener"
+    >/include/uapi/linux/sched.h</a>中，定義如下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* cloning flags:
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#define CSIGNAL 0x000000ff </span><span class="cm">/* signal mask to be sent at exit */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_VM 0x00000100 </span><span class="cm">/* set if VM shared between processes */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_FS 0x00000200 </span><span class="cm">/* set if fs info shared between processes */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_FILES 0x00000400 </span><span class="cm">/* set if open files shared between processes */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_SIGHAND 0x00000800 </span><span class="cm">/* set if signal handlers and blocked signals shared */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PIDFD 0x00001000 </span><span class="cm">/* set if a pidfd should be placed in parent */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PTRACE 0x00002000 </span><span class="cm">/* set if we want to let tracing continue on the child too */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_VFORK 0x00004000 </span><span class="cm">/* set if the parent wants the child to wake it up on mm_release */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PARENT 0x00008000 </span><span class="cm">/* set if we want to have the same parent as the cloner */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_THREAD 0x00010000 </span><span class="cm">/* Same thread group? */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWNS 0x00020000 </span><span class="cm">/* New mount namespace group */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_SYSVSEM 0x00040000 </span><span class="cm">/* share system V SEM_UNDO semantics */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_SETTLS 0x00080000 </span><span class="cm">/* create a new TLS for the child */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_PARENT_SETTID 0x00100000 </span><span class="cm">/* set the TID in the parent */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_CHILD_CLEARTID 0x00200000 </span><span class="cm">/* clear the TID in the child */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_DETACHED 0x00400000 </span><span class="cm">/* Unused, ignored */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_UNTRACED 0x00800000 </span><span class="cm">/* set if the tracing process can&#39;t force CLONE_PTRACE on this clone */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_CHILD_SETTID 0x01000000 </span><span class="cm">/* set the TID in the child */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWCGROUP 0x02000000 </span><span class="cm">/* New cgroup namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWUTS 0x04000000 </span><span class="cm">/* New utsname namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWIPC 0x08000000 </span><span class="cm">/* New ipc namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWUSER 0x10000000 </span><span class="cm">/* New user namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWPID 0x20000000 </span><span class="cm">/* New pid namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_NEWNET 0x40000000 </span><span class="cm">/* New network namespace */</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#define CLONE_IO 0x80000000 </span><span class="cm">/* Clone io context */</span><span class="cp">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>透過組合不同的 <code>clone flag</code> 可以決定 <code>task_struct</code> 的一些特性，詳細解說每個 <code>clone flag</code> 有什麼用途可以參考  <a class="link" href="https://man7.org/linux/man-pages/man2/clone.2.html"  target="_blank" rel="noopener"
+    >clone(2)</a>，之後有機會再針對 <code>clone</code> 整理一篇文章。</p>
+<p>接下來繼續看 <code>_do_fork</code> 的實現</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">nr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Determine whether and which event to report to ptracer. When
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* called from kernel_thread or CLONE_UNTRACED is explicitly
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* requested, no event is reported; otherwise, report if the event
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* for the type of forking is enabled.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_UNTRACED</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_VFORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">)</span> <span class="o">!=</span> <span class="n">SIGCHLD</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_CLONE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_FORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">likely</span><span class="p">(</span><span class="o">!</span><span class="nf">ptrace_event_enabled</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">trace</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 回傳新創立的 task_struct 指標
+</span></span></span><span class="line"><span class="cl">	<span class="n">p</span> <span class="o">=</span> <span class="nf">copy_process</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">stack_start</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">					 <span class="n">cild_tidptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">NUMA_NO_NODE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">add_latent_entropy</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一開始的段落是有關於 <code>ptrace</code> 的邏輯處理，<code>trace</code> 變數代表 <code>child process</code> 是否可以被追蹤，如果可以，則 <code>trace</code> 代表這個 <code>child process</code> 是由哪個 <code>system call</code> 創立的(<code>vfork</code>, <code>clone</code>, <code>fork</code>)，重點在於後面的 <code>copy_process</code>，其實講的直觀一點，<code>copy_process</code> 做的事情就是回傳一個新的 <code>task_struct</code>，但是在回傳新的 <code>task_struct</code> 的時候，該 <code>task_struct</code> 是還沒有開啟的狀態，我們先繼續往 <code>copy_process</code> 去 <code>trace</code>。</p>
+<h3 id="_do_fork---copy_process">_do_fork() -&gt; copy_process
+</h3><p><code>copy_process</code> 同樣定義在 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L1575"  target="_blank" rel="noopener"
+    ><code>/kerenl/fork.c</code></a>內，底下是它的實現</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* This creates a new process as a copy of the old one,
+</span></span></span><span class="line"><span class="cl"><span class="cm">* but does not actually start it yet.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* It copies the registers, and all the appropriate
+</span></span></span><span class="line"><span class="cl"><span class="cm">* parts of the process environment (as per the clone
+</span></span></span><span class="line"><span class="cl"><span class="cm">* flags). The actual kick-off is left to the caller.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="n">__latent_entropy</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="nf">copy_process</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="k">struct</span> <span class="n">pid</span> <span class="o">*</span><span class="n">pid</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">int</span> <span class="n">trace</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">								<span class="kt">int</span> <span class="n">node</span><span class="p">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>由於 <code>copy_process</code> 牽扯到 <code>linux</code> 中非常多子系統，所以這邊就簡單的討論一下整個執行 <code>copy_process</code> 的流程，關於錯誤處理相關的程式碼則是會快速帶過。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內部
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">retval</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWNS</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span> <span class="o">==</span> <span class="p">(</span><span class="n">CLONE_NEWNS</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span> <span class="o">==</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span><span class="o">|</span><span class="n">CLONE_FS</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* Thread groups must share signals as well, and detached threads
+</span></span></span><span class="line"><span class="cl"><span class="cm">* can only be started up within the thread group.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_SIGHAND</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* Shared signal handlers imply shared VM. By way of the above,
+</span></span></span><span class="line"><span class="cl"><span class="cm">* thread groups also imply shared VM. Blocking this case allows
+</span></span></span><span class="line"><span class="cl"><span class="cm">* for various simplifications in other code.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_SIGHAND</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VM</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* Siblings of global init remain as zombies on exit since they are
+</span></span></span><span class="line"><span class="cl"><span class="cm">* not reaped by their parent (swapper). To solve this and to avoid
+</span></span></span><span class="line"><span class="cl"><span class="cm">* multi-rooted process trees, prevent global and container-inits
+</span></span></span><span class="line"><span class="cl"><span class="cm">* from creating siblings.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PARENT</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">SIGNAL_UNKILLABLE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* If the new process will be in a different pid or user namespace
+</span></span></span><span class="line"><span class="cl"><span class="cm">* do not allow it to share a thread group with the forking task.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_NEWUSER</span> <span class="o">|</span> <span class="n">CLONE_NEWPID</span><span class="p">))</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">	<span class="p">(</span><span class="nf">task_active_pid_ns</span><span class="p">(</span><span class="n">current</span><span class="p">)</span> <span class="o">!=</span>
+</span></span><span class="line"><span class="cl">		<span class="n">current</span><span class="o">-&gt;</span><span class="n">nsproxy</span><span class="o">-&gt;</span><span class="n">pid_ns_for_children</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nf">ERR_PTR</span><span class="p">(</span><span class="o">-</span><span class="n">EINVAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一開始都是一些有關於 <code>clone_flags</code> 的處理，之後會呼叫 <code>dup_task_struct(current, node);</code>，<code>dup_task_struct</code> 是真正建立 <code>task_struct</code> 的地方，<code>parent process</code> 會初始化 <code>child process</code> 之後回傳指標 <code>p</code>。</p>
+<h3 id="_do_fork---copy_process---dup_task_struct">_do_fork() -&gt; copy_process -&gt; dup_task_struct
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 獲得實際的 task_struct 實例
+</span></span></span><span class="line"><span class="cl"><span class="n">p</span> <span class="o">=</span> <span class="nf">dup_task_struct</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">node</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">goto</span> <span class="n">fork_out</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L506"  target="_blank" rel="noopener"
+    ><code>dup_task_struct</code></a>同樣也定義在 <code>kernel/fork.c</code> 之中。具體實現如下:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">static</span> <span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="nf">dup_task_struct</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">orig</span><span class="p">,</span> <span class="kt">int</span> <span class="n">node</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">tsk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span> <span class="o">*</span><span class="n">stack</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">vm_struct</span> <span class="o">*</span><span class="n">stack_vm_area</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">err</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="o">==</span> <span class="n">NUMA_NO_NODE</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">node</span> <span class="o">=</span> <span class="nf">tsk_fork_get_node</span><span class="p">(</span><span class="n">orig</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 申請一塊新的 memory 空間給 task_struct
+</span></span></span><span class="line"><span class="cl">	<span class="n">tsk</span> <span class="o">=</span> <span class="nf">alloc_task_struct_node</span><span class="p">(</span><span class="n">node</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">tsk</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">stack</span> <span class="o">=</span> <span class="nf">alloc_thread_stack_node</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">node</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">stack</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">free_tsk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">stack_vm_area</span> <span class="o">=</span> <span class="nf">task_stack_vm_area</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 可以想成 tsk = orig, 把 current process memcpy to tsk.
+</span></span></span><span class="line"><span class="cl">	<span class="c1">// 其實看過 source code 就會發現 4.14.259 版本中根本沒有在這段做錯誤處理，不太清楚這個 return err 的用意在哪
+</span></span></span><span class="line"><span class="cl">	<span class="n">err</span> <span class="o">=</span> <span class="nf">arch_dup_task_struct</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">orig</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* arch_dup_task_struct() clobbers the stack-related fields. Make
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* sure they&#39;re properly initialized before using any stack-related
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* functions again.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span><span class="p">;</span>	
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_VMAP_STACK
+</span></span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_vm_area</span> <span class="o">=</span> <span class="n">stack_vm_area</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_THREAD_INFO_IN_TASK
+</span></span></span><span class="line"><span class="cl">	<span class="nf">atomic_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_refcount</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">err</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">free_stack</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SECCOMP
+</span></span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* We must handle setting up seccomp filters once we&#39;re under
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* the sighand lock in case orig has changed between now and
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* then. Until then, filter must be NULL to avoid messing up
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* the usage counts on the error path calling free_task.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">seccomp</span><span class="p">.</span><span class="n">filter</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 將 current 的 threadinfo 複製給 tsk
+</span></span></span><span class="line"><span class="cl">	<span class="nf">setup_thread_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="n">orig</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">clear_user_return_notifier</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">clear_tsk_need_resched</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 設置 stack 結束位置，為了檢測 stack overflow
+</span></span></span><span class="line"><span class="cl">	<span class="nf">set_task_stack_end_magic</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_CC_STACKPROTECTOR
+</span></span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">stack_canary</span> <span class="o">=</span> <span class="nf">get_random_canary</span><span class="p">();</span>	
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* One for us, one for whoever does the &#34;release_task()&#34; (usually
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* parent)
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">atomic_set</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tsk</span><span class="o">-&gt;</span><span class="n">usage</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_BLK_DEV_IO_TRACE
+</span></span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">btrace_seq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">splice_pipe</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">task_frag</span><span class="p">.</span><span class="n">page</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">wake_q</span><span class="p">.</span><span class="n">next</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="nf">account_kernel_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="nf">kcov_task_init</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_FAULT_INJECTION
+</span></span></span><span class="line"><span class="cl">	<span class="n">tsk</span><span class="o">-&gt;</span><span class="n">fail_nth</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">	<span class="c1">// 最終回傳一個指向新的 task_struct 的指標
+</span></span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">tsk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nl">free_stack</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">free_thread_stack</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nl">free_tsk</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">free_task_struct</span><span class="p">(</span><span class="n">tsk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>接著從 <code>copy_process</code> 呼叫 <code>dup_task_struct</code> 之後繼續往下看，因為篇幅問題所以只把重要的標記出來</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的權限
+</span></span></span><span class="line"><span class="cl"><span class="n">retval</span> <span class="o">=</span> <span class="nf">copy_creds</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">clone_flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// delays 成員紀錄等待的統計資料
+</span></span></span><span class="line"><span class="cl"><span class="nf">delayacct_tsk_init</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 設定 process 為 非 super user, 非 worker, idle 狀態
+</span></span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="p">(</span><span class="n">PF_SUPERPRIV</span> <span class="o">|</span> <span class="n">PF_WQ_WORKER</span> <span class="o">|</span> <span class="n">PF_IDLE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">|=</span> <span class="n">PF_FORKNOEXEC</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// Initial child process list and sibling process list
+</span></span></span><span class="line"><span class="cl"><span class="nf">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">INIT_LIST_HEAD</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sibling</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 初始化 PREMPT_RCU, TASKS_RCU
+</span></span></span><span class="line"><span class="cl"><span class="nf">rcu_copy_process</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span> <span class="err">大量相關初始化，作業要添加的</span> <span class="n">counter</span> <span class="err">可以寫在這邊</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 排程器相關的初始化，之後會再研究這部份整理一篇文章
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 初始化的時候還會一併將此 process 分派到某個 cpu 上
+</span></span></span><span class="line"><span class="cl"><span class="n">retval</span> <span class="o">=</span> <span class="nf">sched_fork</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">copy_semundo</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的 files_strcut 相關資料
+</span></span></span><span class="line"><span class="cl"><span class="nf">copy_files</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span> 
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的 fs_struct
+</span></span></span><span class="line"><span class="cl"><span class="nf">copy_fs</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 訊號系統
+</span></span></span><span class="line"><span class="cl"><span class="nf">copy_sighand</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="nf">copy_signal</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process 的 mm struct
+</span></span></span><span class="line"><span class="cl"><span class="c1">// copy_mm 其實跟後續 copy on write 機制有點關係，但不是本篇的重點
+</span></span></span><span class="line"><span class="cl"><span class="nf">copy_mm</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process namespace
+</span></span></span><span class="line"><span class="cl"><span class="nf">copy_namespaces</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 複製 parent process io 相關
+</span></span></span><span class="line"><span class="cl"><span class="nf">copy_io</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nf">copy_thread</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">stack</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">stack_size</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">args</span><span class="o">-&gt;</span><span class="n">tls</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>上面的段落帶過了 <code>copy_process</code> 的資源分配流程，可以看到幾乎每個 <code>copy_</code> 開頭的 <code>function</code> 都必須要把 <code>clone_flags</code> 傳入，藉由傳入不同的 <code>clone_flags</code>，最後 <code>fork/clone</code> 出來的 <code>process</code> 會有不同的性質。接下來繼續往下看到發配 <code>pid</code> 的段落</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 為新的 process 分配 struct pid
+</span></span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">pid</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">init_struct_pid</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">pid</span> <span class="o">=</span> <span class="nf">alloc_pid</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">nsproxy</span><span class="o">-&gt;</span><span class="n">pid_ns_for_children</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">IS_ERR</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">retval</span> <span class="o">=</span> <span class="nf">PTR_ERR</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">goto</span> <span class="n">bad_fork_cleanup_thread</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span> <span class="o">=</span> <span class="nf">pid_nr</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 設定新的 process 的 process groups
+</span></span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span> <span class="p">{</span> 
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">tgid</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">tgid</span><span class="p">;</span> 
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">tgid</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 設定 parent process 相關資料
+</span></span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">CLONE_PARENT</span><span class="o">|</span><span class="n">CLONE_THREAD</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_THREAD</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="o">-&gt;</span><span class="n">exit_signal</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">parent_exec_id</span> <span class="o">=</span> <span class="n">current</span><span class="o">-&gt;</span><span class="n">self_exec_id</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">exit_signal</span> <span class="o">=</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>到這邊為止新的 <code>process</code> 基本的屬性大致上都配置完成了，接下來初始化 <code>p</code> 的 <code>pid</code> 結構，這部份因為沒有仔細研究過所以不是很熟，只要知道很可能會有多個 <code>process</code> 使用同一個 <code>pid</code>，一定要有個 <code>struct pid</code> 負責管理，要達到的目的只有兩點:</p>
+<ul>
+<li>從 <code>task_struct</code> 中快速找到對應的 <code>struct pid</code></li>
+<li>從 <code>struct pid</code> 能夠走訪所有使用該 <code>pid</code> 的 <code>task_struct</code></li>
+</ul>
+<p><img src="https://www.pianshen.com/images/530/0c4ac21f0f941205b191d98081227a6a.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p><a class="link" href="https://blog.csdn.net/weijitao/article/details/79918013"  target="_blank" rel="noopener"
+    >來源</a></p>
+<p>這種設計可以讓一個 <code>process</code> 屬於多個不同的 <code>namespace</code>, 同一個 <code>process</code> 可以在不同的 <code>namespace</code> 有不同的局部 <code>pid</code>，多個 <code>task_struct</code> 可以共用一個 <code>pid</code>，關於 <code>copy_process</code> 中有關於 <code>pid struct</code> 初始化的程式如下:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/copy_process 內
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="p">(</span><span class="nf">likely</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">ptrace_init_task</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PTRACE</span><span class="p">)</span> <span class="o">||</span> <span class="n">trace</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="nf">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 如果建立的 process 是 thread group 的 leader
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="nf">thread_group_leader</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PGID</span><span class="p">,</span> <span class="nf">task_pgrp</span><span class="p">(</span><span class="n">current</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">init_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_SID</span><span class="p">,</span> <span class="nf">task_session</span><span class="p">(</span><span class="n">current</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">is_child_reaper</span><span class="p">(</span><span class="n">pid</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">ns_of_pid</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">child_reaper</span> <span class="o">=</span> <span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">|=</span> <span class="n">SIGNAL_UNKILLABLE</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">leader_pid</span> <span class="o">=</span> <span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">tty</span> <span class="o">=</span> <span class="nf">tty_kref_get</span><span class="p">(</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">tty</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* Inherit has_child_subreaper flag under the same
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* tasklist_lock with adding child to the process tree
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* for propagate_has_child_subreaper optimization.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		*/</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">has_child_subreaper</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">has_child_subreaper</span> <span class="o">||</span>
+</span></span><span class="line"><span class="cl">						<span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">is_child_subreaper</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="nf">list_add_tail</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sibling</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">real_parent</span><span class="o">-&gt;</span><span class="n">children</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">tasks</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">init_task</span><span class="p">.</span><span class="n">tasks</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PGID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_SID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">__this_cpu_inc</span><span class="p">(</span><span class="n">process_counts</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 不是 thread group leader
+</span></span></span><span class="line"><span class="cl">		<span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">nr_threads</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">live</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">atomic_inc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">current</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">sigcnt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">thread_group</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">group_leader</span><span class="o">-&gt;</span><span class="n">thread_group</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">list_add_tail_rcu</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">thread_node</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">signal</span><span class="o">-&gt;</span><span class="n">thread_head</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">attach_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">nr_threads</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl"><span class="p">.</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// 回傳新的 task_struct
+</span></span></span><span class="line"><span class="cl"><span class="k">return</span> <span class="n">p</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>之後會找時間好好研究再來整理成文章(<del>又在挖坑</del>)</p>
+<p>接下來又回到 <code>_do_fork()</code> 的部份，上面已經大概介紹了 <code>copy_process</code> 從 <code>parent process</code> 建立一個新的 <code>task_struct</code> 的流程，最後回傳了新的 <code>task_struct</code>。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// kernel/fork.c/do_fork
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">long</span> <span class="nf">_do_fork</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">clone_flags</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_start</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">parent_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">__user</span> <span class="o">*</span><span class="n">child_tidptr</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">tls</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">long</span> <span class="n">nr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Determine whether and which event to report to ptracer. When
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* called from kernel_thread or CLONE_UNTRACED is explicitly
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* requested, no event is reported; otherwise, report if the event
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* for the type of forking is enabled.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_UNTRACED</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_VFORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> <span class="k">if</span> <span class="p">((</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CSIGNAL</span><span class="p">)</span> <span class="o">!=</span> <span class="n">SIGCHLD</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_CLONE</span><span class="p">;</span>	
+</span></span><span class="line"><span class="cl">		<span class="k">else</span>
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="n">PTRACE_EVENT_FORK</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">likely</span><span class="p">(</span><span class="o">!</span><span class="nf">ptrace_event_enabled</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">trace</span><span class="p">)))</span>		
+</span></span><span class="line"><span class="cl">			<span class="n">trace</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="n">p</span> <span class="o">=</span> <span class="nf">copy_process</span><span class="p">(</span><span class="n">clone_flags</span><span class="p">,</span> <span class="n">stack_start</span><span class="p">,</span> <span class="n">stack_size</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="n">child_tidptr</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">trace</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">NUMA_NO_NODE</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">add_latent_entropy</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Do this prior waking up the new thread - the thread pointer
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* might get invalid after that point, if the thread exits quickly.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 底下這個區域只有 parent process 才會走到
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nf">IS_ERR</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">completion</span> <span class="n">vfork</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">pid</span> <span class="o">*</span><span class="n">pid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="nf">trace_sched_process_fork</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// parent process 獲得新的 task struct 的 pid
+</span></span></span><span class="line"><span class="cl">		<span class="n">pid</span> <span class="o">=</span> <span class="nf">get_task_pid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">PIDTYPE_PID</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">nr</span> <span class="o">=</span> <span class="nf">pid_vnr</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_PARENT_SETTID</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">put_user</span><span class="p">(</span><span class="n">nr</span><span class="p">,</span> <span class="n">parent_tidptr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 查看 parent process 是否調用 vfork, 如果是就初始化 vfork_done
+</span></span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">p</span><span class="o">-&gt;</span><span class="n">vfork_done</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">vfork</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">init_completion</span><span class="p">(</span><span class="o">&amp;</span><span class="n">vfork</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="nf">get_task_struct</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 將新的 task_struct 加入 runqueue 中
+</span></span></span><span class="line"><span class="cl">		<span class="nf">wake_up_new_task</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="cm">/* forking complete and child started to run, tell ptracer */</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="nf">unlikely</span><span class="p">(</span><span class="n">trace</span><span class="p">))</span>	
+</span></span><span class="line"><span class="cl">			<span class="nf">ptrace_event_pid</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="c1">// 因為 vfork 的機制，必須要等 child process 執行完,
+</span></span></span><span class="line"><span class="cl">		<span class="c1">// parent process 的 vfork() 才會返回, 因此 vfork 產生的
+</span></span></span><span class="line"><span class="cl">		<span class="c1">// child process 總是優先於 parent process 執行
+</span></span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">clone_flags</span> <span class="o">&amp;</span> <span class="n">CLONE_VFORK</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nf">wait_for_vfork_done</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">vfork</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">				<span class="nf">ptrace_event_pid</span><span class="p">(</span><span class="n">PTRACE_EVENT_VFORK_DONE</span><span class="p">,</span> <span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="nf">put_pid</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">nr</span> <span class="o">=</span> <span class="nf">PTR_ERR</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">nr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="_do_fork---wake_up_new_taskp">_do_fork() -&gt; wake_up_new_task(p)
+</h3><p><code>wake_up_new_task</code> 的作用是把新創立的 <code>task_struct</code> 加入排程的 <code>runqueue</code> 當中，實現<a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459"  target="_blank" rel="noopener"
+    >如下</a>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="c1">// 位於 kernel/sched/core.c
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* wake_up_new_task - wake up a newly created task for the first time.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*
+</span></span></span><span class="line"><span class="cl"><span class="cm">* This function will do some initial scheduler statistics housekeeping
+</span></span></span><span class="line"><span class="cl"><span class="cm">* that must be done for every newly created context, then puts the task
+</span></span></span><span class="line"><span class="cl"><span class="cm">* on the runqueue and wakes it.
+</span></span></span><span class="line"><span class="cl"><span class="cm">*/</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">wake_up_new_task</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">rq_flags</span> <span class="n">rf</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">rq</span> <span class="o">*</span><span class="n">rq</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nf">raw_spin_lock_irqsave</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">pi_lock</span><span class="p">,</span> <span class="n">rf</span><span class="p">.</span><span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 將新的 task_struct 狀態設為 TASK_RUNNING
+</span></span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_RUNNING</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl">	<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Fork balancing, do it here and not earlier because:
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* - cpus_allowed can change in the fork path
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* - any previously selected CPU might disappear through hotplug
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* Use __set_task_cpu() to avoid calling sched_class::migrate_task_rq,
+</span></span></span><span class="line"><span class="cl"><span class="cm">	* as we&#39;re not fully set-up yet.
+</span></span></span><span class="line"><span class="cl"><span class="cm">	*/</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// select_task_rq 會調用 CFS 的 select_task_rq 來選擇一個合適的 cpu
+</span></span></span><span class="line"><span class="cl">	<span class="nf">__set_task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nf">select_task_rq</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nf">task_cpu</span><span class="p">(</span><span class="n">p</span><span class="p">),</span> <span class="n">SD_BALANCE_FORK</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 獲得當前 task_struct 所在的 cpu 的 runqueue
+</span></span></span><span class="line"><span class="cl">	<span class="n">rq</span> <span class="o">=</span> <span class="nf">__task_rq_lock</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">update_rq_clock</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">post_init_entity_util_avg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="c1">// 將 task_struct p 加入 runqueue 當中
+</span></span></span><span class="line"><span class="cl">	<span class="nf">activate_task</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ENQUEUE_NOCLOCK</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">on_rq</span> <span class="o">=</span> <span class="n">TASK_ON_RQ_QUEUED</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="nf">trace_sched_wakeup_new</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// 檢查新的 task_struct 是否滿足搶佔目前執行 process 的條件
+</span></span></span><span class="line"><span class="cl">	<span class="nf">check_preempt_curr</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">WF_FORK</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="cp">#ifdef CONFIG_SMP
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="n">task_woken</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* Nothing relies on rq-&gt;lock after this, so its fine to
+</span></span></span><span class="line"><span class="cl"><span class="cm">		* drop it.
+</span></span></span><span class="line"><span class="cl"><span class="cm">		*/</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">rq_unpin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">p</span><span class="o">-&gt;</span><span class="n">sched_class</span><span class="o">-&gt;</span><span class="nf">task_woken</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">rq_repin_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="cl">	<span class="nf">task_rq_unlock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rf</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="reference">reference
+</h3><ul>
+<li><a class="link" href="https://www.cnblogs.com/linhaostudy/p/9644736.html#autoid-1-4-0"  target="_blank" rel="noopener"
+    >_do_fork, do_fork 詳解</a></li>
+<li><a class="link" href="https://ithelp.ithome.com.tw/articles/10185342"  target="_blank" rel="noopener"
+    >trace 30個基本Linux系統呼叫第七日：fork</a></li>
+<li><a class="link" href="https://ithelp.ithome.com.tw/articles/10267145"  target="_blank" rel="noopener"
+    >Day4 橫空出世的 kernel_clone</a></li>
+<li><a class="link" href="https://zhuanlan.zhihu.com/p/373954153"  target="_blank" rel="noopener"
+    >fork 背後隱藏的技術細節</a></li>
+<li><a class="link" href="https://blog.csdn.net/weijitao/article/details/79918013"  target="_blank" rel="noopener"
+    >Linux系统如何标识进程？</a></li>
+<li><a class="link" href="https://blog.csdn.net/jasonactions/article/details/115316642"  target="_blank" rel="noopener"
+    >kernel_clone</a></li>
+<li><a class="link" href="http://blog.chinaunix.net/uid-69947851-id-5826105.html"  target="_blank" rel="noopener"
+    >Linux fork函數</a></li>
+<li><a class="link" href="http://blog.chinaunix.net/uid-69947851-id-5826110.html"  target="_blank" rel="noopener"
+    >Linux fork函數總結</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux_kernel/">Linux_kernel</a>
+        
+            <a href="/tags/system_call/">System_call</a>
+        
+            <a href="/tags/fork/">Fork</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY-NC 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const elementsToRender = [".main-article", ".widget--toc"];
+
+        elementsToRender.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                renderMathInElement(element, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false },
+                        { left: "\\(", right: "\\)", display: false },
+                        { left: "\\[", right: "\\]", display: true }
+                    ],
+                    ignoredClasses: ["gist"]
+                });
+            }
+        });
+    });
+</script>
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/linux-waitqueue-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux waitqueue 原始碼解讀</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux schedule 原始碼解讀</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/linux-file-descriptor-%E7%90%86%E8%A7%A3/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux file descriptor 理解</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script
+    src="https://giscus.app/client.js"
+    data-repo="davidleitw/davidleitw.github.io"
+    data-repo-id=""
+    data-category="Announcements"
+    data-category-id=""
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    data-loading=""
+    crossorigin="anonymous"
+    async
+></script>
+<script>
+    function setGiscusTheme(theme) {
+        let giscus = document.querySelector("iframe.giscus-frame");
+        if (giscus) {
+            giscus.contentWindow.postMessage(
+                {
+                    giscus: {
+                        setConfig: {
+                            theme: theme,
+                        },
+                    },
+                },
+                "https://giscus.app"
+            );
+        }
+    }
+
+    (function () {
+        addEventListener("message", (e) => {
+            if (event.origin !== "https://giscus.app") return;
+            handler();
+        });
+        window.addEventListener("onColorSchemeChange", handler);
+
+        function handler() {
+            if (document.documentElement.dataset.scheme === "light") {
+                setGiscusTheme('light');
+            } else {
+                setGiscusTheme('dark');
+            }
+        }
+    })();
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 davidlei
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.33.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+    
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="zh-tw" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。\n">
+<title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
+
+<link rel='canonical' href='https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
+
+<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹">
+<meta property='og:description' content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。\n">
+<meta property='og:url' content='https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
+<meta property='og:site_name' content='davidLei'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='concurrency' /><meta property='article:tag' content='parallelism' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='linux_kernel' /><meta property='article:published_time' content='2022-03-23T00:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-03-23T00:12:53&#43;08:00'/>
+<meta name="twitter:title" content="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹">
+<meta name="twitter:description" content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。\n">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切換選單">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">davidLei</a></h1>
+            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/davidleitw'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://www.linkedin.com/in/wei-cheng-lei-2604121b6/'
+                        target="_blank"
+                        title="LinkedIn"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <rect x="4" y="4" width="16" height="16" rx="2" />
+  <line x1="8" y1="11" x2="8" y2="16" />
+  <line x1="8" y1="8" x2="8" y2="8.01" />
+  <line x1="12" y1="16" x2="12" y2="11" />
+  <path d="M16 16v-3a2 2 0 0 0 -4 0" />
+</svg>
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章歸檔</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>夜晚模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目錄</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#concurrency並行-vs-parallelism平行">Concurrency(並行) vs Parallelism(平行)</a>
+      <ol>
+        <li><a href="#單一-cpu-的-concurrency">單一 cpu 的 Concurrency</a></li>
+      </ol>
+    </li>
+    <li><a href="#process-and-thread">Process and Thread</a></li>
+    <li><a href="#工作切換-context-switch">工作切換 (context switch)</a></li>
+    <li><a href="#排程器-scheduler">排程器 (scheduler)</a></li>
+    <li><a href="#preemptive-vs-non-preemptive">Preemptive vs Non-preemptive</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/concurrency/" >
+                Concurrency
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/">Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published" datetime='2022-03-23T00:12:53&#43;08:00'>2022-03-23</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    閱讀時間: 5 分鐘
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="前言">前言
+</h2><p>最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。</p>
+<p>裡面有些說法跟圖片是參考 <a class="link" href="https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2FS1AMIFt0D"  target="_blank" rel="noopener"
+    >jserv 老師的講座</a>，裡面內容非常精彩，有機會的話一定要挑戰看看!</p>
+<h2 id="concurrency並行-vs-parallelism平行">Concurrency(並行) vs Parallelism(平行)
+</h2><p>常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。</p>
+<p>Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調<strong>同時</strong>執行多個程式，底下會詳細舉例說明兩者的差異。</p>
+<p>Concurrency 把程式功能拆分的小的 Task 後，如果<strong>同時</strong>運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。</p>
+<p>Concurrency 只有強調把程式<strong>拆</strong>開成多個可獨立執行的模組，但沒有強調這些拆開的模組一定要<strong>同時執行</strong>。</p>
+<p><img src="https://i.imgur.com/6F2ptaH.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>Parallelism 更強調的是<strong>同時</strong>的概念，不同的任務可以分配給不同的硬體，同一時間會有多個任務一起同時執行。</p>
+<p><img src="https://i.imgur.com/qW0Whec.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。</p>
+<h3 id="單一-cpu-的-concurrency">單一 cpu 的 Concurrency
+</h3><p>在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。</p>
+<p>底下的 jserv 老師上課給的範例</p>
+<p><img src="https://i.imgur.com/4nZ9RVx.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>可以看到在單一 cpu 的場景，意味著同一時間只能有一個任務被執行，所以硬體需要在不同任務之間快速切換，在人類的角度，每個電腦的使用者都覺得自己有著所有的資源，但其實只是切換的速度很快，讓使用者有種錯覺。</p>
+<p><img src="https://i.imgur.com/F4uHK2q.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>以<a class="link" href="https://zh.wikipedia.org/wiki/%E6%9A%97%E6%AE%BA%E6%95%99%E5%AE%A4"  target="_blank" rel="noopener"
+    >暗殺教室</a>的殺老師為例，先不用講詳細的設定，在漫畫中有一幕場景，殺老師想要為底下的學生每個人量身打造上課的教材，但是上課時是固定的，這時候顯然殺老師有修過 Linux 核心設計，所以知道在單核的情況下只能透過快速的切換讓底下每位學生在體感上都上滿一整節課，示意圖如下</p>
+<p><img src="https://imgur.com/1esyuuQ.gif"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p><del>找不到上課的素材，只能用體育課的快速切換當示意圖</del></p>
+<p>因為殺老師只有單一個體，所以可以視作單一 cpu，在不同使用者之間快速切換，這樣就可以說他是 Concurrency，但是不能稱為 Parallelism，不能稱為 Parallelism 是因為即使移動的再快，都不符合<strong>同時</strong>的要求。</p>
+<p>那動漫界最適合解釋 Parallelism 的角色是誰呢? 當然是火影忍者的漩渦鳴人了，他的招牌多重影分身之術就很適合拿來解釋 Parallelism 的概念。</p>
+<p><img src="https://i.imgur.com/jwfYWHM.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身<strong>同時</strong>進行著某個任務的話，我們就可以說符合 Parallelism 的概念。</p>
+<p>今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。</p>
+<h2 id="process-and-thread">Process and Thread
+</h2><p>在恐龍書的課本上，對於 process 與 thread 有不同的定義，但在 Linux kernel 中兩者並沒有明確的區分，在程式中都用 <code>task_struct</code> 來表示一個 process 或者 thread，兩者的區別只有呼叫 system call 時傳入不同的參數，但是本質上都是用 <code>task_struct</code> 表示一個執行單元。</p>
+<h2 id="工作切換-context-switch">工作切換 (context switch)
+</h2><p>context switch 是指 os 想要把目前執行中的 process 暫停，並且切換到下一個要執行的任務，這個動作就被稱為 context switch。</p>
+<p>一般情況下被暫停的任務之後在某個時間點還是會被繼續執行，所以在進行 context switch 時必須要紀錄舊的 process 的相關資料，像是舊的 process 下個要執行指令的 address，或者被停止時暫存器的相關資料等等。</p>
+<p>在後續 context switch 到舊的 process 繼續執行時，整個環境必須要回到舊的 process 被停止時的狀態，context switch 的實現很大一部份決定了整個系統 response 的速度，如果 context switch 做的不好，使用者可能會感受到很明顯的延遲。</p>
+<h2 id="排程器-scheduler">排程器 (scheduler)
+</h2><p>排程器 (scheduler) 的功能是決定 CPU 下一個要執行的任務，並且執行 context switch 指向新的任務下一個要執行的指令位置。</p>
+<p>排程的演算法也是一個很多人在研究的議題，要如何恰當的分配硬體資源，還要考慮一些工作可能有比較高的 priority，怎麼優先去安排高 priority 的任務等等。</p>
+<p>每一個任務可能都被分配一定的時間去執行，那段執行的時間被稱為 time slice，time slice 也不一定是固定時間，根據排程演算法的不同，有些演算法會動態的決定一個任務分配到的 time slice。</p>
+<h2 id="preemptive-vs-non-preemptive">Preemptive vs Non-preemptive
+</h2><p>搶佔式(preemptive) 與非搶佔式(non-preemptive) 的差別在於在執行中的工作(process)是否為自願(voluntary)交出 cpu 使用權，又或者被迫放棄 cpu 使用權。</p>
+<p>non-preemptive 的優點在於可預估程式的完成時間(不會突然被中斷)，context switch 的次數也相對較少，但相對的每個 process 的 waiting time 就會上升。</p>
+<p>preemptive 系統中 process 可能會在執行的途中被插隊，<strong>被迫放棄</strong> cpu 週期給另外的 process，被插隊有很多種不同的原因，像是 Time-out, Interrupt 發生，高優先權的 process 插隊等等。</p>
+<p>現在主流的 os 都用了 preemptive 的概念，有優先權的概念會比較彈性，可以根據需求去調整。</p>
+<p>non-preemptive 的 os 比較沒彈性，舉個例子，像是如果有 20 個病人在排隊門診，這時候第 12 號的病人突然暈倒在地上抽搐，這時候醫生說因為我們診所是 non-preemptive 的設計，所以等我看完前面 11 個門診病人，就去幫它急救，<del>然後病人就葛屁了</del>。</p>
+<p>preemptive 的作業系統最大的優點就是 response time 很短，面對不同的需求可以快速的調整排程的優先順序，讓緊急的事件先處理，但是以實作難度來說就會相對於 non-preemptive 高很多，不過真的商用或者伺服器的 os，應該在設計上不會考慮實作難度這件事情。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/concurrency/">Concurrency</a>
+        
+            <a href="/tags/parallelism/">Parallelism</a>
+        
+            <a href="/tags/linux/">Linux</a>
+        
+            <a href="/tags/linux_kernel/">Linux_kernel</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>CC BY-NC 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI&#43;WdtXRGWt2kTvGFasHpSy3SV"crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG&#43;vnGctmUb0ZY0l8"crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"integrity="sha384-&#43;VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4&#43;/RRE05"crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        const elementsToRender = [".main-article", ".widget--toc"];
+
+        elementsToRender.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                renderMathInElement(element, {
+                    delimiters: [
+                        { left: "$$", right: "$$", display: true },
+                        { left: "$", right: "$", display: false },
+                        { left: "\\(", right: "\\)", display: false },
+                        { left: "\\[", right: "\\]", display: true }
+                    ],
+                    ignoredClasses: ["gist"]
+                });
+            }
+        });
+    });
+</script>
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相關文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">從執行順序來探討 Race condition, go 語言的 happens-before 規則</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/bypassing-the-load-balancer-without-regrets-socc-20/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Bypassing the Load Balancer Without Regrets - SoCC ’20</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">搭建最小化的 xdp 實驗環境</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <script
+    src="https://giscus.app/client.js"
+    data-repo="davidleitw/davidleitw.github.io"
+    data-repo-id=""
+    data-category="Announcements"
+    data-category-id=""
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    data-loading=""
+    crossorigin="anonymous"
+    async
+></script>
+<script>
+    function setGiscusTheme(theme) {
+        let giscus = document.querySelector("iframe.giscus-frame");
+        if (giscus) {
+            giscus.contentWindow.postMessage(
+                {
+                    giscus: {
+                        setConfig: {
+                            theme: theme,
+                        },
+                    },
+                },
+                "https://giscus.app"
+            );
+        }
+    }
+
+    (function () {
+        addEventListener("message", (e) => {
+            if (event.origin !== "https://giscus.app") return;
+            handler();
+        });
+        window.addEventListener("onColorSchemeChange", handler);
+
+        function handler() {
+            if (document.documentElement.dataset.scheme === "light") {
+                setGiscusTheme('light');
+            } else {
+                setGiscusTheme('dark');
+            }
+        }
+    })();
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2019 - 
+        
+        2025 davidlei
+    </section>
+    
+    <section class="powerby">
+        使用 <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 建立 <br />
+        主題 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.33.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 設計
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+    
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
