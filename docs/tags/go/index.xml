@@ -142,7 +142,7 @@
         
         <guid>https://davidleitw.github.io/p/sudo-go-command-not-found-%E5%95%8F%E9%A1%8C%E8%A7%A3%E6%B1%BA/</guid>
         <description>&lt;p&gt;這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(&lt;del&gt;然後每次都忘記解決方式跑去google&lt;/del&gt;)，所以在這邊紀錄一下解決方式&lt;/p&gt;
-&lt;h2 id=&#34;etcsudoers&#34;&gt;/etc/sudoers
+&lt;h2 id=&#34;etcsudoers&#34;&gt;&lt;a href=&#34;#etcsudoers&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;/etc/sudoers
 &lt;/h2&gt;&lt;p&gt;在用 &lt;code&gt;sudo&lt;/code&gt; 下指令時，系統會從 &lt;code&gt;/etc/sudoers&lt;/code&gt; 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 &lt;code&gt;/usr/local/go/bin&lt;/code&gt; 放到 &lt;code&gt;/etc/sudoers&lt;/code&gt; 裡面，讓系統知道 go 指令要去哪執行&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;/etc/sudoers&lt;/code&gt; 裡面有個 secure_path，把 &lt;code&gt;usr/local/go/bin&lt;/code&gt; 加到那個字串即可.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/k4QKhFj.png&#34;
@@ -171,7 +171,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;time&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;單次定時事件---timer&#34;&gt;單次定時事件 - Timer
+&lt;/div&gt;&lt;h3 id=&#34;單次定時事件---timer&#34;&gt;&lt;a href=&#34;#%e5%96%ae%e6%ac%a1%e5%ae%9a%e6%99%82%e4%ba%8b%e4%bb%b6---timer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;單次定時事件 - Timer
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -250,7 +250,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;newtimer&#34;&gt;NewTimer
+&lt;h3 id=&#34;newtimer&#34;&gt;&lt;a href=&#34;#newtimer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;NewTimer
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -288,7 +288,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;NewTimer&lt;/code&gt; 的 &lt;code&gt;d&lt;/code&gt; 參數代 &lt;code&gt;Timer&lt;/code&gt; 需要等待多長時間，&lt;code&gt;Timer.C&lt;/code&gt; 是一個帶有 &lt;code&gt;buffer&lt;/code&gt; 的 &lt;code&gt;channel&lt;/code&gt;，在上面的範例中，&lt;code&gt;&amp;lt;-timer.C&lt;/code&gt; 那行會把程式阻塞直到 &lt;code&gt;Timer&lt;/code&gt; 往 &lt;code&gt;Timer.C&lt;/code&gt; 裡面傳送時間(當時倒數完的結果)，阻塞解除後才可以繼續往下執行，達到延遲執行，或者定時觸發的目的。&lt;/p&gt;
-&lt;h3 id=&#34;循環執行的定時任務---ticker&#34;&gt;循環執行的定時任務 - Ticker
+&lt;h3 id=&#34;循環執行的定時任務---ticker&#34;&gt;&lt;a href=&#34;#%e5%be%aa%e7%92%b0%e5%9f%b7%e8%a1%8c%e7%9a%84%e5%ae%9a%e6%99%82%e4%bb%bb%e5%8b%99---ticker&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;循環執行的定時任務 - Ticker
 &lt;/h3&gt;&lt;p&gt;對於有持續執行的定時任務，可以使用 &lt;code&gt;time.Sleep&lt;/code&gt; 或者 &lt;code&gt;time.Ticker&lt;/code&gt; 兩種方式來實現。&lt;/p&gt;
 &lt;p&gt;用 &lt;code&gt;time.Sleep&lt;/code&gt; 方式實現&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -417,7 +417,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;利用 &lt;code&gt;defer&lt;/code&gt; 的機制讓退出時自動呼叫 &lt;code&gt;Stop&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;ticker-的一些注意事項&#34;&gt;Ticker 的一些注意事項
+&lt;h3 id=&#34;ticker-的一些注意事項&#34;&gt;&lt;a href=&#34;#ticker-%e7%9a%84%e4%b8%80%e4%ba%9b%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a0%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Ticker 的一些注意事項
 &lt;/h3&gt;&lt;p&gt;以下是 &lt;code&gt;NewTicker&lt;/code&gt; 與 &lt;code&gt;Stop&lt;/code&gt; 的具體實現，位置在 &lt;code&gt;src/time/tick.go&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -644,9 +644,9 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;這次我們利用 &lt;code&gt;defer&lt;/code&gt; 的機制，在 &lt;code&gt;goroutine&lt;/code&gt; 內部呼叫 &lt;code&gt;Stop&lt;/code&gt; 的方式，可以看到這種寫法在相較用 &lt;code&gt;for range&lt;/code&gt; 來說，彈性高出很多，而且在調用 &lt;code&gt;Tocker.Stop&lt;/code&gt; 時並不會 &lt;code&gt;close&lt;/code&gt; 該 &lt;code&gt;channel&lt;/code&gt;，用 &lt;code&gt;for range&lt;/code&gt; 的寫法會造成一個無限迴圈卡在那裡，&lt;code&gt;golang&lt;/code&gt; 中只要沒有 &lt;code&gt;goroutine&lt;/code&gt; 持有該 &lt;code&gt;channel&lt;/code&gt;，到最後那個 &lt;code&gt;channel&lt;/code&gt; 就會被 &lt;code&gt;gc&lt;/code&gt;，這就是為什麼不推薦使用 &lt;code&gt;for range&lt;/code&gt; 的緣故，一般來說使用 &lt;code&gt;for range&lt;/code&gt; 的寫法都要配合 &lt;code&gt;close&lt;/code&gt;，但是在 &lt;code&gt;Timer&lt;/code&gt; 的情況，無法主動關閉內部的 &lt;code&gt;channel&lt;/code&gt;，只好退出 &lt;code&gt;goroutine&lt;/code&gt; 讓 &lt;code&gt;gc&lt;/code&gt; 回收。&lt;/p&gt;
-&lt;h3 id=&#34;timer-vs-ticker&#34;&gt;Timer vs Ticker
+&lt;h3 id=&#34;timer-vs-ticker&#34;&gt;&lt;a href=&#34;#timer-vs-ticker&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Timer vs Ticker
 &lt;/h3&gt;&lt;p&gt;以用法來說，&lt;code&gt;Timer&lt;/code&gt; 就是在 &lt;code&gt;timeout&lt;/code&gt; 之後觸發一次，&lt;code&gt;Ticker&lt;/code&gt; 則是週期性的觸發定時事件，因為 &lt;code&gt;Ticker&lt;/code&gt; 是週期性的，所以如果沒有顯式的呼叫 &lt;code&gt;Stop&lt;/code&gt; 就會發生上面提到的 &lt;code&gt;Resource leak&lt;/code&gt; 問題，之後會再寫一兩篇文章從 &lt;code&gt;source code&lt;/code&gt; 切入，還有 &lt;code&gt;Timer reset&lt;/code&gt; 的問題也值得探討。&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/yjp19871013/article/details/82048944&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Golang 如何正確的停止 Ticker&lt;/a&gt;&lt;/li&gt;
@@ -663,7 +663,7 @@
         <pubDate>Mon, 16 Aug 2021 01:37:36 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/golang-cobra-%E5%9C%A8%E6%B2%92%E6%9C%89%E6%B7%BB%E5%8A%A0%E4%BB%BB%E4%BD%95%E5%8F%83%E6%95%B8%E7%9A%84%E6%83%85%E6%B3%81%E4%B8%8B%E9%A0%90%E8%A8%AD%E7%94%A2%E7%94%9F-help-message/</guid>
-        <description>&lt;h2 id=&#34;問題描述&#34;&gt;問題描述
+        <description>&lt;h2 id=&#34;問題描述&#34;&gt;&lt;a href=&#34;#%e5%95%8f%e9%a1%8c%e6%8f%8f%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;問題描述
 &lt;/h2&gt;&lt;p&gt;最近在使用 &lt;a class=&#34;link&#34; href=&#34;https://github.com/spf13/cobra&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;cobra&lt;/a&gt; 編寫一個簡單的 &lt;code&gt;command line&lt;/code&gt; 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊&lt;/p&gt;
 &lt;p&gt;一般來說用 &lt;code&gt;cobra&lt;/code&gt; 寫的程式要顯示詳細的使用教學都要使用 &lt;code&gt;--help&lt;/code&gt; 參數，如圖&lt;/p&gt;
@@ -688,7 +688,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;所以我特別找了一些資料，發現其實解決的方法滿簡單的&lt;/p&gt;
-&lt;h2 id=&#34;解決方法&#34;&gt;解決方法
+&lt;h2 id=&#34;解決方法&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b1%ba%e6%96%b9%e6%b3%95&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解決方法
 &lt;/h2&gt;&lt;p&gt;一般的教學文章在介紹 &lt;a class=&#34;link&#34; href=&#34;https://github.com/spf13/cobra&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;cobra&lt;/a&gt; 的時候都會訂一個 &lt;code&gt;rootCmd&lt;/code&gt; 一類的物件，作為你的 &lt;code&gt;command line&lt;/code&gt; 應用一開始的 &lt;code&gt;root&lt;/code&gt;，之後的指令就會用&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;

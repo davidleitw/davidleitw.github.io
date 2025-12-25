@@ -2,23 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Paper on davidLei</title>
-        <link>https://davidleitw.github.io/categories/paper/</link>
+        <link>http://localhost:44973/categories/paper/</link>
         <description>Recent content in Paper on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Mon, 19 Dec 2022 22:13:53 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/categories/paper/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 19 Dec 2022 22:13:53 +0800</lastBuildDate><atom:link href="http://localhost:44973/categories/paper/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
-        <link>https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/</link>
+        <link>http://localhost:44973/p/bypassing-the-load-balancer-without-regrets-socc-20/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <guid>http://localhost:44973/p/bypassing-the-load-balancer-without-regrets-socc-20/</guid>
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，&lt;a class=&#34;link&#34; href=&#34;https://marioskogias.github.io/docs/crab.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這篇&lt;/a&gt; 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。&lt;/p&gt;
 &lt;p&gt;這篇論文的作者也用了 P4, eBPF 等技術實現了他們的論文，如果有興趣的也可以研究看看實現的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/epfl-dcsl/crab&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;code&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;常見 LB 技術分類
+&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;&lt;a href=&#34;#%e5%b8%b8%e8%a6%8b-lb-%e6%8a%80%e8%a1%93%e5%88%86%e9%a1%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;常見 LB 技術分類
 &lt;/h2&gt;&lt;p&gt;這篇論文在前面的幾個段落介紹了常見了 Load Belance 技術，然後規劃了一些簡單的實驗來分析各種不同技術的優劣，文中用以下五個標準/指標來分類不同種類的 LB 技術，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/STj3dNc.png&#34;
 	
@@ -44,12 +44,12 @@
 &lt;/blockquote&gt;
 &lt;p&gt;簡單來說，負載平衡技術在雲端環境下會面臨的挑戰在於 LB 或者後端 Server 的數量會根據請求的流量動態調整，或者是以容器為單位的調度，這種時候像是 WRR, P2C 這類的演算法就毫無用武之地，因為 Server 的數目跟狀態隨時都在變更，無法根據當時的狀態找出較好的調度方案。&lt;/p&gt;
 &lt;p&gt;實驗部份就不過多敘述了，接著來看這篇論文提出的 LB 方案想要滿足什麼條件，用什麼方式達成&lt;/p&gt;
-&lt;h2 id=&#34;crab-design&#34;&gt;CRAB design
+&lt;h2 id=&#34;crab-design&#34;&gt;&lt;a href=&#34;#crab-design&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;CRAB design
 &lt;/h2&gt;&lt;p&gt;這篇論文提出的新 LB 技術取名為 &lt;strong&gt;C&lt;/strong&gt;onnection &lt;strong&gt;R&lt;/strong&gt;edirect Lo&lt;strong&gt;A&lt;/strong&gt;d &lt;strong&gt;B&lt;/strong&gt;alancer(&lt;strong&gt;CRAB&lt;/strong&gt;)，作者用這段話總結實作的理念&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Implementing a centralized, stateful load balancing policy at a connection granularity requires the load balancer’s involvement only during connection setup, following which the client and server can communicate directly.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;支援 DSR 模式的 LB 運作流程
+&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;&lt;a href=&#34;#%e6%94%af%e6%8f%b4-dsr-%e6%a8%a1%e5%bc%8f%e7%9a%84-lb-%e9%81%8b%e4%bd%9c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;支援 DSR 模式的 LB 運作流程
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/imKOVJL.png&#34;
 	
 	
@@ -84,21 +84,21 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;結論&#34;&gt;結論
+&lt;h2 id=&#34;結論&#34;&gt;&lt;a href=&#34;#%e7%b5%90%e8%ab%96&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;結論
 &lt;/h2&gt;&lt;p&gt;這套解決方案的確直觀的降低了 Load Balancer 的壓力，LB 只要專心處理建立連線的 SYN 封包，也能夠搭配自己的負載平衡策略，但缺點可能是如果要妥善利用這個機制需要 Client 也支援 CR，否則不支援的情況會退回原先的 stateless 的 load balance 機制。&lt;/p&gt;
 &lt;p&gt;最後筆者比較在意的地方是把 DIP 暴露給 Client 有一定的風險，我認為這種架構比較適合內部的 LB，論文第一段也有提到適合場景是 Internel load balancer。&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>The Google File System (GFS) 論文心得</title>
-        <link>https://davidleitw.github.io/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/</link>
+        <link>http://localhost:44973/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/</guid>
+        <guid>http://localhost:44973/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/</guid>
         <description>&lt;p&gt;跟著 &lt;a class=&#34;link&#34; href=&#34;https://pdos.csail.mit.edu/6.824/schedule.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;MIT6.824&lt;/a&gt; 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，&lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 &lt;a class=&#34;link&#34; href=&#34;https://pdos.csail.mit.edu/6.824/papers/gfs.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;The Google File System&lt;/a&gt; 這篇論文來分享一些 &lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。&lt;/p&gt;
-&lt;h2 id=&#34;背景&#34;&gt;背景
+&lt;h2 id=&#34;背景&#34;&gt;&lt;a href=&#34;#%e8%83%8c%e6%99%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;背景
 &lt;/h2&gt;&lt;p&gt;為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 &lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 這套分散式檔案系統。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量&lt;/p&gt;
@@ -130,7 +130,7 @@
 &lt;p&gt;對於 append 實現了原子操作，使得多個 client 端可以同時對一個文件寫入又不需要額外的同步操作來維持一致性。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 沒有強調低延遲，而是把重點放在巨大的 &lt;strong&gt;throughput&lt;/strong&gt; 。&lt;/p&gt;
 &lt;p&gt;在 paper 的 &lt;code&gt;2.1 Assumptions&lt;/code&gt; 章節中簡單描述的設計 &lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 的預期目標。&lt;/p&gt;
-&lt;h2 id=&#34;interface&#34;&gt;Interface
+&lt;h2 id=&#34;interface&#34;&gt;&lt;a href=&#34;#interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Interface
 &lt;/h2&gt;&lt;p&gt;&lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 提供了一系列類似傳統文件系統的 API 接口，且並沒有完全遵照 POSIX 的規範。&lt;/p&gt;
 &lt;p&gt;支持一些常見的功能&lt;/p&gt;
 &lt;ul&gt;
@@ -145,7 +145,7 @@
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;snapshot&lt;/strong&gt; 指令可以用很低的成本創建一個文件或者目錄的 &lt;code&gt;copy&lt;/code&gt;。
 &lt;strong&gt;record append&lt;/strong&gt; 指令允許多個 &lt;code&gt;clients&lt;/code&gt; 同時對一個文件進行寫入動作，同時確保了每個 &lt;code&gt;client&lt;/code&gt; 端寫入動作的原子性。讓 &lt;code&gt;client&lt;/code&gt; 端可以不用花費額外的心力解決同步問題。&lt;/p&gt;
-&lt;h2 id=&#34;architecture&#34;&gt;Architecture
+&lt;h2 id=&#34;architecture&#34;&gt;&lt;a href=&#34;#architecture&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Architecture
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/ftek3c4.png&#34;
 	
 	
@@ -175,14 +175,14 @@
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;Master&lt;/code&gt; 會以 &lt;strong&gt;HeartBeat message&lt;/strong&gt; 的形式週期性得與每個 &lt;code&gt;chunk server&lt;/code&gt; 通訊，以獲得 &lt;code&gt;chunk server&lt;/code&gt; 的狀態。&lt;/p&gt;
 &lt;p&gt;metadata會在後面的章節詳細再說明&lt;/p&gt;
-&lt;h2 id=&#34;single-master-設計理念&#34;&gt;Single Master 設計理念
+&lt;h2 id=&#34;single-master-設計理念&#34;&gt;&lt;a href=&#34;#single-master-%e8%a8%ad%e8%a8%88%e7%90%86%e5%bf%b5&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Single Master 設計理念
 &lt;/h2&gt;&lt;p&gt;single master 的設計可以讓其透過全局的訊息來紀錄每個 &lt;code&gt;chunk&lt;/code&gt; 的位置還有關於資料複製的決策，大大減少了設計的難度。&lt;/p&gt;
 &lt;p&gt;之後就衍生出另一個問題是只有 single master 的話，設計上需要盡可能的減少 &lt;code&gt;Master&lt;/code&gt; 的工作量，不能讓 single master 的設計反而成為整個系統的效能瓶頸。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;client&lt;/code&gt; 的文件讀寫絕對不會透過 &lt;code&gt;Master&lt;/code&gt; 來與 &lt;code&gt;chunk server&lt;/code&gt; 溝通，&lt;code&gt;Master&lt;/code&gt; 的工作只有傳送 &lt;code&gt;chunk&lt;/code&gt; 的各種資料，&lt;code&gt;client&lt;/code&gt; 獲得應該要與哪一個 &lt;code&gt;chunk server&lt;/code&gt; 溝通後，會直接與其連線。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;client 會將 chunk 的 metadata 緩存一段時間，讓後續相同的操作不需要再去詢問 master。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;chunk-size-選擇議題&#34;&gt;chunk size 選擇議題
+&lt;h2 id=&#34;chunk-size-選擇議題&#34;&gt;&lt;a href=&#34;#chunk-size-%e9%81%b8%e6%93%87%e8%ad%b0%e9%a1%8c&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;chunk size 選擇議題
 &lt;/h2&gt;&lt;p&gt;paper 中有一個章節簡單分析了一下 &lt;code&gt;chunk size&lt;/code&gt; 選擇的問題，會甚麼選擇 64MB 這個遠大於普通 block 的大小，以及選擇的優缺點。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;優點:減少 &lt;code&gt;client&lt;/code&gt; 與 &lt;code&gt;master&lt;/code&gt; 的通訊量， metadata 大小:&lt;/li&gt;
@@ -194,7 +194,7 @@
 &lt;/ul&gt;
 &lt;p&gt;對於小文件來說，很可能 &lt;code&gt;chunk&lt;/code&gt; 的數量很小，可能只有一個 &lt;code&gt;chunk&lt;/code&gt;，這種情況下有可能會發生同時有多個 &lt;code&gt;client&lt;/code&gt; 訪問同一個文件的，導致熱點的發生。&lt;/p&gt;
 &lt;p&gt;這個 file 可能是配置參數 or something else，解決這個方案的長久之計可能是當遇到這種情況的時候允許 &lt;code&gt;client&lt;/code&gt; 可以從別的 &lt;code&gt;client&lt;/code&gt; 端讀取資料。&lt;/p&gt;
-&lt;h2 id=&#34;metadata&#34;&gt;Metadata
+&lt;h2 id=&#34;metadata&#34;&gt;&lt;a href=&#34;#metadata&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Metadata
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;Master&lt;/code&gt; 主要維護三種類型的 &lt;code&gt;metadata&lt;/code&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;命名空間相關&lt;/li&gt;
@@ -214,11 +214,11 @@
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;把 &lt;code&gt;metadata&lt;/code&gt; 保存在記憶體可以讓 &lt;code&gt;master&lt;/code&gt; 很有效率的定期掃描所有的 &lt;code&gt;metadata&lt;/code&gt;，藉此來達到 &lt;code&gt;chunk&lt;/code&gt; 回收，負載平衡等操作。&lt;/p&gt;
-&lt;h2 id=&#34;263-operation-log&#34;&gt;2.6.3 Operation Log
+&lt;h2 id=&#34;263-operation-log&#34;&gt;&lt;a href=&#34;#263-operation-log&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;2.6.3 Operation Log
 &lt;/h2&gt;&lt;p&gt;假設今天系統已經跑了好幾個月甚至一兩年了，突然 &lt;code&gt;master&lt;/code&gt; crush，需要按照 &lt;code&gt;operation log&lt;/code&gt; 重新 set up 整個系統，如果從一開始的 &lt;code&gt;log&lt;/code&gt; 慢慢條列執行，可以預期整個系統重啟的時間會非常的久，這對於一個大型系統來說是不太能接受的。&lt;/p&gt;
 &lt;p&gt;為了讓重新啟動的時間降低，必須要想辦法讓 &lt;code&gt;log&lt;/code&gt; 盡可能的變小，所以在 &lt;code&gt;log&lt;/code&gt; 增長一定長度之後 &lt;code&gt;master&lt;/code&gt; 就會創建 &lt;code&gt;checkpoint file&lt;/code&gt;(並且刪掉舊的 &lt;code&gt;log file&lt;/code&gt;)，就像是遊戲的存檔點一樣，可以讓我們死掉之後不用重頭開始玩起。&lt;/p&gt;
 &lt;p&gt;有了 &lt;code&gt;checkpoint&lt;/code&gt; 之後 &lt;code&gt;master&lt;/code&gt; 重啟只要讀取最新的一次 &lt;code&gt;checkpoint file&lt;/code&gt; 即可，&lt;code&gt;checkpoint file&lt;/code&gt; 是以類似 compact B-tree 的資料結構儲存的，讀取這個檔案後可以把整個 data structure 映射到記憶體內不需要額外的處理，大大的加快了整個重啟的時間。&lt;/p&gt;
-&lt;h2 id=&#34;consistency-model-一致性模型&#34;&gt;Consistency Model 一致性模型
+&lt;h2 id=&#34;consistency-model-一致性模型&#34;&gt;&lt;a href=&#34;#consistency-model-%e4%b8%80%e8%87%b4%e6%80%a7%e6%a8%a1%e5%9e%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Consistency Model 一致性模型
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;任何有關於 &lt;code&gt;file namespace&lt;/code&gt; 的操作都是 atomic的，例如 &lt;code&gt;create&lt;/code&gt; 等等操作，並且經由 &lt;code&gt;master&lt;/code&gt; 直接處理。&lt;/li&gt;
 &lt;/ul&gt;
@@ -281,19 +281,19 @@ paper 中這個章節都是用 region 代指資料。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;通常 master 偵測到錯誤並且反應的時間大概是幾分鐘之內。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;272-implications-for-applications&#34;&gt;2.7.2 Implications for Applications
+&lt;h2 id=&#34;272-implications-for-applications&#34;&gt;&lt;a href=&#34;#272-implications-for-applications&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;2.7.2 Implications for Applications
 &lt;/h2&gt;&lt;p&gt;大部分的 &lt;code&gt;application&lt;/code&gt; 都採取 &lt;strong&gt;appending(寫在尾部)&lt;/strong&gt; 的寫入方式， &lt;code&gt;GFS&lt;/code&gt; 對於 append 有做性能上的優化。通常一個 &lt;code&gt;writer&lt;/code&gt; 只會負責單一文件，不會寫入到一半跑去寫別的文件，當這次的寫入完成時，&lt;code&gt;GFS&lt;/code&gt; 會保證原子性的方式把文件改名成一個永久的文件名稱。&lt;/p&gt;
-&lt;h3 id=&#34;checkpoint&#34;&gt;checkpoint
+&lt;h3 id=&#34;checkpoint&#34;&gt;&lt;a href=&#34;#checkpoint&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;checkpoint
 &lt;/h3&gt;&lt;p&gt;每個 &lt;code&gt;application&lt;/code&gt; 都會週期性的維護一個 &lt;code&gt;checkpoint&lt;/code&gt; 訊息，該訊息紀錄每次成功寫入後的位置同時也是 &lt;code&gt;Defined&lt;/code&gt; 狀態的結束位置，每次 &lt;code&gt;append&lt;/code&gt; 的操作都會更新這個訊息，&lt;code&gt;writer&lt;/code&gt; 如果遇到什麼突發狀況中止了，下次也可以從 &lt;code&gt;checkpoint&lt;/code&gt; 開始繼續寫入，&lt;code&gt;reader&lt;/code&gt; 讀取資料也會把 &lt;code&gt;checkpoint&lt;/code&gt; 當作結束位置。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;checkpoint&lt;/code&gt; 也會同時紀錄 &lt;code&gt;checksums&lt;/code&gt; 來確保每個段落的正確性。&lt;code&gt;checkpoint&lt;/code&gt; 的設計可以使得 &lt;code&gt;writer&lt;/code&gt; 一段一段的寫入資料，讓 &lt;code&gt;reader&lt;/code&gt; 可以從還沒有寫入完成的文件中讀取資料。&lt;/p&gt;
-&lt;h3 id=&#34;concurrently-append&#34;&gt;concurrently append
+&lt;h3 id=&#34;concurrently-append&#34;&gt;&lt;a href=&#34;#concurrently-append&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;concurrently append
 &lt;/h3&gt;&lt;p&gt;在另外一個常見的使用場景，通常會有很多 &lt;code&gt;writer&lt;/code&gt; 同時對同一個檔案做修改，通常是在合併結果或者是用於 &lt;code&gt;生產者–消費者模型&lt;/code&gt;。&lt;code&gt;Record append&lt;/code&gt; 的 &lt;code&gt;append-at-least-once&lt;/code&gt; 特性保證了每個 &lt;code&gt;writer&lt;/code&gt; 的輸出。&lt;/p&gt;
 &lt;p&gt;在前面的&lt;a class=&#34;link&#34; href=&#34;#Consistency-Model-%e4%b8%80%e8%87%b4%e6%80%a7%e6%a8%a1%e5%9e%8b&#34; &gt;說明&lt;/a&gt;中有簡單提到過 &lt;code&gt;GFS&lt;/code&gt; 可能會在文件中寫入 &lt;code&gt;padding(填充)&lt;/code&gt; 或者&lt;code&gt;duplicates(重複的資料)&lt;/code&gt;。&lt;code&gt;checkpoint&lt;/code&gt; 也可以讓 &lt;code&gt;reader&lt;/code&gt; 有效的處理上述的問題，盡可能得去避免讀到錯誤的資料。&lt;code&gt;writer&lt;/code&gt; 在每次 &lt;code&gt;checkpoint&lt;/code&gt; 的時候都會加入 &lt;code&gt;checksum&lt;/code&gt; 來驗證上面段落的有效性，&lt;code&gt;reader&lt;/code&gt; 可以藉由 &lt;code&gt;checksum&lt;/code&gt; 來辨識 &lt;code&gt;padding&lt;/code&gt; 或者 &lt;code&gt;duplicates&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;在 paper 中也有簡單說明如果 &lt;code&gt;application&lt;/code&gt; 某些應用場景無法忍受偶發的重複資料，可以在 &lt;code&gt;checkpoint&lt;/code&gt; 的地方加入一個 &lt;code&gt;unique identifiers&lt;/code&gt;，讀入資料的時候可以藉由 ID 來避免重複資料。&lt;/p&gt;
-&lt;h2 id=&#34;system-interactions&#34;&gt;System interactions
-&lt;/h2&gt;&lt;h3 id=&#34;lease租約&#34;&gt;Lease(租約)
+&lt;h2 id=&#34;system-interactions&#34;&gt;&lt;a href=&#34;#system-interactions&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;System interactions
+&lt;/h2&gt;&lt;h3 id=&#34;lease租約&#34;&gt;&lt;a href=&#34;#lease%e7%a7%9f%e7%b4%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Lease(租約)
 &lt;/h3&gt;&lt;p&gt;因為我們每份 &lt;code&gt;chunk&lt;/code&gt; 都會備份在不同的 &lt;code&gt;chunk server&lt;/code&gt; 內，所以需要有一個機制在修改完 &lt;code&gt;chunk&lt;/code&gt; 之後讓所有複製的 &lt;code&gt;chunk&lt;/code&gt; 都相同的內容。&lt;code&gt;GFS&lt;/code&gt; 中使用 &lt;code&gt;leases&lt;/code&gt; 去處理多個 &lt;code&gt;chunk&lt;/code&gt; 在經過修改之後的一致性問題。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.itread01.com/content/1546962067.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Google File System及其繼任者Colossus

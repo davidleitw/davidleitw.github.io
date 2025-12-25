@@ -6,13 +6,15 @@
 
 <link rel='canonical' href='https://davidleitw.github.io/p/linux-waitqueue-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Linux waitqueue 原始碼解讀">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="Linux waitqueue 原始碼解讀">
 <meta property='og:description' content=" 本文章環境基於 Linux v4.14.259\n概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。\n">
 <meta property='og:url' content='https://davidleitw.github.io/p/linux-waitqueue-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux_kernel' /><meta property='article:tag' content='system_call' /><meta property='article:tag' content='wait_queue' /><meta property='article:published_time' content='2022-01-08T03:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-01-08T03:12:53&#43;08:00'/>
 <meta name="twitter:title" content="Linux waitqueue 原始碼解讀">
 <meta name="twitter:description" content=" 本文章環境基於 Linux v4.14.259\n概述 waitqueue 如同其名，是 kernel 中管理一些在等待資源的 task 的資料結構，在 task 還沒辦法獲得資源時，會先將其放入 waitqueue 等待特定條件或者資源準備就緒才會把該 task 喚醒。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -292,20 +338,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 10 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -320,7 +352,7 @@
     <blockquote>
 <p>本文章環境基於 Linux v4.14.259</p>
 </blockquote>
-<h2 id="概述">概述
+<h2 id="概述"><a href="#%e6%a6%82%e8%bf%b0" class="header-anchor"></a>概述
 </h2><p><code>waitqueue</code> 如同其名，是 <code>kernel</code> 中管理一些在<strong>等待資源</strong>的 <code>task</code> 的資料結構，在 <code>task</code> 還沒辦法獲得資源時，會先將其放入 <code>waitqueue</code> 等待特定條件或者資源準備就緒才會把該 <code>task</code> 喚醒。</p>
 <p><code>waitqueue</code> 有定義兩種資料結構</p>
 <ul>
@@ -336,7 +368,7 @@
 	
 	
 ></p>
-<h2 id="wait_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L34"  target="_blank" rel="noopener"
+<h2 id="wait_"><a href="#wait_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L34"  target="_blank" rel="noopener"
     >wait_queue_head_t</a>
 </h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -354,7 +386,7 @@
 </span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">wait_queue_head</span> <span class="kt">wait_queue_head_t</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="初始化-waitqueue">初始化 <code>waitqueue</code>
+</div><h3 id="初始化-waitqueue"><a href="#%e5%88%9d%e5%a7%8b%e5%8c%96-waitqueue" class="header-anchor"></a>初始化 <code>waitqueue</code>
 </h3><p>要建立新的 <code>waitqueue</code>，必須要先初始化 <code>wait_queue_head_t</code> 結構，透過 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L63"  target="_blank" rel="noopener"
     >init_waitqueue_head</a>，定義如下</p>
 <div class="highlight"><div class="chroma">
@@ -437,7 +469,7 @@
 </span></span><span class="line"><span class="cl"><span class="nf">init_waitqueue_head</span><span class="p">(</span><span class="o">&amp;</span><span class="n">wq_head</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="wait_-1"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L27"  target="_blank" rel="noopener"
+</div><h2 id="wait_-1"><a href="#wait_-1" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L27"  target="_blank" rel="noopener"
     >wait_queue_entry</a>
 </h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -465,9 +497,9 @@
 </div>
 </div><p>一般來說喚醒函數是由排程器實現，所以如果沒有特殊需求，預設的喚醒函數是 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989"  target="_blank" rel="noopener"
     >kernel/sched/core.c 中的 try_to_wake_up</a>，<code>try_to_wake_up</code> 在後續會有詳細的介紹。</p>
-<h3 id="新增-wait_queue_entry">新增 wait_queue_entry
+<h3 id="新增-wait_queue_entry"><a href="#%e6%96%b0%e5%a2%9e-wait_queue_entry" class="header-anchor"></a>新增 wait_queue_entry
 </h3><p><code>task_struct</code> 會封裝在 <code>wait_queue_entry</code> 的 <code>private</code> 成員內，所以在新增等待事件之前，需要先把 <code>task_struct</code> 包裝成 <code>wait_queue_entry</code> 的形式，可以通過 <code>DECLARE_WAITQUEUE</code> 這個 <code>macro</code> 來包裝，在建立的過程會把喚醒函數設為 <code>default_wake_function</code>，對於喚醒函數後面會有更詳細的說明。</p>
-<h3 id="declare_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51"  target="_blank" rel="noopener"
+<h3 id="declare_"><a href="#declare_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51"  target="_blank" rel="noopener"
     >DECLARE_WAITQUEUE</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -490,7 +522,7 @@
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>把 <code>task</code> 封裝成 <code>wait_queue_entry</code> 之後還需要添加到 <code>waitqueue</code> 當中，可以透過 <code>add_wait_queue</code> 來實現，定義如下:</p>
-<h3 id="add_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25"  target="_blank" rel="noopener"
+<h3 id="add_"><a href="#add_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25"  target="_blank" rel="noopener"
     >add_wait_queue</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -535,7 +567,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>移除 <code>wait_queue_entry</code> 則是會呼叫 <code>remove_wait_queue</code>，具體實現如下:</p>
-<h3 id="remove_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47"  target="_blank" rel="noopener"
+<h3 id="remove_"><a href="#remove_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47"  target="_blank" rel="noopener"
     >remove_wait_queue</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -561,8 +593,8 @@
 </span></span><span class="line"><span class="cl"><span class="nf">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">remove_wait_queue</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="休眠">休眠
-</h2><h3 id="wait_-2"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L310"  target="_blank" rel="noopener"
+</div><h2 id="休眠"><a href="#%e4%bc%91%e7%9c%a0" class="header-anchor"></a>休眠
+</h2><h3 id="wait_-2"><a href="#wait_-2" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L310"  target="_blank" rel="noopener"
     >wait_event</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -711,7 +743,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>prepare_to_wait_event</code> 是會檢查 <code>wait</code> 事件是不是有放到 <code>waitqueue</code> 中避免無法喚醒，本文章是閱讀 <code>Linux v4.14.259</code> 版本，但是看到後面的版本對於 <code>prepare_to_wait_event</code> 好像有稍微修改，有興趣可以去研究一下修改了什麼地方。</p>
-<h3 id="prepare_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273"  target="_blank" rel="noopener"
+<h3 id="prepare_"><a href="#prepare_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273"  target="_blank" rel="noopener"
     >prepare_to_wait_event</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -790,9 +822,9 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>所以總結 <code>wait_event</code> 就是可以讓 <code>task</code> 進入睡眠狀態直到 <code>condition</code> 為 <code>true</code>，在過程中狀態為 <strong>TASK_UNINTERRUPTIBLE</strong>。</p>
-<h2 id="喚醒函數">喚醒函數
+<h2 id="喚醒函數"><a href="#%e5%96%9a%e9%86%92%e5%87%bd%e6%95%b8" class="header-anchor"></a>喚醒函數
 </h2><p>在前面介紹 <code>DECLARE_WAITQUEUE</code> 的時候有講到一個 <code>task</code> 包裝成 <code>wait_queue_entry</code> 時會一併設置喚醒函數為 <code>default_wake_function</code>，用於喚醒一個正在睡眠的 <code>task</code>。</p>
-<h3 id="default_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622"  target="_blank" rel="noopener"
+<h3 id="default_"><a href="#default_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622"  target="_blank" rel="noopener"
     >default_wake_function</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -813,7 +845,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>看完定義之後會發現 <code>default_wake_function</code> 會呼叫 <code>try_to_wake_up</code>，繼續往下 <code>trace</code></p>
-<h3 id="try_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972"  target="_blank" rel="noopener"
+<h3 id="try_"><a href="#try_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972"  target="_blank" rel="noopener"
     >try_to_wake_up</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1086,7 +1118,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>這段程式碼中我們聚焦在 <code>ttwu_queue</code>, <code>ttwu_stat</code> 中，中間有很大一段在處理 <code>SMP</code> 的機制，不是本文探討的重點，先介紹一下 <code>ttmu</code>，在 <code>kernel/sched/core.c</code> 中有很多 <code>ttmu</code> 開頭的 <code>function</code>，到這邊才理解到其實是 <code>try to wake up</code> 的縮寫。</p>
-<h3 id="ttwu_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862"  target="_blank" rel="noopener"
+<h3 id="ttwu_"><a href="#ttwu_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862"  target="_blank" rel="noopener"
     >ttwu_queue</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1135,7 +1167,7 @@
 <p><a class="link" href="http://oliveryang.net/2016/03/linux-scheduler-2/#22-wakeup-preemption"  target="_blank" rel="noopener"
     >reference</a></p>
 </blockquote>
-<h3 id="ttwu_-1"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714"  target="_blank" rel="noopener"
+<h3 id="ttwu_-1"><a href="#ttwu_-1" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714"  target="_blank" rel="noopener"
     >ttwu_do_activate</a>
 </h3><p>為了節省空間，底下的 <code>code</code> 把 <code>ttwu_do_activate</code> 呼叫的 <code>function</code> 實現也放在一起。</p>
 <div class="highlight"><div class="chroma">
@@ -1275,7 +1307,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>try_to_wake_up</code> 可以理解成最後會將 <code>task</code> 的 <code>state</code> 由 <code>TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE</code> 改成 <code>TASK_RUNNING</code>，並將其加入 <code>rq</code> 中等待排程器選擇。</p>
-<h2 id="get-the-number-of-entering-a-wait-queue">get the number of entering a wait queue
+<h2 id="get-the-number-of-entering-a-wait-queue"><a href="#get-the-number-of-entering-a-wait-queue" class="header-anchor"></a>get the number of entering a wait queue
 </h2><p><del>扯遠了</del>，回到這次作業題目(二)的需求，要寫一個 <code>system call</code> 來獲得 <code>task_struct</code> 進入 <code>wait queue</code> 的次數，先在 <code>task_struct</code> 中加入 <code>wq_cnt</code> 變數</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1394,7 +1426,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="system-call-definition">system call definition
+</div><h3 id="system-call-definition"><a href="#system-call-definition" class="header-anchor"></a>system call definition
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -1437,7 +1469,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="user-space">user space
+</div><h3 id="user-space"><a href="#user-space" class="header-anchor"></a>user space
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -1542,7 +1574,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="驗證">驗證
+</div><h3 id="驗證"><a href="#%e9%a9%97%e8%ad%89" class="header-anchor"></a>驗證
 </h3><p>利用 <code>/proc/{pid}/sched</code> 中的 <code>se_statistics.nr_wakeups</code> 來比對結果，如下圖所示</p>
 <p><img src="https://i.imgur.com/FAvy2t5.png"
 	
@@ -1553,7 +1585,7 @@
 	
 ></p>
 <p><code>nr_wakeups</code> 這個值是在 <code>ttwu_stat</code> 這個 <code>function</code> 去更新的，在 <code>try_to_wake_up</code> 的後面會呼叫 <code>ttwu_stat</code> 來更新相關的資料，<del>所以其實題目二也不用另外加 counter</del>，具體實現如下</p>
-<h3 id="ttwu_-2"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630"  target="_blank" rel="noopener"
+<h3 id="ttwu_-2"><a href="#ttwu_-2" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630"  target="_blank" rel="noopener"
     >ttwu_stat</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -1824,7 +1856,7 @@
 <pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo sysctl kernel.sched_schedstats<span class="o">=</span><span class="m">1</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="reference">reference
+</div><h3 id="reference"><a href="#reference" class="header-anchor"></a>reference
 </h3><ul>
 <li><a class="link" href="https://vflong.github.io/sre/linux/2020/03/12/linux-load-averages.html"  target="_blank" rel="noopener"
     >【译文】Linux 平均负载：解决这个奥秘</a></li>
@@ -1854,18 +1886,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 

@@ -6,13 +6,15 @@
 
 <link rel='canonical' href='https://davidleitw.github.io/p/sudo-go-command-not-found-%E5%95%8F%E9%A1%8C%E8%A7%A3%E6%B1%BA/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="sudo go: command not found 問題解決">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="sudo go: command not found 問題解決">
 <meta property='og:description' content="這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(然後每次都忘記解決方式跑去google)，所以在這邊紀錄一下解決方式\n/etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行\n">
 <meta property='og:url' content='https://davidleitw.github.io/p/sudo-go-command-not-found-%E5%95%8F%E9%A1%8C%E8%A7%A3%E6%B1%BA/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='shell' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='go' /><meta property='article:published_time' content='2022-04-09T00:01:01&#43;08:00'/><meta property='article:modified_time' content='2022-04-09T00:01:01&#43;08:00'/>
 <meta name="twitter:title" content="sudo go: command not found 問題解決">
 <meta name="twitter:description" content="這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(然後每次都忘記解決方式跑去google)，所以在這邊紀錄一下解決方式\n/etc/sudoers 在用 sudo 下指令時，系統會從 /etc/sudoers 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 /usr/local/go/bin 放到 /etc/sudoers 裡面，讓系統知道 go 指令要去哪執行\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -256,20 +302,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 1 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -282,7 +314,7 @@
     
     
     <p>這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(<del>然後每次都忘記解決方式跑去google</del>)，所以在這邊紀錄一下解決方式</p>
-<h2 id="etcsudoers">/etc/sudoers
+<h2 id="etcsudoers"><a href="#etcsudoers" class="header-anchor"></a>/etc/sudoers
 </h2><p>在用 <code>sudo</code> 下指令時，系統會從 <code>/etc/sudoers</code> 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 <code>/usr/local/go/bin</code> 放到 <code>/etc/sudoers</code> 裡面，讓系統知道 go 指令要去哪執行</p>
 <p><code>/etc/sudoers</code> 裡面有個 secure_path，把 <code>usr/local/go/bin</code> 加到那個字串即可.</p>
 <p><img src="https://i.imgur.com/k4QKhFj.png"
@@ -310,18 +342,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 

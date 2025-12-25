@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。\n">
 <title>golang 定時器(一) Time, Ticker 基本用法整理</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/'>
+<link rel='canonical' href='http://localhost:44973/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="golang 定時器(一) Time, Ticker 基本用法整理">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="golang 定時器(一) Time, Ticker 基本用法整理">
 <meta property='og:description' content="在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/'>
+<meta property='og:url' content='http://localhost:44973/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='go' /><meta property='article:tag' content='timer' /><meta property='article:published_time' content='2021-12-24T01:04:53&#43;08:00'/><meta property='article:modified_time' content='2021-12-24T01:04:53&#43;08:00'/>
 <meta name="twitter:title" content="golang 定時器(一) Time, Ticker 基本用法整理">
 <meta name="twitter:description" content="在後端中常常會有需要定時的場景出現，像是如果處理 request 超過一定時間就觸發 timeout，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 golang 內建的定時器功能，以及可能會遇到的坑。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -265,20 +311,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 4 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -300,7 +332,7 @@
 <pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="s">&#34;time&#34;</span><span class="w">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="單次定時事件---timer">單次定時事件 - Timer
+</div><h3 id="單次定時事件---timer"><a href="#%e5%96%ae%e6%ac%a1%e5%ae%9a%e6%99%82%e4%ba%8b%e4%bb%b6---timer" class="header-anchor"></a>單次定時事件 - Timer
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -379,7 +411,7 @@
 	
 	
 ></p>
-<h3 id="newtimer">NewTimer
+<h3 id="newtimer"><a href="#newtimer" class="header-anchor"></a>NewTimer
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -417,7 +449,7 @@
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>NewTimer</code> 的 <code>d</code> 參數代 <code>Timer</code> 需要等待多長時間，<code>Timer.C</code> 是一個帶有 <code>buffer</code> 的 <code>channel</code>，在上面的範例中，<code>&lt;-timer.C</code> 那行會把程式阻塞直到 <code>Timer</code> 往 <code>Timer.C</code> 裡面傳送時間(當時倒數完的結果)，阻塞解除後才可以繼續往下執行，達到延遲執行，或者定時觸發的目的。</p>
-<h3 id="循環執行的定時任務---ticker">循環執行的定時任務 - Ticker
+<h3 id="循環執行的定時任務---ticker"><a href="#%e5%be%aa%e7%92%b0%e5%9f%b7%e8%a1%8c%e7%9a%84%e5%ae%9a%e6%99%82%e4%bb%bb%e5%8b%99---ticker" class="header-anchor"></a>循環執行的定時任務 - Ticker
 </h3><p>對於有持續執行的定時任務，可以使用 <code>time.Sleep</code> 或者 <code>time.Ticker</code> 兩種方式來實現。</p>
 <p>用 <code>time.Sleep</code> 方式實現</p>
 <div class="highlight"><div class="chroma">
@@ -546,7 +578,7 @@
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>利用 <code>defer</code> 的機制讓退出時自動呼叫 <code>Stop</code></p>
-<h3 id="ticker-的一些注意事項">Ticker 的一些注意事項
+<h3 id="ticker-的一些注意事項"><a href="#ticker-%e7%9a%84%e4%b8%80%e4%ba%9b%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a0%85" class="header-anchor"></a>Ticker 的一些注意事項
 </h3><p>以下是 <code>NewTicker</code> 與 <code>Stop</code> 的具體實現，位置在 <code>src/time/tick.go</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -773,9 +805,9 @@
 	
 ></p>
 <p>這次我們利用 <code>defer</code> 的機制，在 <code>goroutine</code> 內部呼叫 <code>Stop</code> 的方式，可以看到這種寫法在相較用 <code>for range</code> 來說，彈性高出很多，而且在調用 <code>Tocker.Stop</code> 時並不會 <code>close</code> 該 <code>channel</code>，用 <code>for range</code> 的寫法會造成一個無限迴圈卡在那裡，<code>golang</code> 中只要沒有 <code>goroutine</code> 持有該 <code>channel</code>，到最後那個 <code>channel</code> 就會被 <code>gc</code>，這就是為什麼不推薦使用 <code>for range</code> 的緣故，一般來說使用 <code>for range</code> 的寫法都要配合 <code>close</code>，但是在 <code>Timer</code> 的情況，無法主動關閉內部的 <code>channel</code>，只好退出 <code>goroutine</code> 讓 <code>gc</code> 回收。</p>
-<h3 id="timer-vs-ticker">Timer vs Ticker
+<h3 id="timer-vs-ticker"><a href="#timer-vs-ticker" class="header-anchor"></a>Timer vs Ticker
 </h3><p>以用法來說，<code>Timer</code> 就是在 <code>timeout</code> 之後觸發一次，<code>Ticker</code> 則是週期性的觸發定時事件，因為 <code>Ticker</code> 是週期性的，所以如果沒有顯式的呼叫 <code>Stop</code> 就會發生上面提到的 <code>Resource leak</code> 問題，之後會再寫一兩篇文章從 <code>source code</code> 切入，還有 <code>Timer reset</code> 的問題也值得探討。</p>
-<h3 id="reference">reference
+<h3 id="reference"><a href="#reference" class="header-anchor"></a>reference
 </h3><ul>
 <li><a class="link" href="https://blog.csdn.net/yjp19871013/article/details/82048944"  target="_blank" rel="noopener"
     >Golang 如何正確的停止 Ticker</a></li>
@@ -799,18 +831,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -1045,7 +1065,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

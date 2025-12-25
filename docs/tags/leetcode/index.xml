@@ -13,7 +13,7 @@
         <pubDate>Tue, 11 Jan 2022 00:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1022.-sum-of-root-to-leaf-binary-numbers-easy/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://assets.leetcode.com/uploads/2019/04/04/sum-of-root-to-leaf-binary-numbers.png&#34;
 	
 	
@@ -28,7 +28,7 @@
 &lt;p&gt;Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;給一個節點為 0 或者 1 的 &lt;code&gt;binary tree&lt;/code&gt;，回傳從 &lt;code&gt;root&lt;/code&gt; 為起點到各個 &lt;code&gt;leaf&lt;/code&gt; 節點路徑組成二進位數的合。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;利用 &lt;code&gt;DFS&lt;/code&gt; 去尋訪，如果 &lt;code&gt;!root-&amp;gt;left &amp;amp;&amp;amp; !root-&amp;gt;right&lt;/code&gt; 就代表到達 &lt;code&gt;leaf&lt;/code&gt;，直接回傳算出來的值。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -70,14 +70,14 @@
         <pubDate>Tue, 04 Jan 2022 00:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-997.-find-the-town-judge-easy/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;在小鎮中有 &lt;code&gt;N&lt;/code&gt; 個人，其中裡面有一個是 &lt;code&gt;Judge&lt;/code&gt;，成為 &lt;code&gt;Judge&lt;/code&gt; 要滿足兩個條件&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;Judge&lt;/code&gt; 本身不相信任何人&lt;/li&gt;
 &lt;li&gt;其他 &lt;code&gt;N-1&lt;/code&gt; 個人都相信 &lt;code&gt;Judge&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 &lt;code&gt;N&lt;/code&gt; 的 &lt;code&gt;array&lt;/code&gt; 來紀錄，如果 &lt;code&gt;A 信任 B&lt;/code&gt; 那就 &lt;code&gt;array[B]++, array[A]--&lt;/code&gt;，如果 &lt;code&gt;Judge&lt;/code&gt; 存在，它就會有 &lt;code&gt;N-1&lt;/code&gt; 票，如果在其中支持的任一個人，在支持的過程就會 &lt;code&gt;-1&lt;/code&gt; 票，喪失成為法官的條件。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -128,9 +128,9 @@
         <pubDate>Sun, 02 Jan 2022 01:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1010.-pairs-of-songs-with-total-durations-divisible-by-60-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;在一個陣列中找出兩兩相加是 &lt;code&gt;60&lt;/code&gt; 的倍數的組合數。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;這個題目如果純粹的硬是把所有的組合都加過一次，一定會 &lt;code&gt;time out&lt;/code&gt;，所以基本上要從 &lt;code&gt;O(n)&lt;/code&gt; 的作法去嘗試。&lt;/p&gt;
 &lt;p&gt;假設 &lt;code&gt;x = 57&lt;/code&gt;，那相加 &lt;code&gt;3, 63 ...&lt;/code&gt; 都可以湊到 &lt;code&gt;60&lt;/code&gt; 的倍數，所以我們只要用一個大小 &lt;code&gt;60&lt;/code&gt; 的 &lt;code&gt;array&lt;/code&gt; 來存 &lt;code&gt;time[i] % 60&lt;/code&gt; 的結果就好了，今天 &lt;code&gt;x = 57&lt;/code&gt; 的情況我們只要去 &lt;code&gt;array&lt;/code&gt; 中查找 &lt;code&gt;array[60 - 57 % 60] = array[3]&lt;/code&gt; 就可以獲得在此之前所有曾經出現過可以跟 &lt;code&gt;57&lt;/code&gt; 湊成 &lt;code&gt;60&lt;/code&gt; 倍數的資料了。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -179,7 +179,7 @@
         <pubDate>Sat, 01 Jan 2022 01:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1026.-maximum-difference-between-node-and-ancestor-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給一棵二元樹，回傳某個節點與其祖先節點的最大的差(絕對值)。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/67j1exj.png&#34;
 	
@@ -189,8 +189,8 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
-&lt;/h2&gt;&lt;h3 id=&#34;dfs&#34;&gt;DFS
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
+&lt;/h2&gt;&lt;h3 id=&#34;dfs&#34;&gt;&lt;a href=&#34;#dfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;DFS
 &lt;/h3&gt;&lt;p&gt;用 &lt;code&gt;DFS&lt;/code&gt; 尋訪每個節點，並且順便紀錄到這個節點之前的 &lt;code&gt;max, min value&lt;/code&gt;，這樣子最大的差就是 &lt;code&gt;max - min&lt;/code&gt;。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -244,7 +244,7 @@
         <pubDate>Wed, 29 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-116.-populating-next-right-pointers-in-each-node-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給定一個 &lt;code&gt;perfect binary tree&lt;/code&gt;，定義 &lt;code&gt;next&lt;/code&gt; 指標，&lt;code&gt;root-&amp;gt;next&lt;/code&gt; 為空，每個節點的 &lt;code&gt;left child&lt;/code&gt; 的 &lt;code&gt;next&lt;/code&gt; 為 &lt;code&gt;right child&lt;/code&gt;。每個節點 &lt;code&gt;right child&lt;/code&gt; 的 &lt;code&gt;next&lt;/code&gt; 為該節點 &lt;code&gt;next&lt;/code&gt; 的 &lt;code&gt;left child&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;del&gt;用中文有點難表達，直接看圖吧。&lt;/del&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://assets.leetcode.com/uploads/2019/02/14/116_sample.png&#34;
@@ -255,9 +255,9 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;解題流程&#34;&gt;解題流程
+&lt;h2 id=&#34;解題流程&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題流程
 &lt;/h2&gt;&lt;p&gt;這題跟很多 &lt;code&gt;tree&lt;/code&gt; 的題目一樣，可以用 &lt;code&gt;BFS&lt;/code&gt; 或者 &lt;code&gt;DFS&lt;/code&gt; 兩種方式去實現。&lt;/p&gt;
-&lt;h3 id=&#34;bfs&#34;&gt;BFS
+&lt;h3 id=&#34;bfs&#34;&gt;&lt;a href=&#34;#bfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;BFS
 &lt;/h3&gt;&lt;p&gt;用 &lt;code&gt;BFS&lt;/code&gt; 的解法，就是在每個 &lt;code&gt;level&lt;/code&gt; 找到最左邊的 &lt;code&gt;Node&lt;/code&gt; 當作開頭，往右開始每個節點都用 &lt;code&gt;next&lt;/code&gt; 指標連結。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -325,7 +325,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;dfs&#34;&gt;DFS
+&lt;/div&gt;&lt;h3 id=&#34;dfs&#34;&gt;&lt;a href=&#34;#dfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;DFS
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;DFS&lt;/code&gt; 的方式是走訪每個節點，如果該節點有 &lt;code&gt;left child&lt;/code&gt;，就把 &lt;code&gt;left child-&amp;gt;next&lt;/code&gt; 指向 &lt;code&gt;right child&lt;/code&gt;。如果有 &lt;code&gt;right child&lt;/code&gt; 就指向 &lt;code&gt;next child-&amp;gt;left&lt;/code&gt;，詳情可以參考程式碼，因為題目的條件式 &lt;code&gt;perfect binary tree&lt;/code&gt;，所以如果 &lt;code&gt;left child&lt;/code&gt; 存在就不需要再確認 &lt;code&gt;right child&lt;/code&gt; 是不是 &lt;code&gt;nullptr&lt;/code&gt;  了。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -391,10 +391,10 @@
         <pubDate>Tue, 28 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-876.-middle-of-the-linked-list-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;獲得 &lt;code&gt;linked list&lt;/code&gt; 的 &lt;code&gt;middle&lt;/code&gt; 節點。&lt;/p&gt;
 &lt;p&gt;經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 &lt;code&gt;head&lt;/code&gt; 來當 &lt;code&gt;slow&lt;/code&gt; 指標。&lt;/p&gt;
-&lt;h2 id=&#34;解題流程&#34;&gt;解題流程
+&lt;h2 id=&#34;解題流程&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題流程
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -433,9 +433,9 @@
         <pubDate>Mon, 27 Dec 2021 01:05:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-476.-number-complement-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;對一個整數的有效位元做位元轉換(&lt;code&gt;ones&#39; complement&lt;/code&gt;)，像是 &lt;code&gt;5 = 101&lt;/code&gt;，經過轉換之後結果 &lt;code&gt;2 = 010&lt;/code&gt;，前面沒有用到的 &lt;code&gt;bit&lt;/code&gt; 則是不做任何操作。&lt;/p&gt;
-&lt;h2 id=&#34;思路&#34;&gt;思路
+&lt;h2 id=&#34;思路&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%b7%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思路
 &lt;/h2&gt;&lt;p&gt;這題算是 &lt;code&gt;Bit Manipulation&lt;/code&gt; 的入門題目，很適合練習 &lt;code&gt;bit&lt;/code&gt; 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。&lt;/p&gt;
 &lt;p&gt;因為這題的範圍限制 &lt;code&gt;1 &amp;lt;= num &amp;lt; 2^31&lt;/code&gt;，所以可確保第一個 &lt;code&gt;bit&lt;/code&gt; 為&lt;code&gt;0&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/rWUxr5v.png&#34;
@@ -446,7 +446,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;找第一個有效位元&#34;&gt;找第一個有效位元
+&lt;h3 id=&#34;找第一個有效位元&#34;&gt;&lt;a href=&#34;#%e6%89%be%e7%ac%ac%e4%b8%80%e5%80%8b%e6%9c%89%e6%95%88%e4%bd%8d%e5%85%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;找第一個有效位元
 &lt;/h3&gt;&lt;p&gt;我的想法是先從左邊第一個 &lt;code&gt;bit&lt;/code&gt; 開始找，找到第一個 &lt;code&gt;1&lt;/code&gt; ，後面所有的 &lt;code&gt;bit&lt;/code&gt; 就都是有效位數，再一一反轉。&lt;/p&gt;
 &lt;p&gt;要判斷左邊第一個位元是不是 &lt;code&gt;1&lt;/code&gt; 可以寫成&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -462,7 +462,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;可以利用這個方式先找到第一個 &lt;code&gt;1&lt;/code&gt; 的所在，在對於後面的 &lt;code&gt;bit&lt;/code&gt; 做反轉。&lt;/p&gt;
-&lt;h3 id=&#34;反轉-bits&#34;&gt;反轉 bits
+&lt;h3 id=&#34;反轉-bits&#34;&gt;&lt;a href=&#34;#%e5%8f%8d%e8%bd%89-bits&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;反轉 bits
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;(一): 逐個 &lt;code&gt;bit&lt;/code&gt; 反轉, 利用 &lt;code&gt;XOR&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -541,10 +541,10 @@
         <pubDate>Sun, 26 Dec 2021 01:05:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-198.-house-robber-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;看題目直覺想到是 &lt;code&gt;dp&lt;/code&gt; 的題型，在一維陣列中取 &lt;code&gt;n&lt;/code&gt; 個不相鄰的數字，使其有最大的總和。&lt;/p&gt;
 &lt;p&gt;這題算是基本的 &lt;code&gt;dp&lt;/code&gt; 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -589,7 +589,7 @@
         <pubDate>Sun, 26 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-973.-k-closest-points-to-origin-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給 &lt;code&gt;n&lt;/code&gt; 個座標，返回距離原點最近的 &lt;code&gt;k&lt;/code&gt; 個座標&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/rz0Xzv8.png&#34;
 	
@@ -599,8 +599,8 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
-&lt;/h2&gt;&lt;h3 id=&#34;解法一&#34;&gt;解法一
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
+&lt;/h2&gt;&lt;h3 id=&#34;解法一&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b3%95%e4%b8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解法一
 &lt;/h3&gt;&lt;p&gt;因為要返回的只有座標點，所以其實不需要開根號，直接用 &lt;code&gt;(x^2 + y^2)&lt;/code&gt; 比較即可。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -644,7 +644,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;auto&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ios_base&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sync_with_stdio&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;}();&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;解法二&#34;&gt;解法二
+&lt;/div&gt;&lt;h3 id=&#34;解法二&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b3%95%e4%ba%8c&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解法二
 &lt;/h3&gt;&lt;p&gt;求最近的 &lt;code&gt;k&lt;/code&gt; 個節點，其實可以換個思路，利用 &lt;code&gt;maxHeap&lt;/code&gt; 來實現。&lt;/p&gt;
 &lt;p&gt;每次計算距離之後連同座標 &lt;code&gt;push&lt;/code&gt; 進 &lt;code&gt;maxHeap&lt;/code&gt;，因為要維持前 &lt;code&gt;k&lt;/code&gt; 個，所以如果 &lt;code&gt;maxHeap&lt;/code&gt; 內的元素多餘 &lt;code&gt;k&lt;/code&gt; 個時，就利用 &lt;code&gt;maxHeap&lt;/code&gt; 的特性，把裡面最大的元素 &lt;code&gt;pop&lt;/code&gt; 出來。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -713,7 +713,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;auto&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ios_base&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sync_with_stdio&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;}();&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;解法三-quickselect&#34;&gt;解法三 QuickSelect
+&lt;/div&gt;&lt;h3 id=&#34;解法三-quickselect&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b3%95%e4%b8%89-quickselect&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解法三 QuickSelect
 &lt;/h3&gt;&lt;p&gt;待補，最佳解&lt;/p&gt;
 </description>
         </item>
@@ -723,9 +723,9 @@
         <pubDate>Sat, 25 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-227.-basic-calculator-ii-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;輸入算式的字串，返回解答。運算子只有 &lt;code&gt;+&lt;/code&gt;, &lt;code&gt;-&lt;/code&gt;, &lt;code&gt;*&lt;/code&gt;, &lt;code&gt;/&lt;/code&gt;，這題還沒有出現包含括號的情況。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;這次是直覺的用 &lt;code&gt;stack&lt;/code&gt; 解出來，但是仔細思考過後發覺好像不一定要用 &lt;code&gt;stack&lt;/code&gt;，可以用變數去存資料，之後待補XD&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -859,9 +859,9 @@
         <pubDate>Fri, 24 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-56.-merge-intervals-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;這題的題目本身意思很直觀，給很多 &lt;code&gt;區間&lt;/code&gt;，然後將所有範圍重疊的 &lt;code&gt;區間&lt;/code&gt; 合併。&lt;/p&gt;
-&lt;h2 id=&#34;思考&#34;&gt;思考
+&lt;h2 id=&#34;思考&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%80%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思考
 &lt;/h2&gt;&lt;p&gt;一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 &lt;code&gt;case&lt;/code&gt; 分成三種，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/mp8TRLh.png&#34;
 	
@@ -872,7 +872,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 &lt;code&gt;case B&lt;/code&gt; 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 &lt;code&gt;case&lt;/code&gt;，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 &lt;code&gt;start&lt;/code&gt; 先排過一輪，就不會出線上圖 &lt;code&gt;case B&lt;/code&gt; 的情況了。&lt;/p&gt;
-&lt;h2 id=&#34;解題流程&#34;&gt;解題流程
+&lt;h2 id=&#34;解題流程&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題流程
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -942,9 +942,9 @@
         <pubDate>Thu, 23 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-210.-course-schedule-ii-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給一個 &lt;code&gt;prerequisites&lt;/code&gt;，每個元素 &lt;code&gt;prerequisites[i] = [a, b]&lt;/code&gt;，都代表如果想選 &lt;code&gt;a&lt;/code&gt; 課程，必須先修過 &lt;code&gt;b&lt;/code&gt; 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。&lt;/p&gt;
-&lt;h2 id=&#34;思考&#34;&gt;思考
+&lt;h2 id=&#34;思考&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%80%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思考
 &lt;/h2&gt;&lt;p&gt;什麼情況下會導致無法修過全部的課程? 考慮以下組合為例&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;prerequisites[0] = (1, 0), 修課程 &lt;code&gt;1&lt;/code&gt; 之前必須修過課程 &lt;code&gt;0&lt;/code&gt;&lt;/li&gt;
@@ -962,7 +962,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;所以說這題其實是一題圖論的題目，把修課的條件建立成一個 &lt;code&gt;graph&lt;/code&gt;，然後用 &lt;code&gt;dfs&lt;/code&gt; 去尋訪，如果偵測到 &lt;code&gt;cycle&lt;/code&gt; 代表一定有課程沒辦法修到，回傳空陣列。&lt;/p&gt;
 &lt;p&gt;在 &lt;code&gt;dfs&lt;/code&gt; 的過程中用 &lt;code&gt;status&lt;/code&gt; 來紀錄每個節點的狀態，如果 &lt;code&gt;status[cur] == 1&lt;/code&gt;，代表這個節點是目前尋訪的點，用 &lt;code&gt;status&lt;/code&gt; 來判斷是否有 &lt;code&gt;cycle&lt;/code&gt; 的存在。&lt;/p&gt;
-&lt;h3 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h3 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -1059,14 +1059,14 @@
         <pubDate>Thu, 09 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1306.-jump-game-iii-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。&lt;/p&gt;
 &lt;p&gt;注意你在任意時刻都不能跳出陣列。&lt;/p&gt;
 &lt;p&gt;限制：
 1 ≦ arr.length ≦ 5 × 10 ^ 4
 0 ≦ arr[i] &amp;lt; arr.length
 0 ≦ start &amp;lt; arr.length&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;簡單的 dfs 解決，用一個 &lt;code&gt;vector&amp;lt;bool&amp;gt;&lt;/code&gt; 去紀錄該 &lt;code&gt;index&lt;/code&gt; 是否走過，避免發生無限迴圈的情況，如果 &lt;code&gt;record[index] == true&lt;/code&gt; 代表已經走過，直接返回 &lt;code&gt;false&lt;/code&gt;，記得還要判斷這次 &lt;code&gt;jump&lt;/code&gt; 之後有沒有跳出迴圈的範圍。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1146,10 +1146,10 @@
         <guid>https://davidleitw.github.io/p/leetcode-222.-count-complete-tree-nodes-medium/</guid>
         <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://leetcode.com/problems/count-complete-tree-nodes/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;題目連結&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給予一棵 &lt;em&gt;&lt;code&gt;Complete Binary Tree&lt;/code&gt;&lt;/em&gt;，求節點個數。&lt;/p&gt;
-&lt;h3 id=&#34;complete-binary-tree-定義&#34;&gt;&lt;em&gt;Complete Binary Tree&lt;/em&gt; 定義
-&lt;/h3&gt;&lt;h4 id=&#34;bfs&#34;&gt;&lt;em&gt;BFS&lt;/em&gt;
+&lt;h3 id=&#34;complete-binary-tree-定義&#34;&gt;&lt;a href=&#34;#complete-binary-tree-%e5%ae%9a%e7%be%a9&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;Complete Binary Tree&lt;/em&gt; 定義
+&lt;/h3&gt;&lt;h4 id=&#34;bfs&#34;&gt;&lt;a href=&#34;#bfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;BFS&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;用最直觀的 &lt;code&gt;BFS&lt;/code&gt; 來解，每從 &lt;code&gt;queue&lt;/code&gt; 拿出一個節點，&lt;code&gt;count&lt;/code&gt; 加一。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1203,7 +1203,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;Memory&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;Usage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;31.5&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;MB&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;less&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;than&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;6.88&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;%&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;of&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;C&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;online&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;submissions&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Count&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Complete&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Tree&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Nodes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h4 id=&#34;利用-complete-binary-tree-條件優化&#34;&gt;利用 &lt;em&gt;Complete Binary Tree&lt;/em&gt; 條件優化
+&lt;/div&gt;&lt;h4 id=&#34;利用-complete-binary-tree-條件優化&#34;&gt;&lt;a href=&#34;#%e5%88%a9%e7%94%a8-complete-binary-tree-%e6%a2%9d%e4%bb%b6%e5%84%aa%e5%8c%96&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;利用 &lt;em&gt;Complete Binary Tree&lt;/em&gt; 條件優化
 &lt;/h4&gt;&lt;p&gt;如果樹是 &lt;code&gt;Perfect Binary Tree&lt;/code&gt;，那它一定也會是 &lt;code&gt;Complete Binary Tree&lt;/code&gt;，一開始 &lt;code&gt;lnode&lt;/code&gt; 與 &lt;code&gt;rnode&lt;/code&gt; 分別往左與右遍歷，假設最後 &lt;code&gt;left height&lt;/code&gt; 跟 &lt;code&gt;right height&lt;/code&gt; 相同，就代表這棵樹屬於 &lt;code&gt;Perfect Binary Tree&lt;/code&gt;，代表節點數目會是 $2^h - 1$，&lt;code&gt;h&lt;/code&gt; 為樹高。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;

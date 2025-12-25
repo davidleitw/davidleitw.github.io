@@ -13,12 +13,12 @@
         <pubDate>Tue, 28 Jun 2022 04:16:48 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/linux-file-descriptor-%E7%90%86%E8%A7%A3/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;&lt;strong&gt;file descriptor&lt;/strong&gt; 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 &lt;code&gt;socket&lt;/code&gt; 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 &lt;code&gt;epoll_create&lt;/code&gt; 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。&lt;/p&gt;
 &lt;p&gt;在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。&lt;/p&gt;
 &lt;p&gt;在 &lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/File_descriptor&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;File descriptor&lt;/a&gt; 中可以簡單看一下，究竟在 Linux 中有多少 system call 使用了 File descriptor 的概念，就知道 fd 在 Linux 中的重要性了。&lt;/p&gt;
-&lt;h2 id=&#34;everything-is-a-file&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;everything-is-a-file&#34;&gt;&lt;a href=&#34;#everything-is-a-file&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Everything is a file&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;Linux 秉持著 UNIX 哲學 &lt;strong&gt;Everything is a file&lt;/strong&gt;，這個概念的好處是可以用一組通用的 Interface 來操作不同資源，在資源跟使用者之間加上一層抽象層，進而延伸出 &lt;strong&gt;Universal I/O Model&lt;/strong&gt; 的概念。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Universality of I/O&lt;/strong&gt; 代表可以用相同的 &lt;code&gt;open()&lt;/code&gt;, &lt;code&gt;read()&lt;/code&gt;, &lt;code&gt;write()&lt;/code&gt;, &lt;code&gt;close()&lt;/code&gt; 來操作不同類型的 I/O，後續很多不同的新技術或者機制都是用相同的精神設計，讓一組通用的 API 可以在不同場景有不同的作用。&lt;/p&gt;
@@ -27,7 +27,7 @@
     &gt;Linux 核心設計: 檔案系統&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;因為 &lt;code&gt;open()&lt;/code&gt;, &lt;code&gt;read()&lt;/code&gt;, &lt;code&gt;write()&lt;/code&gt;, &lt;code&gt;close()&lt;/code&gt; 等 system call 以及其他 system call 其實都是用 fd 來控制資源，所以有個說法是 &lt;strong&gt;Everything is a file&lt;/strong&gt; 應該要說成 &lt;strong&gt;Everything is a file descriptor&lt;/strong&gt; 更妥當。&lt;/p&gt;
-&lt;h3 id=&#34;kernel-space--user-space&#34;&gt;Kernel space &amp;amp; User space
+&lt;h3 id=&#34;kernel-space--user-space&#34;&gt;&lt;a href=&#34;#kernel-space--user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Kernel space &amp;amp; User space
 &lt;/h3&gt;&lt;p&gt;為什麼需要 fd 可以先從 kernel space 與 user space 的概念開始思考。&lt;/p&gt;
 &lt;p&gt;寫在 user space 的程式沒辦法直接訪問硬體資源(像是硬碟, 網卡等等)，如果要讀取單個文件，我們會在 user space 呼叫 &lt;code&gt;read()&lt;/code&gt; 來讀取資料時，會先用 system call 的方式跟 kernel 發起資源的請求，在 kernel space 中才會具體跟底層互動，最後才將結果從 kernel space 複製到 user space。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/OrQqXis.png&#34;
@@ -68,7 +68,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;open&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;test.txt&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;O_RDONLY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;默認的-fd&#34;&gt;默認的 fd
+&lt;/div&gt;&lt;h3 id=&#34;默認的-fd&#34;&gt;&lt;a href=&#34;#%e9%bb%98%e8%aa%8d%e7%9a%84-fd&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;默認的 fd
 &lt;/h3&gt;&lt;p&gt;底下看 source code 的時候會了解到每個 process 都會存放自己的 &lt;code&gt;file descriptors table&lt;/code&gt; 來代表該 process 打開或者操作的文件/資源。&lt;/p&gt;
 &lt;p&gt;每個 process 預留了 0, 1, 2 這三個 fd，分別代表 &lt;strong&gt;stdin&lt;/strong&gt;, &lt;strong&gt;stdout&lt;/strong&gt;, &lt;strong&gt;stderr&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/A3azUal.png&#34;
@@ -83,7 +83,7 @@
 &lt;p&gt;詳細參考: &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man3/stdout.3.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;stdin(3) — Linux manual page&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;fd-的範圍&#34;&gt;fd 的範圍
+&lt;h3 id=&#34;fd-的範圍&#34;&gt;&lt;a href=&#34;#fd-%e7%9a%84%e7%af%84%e5%9c%8d&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;fd 的範圍
 &lt;/h3&gt;&lt;p&gt;fd 有基本的範圍限制，可以通過 &lt;code&gt;ulimit&lt;/code&gt; 來查看系統目前的配置&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -97,7 +97,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這個範圍包含著很多學問，詳情可以參考這篇 &lt;a class=&#34;link&#34; href=&#34;https://mp.weixin.qq.com/s/GBn94vdL4xUL80WYrGdUWQ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;刨根问底儿，看我如何处理 Too many open files 错误！&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;file-descriptor-fd&#34;&gt;File descriptor (&lt;code&gt;fd&lt;/code&gt;)
+&lt;h2 id=&#34;file-descriptor-fd&#34;&gt;&lt;a href=&#34;#file-descriptor-fd&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;File descriptor (&lt;code&gt;fd&lt;/code&gt;)
 &lt;/h2&gt;&lt;p&gt;fd 在 kernel 中使用了三種不同的 table 來表示，本文會簡單分析一下底層的 source code。&lt;/p&gt;
 &lt;p&gt;下方為三種 table 的示意圖&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/2KoG0cs.png&#34;
@@ -108,7 +108,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;task_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h#L1076&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;task_&#34;&gt;&lt;a href=&#34;#task_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h#L1076&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;task_struct&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;要理解 fd 的實現就要從 &lt;code&gt;task_struct&lt;/code&gt; 開始看起，我們聚焦在 &lt;code&gt;files&lt;/code&gt; 這個成員。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -131,7 +131,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;files_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L49&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h3 id=&#34;files_&#34;&gt;&lt;a href=&#34;#files_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L49&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;files_struct&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;files_struct&lt;/code&gt; 用來管理/紀錄一個 process 打開的所有文件，這個結構在上方的示意圖的最左方，存放一個 process 的 file descriptors。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -186,7 +186,7 @@
 &lt;li&gt;&lt;code&gt;struct fdtable&lt;/code&gt; 則是動態陣列，在一個 process 開啟文件的數量大於 &lt;strong&gt;NR_OPEN_DEFAULT&lt;/strong&gt; 時啟用&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;大多數 process 只會開啟少數文件，所以只用靜態的 array 即可，開啟大量文件的情況才會用到動態陣列。&lt;/p&gt;
-&lt;h3 id=&#34;fdtable&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;fdtable&#34;&gt;&lt;a href=&#34;#fdtable&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;fdtable&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;fdtable&lt;/code&gt; 是用來管理 &lt;code&gt;fd&lt;/code&gt; 的結構&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -217,7 +217,7 @@
 &lt;/ul&gt;
 &lt;p&gt;關於 &lt;code&gt;fdtable&lt;/code&gt; 的建立，會呼叫 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v5.15/source/fs/file.c#L90&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;alloc_fdtable&lt;/a&gt;，有興趣可以繼續往下看相關的邏輯，也能順便理解什麼情境才會呼叫 &lt;code&gt;alloc_fdtable&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;fd-只是陣列中的索引值&#34;&gt;fd 只是陣列中的索引值
+&lt;h3 id=&#34;fd-只是陣列中的索引值&#34;&gt;&lt;a href=&#34;#fd-%e5%8f%aa%e6%98%af%e9%99%a3%e5%88%97%e4%b8%ad%e7%9a%84%e7%b4%a2%e5%bc%95%e5%80%bc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;fd 只是陣列中的索引值
 &lt;/h3&gt;&lt;p&gt;所以從上面的介紹中可以得知，無論是開啟文件較少時用的 &lt;code&gt;fd_array&lt;/code&gt; 或者動態的 &lt;code&gt;fdtable&lt;/code&gt;，fd 在裡面扮演的角色只是陣列中的&lt;strong&gt;索引&lt;/strong&gt;，最終會指向對應文件的 &lt;code&gt;struct file&lt;/code&gt; 結構。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/bTiyp9S.png&#34;
 	
@@ -230,7 +230,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.qiyacloud.cn/2021/04/2021-04-07/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;來源&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;接著往下 &lt;code&gt;struct file&lt;/code&gt; 還有更深入的 &lt;code&gt;struct inode&lt;/code&gt; 就不在本篇的討論範圍內，避免篇幅過長。 在這篇文章中主要介紹了最外層的 &lt;code&gt;files_struct&lt;/code&gt; 以及知道 fd 的本質就是索引，每個 fd 都可以對應到一個 &lt;code&gt;file&lt;/code&gt; 的結構，更多深入的解析可以在底下 reference 中的連結內繼續往下探索。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://kkc.github.io/2020/08/22/file-descriptor/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Linux 的 file descriptor 筆記&lt;/a&gt;&lt;/li&gt;
@@ -258,7 +258,7 @@
         <description>&lt;blockquote&gt;
 &lt;p&gt;本文章環境基於 Linux v4.14.259&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;概述&#34;&gt;概述
+&lt;h2 id=&#34;概述&#34;&gt;&lt;a href=&#34;#%e6%a6%82%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;概述
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;waitqueue&lt;/code&gt; 如同其名，是 &lt;code&gt;kernel&lt;/code&gt; 中管理一些在&lt;strong&gt;等待資源&lt;/strong&gt;的 &lt;code&gt;task&lt;/code&gt; 的資料結構，在 &lt;code&gt;task&lt;/code&gt; 還沒辦法獲得資源時，會先將其放入 &lt;code&gt;waitqueue&lt;/code&gt; 等待特定條件或者資源準備就緒才會把該 &lt;code&gt;task&lt;/code&gt; 喚醒。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;waitqueue&lt;/code&gt; 有定義兩種資料結構&lt;/p&gt;
 &lt;ul&gt;
@@ -274,7 +274,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;wait_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L34&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;wait_&#34;&gt;&lt;a href=&#34;#wait_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L34&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;wait_queue_head_t&lt;/a&gt;
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -292,7 +292,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wait_queue_head&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;wait_queue_head_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;初始化-waitqueue&#34;&gt;初始化 &lt;code&gt;waitqueue&lt;/code&gt;
+&lt;/div&gt;&lt;h3 id=&#34;初始化-waitqueue&#34;&gt;&lt;a href=&#34;#%e5%88%9d%e5%a7%8b%e5%8c%96-waitqueue&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;初始化 &lt;code&gt;waitqueue&lt;/code&gt;
 &lt;/h3&gt;&lt;p&gt;要建立新的 &lt;code&gt;waitqueue&lt;/code&gt;，必須要先初始化 &lt;code&gt;wait_queue_head_t&lt;/code&gt; 結構，透過 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L63&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;init_waitqueue_head&lt;/a&gt;，定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -375,7 +375,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;init_waitqueue_head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;wq_head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;wait_-1&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h2 id=&#34;wait_-1&#34;&gt;&lt;a href=&#34;#wait_-1&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;wait_queue_entry&lt;/a&gt;
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -403,9 +403,9 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;一般來說喚醒函數是由排程器實現，所以如果沒有特殊需求，預設的喚醒函數是 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;kernel/sched/core.c 中的 try_to_wake_up&lt;/a&gt;，&lt;code&gt;try_to_wake_up&lt;/code&gt; 在後續會有詳細的介紹。&lt;/p&gt;
-&lt;h3 id=&#34;新增-wait_queue_entry&#34;&gt;新增 wait_queue_entry
+&lt;h3 id=&#34;新增-wait_queue_entry&#34;&gt;&lt;a href=&#34;#%e6%96%b0%e5%a2%9e-wait_queue_entry&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;新增 wait_queue_entry
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;task_struct&lt;/code&gt; 會封裝在 &lt;code&gt;wait_queue_entry&lt;/code&gt; 的 &lt;code&gt;private&lt;/code&gt; 成員內，所以在新增等待事件之前，需要先把 &lt;code&gt;task_struct&lt;/code&gt; 包裝成 &lt;code&gt;wait_queue_entry&lt;/code&gt; 的形式，可以通過 &lt;code&gt;DECLARE_WAITQUEUE&lt;/code&gt; 這個 &lt;code&gt;macro&lt;/code&gt; 來包裝，在建立的過程會把喚醒函數設為 &lt;code&gt;default_wake_function&lt;/code&gt;，對於喚醒函數後面會有更詳細的說明。&lt;/p&gt;
-&lt;h3 id=&#34;declare_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;declare_&#34;&gt;&lt;a href=&#34;#declare_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;DECLARE_WAITQUEUE&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -428,7 +428,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;把 &lt;code&gt;task&lt;/code&gt; 封裝成 &lt;code&gt;wait_queue_entry&lt;/code&gt; 之後還需要添加到 &lt;code&gt;waitqueue&lt;/code&gt; 當中，可以透過 &lt;code&gt;add_wait_queue&lt;/code&gt; 來實現，定義如下:&lt;/p&gt;
-&lt;h3 id=&#34;add_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;add_&#34;&gt;&lt;a href=&#34;#add_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;add_wait_queue&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -473,7 +473,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;移除 &lt;code&gt;wait_queue_entry&lt;/code&gt; 則是會呼叫 &lt;code&gt;remove_wait_queue&lt;/code&gt;，具體實現如下:&lt;/p&gt;
-&lt;h3 id=&#34;remove_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;remove_&#34;&gt;&lt;a href=&#34;#remove_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;remove_wait_queue&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -499,8 +499,8 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;EXPORT_SYMBOL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;remove_wait_queue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;休眠&#34;&gt;休眠
-&lt;/h2&gt;&lt;h3 id=&#34;wait_-2&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L310&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h2 id=&#34;休眠&#34;&gt;&lt;a href=&#34;#%e4%bc%91%e7%9c%a0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;休眠
+&lt;/h2&gt;&lt;h3 id=&#34;wait_-2&#34;&gt;&lt;a href=&#34;#wait_-2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L310&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;wait_event&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -649,7 +649,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;prepare_to_wait_event&lt;/code&gt; 是會檢查 &lt;code&gt;wait&lt;/code&gt; 事件是不是有放到 &lt;code&gt;waitqueue&lt;/code&gt; 中避免無法喚醒，本文章是閱讀 &lt;code&gt;Linux v4.14.259&lt;/code&gt; 版本，但是看到後面的版本對於 &lt;code&gt;prepare_to_wait_event&lt;/code&gt; 好像有稍微修改，有興趣可以去研究一下修改了什麼地方。&lt;/p&gt;
-&lt;h3 id=&#34;prepare_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;prepare_&#34;&gt;&lt;a href=&#34;#prepare_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;prepare_to_wait_event&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -728,9 +728,9 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;所以總結 &lt;code&gt;wait_event&lt;/code&gt; 就是可以讓 &lt;code&gt;task&lt;/code&gt; 進入睡眠狀態直到 &lt;code&gt;condition&lt;/code&gt; 為 &lt;code&gt;true&lt;/code&gt;，在過程中狀態為 &lt;strong&gt;TASK_UNINTERRUPTIBLE&lt;/strong&gt;。&lt;/p&gt;
-&lt;h2 id=&#34;喚醒函數&#34;&gt;喚醒函數
+&lt;h2 id=&#34;喚醒函數&#34;&gt;&lt;a href=&#34;#%e5%96%9a%e9%86%92%e5%87%bd%e6%95%b8&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;喚醒函數
 &lt;/h2&gt;&lt;p&gt;在前面介紹 &lt;code&gt;DECLARE_WAITQUEUE&lt;/code&gt; 的時候有講到一個 &lt;code&gt;task&lt;/code&gt; 包裝成 &lt;code&gt;wait_queue_entry&lt;/code&gt; 時會一併設置喚醒函數為 &lt;code&gt;default_wake_function&lt;/code&gt;，用於喚醒一個正在睡眠的 &lt;code&gt;task&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;default_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;default_&#34;&gt;&lt;a href=&#34;#default_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;default_wake_function&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -751,7 +751,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;看完定義之後會發現 &lt;code&gt;default_wake_function&lt;/code&gt; 會呼叫 &lt;code&gt;try_to_wake_up&lt;/code&gt;，繼續往下 &lt;code&gt;trace&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;try_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;try_&#34;&gt;&lt;a href=&#34;#try_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;try_to_wake_up&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1024,7 +1024,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這段程式碼中我們聚焦在 &lt;code&gt;ttwu_queue&lt;/code&gt;, &lt;code&gt;ttwu_stat&lt;/code&gt; 中，中間有很大一段在處理 &lt;code&gt;SMP&lt;/code&gt; 的機制，不是本文探討的重點，先介紹一下 &lt;code&gt;ttmu&lt;/code&gt;，在 &lt;code&gt;kernel/sched/core.c&lt;/code&gt; 中有很多 &lt;code&gt;ttmu&lt;/code&gt; 開頭的 &lt;code&gt;function&lt;/code&gt;，到這邊才理解到其實是 &lt;code&gt;try to wake up&lt;/code&gt; 的縮寫。&lt;/p&gt;
-&lt;h3 id=&#34;ttwu_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;ttwu_&#34;&gt;&lt;a href=&#34;#ttwu_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ttwu_queue&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1073,7 +1073,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;http://oliveryang.net/2016/03/linux-scheduler-2/#22-wakeup-preemption&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;reference&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;ttwu_-1&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;ttwu_-1&#34;&gt;&lt;a href=&#34;#ttwu_-1&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ttwu_do_activate&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;為了節省空間，底下的 &lt;code&gt;code&lt;/code&gt; 把 &lt;code&gt;ttwu_do_activate&lt;/code&gt; 呼叫的 &lt;code&gt;function&lt;/code&gt; 實現也放在一起。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1213,7 +1213,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;try_to_wake_up&lt;/code&gt; 可以理解成最後會將 &lt;code&gt;task&lt;/code&gt; 的 &lt;code&gt;state&lt;/code&gt; 由 &lt;code&gt;TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE&lt;/code&gt; 改成 &lt;code&gt;TASK_RUNNING&lt;/code&gt;，並將其加入 &lt;code&gt;rq&lt;/code&gt; 中等待排程器選擇。&lt;/p&gt;
-&lt;h2 id=&#34;get-the-number-of-entering-a-wait-queue&#34;&gt;get the number of entering a wait queue
+&lt;h2 id=&#34;get-the-number-of-entering-a-wait-queue&#34;&gt;&lt;a href=&#34;#get-the-number-of-entering-a-wait-queue&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;get the number of entering a wait queue
 &lt;/h2&gt;&lt;p&gt;&lt;del&gt;扯遠了&lt;/del&gt;，回到這次作業題目(二)的需求，要寫一個 &lt;code&gt;system call&lt;/code&gt; 來獲得 &lt;code&gt;task_struct&lt;/code&gt; 進入 &lt;code&gt;wait queue&lt;/code&gt; 的次數，先在 &lt;code&gt;task_struct&lt;/code&gt; 中加入 &lt;code&gt;wq_cnt&lt;/code&gt; 變數&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1332,7 +1332,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;system-call-definition&#34;&gt;system call definition
+&lt;/div&gt;&lt;h3 id=&#34;system-call-definition&#34;&gt;&lt;a href=&#34;#system-call-definition&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;system call definition
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -1375,7 +1375,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;user-space&#34;&gt;user space
+&lt;/div&gt;&lt;h3 id=&#34;user-space&#34;&gt;&lt;a href=&#34;#user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -1480,7 +1480,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;驗證&#34;&gt;驗證
+&lt;/div&gt;&lt;h3 id=&#34;驗證&#34;&gt;&lt;a href=&#34;#%e9%a9%97%e8%ad%89&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;驗證
 &lt;/h3&gt;&lt;p&gt;利用 &lt;code&gt;/proc/{pid}/sched&lt;/code&gt; 中的 &lt;code&gt;se_statistics.nr_wakeups&lt;/code&gt; 來比對結果，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/FAvy2t5.png&#34;
 	
@@ -1491,7 +1491,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;nr_wakeups&lt;/code&gt; 這個值是在 &lt;code&gt;ttwu_stat&lt;/code&gt; 這個 &lt;code&gt;function&lt;/code&gt; 去更新的，在 &lt;code&gt;try_to_wake_up&lt;/code&gt; 的後面會呼叫 &lt;code&gt;ttwu_stat&lt;/code&gt; 來更新相關的資料，&lt;del&gt;所以其實題目二也不用另外加 counter&lt;/del&gt;，具體實現如下&lt;/p&gt;
-&lt;h3 id=&#34;ttwu_-2&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;ttwu_-2&#34;&gt;&lt;a href=&#34;#ttwu_-2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ttwu_stat&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1762,7 +1762,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo sysctl kernel.sched_schedstats&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://vflong.github.io/sre/linux/2020/03/12/linux-load-averages.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;【译文】Linux 平均负载：解决这个奥秘&lt;/a&gt;&lt;/li&gt;
@@ -1787,7 +1787,7 @@
 &lt;p&gt;本文章環境基於 Linux v4.14.259&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;第一次 &lt;code&gt;trace&lt;/code&gt; 整個排程的流程，&lt;code&gt;kernel&lt;/code&gt; 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 &lt;code&gt;function&lt;/code&gt; 的作用都沒辦法很好的說明，希望之後可以多閱讀 &lt;code&gt;source code&lt;/code&gt;，把相關的知識慢慢補齊，拼湊成完整的知識。&lt;/p&gt;
-&lt;h2 id=&#34;schedule&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;schedule&#34;&gt;&lt;a href=&#34;#schedule&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;schedule&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;要 &lt;code&gt;trace&lt;/code&gt; 排程器要先找到 &lt;code&gt;schedule&lt;/code&gt; 的入口，定義在 &lt;code&gt;kernel/sched/core.c&lt;/code&gt;，函式定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1830,7 +1830,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;EXPORT_SYMBOL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;schedule&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;sched_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h3 id=&#34;sched_&#34;&gt;&lt;a href=&#34;#sched_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;sched_submit_work&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1863,7 +1863,7 @@
 &lt;/div&gt;&lt;p&gt;在 &lt;code&gt;sched_submit_work&lt;/code&gt; 中先檢查 &lt;code&gt;tsk-&amp;gt;state&lt;/code&gt; 是否為 0(&lt;code&gt;runnable&lt;/code&gt;)，如果是就直接返回。
 &lt;code&gt;tsk_is_pi_blocked&lt;/code&gt; 檢查 &lt;code&gt;tsk&lt;/code&gt; 的 &lt;code&gt;deadlock&lt;/code&gt; 檢測器是否為空。&lt;/p&gt;
 &lt;p&gt;注意到 &lt;code&gt;schedule&lt;/code&gt; 的 &lt;code&gt;while&lt;/code&gt; 迴圈中的 &lt;code&gt;__schedule(false)&lt;/code&gt;，&lt;code&gt;__schedule&lt;/code&gt; 是真正排程執行的地方，所以繼續往下 &lt;code&gt;trace&lt;/code&gt;&lt;/p&gt;
-&lt;h2 id=&#34;_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;_&#34;&gt;&lt;a href=&#34;#_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;_schedule&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;在 &lt;code&gt;__schedule()&lt;/code&gt; 定義上方有一段註解說明&lt;strong&gt;排程時機&lt;/strong&gt;，主要是說明 &lt;code&gt;task_struct&lt;/code&gt; 在什麼情況會被排程，底下會大概敘述一下排程器在什麼情況下會考慮排程。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -2344,7 +2344,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;get-the-number-of-context-switches&#34;&gt;get the number of context switches
+&lt;/div&gt;&lt;h2 id=&#34;get-the-number-of-context-switches&#34;&gt;&lt;a href=&#34;#get-the-number-of-context-switches&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;get the number of context switches
 &lt;/h2&gt;&lt;p&gt;回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 &lt;code&gt;counter&lt;/code&gt; 來計算被排程的次數，只要把 &lt;code&gt;task_struct&lt;/code&gt; 中的 &lt;code&gt;tsk-&amp;gt;nivcsw + tsk-&amp;gt;nvcse&lt;/code&gt; 就可以得到這個 &lt;code&gt;task_struct&lt;/code&gt; 被 &lt;code&gt;context switch&lt;/code&gt; 的次數了，甚至可以用 &lt;code&gt;nr_switches&lt;/code&gt; 這個變數來直接獲得答案。&lt;/p&gt;
 &lt;p&gt;在驗證自己程式的正確性時，我們會參考 &lt;code&gt;/proc/{pid}/sched&lt;/code&gt; 中的 &lt;code&gt;nr_switches&lt;/code&gt;，實際找到 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;proc_sched_show_task&lt;/a&gt; 就會發現 &lt;code&gt;nr_switches&lt;/code&gt; 也是用 &lt;code&gt;nivcsw + nvcse&lt;/code&gt; 來實現。&lt;/p&gt;
@@ -2381,7 +2381,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;所以題目一的實現如下:&lt;/p&gt;
-&lt;h3 id=&#34;kernel-space&#34;&gt;kernel space
+&lt;h3 id=&#34;kernel-space&#34;&gt;&lt;a href=&#34;#kernel-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;kernel space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -2427,7 +2427,7 @@
 &lt;/div&gt;&lt;p&gt;利用 &lt;code&gt;SYSCALL_DEFINE1&lt;/code&gt; 的 &lt;code&gt;macro&lt;/code&gt; 來展開我們定義的 &lt;code&gt;get_number_of_context_switches&lt;/code&gt;，利用 &lt;code&gt;task_struct&lt;/code&gt; 的 &lt;code&gt;nvcse, nivcsw&lt;/code&gt; 來獲得 &lt;code&gt;number of context switches&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;之所以要用 &lt;code&gt;SYSCALL_DEFINE1&lt;/code&gt; 來定義 &lt;code&gt;system call&lt;/code&gt; 是因為之前有個 &lt;a class=&#34;link&#34; href=&#34;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;CVE-2009-0029&lt;/a&gt;，攻擊者可以藉由 &lt;code&gt;32 跟 64 bits&lt;/code&gt; 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 &lt;code&gt;SYSCALL_DEFINE&lt;/code&gt; 來定義會比較安全。&lt;/p&gt;
-&lt;h3 id=&#34;user-space&#34;&gt;user space
+&lt;h3 id=&#34;user-space&#34;&gt;&lt;a href=&#34;#user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -2485,7 +2485,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;refernece&#34;&gt;refernece
+&lt;h3 id=&#34;refernece&#34;&gt;&lt;a href=&#34;#refernece&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;refernece
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;http://www.wowotech.net/process_management/447.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;CFS调度器（1）-基本原理&lt;/a&gt;&lt;/li&gt;
@@ -2519,7 +2519,7 @@
 &lt;p&gt;&lt;code&gt;_do_fork()&lt;/code&gt; 更改為 &lt;code&gt;kernel_clone()&lt;/code&gt; 的原因可以參考 &lt;a class=&#34;link&#34; href=&#34;https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;fork: introduce kernel_clone()&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;在深入看 &lt;code&gt;source code&lt;/code&gt; 之前最重要的就是先把 &lt;code&gt;man page&lt;/code&gt; 看過一次，看完 &lt;code&gt;man page&lt;/code&gt; 會對要研究的 &lt;code&gt;system call&lt;/code&gt; 有初步的了解，接著再往下看 &lt;code&gt;source code&lt;/code&gt; 才不會沒有概念的死讀程式碼。&lt;/p&gt;
-&lt;h2 id=&#34;fork---create-a-child-process&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man2/fork.2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;fork---create-a-child-process&#34;&gt;&lt;a href=&#34;#fork---create-a-child-process&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man2/fork.2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;fork - create a child process&lt;/a&gt;
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2554,7 +2554,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;fork&lt;/code&gt; 在 &lt;code&gt;kernel/fork.c&lt;/code&gt; 的定義，可以看到它使用了 &lt;code&gt;SIGCHLD&lt;/code&gt; 的 &lt;code&gt;flag&lt;/code&gt;，這代表如果 &lt;code&gt;child process&lt;/code&gt; 終止會發送 &lt;code&gt;SIGCHLD&lt;/code&gt; 通知 &lt;code&gt;parent process&lt;/code&gt;.&lt;/p&gt;
-&lt;h3 id=&#34;_do_fork&#34;&gt;_do_fork
+&lt;h3 id=&#34;_do_fork&#34;&gt;&lt;a href=&#34;#_do_fork&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork
 &lt;/h3&gt;&lt;p&gt;第一段有簡單提到，不論是使用 &lt;code&gt;fork&lt;/code&gt; 或者 &lt;code&gt;clone&lt;/code&gt; 等方式，到最後都會呼叫 &lt;code&gt;_do_fork()&lt;/code&gt; 來建立一個新的 &lt;code&gt;task struct&lt;/code&gt;，&lt;code&gt;_do_fork()&lt;/code&gt; 在 &lt;code&gt;kernel v4.14.259&lt;/code&gt; 中定義在 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2063&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;kernel/fork.c line.2063&lt;/a&gt;，定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -2726,7 +2726,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;一開始的段落是有關於 &lt;code&gt;ptrace&lt;/code&gt; 的邏輯處理，&lt;code&gt;trace&lt;/code&gt; 變數代表 &lt;code&gt;child process&lt;/code&gt; 是否可以被追蹤，如果可以，則 &lt;code&gt;trace&lt;/code&gt; 代表這個 &lt;code&gt;child process&lt;/code&gt; 是由哪個 &lt;code&gt;system call&lt;/code&gt; 創立的(&lt;code&gt;vfork&lt;/code&gt;, &lt;code&gt;clone&lt;/code&gt;, &lt;code&gt;fork&lt;/code&gt;)，重點在於後面的 &lt;code&gt;copy_process&lt;/code&gt;，其實講的直觀一點，&lt;code&gt;copy_process&lt;/code&gt; 做的事情就是回傳一個新的 &lt;code&gt;task_struct&lt;/code&gt;，但是在回傳新的 &lt;code&gt;task_struct&lt;/code&gt; 的時候，該 &lt;code&gt;task_struct&lt;/code&gt; 是還沒有開啟的狀態，我們先繼續往 &lt;code&gt;copy_process&lt;/code&gt; 去 &lt;code&gt;trace&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;_do_fork---copy_process&#34;&gt;_do_fork() -&amp;gt; copy_process
+&lt;h3 id=&#34;_do_fork---copy_process&#34;&gt;&lt;a href=&#34;#_do_fork---copy_process&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork() -&amp;gt; copy_process
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;copy_process&lt;/code&gt; 同樣定義在 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L1575&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;code&gt;/kerenl/fork.c&lt;/code&gt;&lt;/a&gt;內，底下是它的實現&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -2869,7 +2869,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;一開始都是一些有關於 &lt;code&gt;clone_flags&lt;/code&gt; 的處理，之後會呼叫 &lt;code&gt;dup_task_struct(current, node);&lt;/code&gt;，&lt;code&gt;dup_task_struct&lt;/code&gt; 是真正建立 &lt;code&gt;task_struct&lt;/code&gt; 的地方，&lt;code&gt;parent process&lt;/code&gt; 會初始化 &lt;code&gt;child process&lt;/code&gt; 之後回傳指標 &lt;code&gt;p&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;_do_fork---copy_process---dup_task_struct&#34;&gt;_do_fork() -&amp;gt; copy_process -&amp;gt; dup_task_struct
+&lt;h3 id=&#34;_do_fork---copy_process---dup_task_struct&#34;&gt;&lt;a href=&#34;#_do_fork---copy_process---dup_task_struct&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork() -&amp;gt; copy_process -&amp;gt; dup_task_struct
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -3562,7 +3562,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;_do_fork---wake_up_new_taskp&#34;&gt;_do_fork() -&amp;gt; wake_up_new_task(p)
+&lt;/div&gt;&lt;h3 id=&#34;_do_fork---wake_up_new_taskp&#34;&gt;&lt;a href=&#34;#_do_fork---wake_up_new_taskp&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork() -&amp;gt; wake_up_new_task(p)
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;wake_up_new_task&lt;/code&gt; 的作用是把新創立的 &lt;code&gt;task_struct&lt;/code&gt; 加入排程的 &lt;code&gt;runqueue&lt;/code&gt; 當中，實現&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;如下&lt;/a&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -3685,7 +3685,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/linhaostudy/p/9644736.html#autoid-1-4-0&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;_do_fork, do_fork 詳解&lt;/a&gt;&lt;/li&gt;

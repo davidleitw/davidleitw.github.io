@@ -1,10 +1,14 @@
 ---
 title: "{{ replace .Name "-" " " | title }}"
+slug: {{ .Name }}
 date: {{ .Date }}
 draft: true
+description: ""
+image: ""
 tags:
     -
 categories:
     -
-description: ""
 ---
+
+<!-- 文章內容 -->

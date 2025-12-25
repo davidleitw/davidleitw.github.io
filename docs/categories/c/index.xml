@@ -182,7 +182,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;解題思路&#34;&gt;解題思路
+&lt;/div&gt;&lt;h3 id=&#34;解題思路&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%80%9d%e8%b7%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題思路
 &lt;/h3&gt;&lt;p&gt;先觀察 &lt;code&gt;sort&lt;/code&gt; 會看到該函式在內部會呼叫 &lt;code&gt;sort&lt;/code&gt;，所以為遞迴函式。
 知道是遞迴函式就要先關注遞迴的&lt;strong&gt;終止條件&lt;/strong&gt;。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -267,7 +267,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sort&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;遞迴呼叫思考&#34;&gt;遞迴呼叫思考
+&lt;/div&gt;&lt;h3 id=&#34;遞迴呼叫思考&#34;&gt;&lt;a href=&#34;#%e9%81%9e%e8%bf%b4%e5%91%bc%e5%8f%ab%e6%80%9d%e8%80%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;遞迴呼叫思考
 &lt;/h3&gt;&lt;p&gt;接著思考一下今天我們 input 的 &lt;code&gt;list&lt;/code&gt; 有五筆資料好了&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -374,7 +374,7 @@
 &lt;p&gt;合併成最終排序完成的 list: &lt;code&gt;-4 -&amp;gt; -3 -&amp;gt; 1 -&amp;gt; 2 -&amp;gt; 5&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;有發現嗎？ 每次合併的時候都像是在做 &lt;code&gt;insert sort&lt;/code&gt;，但是比較不一樣的是我們是從右邊開始一個一個元素 &lt;code&gt;insert&lt;/code&gt; 到最左邊的元素。&lt;/p&gt;
 &lt;p&gt;所以上面我們已經完成了呼叫遞迴的邏輯，下面要來思考怎麼 &lt;code&gt;merge&lt;/code&gt;，才可以把 &lt;code&gt;left&lt;/code&gt; 跟 &lt;code&gt;right&lt;/code&gt; 組合，並且回傳以排序好的 &lt;code&gt;list&#39;s head&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;merge-邏輯&#34;&gt;merge 邏輯
+&lt;h3 id=&#34;merge-邏輯&#34;&gt;&lt;a href=&#34;#merge-%e9%82%8f%e8%bc%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;merge 邏輯
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -902,17 +902,17 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;思考過程&#34;&gt;思考過程
+&lt;/div&gt;&lt;h3 id=&#34;思考過程&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%80%83%e9%81%8e%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思考過程
 &lt;/h3&gt;&lt;p&gt;如果沒辦法理解上面的內容，也可以嘗試著代入實際的值，用紙筆簡單跑過一次流程
 不用太複雜的數字，可以用&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;left: -4&lt;/code&gt;, &lt;code&gt;right: -5-&amp;gt;2-&amp;gt;8&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;這種 &lt;code&gt;right&lt;/code&gt; 開頭比 &lt;code&gt;left&lt;/code&gt; 小的 &lt;code&gt;case&lt;/code&gt;，再想一個 &lt;code&gt;left&lt;/code&gt; 開頭比較小的 &lt;code&gt;case&lt;/code&gt;等等..
 這樣子就能更清楚的思考出該演算法的運作流程。&lt;/p&gt;
-&lt;h3 id=&#34;驗證正確性&#34;&gt;驗證正確性
+&lt;h3 id=&#34;驗證正確性&#34;&gt;&lt;a href=&#34;#%e9%a9%97%e8%ad%89%e6%ad%a3%e7%a2%ba%e6%80%a7&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;驗證正確性
 &lt;/h3&gt;&lt;p&gt;// 待補充&lt;/p&gt;
 &lt;p&gt;之後會補上測試正確性的程式碼，目前完整的檔案可以參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/linked_list/blob/master/question/question3.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;!-- - [snprintf 妙無窮](https://wirelessr.gitbooks.io/working-life/content/snprintf_miao_wu_qiong.html) --&gt;</description>
         </item>
         <item>
@@ -921,7 +921,7 @@
         <pubDate>Wed, 25 Aug 2021 04:16:48 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/circular-doubly-linked-list-%E5%AF%A6%E4%BD%9C-bubble-sort/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;本問題出自於 &lt;a class=&#34;link&#34; href=&#34;http://wiki.csie.ncku.edu.tw/linux/schedule&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;jserv - Linux 核心設計講座&lt;/a&gt; 第一周 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/c-linked-list&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;linked list 和非連續記憶體操作&lt;/a&gt; 底下&lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@jserv/SyK-WApKM?type=view&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -935,7 +935,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;在這篇文章會紀錄關於 &lt;code&gt;bubble sort&lt;/code&gt; 的實現。&lt;/p&gt;
-&lt;h2 id=&#34;node-結構&#34;&gt;node 結構
+&lt;h2 id=&#34;node-結構&#34;&gt;&lt;a href=&#34;#node-%e7%b5%90%e6%a7%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;node 結構
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -952,7 +952,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;本題目 &lt;code&gt;linked list&lt;/code&gt; 屬於 &lt;code&gt;circular doubly linked list&lt;/code&gt;, 所以處理上還需要考慮循環的問題。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;swap&lt;/code&gt; 之後要把 &lt;code&gt;node&lt;/code&gt; 的 &lt;code&gt;prev&lt;/code&gt; 跟 &lt;code&gt;next pointer&lt;/code&gt; 處理好。&lt;/p&gt;
-&lt;h2 id=&#34;bubble-sort&#34;&gt;Bubble sort
+&lt;h2 id=&#34;bubble-sort&#34;&gt;&lt;a href=&#34;#bubble-sort&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Bubble sort
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -991,7 +991,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;在寫 &lt;code&gt;linked list&lt;/code&gt; 版本的 &lt;code&gt;sort&lt;/code&gt; 之前，先來看一下一般 &lt;code&gt;array&lt;/code&gt; 版本的實現方式。
 基本上 &lt;code&gt;bubble sort&lt;/code&gt; 算是一個容易理解的演算法，現在比較大的問題是要先實現一個 &lt;code&gt;swap&lt;/code&gt; 來對兩個 &lt;code&gt;node&lt;/code&gt; 交換。&lt;/p&gt;
-&lt;h3 id=&#34;swap_node&#34;&gt;swap_node
+&lt;h3 id=&#34;swap_node&#34;&gt;&lt;a href=&#34;#swap_node&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;swap_node
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -1129,7 +1129,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;建議如果對指標不熟悉的最好自己拿紙筆畫一次，會清楚很多。&lt;/p&gt;
-&lt;h2 id=&#34;bubble-sort-with-circular-doubly-linked-list&#34;&gt;Bubble sort with Circular doubly linked list
+&lt;h2 id=&#34;bubble-sort-with-circular-doubly-linked-list&#34;&gt;&lt;a href=&#34;#bubble-sort-with-circular-doubly-linked-list&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Bubble sort with Circular doubly linked list
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -1276,7 +1276,7 @@
 &lt;/div&gt;&lt;p&gt;完整的程式碼放在 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/linked_list/blob/master/question/bubblesort.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;之後也會補上延伸題目的 &lt;code&gt;merge sort&lt;/code&gt;。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://ithelp.ithome.com.tw/articles/10236214&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;舌尖上的演算法系列: Day7 &amp;ndash; Brute Force - Bubble Sort&lt;/a&gt;&lt;/li&gt;
@@ -1291,7 +1291,7 @@
         <guid>https://davidleitw.github.io/p/c-function-pointer-%E5%9F%BA%E7%A4%8E%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/</guid>
         <description>&lt;p&gt;這最近在看 &lt;code&gt;jserv&lt;/code&gt; 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 &lt;code&gt;function pointer&lt;/code&gt; 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。&lt;/p&gt;
 &lt;p&gt;之後在學習的過程中如果遇到 &lt;code&gt;function pointer&lt;/code&gt; 的應用也會一併整理在這篇文章中。&lt;/p&gt;
-&lt;h2 id=&#34;function-pointer&#34;&gt;function pointer
+&lt;h2 id=&#34;function-pointer&#34;&gt;&lt;a href=&#34;#function-pointer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;function pointer
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;function pointer&lt;/code&gt; 顧名思義就是指向某個 &lt;code&gt;function&lt;/code&gt; 的 &lt;code&gt;pointer&lt;/code&gt;，有了 &lt;code&gt;function pointer&lt;/code&gt; 我們就可以實現把 &lt;code&gt;function&lt;/code&gt; 當作參數，傳進一個 &lt;code&gt;function&lt;/code&gt; 之中，或者更加彈性的設計我們的程式，減少多餘的 &lt;code&gt;if/else&lt;/code&gt;, &lt;code&gt;switch case&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;我們先從一個簡單的 &lt;code&gt;function pointer&lt;/code&gt; 宣告開始講起&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1380,7 +1380,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://ideone.com/CaCBwE&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;程式執行結果&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;注意&#34;&gt;注意
+&lt;h3 id=&#34;注意&#34;&gt;&lt;a href=&#34;#%e6%b3%a8%e6%84%8f&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;注意
 &lt;/h3&gt;&lt;p&gt;上面在宣告 &lt;code&gt;function pointer&lt;/code&gt; 的時候&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1401,7 +1401,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這樣子 &lt;code&gt;myFunc&lt;/code&gt; 就不是 &lt;code&gt;function pointer&lt;/code&gt; 了，而是單純宣告一個 &lt;code&gt;function&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;jserv-上課的範例&#34;&gt;Jserv 上課的範例
+&lt;h3 id=&#34;jserv-上課的範例&#34;&gt;&lt;a href=&#34;#jserv-%e4%b8%8a%e8%aa%b2%e7%9a%84%e7%af%84%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Jserv 上課的範例
 &lt;/h3&gt;&lt;p&gt;簡單的例子看完就可以來看看 &lt;code&gt;Jserv&lt;/code&gt; 在 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/c-pointer&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;你所不知道的C語言：指標篇&lt;/a&gt; 開頭所舉出來的範例&lt;/p&gt;
 &lt;p&gt;試試看能不能自己寫出該宣告怎麼解釋&lt;/p&gt;
@@ -1432,7 +1432,7 @@
 &lt;/li&gt;
 &lt;li&gt;return a pointer to a pointer to &lt;em&gt;&lt;code&gt;void&lt;/code&gt;&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;應用舉例&#34;&gt;應用舉例
+&lt;h2 id=&#34;應用舉例&#34;&gt;&lt;a href=&#34;#%e6%87%89%e7%94%a8%e8%88%89%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;應用舉例
 &lt;/h2&gt;&lt;p&gt;今天如果我想寫一個 &lt;code&gt;calculate&lt;/code&gt; 的 &lt;code&gt;function&lt;/code&gt; 該 function 有三個參數&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;a&lt;/li&gt;
@@ -1494,7 +1494,7 @@
 &lt;/div&gt;&lt;p&gt;這樣子我們在看 &lt;code&gt;calculate&lt;/code&gt; 宣告的時候就會清楚的知道第三個參數要把指定的 &lt;code&gt;method&lt;/code&gt; 傳進去。&lt;/p&gt;
 &lt;p&gt;完整的程式碼我放在 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/c-pointer-review&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;，可以把 code 載下來自己 run 一次，順便改改看寫法，觀察其中的不同。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/c-pointer&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;你所不知道的C語言：指標篇&lt;/a&gt;&lt;/li&gt;

@@ -6,13 +6,15 @@
 
 <link rel='canonical' href='https://davidleitw.github.io/p/leetcode-1010.-pairs-of-songs-with-total-durations-divisible-by-60-medium/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]">
 <meta property='og:description' content="題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。\n解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。\n假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。\n">
 <meta property='og:url' content='https://davidleitw.github.io/p/leetcode-1010.-pairs-of-songs-with-total-durations-divisible-by-60-medium/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='leetcode' /><meta property='article:published_time' content='2022-01-02T01:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-01-02T01:12:53&#43;08:00'/>
 <meta name="twitter:title" content="leetcode 1010. Pairs of Songs With Total Durations Divisible by 60 [Medium]">
 <meta name="twitter:description" content="題目敘述 在一個陣列中找出兩兩相加是 60 的倍數的組合數。\n解題紀錄 這個題目如果純粹的硬是把所有的組合都加過一次，一定會 time out，所以基本上要從 O(n) 的作法去嘗試。\n假設 x = 57，那相加 3, 63 ... 都可以湊到 60 的倍數，所以我們只要用一個大小 60 的 array 來存 time[i] % 60 的結果就好了，今天 x = 57 的情況我們只要去 array 中查找 array[60 - 57 % 60] = array[3] 就可以獲得在此之前所有曾經出現過可以跟 57 湊成 60 倍數的資料了。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -257,20 +303,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 1 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -282,9 +314,9 @@
     <section class="article-content">
     
     
-    <h2 id="題目敘述">題目敘述
+    <h2 id="題目敘述"><a href="#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0" class="header-anchor"></a>題目敘述
 </h2><p>在一個陣列中找出兩兩相加是 <code>60</code> 的倍數的組合數。</p>
-<h2 id="解題紀錄">解題紀錄
+<h2 id="解題紀錄"><a href="#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84" class="header-anchor"></a>解題紀錄
 </h2><p>這個題目如果純粹的硬是把所有的組合都加過一次，一定會 <code>time out</code>，所以基本上要從 <code>O(n)</code> 的作法去嘗試。</p>
 <p>假設 <code>x = 57</code>，那相加 <code>3, 63 ...</code> 都可以湊到 <code>60</code> 的倍數，所以我們只要用一個大小 <code>60</code> 的 <code>array</code> 來存 <code>time[i] % 60</code> 的結果就好了，今天 <code>x = 57</code> 的情況我們只要去 <code>array</code> 中查找 <code>array[60 - 57 % 60] = array[3]</code> 就可以獲得在此之前所有曾經出現過可以跟 <code>57</code> 湊成 <code>60</code> 倍數的資料了。</p>
 <div class="highlight"><div class="chroma">
@@ -338,18 +370,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 

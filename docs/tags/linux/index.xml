@@ -13,12 +13,12 @@
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，&lt;a class=&#34;link&#34; href=&#34;https://marioskogias.github.io/docs/crab.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這篇&lt;/a&gt; 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。&lt;/p&gt;
 &lt;p&gt;這篇論文的作者也用了 P4, eBPF 等技術實現了他們的論文，如果有興趣的也可以研究看看實現的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/epfl-dcsl/crab&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;code&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;常見 LB 技術分類
+&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;&lt;a href=&#34;#%e5%b8%b8%e8%a6%8b-lb-%e6%8a%80%e8%a1%93%e5%88%86%e9%a1%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;常見 LB 技術分類
 &lt;/h2&gt;&lt;p&gt;這篇論文在前面的幾個段落介紹了常見了 Load Belance 技術，然後規劃了一些簡單的實驗來分析各種不同技術的優劣，文中用以下五個標準/指標來分類不同種類的 LB 技術，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/STj3dNc.png&#34;
 	
@@ -44,12 +44,12 @@
 &lt;/blockquote&gt;
 &lt;p&gt;簡單來說，負載平衡技術在雲端環境下會面臨的挑戰在於 LB 或者後端 Server 的數量會根據請求的流量動態調整，或者是以容器為單位的調度，這種時候像是 WRR, P2C 這類的演算法就毫無用武之地，因為 Server 的數目跟狀態隨時都在變更，無法根據當時的狀態找出較好的調度方案。&lt;/p&gt;
 &lt;p&gt;實驗部份就不過多敘述了，接著來看這篇論文提出的 LB 方案想要滿足什麼條件，用什麼方式達成&lt;/p&gt;
-&lt;h2 id=&#34;crab-design&#34;&gt;CRAB design
+&lt;h2 id=&#34;crab-design&#34;&gt;&lt;a href=&#34;#crab-design&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;CRAB design
 &lt;/h2&gt;&lt;p&gt;這篇論文提出的新 LB 技術取名為 &lt;strong&gt;C&lt;/strong&gt;onnection &lt;strong&gt;R&lt;/strong&gt;edirect Lo&lt;strong&gt;A&lt;/strong&gt;d &lt;strong&gt;B&lt;/strong&gt;alancer(&lt;strong&gt;CRAB&lt;/strong&gt;)，作者用這段話總結實作的理念&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Implementing a centralized, stateful load balancing policy at a connection granularity requires the load balancer’s involvement only during connection setup, following which the client and server can communicate directly.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;支援 DSR 模式的 LB 運作流程
+&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;&lt;a href=&#34;#%e6%94%af%e6%8f%b4-dsr-%e6%a8%a1%e5%bc%8f%e7%9a%84-lb-%e9%81%8b%e4%bd%9c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;支援 DSR 模式的 LB 運作流程
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/imKOVJL.png&#34;
 	
 	
@@ -84,7 +84,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;結論&#34;&gt;結論
+&lt;h2 id=&#34;結論&#34;&gt;&lt;a href=&#34;#%e7%b5%90%e8%ab%96&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;結論
 &lt;/h2&gt;&lt;p&gt;這套解決方案的確直觀的降低了 Load Balancer 的壓力，LB 只要專心處理建立連線的 SYN 封包，也能夠搭配自己的負載平衡策略，但缺點可能是如果要妥善利用這個機制需要 Client 也支援 CR，否則不支援的情況會退回原先的 stateless 的 load balance 機制。&lt;/p&gt;
 &lt;p&gt;最後筆者比較在意的地方是把 DIP 暴露給 Client 有一定的風險，我認為這種架構比較適合內部的 LB，論文第一段也有提到適合場景是 Internel load balancer。&lt;/p&gt;
 </description>
@@ -95,7 +95,7 @@
         <pubDate>Mon, 12 Dec 2022 21:00:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;一般來說學習 xdp 都會參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt;，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。&lt;/p&gt;
 &lt;p&gt;但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:&lt;/p&gt;
@@ -117,8 +117,8 @@
 &lt;p&gt;實際上可能會因為 &lt;code&gt;go.mod&lt;/code&gt; 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。&lt;/p&gt;
 &lt;p&gt;底下我們會根據 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 編寫一個簡單的 xdp 程式，然後編譯成 &lt;code&gt;.o&lt;/code&gt; 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。&lt;/p&gt;
-&lt;h2 id=&#34;&#34;&gt;
-&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;編寫 xdp 範例
+&lt;h2 id=&#34;&#34;&gt;&lt;a href=&#34;#&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;&lt;a href=&#34;#%e7%b7%a8%e5%af%ab-xdp-%e7%af%84%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;編寫 xdp 範例
 &lt;/h2&gt;&lt;p&gt;這邊我們參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial/tree/master/packet01-parsing#assignment-3-parsing-the-icmpv6-header-and-reacting-to-it&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;packet01-parsing&lt;/a&gt; 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。&lt;/p&gt;
@@ -267,7 +267,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    rm &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;TARGET&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;user space 編寫
+&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;&lt;a href=&#34;#user-space-%e7%b7%a8%e5%af%ab&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space 編寫
 &lt;/h2&gt;&lt;p&gt;user space 我們使用 go 語言來負責載入編譯好的 &lt;code&gt;elf&lt;/code&gt; 檔案，除此之外還需要提供 api 讓我們能在 user space 操作 eBPF map。&lt;/p&gt;
 &lt;p&gt;go 語言有非常多 eBPF library 可供選擇，最主流的選擇不外乎是 Cilium 與 Cloudflare 維護的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/cilium/ebpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ebpf-go&lt;/a&gt;，IO Visor 提供的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/iovisor/gobpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -412,7 +412,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;詳細的程式請參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;，實際跑一次程式才知道具體運作的流程。&lt;/p&gt;
-&lt;h2 id=&#34;實測&#34;&gt;實測
+&lt;h2 id=&#34;實測&#34;&gt;&lt;a href=&#34;#%e5%af%a6%e6%b8%ac&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;實測
 &lt;/h2&gt;&lt;p&gt;首先需要編譯 xdp 程式&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -465,7 +465,7 @@
 &lt;p&gt;可以看到，偶數的 icmp packet 都被捨棄了，所以剛好會有 50 % 的封包收到回應，效果的確符合預期。&lt;/p&gt;
 &lt;p&gt;完整程式碼可以看&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這邊&lt;/a&gt;，實際跑一次能學習的更有效率!&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://networkop.co.uk/post/2021-03-ebpf-intro/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Getting Started with eBPF and Go&lt;/a&gt;&lt;/li&gt;
@@ -511,7 +511,7 @@
         
         <guid>https://davidleitw.github.io/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/</guid>
         <description>&lt;p&gt;在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。&lt;/p&gt;
-&lt;h2 id=&#34;network-namespace&#34;&gt;Network Namespace
+&lt;h2 id=&#34;network-namespace&#34;&gt;&lt;a href=&#34;#network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Network Namespace
 &lt;/h2&gt;&lt;p&gt;在 command line 操作 network namespace 通常會使用 &lt;code&gt;ip netns&lt;/code&gt; 來操作，先引用 &lt;code&gt;ip-netns&lt;/code&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man8/ip-netns.8.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;man page&lt;/a&gt; 來介紹一下 network namespace 的定義&lt;/p&gt;
 &lt;blockquote&gt;
@@ -538,7 +538,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立新的-network-namespace&#34;&gt;建立新的 network namespace
+&lt;h3 id=&#34;建立新的-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立新的 network namespace
 &lt;/h3&gt;&lt;p&gt;建立一個新的 network namespace 可以使用 &lt;code&gt;sudo ip netns add&lt;/code&gt; 加上想要的 namespace 名稱，建立之後用 &lt;code&gt;ip netns ls&lt;/code&gt; 就可以看到多了一個剛剛建立的 network namespace。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -560,7 +560,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;在本地端我們常常會使用 &lt;code&gt;ifconfig&lt;/code&gt; 或者 &lt;code&gt;ip addr&lt;/code&gt; 來檢查一些網路的配置情況，所以 &lt;code&gt;ip netns&lt;/code&gt; 工具為了讓我們更方便的操作，提供了 &lt;code&gt;ip netns exec&lt;/code&gt; 的子命令讓我們可以在對應的 network namespace 執行命令，我們下面的幾個範例都會使用剛剛建立的 &lt;code&gt;ns0&lt;/code&gt; 來操作，先來看看在 &lt;code&gt;ns0&lt;/code&gt; 中執行 &lt;code&gt;ifconfig&lt;/code&gt; 或者 &lt;code&gt;ip addr&lt;/code&gt; 的情況。&lt;/p&gt;
-&lt;h3 id=&#34;執行-cmd-在特定的-network-namespace&#34;&gt;執行 cmd 在特定的 network namespace
+&lt;h3 id=&#34;執行-cmd-在特定的-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%9f%b7%e8%a1%8c-cmd-%e5%9c%a8%e7%89%b9%e5%ae%9a%e7%9a%84-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;執行 cmd 在特定的 network namespace
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;ip netns exec &amp;lt;network namespace name&amp;gt; + cmd&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/QSffLmE.png&#34;
 	
@@ -578,7 +578,7 @@
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://askubuntu.com/questions/247625/what-is-the-loopback-device-and-how-do-i-use-it&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;What is the loopback device and how do I use it?&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;veth---virtual-ethernet-device&#34;&gt;veth - Virtual Ethernet Device
+&lt;h2 id=&#34;veth---virtual-ethernet-device&#34;&gt;&lt;a href=&#34;#veth---virtual-ethernet-device&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;veth - Virtual Ethernet Device
 &lt;/h2&gt;&lt;p&gt;Linux 中有 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man4/veth.4.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;veth - Virtual Ethernet Device&lt;/a&gt; 的概念， &lt;code&gt;veth&lt;/code&gt; 可以拿來建立不同虛擬網路裝置之間的橋樑，讓不同虛擬裝置之間可以連線，像是不同的 network namespace，又或者是 docker container 之間的連線, ovs 內的應用等等，都有使用到 &lt;code&gt;veth&lt;/code&gt; 的概念。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;veth&lt;/code&gt; 都是成對出現的，所以很多文章也把它稱為 &lt;code&gt;veth-pair&lt;/code&gt;，在後續的實驗中我們也可以觀察到 Docker 彼此之間的 &lt;code&gt;veth-pair&lt;/code&gt;。&lt;/p&gt;
@@ -597,7 +597,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ns0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;建立新的-veth-pair&#34;&gt;建立新的 veth Pair
+&lt;/div&gt;&lt;h3 id=&#34;建立新的-veth-pair&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-veth-pair&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立新的 veth Pair
 &lt;/h3&gt;&lt;p&gt;上面有提到 &lt;code&gt;veth&lt;/code&gt; 都是成對出現的，所以在建立的時候也要同時建立兩端，這邊我們將兩端分別取名 &lt;code&gt;vth0&lt;/code&gt; 以及 &lt;code&gt;vth1&lt;/code&gt; 代表等等要接在 &lt;code&gt;ns0&lt;/code&gt; 與 &lt;code&gt;ns1&lt;/code&gt; 上面。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -618,7 +618,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;將-veth-連結到-network-namespace&#34;&gt;將 veth 連結到 network namespace
+&lt;h3 id=&#34;將-veth-連結到-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%b0%87-veth-%e9%80%a3%e7%b5%90%e5%88%b0-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;將 veth 連結到 network namespace
 &lt;/h3&gt;&lt;p&gt;建立好了兩端的 &lt;code&gt;veth&lt;/code&gt; 之後我們就需要把它接到對應的 network namespace&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -648,7 +648,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;啟動-veth-並且分配一個私有的-ip&#34;&gt;啟動 veth 並且分配一個私有的 ip
+&lt;h3 id=&#34;啟動-veth-並且分配一個私有的-ip&#34;&gt;&lt;a href=&#34;#%e5%95%9f%e5%8b%95-veth-%e4%b8%a6%e4%b8%94%e5%88%86%e9%85%8d%e4%b8%80%e5%80%8b%e7%a7%81%e6%9c%89%e7%9a%84-ip&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;啟動 veth 並且分配一個私有的 ip
 &lt;/h3&gt;&lt;p&gt;光是把 &lt;code&gt;vth0&lt;/code&gt;, &lt;code&gt;vth1&lt;/code&gt; 連結到 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt; 還不夠，為了後續 ping 的實驗我們必須在 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt; 中啟動 &lt;code&gt;veth&lt;/code&gt; 並且分配一個私有的 ip 位置。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -691,7 +691,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;用-bridge-串連多個不同的-namespace&#34;&gt;用 bridge 串連多個不同的 namespace
+&lt;h2 id=&#34;用-bridge-串連多個不同的-namespace&#34;&gt;&lt;a href=&#34;#%e7%94%a8-bridge-%e4%b8%b2%e9%80%a3%e5%a4%9a%e5%80%8b%e4%b8%8d%e5%90%8c%e7%9a%84-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;用 bridge 串連多個不同的 namespace
 &lt;/h2&gt;&lt;p&gt;上面的情境是兩個 network namespace 想要互相連結，但真實世界的網路拓樸通常都是多個不同的 device 要互相連結，這時候如果再用 &lt;code&gt;veth&lt;/code&gt; 一個一個設置就不切實際，在一般的網路環境我們會想到用 switch 一類的裝置處理，在 Linux 中也可以透過 &lt;code&gt;bridge&lt;/code&gt; 的概念，用類似虛擬 switch 的方式解決多個不同 network namespace 互連的場景。&lt;/p&gt;
 &lt;p&gt;從頭開始，目標是建立 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt;, &lt;code&gt;ns2&lt;/code&gt; 三個 network namespace 並且讓他們可以透過 &lt;code&gt;bridge&lt;/code&gt;互相連結。&lt;/p&gt;
 &lt;p&gt;最後目標的網路拓樸如下圖&lt;/p&gt;
@@ -704,7 +704,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;注意，這次我們有做一點調整，把 &lt;code&gt;veth&lt;/code&gt; 連結到 network namespace 之後統一改名成 &lt;code&gt;eth0&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立-bridge-device&#34;&gt;建立 bridge device
+&lt;h3 id=&#34;建立-bridge-device&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b-bridge-device&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立 bridge device
 &lt;/h3&gt;&lt;p&gt;先建立一個 &lt;code&gt;bridge device&lt;/code&gt; 並且取名為 &lt;code&gt;br0&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -841,7 +841,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;docker-network-drivers&#34;&gt;Docker network drivers
+&lt;h2 id=&#34;docker-network-drivers&#34;&gt;&lt;a href=&#34;#docker-network-drivers&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Docker network drivers
 &lt;/h2&gt;&lt;p&gt;再來介紹完基礎的 network namespace, veth, bridge 之後我們再來看看 Docker 的網路模型。&lt;/p&gt;
 &lt;p&gt;Docker 在設計的時候就提供了很多種不同的 Network drivers 可以替換，不同 Network drivers 代表著不同的網路模型，使用 &lt;code&gt;docker&lt;/code&gt; 指令建立容器時，可以透過 &lt;code&gt;--network&lt;/code&gt; 參數選擇想要的網路模型。&lt;/p&gt;
 &lt;p&gt;大致上可以分為這幾種&lt;/p&gt;
@@ -889,7 +889,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立一個新的-container&#34;&gt;建立一個新的 container
+&lt;h3 id=&#34;建立一個新的-container&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e4%b8%80%e5%80%8b%e6%96%b0%e7%9a%84-container&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立一個新的 container
 &lt;/h3&gt;&lt;p&gt;先建立一個 container 來試試預設的網路功能&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -955,7 +955,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;可以注意到 &lt;code&gt;Containers&lt;/code&gt; 的地方多了剛剛建立的 &lt;code&gt;nginx_test1&lt;/code&gt; 的資料，代表說 &lt;code&gt;nginx_test1&lt;/code&gt; 是透過 &lt;code&gt;bridge&lt;/code&gt; 跟外部建立連線的，這也是為什麼剛剛可以訪問 &lt;code&gt;nginx_test1&lt;/code&gt; 的原因。&lt;/p&gt;
-&lt;h3 id=&#34;兩個-containers-透過預設的-bridge-互連&#34;&gt;兩個 containers 透過預設的 bridge 互連
+&lt;h3 id=&#34;兩個-containers-透過預設的-bridge-互連&#34;&gt;&lt;a href=&#34;#%e5%85%a9%e5%80%8b-containers-%e9%80%8f%e9%81%8e%e9%a0%90%e8%a8%ad%e7%9a%84-bridge-%e4%ba%92%e9%80%a3&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;兩個 containers 透過預設的 bridge 互連
 &lt;/h3&gt;&lt;p&gt;接著來觀察在預設的網路環境， container 之間是否也可以藉由 &lt;code&gt;bridge&lt;/code&gt; 互連，先用 &lt;code&gt;alpine&lt;/code&gt; 的 image 建立兩個 container&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1068,7 +1068,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h1 id=&#34;reference&#34;&gt;reference
+&lt;h1 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h1&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@0xff07/network/https%3A%2F%2Fhackmd.io%2F%400xff07%2FSJzOwViYF&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;計算機網路 - Network Namespace&lt;/a&gt;&lt;/li&gt;
@@ -1092,7 +1092,7 @@
         
         <guid>https://davidleitw.github.io/p/sudo-go-command-not-found-%E5%95%8F%E9%A1%8C%E8%A7%A3%E6%B1%BA/</guid>
         <description>&lt;p&gt;這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(&lt;del&gt;然後每次都忘記解決方式跑去google&lt;/del&gt;)，所以在這邊紀錄一下解決方式&lt;/p&gt;
-&lt;h2 id=&#34;etcsudoers&#34;&gt;/etc/sudoers
+&lt;h2 id=&#34;etcsudoers&#34;&gt;&lt;a href=&#34;#etcsudoers&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;/etc/sudoers
 &lt;/h2&gt;&lt;p&gt;在用 &lt;code&gt;sudo&lt;/code&gt; 下指令時，系統會從 &lt;code&gt;/etc/sudoers&lt;/code&gt; 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 &lt;code&gt;/usr/local/go/bin&lt;/code&gt; 放到 &lt;code&gt;/etc/sudoers&lt;/code&gt; 裡面，讓系統知道 go 指令要去哪執行&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;/etc/sudoers&lt;/code&gt; 裡面有個 secure_path，把 &lt;code&gt;usr/local/go/bin&lt;/code&gt; 加到那個字串即可.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/k4QKhFj.png&#34;
@@ -1111,7 +1111,7 @@
         <pubDate>Fri, 01 Apr 2022 00:01:01 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/</guid>
-        <description>&lt;h2 id=&#34;同步處理synchronization&#34;&gt;同步處理(Synchronization)
+        <description>&lt;h2 id=&#34;同步處理synchronization&#34;&gt;&lt;a href=&#34;#%e5%90%8c%e6%ad%a5%e8%99%95%e7%90%86synchronization&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;同步處理(Synchronization)
 &lt;/h2&gt;&lt;p&gt;確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。&lt;/p&gt;
 &lt;p&gt;Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/D6Yurh7.png&#34;
@@ -1124,7 +1124,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;可以參考 &lt;a class=&#34;link&#34; href=&#34;https://web.fe.up.pt/~pfs/aulas/so2021/at/19conc.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Concurrency in the Kernel&lt;/a&gt; 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。&lt;/p&gt;
-&lt;h2 id=&#34;race-condition&#34;&gt;Race condition
+&lt;h2 id=&#34;race-condition&#34;&gt;&lt;a href=&#34;#race-condition&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Race condition
 &lt;/h2&gt;&lt;p&gt;在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為&lt;strong&gt;交錯執行&lt;/strong&gt;，導致最後的結果不如預期。&lt;/p&gt;
 &lt;p&gt;底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1227,14 +1227,14 @@
 &lt;li&gt;最後輪到 &lt;code&gt;thread1&lt;/code&gt;，把計算好的 &lt;code&gt;temp1&lt;/code&gt; assign 給 &lt;code&gt;count&lt;/code&gt;，&lt;code&gt;count = temp1 = 1&lt;/code&gt;，最後結果 &lt;strong&gt;count = 1&lt;/strong&gt;，並不符合我們的預期，因為交錯執行導致出現 &lt;strong&gt;race condition&lt;/strong&gt;。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;以 2 條 thread 為例就知道為什麼一開始的範例，跑 20000 條 thread 結果可能會每次都不一樣，因為在同時執行時，沒有處理好同步問題，導致不同 thread 之間可能&lt;strong&gt;交互執行&lt;/strong&gt;，最後得到錯的結果。&lt;/p&gt;
-&lt;h2 id=&#34;執行順序&#34;&gt;執行順序
+&lt;h2 id=&#34;執行順序&#34;&gt;&lt;a href=&#34;#%e5%9f%b7%e8%a1%8c%e9%a0%86%e5%ba%8f&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;執行順序
 &lt;/h2&gt;&lt;p&gt;上面提到了一個簡單的 race condition 例子，在多執行緒環境下，缺乏適度的同步機制，會造成很多無法預期的結果，其實簡單來看，我們的目的就是不要讓 thread 之間交互執行，所以我們應該要關注&lt;strong&gt;執行順序&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;就是因為&lt;strong&gt;執行順序&lt;/strong&gt;沒有按照當初設想，才會出現一些無法預期的結果，在 jserv 老師的 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2Fconcurrency-ordering&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;並行程式設計: 執行順序&lt;/a&gt; 講座中介紹了幾個程式語言描述&lt;strong&gt;執行順序&lt;/strong&gt;的名詞，下面就簡單的做了一下筆記，最後會介紹一下 go 語言 &lt;code&gt;happens-before&lt;/code&gt; 的原則。&lt;/p&gt;
-&lt;h2 id=&#34;evaluation&#34;&gt;Evaluation
+&lt;h2 id=&#34;evaluation&#34;&gt;&lt;a href=&#34;#evaluation&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Evaluation
 &lt;/h2&gt;&lt;p&gt;Evaluation 可以想成 value computations 與 side effect 的組合，用上面 &lt;code&gt;func&lt;/code&gt; 的例子，value computations 就是把 &lt;code&gt;count+1&lt;/code&gt; 計算出來的動作，side effect 就是把計算出來的值 assign 給 &lt;code&gt;count&lt;/code&gt; 的步驟。&lt;/p&gt;
 &lt;p&gt;side effect 有&lt;strong&gt;改變物件/變數狀態&lt;/strong&gt;的語意，你 assign 某個值給變數的同時，如果有另外一個 thread 在呼叫 &lt;code&gt;func&lt;/code&gt; 或者訪問被改變的變數，就有可能導致讀到錯誤(不符預期)的值。&lt;/p&gt;
-&lt;h3 id=&#34;evaluation-orders&#34;&gt;Evaluation orders
+&lt;h3 id=&#34;evaluation-orders&#34;&gt;&lt;a href=&#34;#evaluation-orders&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Evaluation orders
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1247,7 +1247,7 @@
 &lt;p&gt;有些語言像是 c++ 沒有強制規定運算元的執行先後順序，而是交給編譯器處理，這時候編譯器可能會選擇&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/%E6%8C%87%E4%BB%A4%E8%B0%83%E5%BA%A6&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;指令調度(Instruction scheduling)&lt;/a&gt;來優化執行效率，可能會先呼叫 &lt;code&gt;f3()&lt;/code&gt; 再去求 &lt;code&gt;f1() + f2()&lt;/code&gt;，這種改變順序的行為有時候就會導致 side effect 的發生(可能彼此共有一些變數，使呼叫順序改變結果)。&lt;/p&gt;
 &lt;p&gt;Evaluation orders 在每個語言的規範都不相同，真的想深入了解一門語言，應該要花點時間去研究一下那個語言的規範，避免踩到坑。&lt;/p&gt;
-&lt;h2 id=&#34;sequenced-before&#34;&gt;sequenced-before
+&lt;h2 id=&#34;sequenced-before&#34;&gt;&lt;a href=&#34;#sequenced-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;sequenced-before
 &lt;/h2&gt;&lt;p&gt;sequenced-before 用來描述&lt;strong&gt;同一個執行緒&lt;/strong&gt;下兩個 Evaluation 的先後順序。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;A is sequenced-before B: 代表 A 的 evaluation 會先於 B。&lt;/li&gt;
@@ -1287,7 +1287,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;因為左邊的運算元 &lt;code&gt;a&lt;/code&gt; 的 evaluation 會先於右邊的 &lt;code&gt;b&lt;/code&gt;，所以在寫 &lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt; 或者 &lt;code&gt;||&lt;/code&gt; 的時候可以將比較需要優先檢查的條件放在前面。&lt;/p&gt;
-&lt;h2 id=&#34;happens-before&#34;&gt;Happens-before
+&lt;h2 id=&#34;happens-before&#34;&gt;&lt;a href=&#34;#happens-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Happens-before
 &lt;/h2&gt;&lt;p&gt;因為 &lt;a class=&#34;link&#34; href=&#34;https://go.dev/ref/mem&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;go 語言的官方文件&lt;/a&gt; 在介紹 Happens-before 的時候有牽扯到一些 go 語言獨有的特性(goroutine)，所以我們先跟 jserv 老師的講座一樣，從 &lt;a class=&#34;link&#34; href=&#34;https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Java 的官方文件&lt;/a&gt; 來簡單介紹一下這個名詞。&lt;/p&gt;
@@ -1356,7 +1356,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;轉換出來，先把 B 放到 eax，先做 B = 1，接著把 eax + 1 的結果放到 A。&lt;/p&gt;
 &lt;p&gt;由上面的範例就可以知道為什麼 happens-before 強調的是 &lt;strong&gt;visible&lt;/strong&gt;，在 &lt;code&gt;-O2&lt;/code&gt; 的優化下，B = 1 這行事實上比 A = B + 1 更早完成，但是就結果來說是沒有錯的，所以寫程式只要在意邏輯的順序，但實際的執行順序可以會因為編譯器的調整而不同。&lt;/p&gt;
-&lt;h2 id=&#34;synchronized-with&#34;&gt;Synchronized-With
+&lt;h2 id=&#34;synchronized-with&#34;&gt;&lt;a href=&#34;#synchronized-with&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Synchronized-With
 &lt;/h2&gt;&lt;p&gt;synchronized-with 用來描述&lt;strong&gt;不同執行緒&lt;/strong&gt; 下兩個 Evaluation 的先後順序。&lt;/p&gt;
 &lt;p&gt;A, B 兩個操作是在不同執行緒， A synchronized-with B 代表 A 對記憶體的操作對於 B 是 &lt;strong&gt;visible&lt;/strong&gt; 的。&lt;/p&gt;
 &lt;ul&gt;
@@ -1375,9 +1375,9 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;可以看到 synchronizes-with 底下有很多不同的方式可以使用，大部份的語言也都有支援很多套定義多執行緒 happens-before 關係的語法。&lt;/p&gt;
-&lt;h2 id=&#34;golang-happens-before&#34;&gt;golang happens before
+&lt;h2 id=&#34;golang-happens-before&#34;&gt;&lt;a href=&#34;#golang-happens-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;golang happens before
 &lt;/h2&gt;&lt;p&gt;待補&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://go.dev/ref/mem&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;The Go Memory Model&lt;/a&gt;&lt;/li&gt;
@@ -1394,11 +1394,11 @@
         <pubDate>Wed, 23 Mar 2022 00:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。&lt;/p&gt;
 &lt;p&gt;裡面有些說法跟圖片是參考 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2FS1AMIFt0D&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;jserv 老師的講座&lt;/a&gt;，裡面內容非常精彩，有機會的話一定要挑戰看看!&lt;/p&gt;
-&lt;h2 id=&#34;concurrency並行-vs-parallelism平行&#34;&gt;Concurrency(並行) vs Parallelism(平行)
+&lt;h2 id=&#34;concurrency並行-vs-parallelism平行&#34;&gt;&lt;a href=&#34;#concurrency%e4%b8%a6%e8%a1%8c-vs-parallelism%e5%b9%b3%e8%a1%8c&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Concurrency(並行) vs Parallelism(平行)
 &lt;/h2&gt;&lt;p&gt;常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。&lt;/p&gt;
 &lt;p&gt;Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調&lt;strong&gt;同時&lt;/strong&gt;執行多個程式，底下會詳細舉例說明兩者的差異。&lt;/p&gt;
 &lt;p&gt;Concurrency 把程式功能拆分的小的 Task 後，如果&lt;strong&gt;同時&lt;/strong&gt;運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。&lt;/p&gt;
@@ -1421,7 +1421,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。&lt;/p&gt;
-&lt;h3 id=&#34;單一-cpu-的-concurrency&#34;&gt;單一 cpu 的 Concurrency
+&lt;h3 id=&#34;單一-cpu-的-concurrency&#34;&gt;&lt;a href=&#34;#%e5%96%ae%e4%b8%80-cpu-%e7%9a%84-concurrency&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;單一 cpu 的 Concurrency
 &lt;/h3&gt;&lt;p&gt;在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。&lt;/p&gt;
 &lt;p&gt;底下的 jserv 老師上課給的範例&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/4nZ9RVx.png&#34;
@@ -1464,17 +1464,17 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身&lt;strong&gt;同時&lt;/strong&gt;進行著某個任務的話，我們就可以說符合 Parallelism 的概念。&lt;/p&gt;
 &lt;p&gt;今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。&lt;/p&gt;
-&lt;h2 id=&#34;process-and-thread&#34;&gt;Process and Thread
+&lt;h2 id=&#34;process-and-thread&#34;&gt;&lt;a href=&#34;#process-and-thread&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Process and Thread
 &lt;/h2&gt;&lt;p&gt;在恐龍書的課本上，對於 process 與 thread 有不同的定義，但在 Linux kernel 中兩者並沒有明確的區分，在程式中都用 &lt;code&gt;task_struct&lt;/code&gt; 來表示一個 process 或者 thread，兩者的區別只有呼叫 system call 時傳入不同的參數，但是本質上都是用 &lt;code&gt;task_struct&lt;/code&gt; 表示一個執行單元。&lt;/p&gt;
-&lt;h2 id=&#34;工作切換-context-switch&#34;&gt;工作切換 (context switch)
+&lt;h2 id=&#34;工作切換-context-switch&#34;&gt;&lt;a href=&#34;#%e5%b7%a5%e4%bd%9c%e5%88%87%e6%8f%9b-context-switch&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;工作切換 (context switch)
 &lt;/h2&gt;&lt;p&gt;context switch 是指 os 想要把目前執行中的 process 暫停，並且切換到下一個要執行的任務，這個動作就被稱為 context switch。&lt;/p&gt;
 &lt;p&gt;一般情況下被暫停的任務之後在某個時間點還是會被繼續執行，所以在進行 context switch 時必須要紀錄舊的 process 的相關資料，像是舊的 process 下個要執行指令的 address，或者被停止時暫存器的相關資料等等。&lt;/p&gt;
 &lt;p&gt;在後續 context switch 到舊的 process 繼續執行時，整個環境必須要回到舊的 process 被停止時的狀態，context switch 的實現很大一部份決定了整個系統 response 的速度，如果 context switch 做的不好，使用者可能會感受到很明顯的延遲。&lt;/p&gt;
-&lt;h2 id=&#34;排程器-scheduler&#34;&gt;排程器 (scheduler)
+&lt;h2 id=&#34;排程器-scheduler&#34;&gt;&lt;a href=&#34;#%e6%8e%92%e7%a8%8b%e5%99%a8-scheduler&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;排程器 (scheduler)
 &lt;/h2&gt;&lt;p&gt;排程器 (scheduler) 的功能是決定 CPU 下一個要執行的任務，並且執行 context switch 指向新的任務下一個要執行的指令位置。&lt;/p&gt;
 &lt;p&gt;排程的演算法也是一個很多人在研究的議題，要如何恰當的分配硬體資源，還要考慮一些工作可能有比較高的 priority，怎麼優先去安排高 priority 的任務等等。&lt;/p&gt;
 &lt;p&gt;每一個任務可能都被分配一定的時間去執行，那段執行的時間被稱為 time slice，time slice 也不一定是固定時間，根據排程演算法的不同，有些演算法會動態的決定一個任務分配到的 time slice。&lt;/p&gt;
-&lt;h2 id=&#34;preemptive-vs-non-preemptive&#34;&gt;Preemptive vs Non-preemptive
+&lt;h2 id=&#34;preemptive-vs-non-preemptive&#34;&gt;&lt;a href=&#34;#preemptive-vs-non-preemptive&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Preemptive vs Non-preemptive
 &lt;/h2&gt;&lt;p&gt;搶佔式(preemptive) 與非搶佔式(non-preemptive) 的差別在於在執行中的工作(process)是否為自願(voluntary)交出 cpu 使用權，又或者被迫放棄 cpu 使用權。&lt;/p&gt;
 &lt;p&gt;non-preemptive 的優點在於可預估程式的完成時間(不會突然被中斷)，context switch 的次數也相對較少，但相對的每個 process 的 waiting time 就會上升。&lt;/p&gt;
 &lt;p&gt;preemptive 系統中 process 可能會在執行的途中被插隊，&lt;strong&gt;被迫放棄&lt;/strong&gt; cpu 週期給另外的 process，被插隊有很多種不同的原因，像是 Time-out, Interrupt 發生，高優先權的 process 插隊等等。&lt;/p&gt;
@@ -1489,7 +1489,7 @@
         <pubDate>Tue, 28 Dec 2021 01:05:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/%E5%88%A9%E7%94%A8-vagrant-%E5%9F%B7%E8%A1%8C%E8%87%AA%E5%B7%B1%E7%B7%A8%E8%AD%AF%E7%9A%84-kernel%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</guid>
-        <description>&lt;h2 id=&#34;vagrant&#34;&gt;vagrant
+        <description>&lt;h2 id=&#34;vagrant&#34;&gt;&lt;a href=&#34;#vagrant&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;vagrant
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/9aODHGc.png&#34;
 	
 	
@@ -1500,7 +1500,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;vagrant&lt;/code&gt; 是一款建立及管理虛擬機的工具，利用 &lt;code&gt;vagrant&lt;/code&gt; 可以快速在本機端架設實驗環境，並且可以把自己習慣的環境包裝後在任何有安裝 &lt;code&gt;vagrant&lt;/code&gt; 的電腦執行，達到 &lt;code&gt;IaC(Infrastructure as Code)&lt;/code&gt; 的特性，使用 &lt;code&gt;vagrant&lt;/code&gt; 可以大幅降低環境的架設時間，趁這個機會順便學習一下基本的用法。&lt;/p&gt;
 &lt;p&gt;這學期在修 &lt;code&gt;linux&lt;/code&gt; 的課程會有添加 &lt;code&gt;system call&lt;/code&gt; 或者改 &lt;code&gt;kernel&lt;/code&gt; 的需求，所以這篇文章紀錄一下如何使用 &lt;code&gt;vagrant&lt;/code&gt; 來執行自己編譯好的 &lt;code&gt;kernel&lt;/code&gt;，以及一些 &lt;code&gt;vagrant&lt;/code&gt; 的基本用法，用虛擬機做實驗也降低了把自己的環境搞壞的風險。&lt;/p&gt;
-&lt;h2 id=&#34;install&#34;&gt;install
+&lt;h2 id=&#34;install&#34;&gt;&lt;a href=&#34;#install&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;install
 &lt;/h2&gt;&lt;p&gt;安裝可以參考 &lt;a class=&#34;link&#34; href=&#34;https://www.vagrantup.com/downloads&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;官方網站&lt;/a&gt;，在 &lt;code&gt;ubuntu&lt;/code&gt; 的環境安裝 &lt;code&gt;vagrant&lt;/code&gt; 可以用以下指令:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1528,7 +1528,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;$ sudo apt upgrade virtualbox
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;建立基本的環境&#34;&gt;建立基本的環境
+&lt;/div&gt;&lt;h2 id=&#34;建立基本的環境&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e5%9f%ba%e6%9c%ac%e7%9a%84%e7%92%b0%e5%a2%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立基本的環境
 &lt;/h2&gt;&lt;p&gt;虛擬機的底我們選擇使用 &lt;code&gt;ubuntu 16.04&lt;/code&gt; 版本，可以看 &lt;code&gt;Vagrant Cloud&lt;/code&gt; 中 &lt;code&gt;ubuntu&lt;/code&gt; 官方提供的 &lt;code&gt;Vagrant box&lt;/code&gt; 選擇自己想要的版本, &lt;a class=&#34;link&#34; href=&#34;https://app.vagrantup.com/ubuntu&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ubuntu/boxes&lt;/a&gt;。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1570,7 +1570,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;vagrantfile&#34;&gt;Vagrantfile
+&lt;h3 id=&#34;vagrantfile&#34;&gt;&lt;a href=&#34;#vagrantfile&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Vagrantfile
 &lt;/h3&gt;&lt;p&gt;在執行 &lt;code&gt;vagrant init&lt;/code&gt; 的指令時，會在該目錄底下創立一個 &lt;code&gt;Vagrantfile&lt;/code&gt;，可以把這個文件當作虛擬機的配置檔案，有點像是 &lt;code&gt;Dockerfile&lt;/code&gt;，如果想深入了解 &lt;code&gt;Vagrantfile&lt;/code&gt; 的寫法還有詳細配置，可以參考 &lt;a class=&#34;link&#34; href=&#34;https://www.vagrantup.com/docs/vagrantfile&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;官方文檔&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;第一次使用 &lt;code&gt;vagrant&lt;/code&gt; 時它會從雲端把指定的 &lt;code&gt;image&lt;/code&gt;下載進本機，會花比較長的時間，下載好之後可以使用 &lt;code&gt;vagrant ssh&lt;/code&gt; 來進入開啟的虛擬機中。&lt;/p&gt;
@@ -1626,7 +1626,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;$ vagrant reload
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;資料共享的特性&#34;&gt;資料共享的特性
+&lt;/div&gt;&lt;h3 id=&#34;資料共享的特性&#34;&gt;&lt;a href=&#34;#%e8%b3%87%e6%96%99%e5%85%b1%e4%ba%ab%e7%9a%84%e7%89%b9%e6%80%a7&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;資料共享的特性
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;vagrant&lt;/code&gt; 還有一個方便的特性，在虛擬機中如果把檔案放到 &lt;code&gt;/vagrant&lt;/code&gt; 內，就可以跟外部放置 &lt;code&gt;Vagrantfile&lt;/code&gt; 的目錄做資料共享。舉例來說我們在虛擬機建立一個 &lt;code&gt;Hello.txt&lt;/code&gt; 放到 &lt;code&gt;/vagrant&lt;/code&gt; 目錄底下，離開虛擬機存取到該檔案。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1676,7 +1676,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;安裝編譯-kernel-所需要的套件&#34;&gt;安裝編譯 kernel 所需要的套件
+&lt;h3 id=&#34;安裝編譯-kernel-所需要的套件&#34;&gt;&lt;a href=&#34;#%e5%ae%89%e8%a3%9d%e7%b7%a8%e8%ad%af-kernel-%e6%89%80%e9%9c%80%e8%a6%81%e7%9a%84%e5%a5%97%e4%bb%b6&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;安裝編譯 kernel 所需要的套件
 &lt;/h3&gt;&lt;p&gt;接下來安裝一些編譯 &lt;code&gt;kernel&lt;/code&gt; 時依賴的套件，並且用 &lt;code&gt;snapshot&lt;/code&gt; 紀錄一下目前的環境，把名稱設為 &lt;code&gt;installed-tool-env&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1797,7 +1797,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;host@ubuntu: ~$: vagrant snapshot list
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;讀取-snapshot存檔點&#34;&gt;讀取 snapshot(存檔點)
+&lt;/div&gt;&lt;h2 id=&#34;讀取-snapshot存檔點&#34;&gt;&lt;a href=&#34;#%e8%ae%80%e5%8f%96-snapshot%e5%ad%98%e6%aa%94%e9%bb%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;讀取 snapshot(存檔點)
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1808,7 +1808,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;host@ubuntu: ~$: vagrant up
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.vagrantup.com/docs&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;vagrant docs&lt;/a&gt;&lt;/li&gt;
@@ -1868,7 +1868,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;arpa/inet.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;inet_addr&#34;&gt;inet_addr
+&lt;/div&gt;&lt;h3 id=&#34;inet_addr&#34;&gt;&lt;a href=&#34;#inet_addr&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_addr
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1884,7 +1884,7 @@
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/socket/blob/master/address/inet_addr_ex.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;範例程式: inet_addr_ex.c&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;inet_aton&#34;&gt;inet_aton
+&lt;h3 id=&#34;inet_aton&#34;&gt;&lt;a href=&#34;#inet_aton&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_aton
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1897,7 +1897,7 @@
 &lt;p&gt;&lt;strong&gt;回傳&lt;/strong&gt;: 轉換成功，會回傳一個非零的值，失敗則會回傳 &lt;code&gt;0&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/socket/blob/master/address/inet_aton_ex.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;範例程式: inet_aton_ex.c&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;inet_ntoa&#34;&gt;inet_ntoa
+&lt;h3 id=&#34;inet_ntoa&#34;&gt;&lt;a href=&#34;#inet_ntoa&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_ntoa
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1914,7 +1914,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.hubert.tw/2009/04/18/%E5%BE%9E-inet_ntoa-%E7%9C%8B-thread-safe-%E7%9A%84-api/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;可怕的坑&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;inet_pton--inet_ntop&#34;&gt;inet_pton &amp;amp; inet_ntop
+&lt;h3 id=&#34;inet_pton--inet_ntop&#34;&gt;&lt;a href=&#34;#inet_pton--inet_ntop&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_pton &amp;amp; inet_ntop
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1979,7 +1979,7 @@
         <pubDate>Tue, 26 Oct 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/linux-socket-programming%E4%BA%8C-socket-%E4%B8%AD%E7%94%A8%E4%BE%86%E5%AD%98%E6%94%BE%E5%9C%B0%E5%9D%80%E7%9A%84-sockaddr/</guid>
-        <description>&lt;h2 id=&#34;sockaddr&#34;&gt;sockaddr
+        <description>&lt;h2 id=&#34;sockaddr&#34;&gt;&lt;a href=&#34;#sockaddr&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;sockaddr
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;sockaddr&lt;/code&gt; 是 &lt;code&gt;socket&lt;/code&gt; 的通用地址結構，就如同一開始提到的，&lt;code&gt;socket&lt;/code&gt; 除了在網路領域之外，也可以在很多不同的地方用來通訊。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;sockaddr&lt;/code&gt; 結構，定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -2116,7 +2116,7 @@
         <pubDate>Mon, 25 Oct 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/</guid>
-        <description>&lt;h1 id=&#34;socket-programming&#34;&gt;socket programming
+        <description>&lt;h1 id=&#34;socket-programming&#34;&gt;&lt;a href=&#34;#socket-programming&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;socket programming
 &lt;/h1&gt;&lt;p&gt;&lt;code&gt;socket&lt;/code&gt; 本質上是一種 &lt;strong&gt;IPC&lt;/strong&gt; (&lt;code&gt;Inter-Process Communication&lt;/code&gt;) 的技術，用於兩個或多個 &lt;code&gt;process&lt;/code&gt; 進行資料交換或者通訊。&lt;/p&gt;
 &lt;p&gt;在網路領域，&lt;code&gt;socket&lt;/code&gt; 著重的不是同一台主機間 &lt;code&gt;process&lt;/code&gt; 的通訊，而是不同主機執行的 &lt;code&gt;process&lt;/code&gt; 互相交換資料的通訊。&lt;/p&gt;
 &lt;p&gt;我們在寫 &lt;code&gt;socket programming&lt;/code&gt; 的時候會使用 &lt;code&gt;os&lt;/code&gt; 提供的 &lt;code&gt;API&lt;/code&gt;，來避免重複造輪子，今天的筆記會簡單介紹一下 &lt;code&gt;linux&lt;/code&gt; 提供的 &lt;code&gt;socket API&lt;/code&gt;，並用兩個簡單的範例介紹如何用 &lt;code&gt;tcp&lt;/code&gt; 跟 &lt;code&gt;udp&lt;/code&gt; 協定透過 &lt;code&gt;socket&lt;/code&gt; 傳輸資料。&lt;/p&gt;
@@ -2145,7 +2145,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/socket.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;socket&#34;&gt;socket
+&lt;/div&gt;&lt;h2 id=&#34;socket&#34;&gt;&lt;a href=&#34;#socket&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;socket
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -2154,7 +2154,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;socket&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;domain&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;protocol&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h4 id=&#34;domain&#34;&gt;&lt;em&gt;domain&lt;/em&gt;
+&lt;/div&gt;&lt;h4 id=&#34;domain&#34;&gt;&lt;a href=&#34;#domain&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;domain&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;定義要建立哪一種類型的 &lt;code&gt;socket&lt;/code&gt;，常用的有以下幾種類型&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;AF_UNIX&lt;/strong&gt;, &lt;strong&gt;AF_LOCAL&lt;/strong&gt;: 用於本機間 &lt;code&gt;process&lt;/code&gt; 的溝通&lt;/li&gt;
@@ -2167,22 +2167,22 @@
 &lt;/ul&gt;
 &lt;p&gt;詳細的選項可以參考 &lt;code&gt;socket&lt;/code&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man2/socket.2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;man page&lt;/a&gt;&lt;/p&gt;
-&lt;h4 id=&#34;type&#34;&gt;&lt;em&gt;type&lt;/em&gt;
+&lt;h4 id=&#34;type&#34;&gt;&lt;a href=&#34;#type&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;type&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;socket&lt;/code&gt; 傳輸資料的手段(&lt;code&gt;communication semantics&lt;/code&gt;)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;SOCK_STREAM&lt;/strong&gt;: 對應到 &lt;code&gt;tcp&lt;/code&gt; 協定&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;SOCK_DGRAM&lt;/strong&gt;: 對應到 &lt;code&gt;udp&lt;/code&gt; 協定&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;protocol&#34;&gt;&lt;em&gt;protocol&lt;/em&gt;
+&lt;h4 id=&#34;protocol&#34;&gt;&lt;a href=&#34;#protocol&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;protocol&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;設定通訊協定的號碼，通常在寫的時候會填入 &lt;code&gt;0&lt;/code&gt;，&lt;code&gt;kernel&lt;/code&gt; 會根據上面的兩個參數自動選擇合適的協定。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man5/protocols.5.html#top_of_page&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;protocol man page&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;code&gt;/etc/protocols&lt;/code&gt; 可以看到 &lt;code&gt;linux&lt;/code&gt; 底下支援的協定&lt;/p&gt;
-&lt;h4 id=&#34;return-value&#34;&gt;&lt;em&gt;Return Value&lt;/em&gt;
+&lt;h4 id=&#34;return-value&#34;&gt;&lt;a href=&#34;#return-value&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;Return Value&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;成功建立 &lt;code&gt;socket&lt;/code&gt; 之後，此函式會返回該 &lt;code&gt;socket&lt;/code&gt; 的&lt;strong&gt;檔案描述符&lt;/strong&gt;(&lt;code&gt;socket file descriptor&lt;/code&gt;)，在之後的操作可以透過這個回傳值來操作我們建立的 &lt;code&gt;socket&lt;/code&gt;。 如果建立失敗則會回傳 &lt;code&gt;-1(INVALID_SOCKET)&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;檔案描述符是什麼&#34;&gt;檔案描述符是什麼?
+&lt;h3 id=&#34;檔案描述符是什麼&#34;&gt;&lt;a href=&#34;#%e6%aa%94%e6%a1%88%e6%8f%8f%e8%bf%b0%e7%ac%a6%e6%98%af%e4%bb%80%e9%ba%bc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;檔案描述符是什麼?
 &lt;/h3&gt;&lt;p&gt;參考資料&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -2192,7 +2192,7 @@
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/chorm590/p/12745824.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Linux 下 socket 通訊所用的 sockfd 怎麼來的&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;建立-socket-example&#34;&gt;建立 socket example
+&lt;h3 id=&#34;建立-socket-example&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b-socket-example&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立 socket example
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -2255,7 +2255,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;我們這時候就可以用一個變數來取代常用的字串&lt;/p&gt;
 &lt;p&gt;在這之前先介紹一下變數的取用&lt;/p&gt;
-&lt;h3 id=&#34;echo&#34;&gt;echo
+&lt;h3 id=&#34;echo&#34;&gt;&lt;a href=&#34;#echo&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;echo
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -2310,7 +2310,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;變數的設定規則&#34;&gt;變數的設定規則
+&lt;h3 id=&#34;變數的設定規則&#34;&gt;&lt;a href=&#34;#%e8%ae%8a%e6%95%b8%e7%9a%84%e8%a8%ad%e5%ae%9a%e8%a6%8f%e5%89%87&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;變數的設定規則
 &lt;/h3&gt;&lt;ol&gt;
 &lt;li&gt;設定變數中間以 &amp;ldquo;=&amp;rdquo; 連結，並且等號兩側不能有空格&lt;/li&gt;
 &lt;/ol&gt;
@@ -2397,7 +2397,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;http://linux.vbird.org/linux_basic/0320bash.php#variable_var&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;鳥哥的 Linux 私房菜 認識與學習BASH&lt;/a&gt;&lt;/li&gt;
@@ -2411,7 +2411,7 @@
         
         <guid>https://davidleitw.github.io/p/linux-shell-%E8%AE%8A%E6%95%B8%E7%9B%B8%E9%97%9C%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86%E4%BA%8C-read-declare-array/</guid>
         <description>&lt;p&gt;很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。&lt;/p&gt;
-&lt;h2 id=&#34;read&#34;&gt;read
+&lt;h2 id=&#34;read&#34;&gt;&lt;a href=&#34;#read&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;read
 &lt;/h2&gt;&lt;p&gt;讀取從鍵盤輸入的變數，常常會出現在 &lt;code&gt;shell script&lt;/code&gt; 之中&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2437,7 +2437,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;declare&#34;&gt;declare
+&lt;h2 id=&#34;declare&#34;&gt;&lt;a href=&#34;#declare&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;declare
 &lt;/h2&gt;&lt;p&gt;可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2487,7 +2487,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;array&#34;&gt;array
+&lt;h2 id=&#34;array&#34;&gt;&lt;a href=&#34;#array&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;array
 &lt;/h2&gt;&lt;p&gt;以 &lt;code&gt;arr[index]=content&lt;/code&gt; 的形式來指定 array Index 所代表的值。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/ZMIa41Y.png&#34;
 	
@@ -2497,7 +2497,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;http://linux.vbird.org/linux_basic/0320bash.php#variable_environ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;鳥哥的 Linux 私房菜&lt;/a&gt;&lt;/li&gt;

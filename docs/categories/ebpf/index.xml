@@ -13,7 +13,7 @@
         <pubDate>Mon, 12 Dec 2022 21:00:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;一般來說學習 xdp 都會參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt;，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。&lt;/p&gt;
 &lt;p&gt;但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:&lt;/p&gt;
@@ -35,8 +35,8 @@
 &lt;p&gt;實際上可能會因為 &lt;code&gt;go.mod&lt;/code&gt; 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。&lt;/p&gt;
 &lt;p&gt;底下我們會根據 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 編寫一個簡單的 xdp 程式，然後編譯成 &lt;code&gt;.o&lt;/code&gt; 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。&lt;/p&gt;
-&lt;h2 id=&#34;&#34;&gt;
-&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;編寫 xdp 範例
+&lt;h2 id=&#34;&#34;&gt;&lt;a href=&#34;#&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;&lt;a href=&#34;#%e7%b7%a8%e5%af%ab-xdp-%e7%af%84%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;編寫 xdp 範例
 &lt;/h2&gt;&lt;p&gt;這邊我們參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial/tree/master/packet01-parsing#assignment-3-parsing-the-icmpv6-header-and-reacting-to-it&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;packet01-parsing&lt;/a&gt; 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。&lt;/p&gt;
@@ -185,7 +185,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    rm &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;TARGET&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;user space 編寫
+&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;&lt;a href=&#34;#user-space-%e7%b7%a8%e5%af%ab&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space 編寫
 &lt;/h2&gt;&lt;p&gt;user space 我們使用 go 語言來負責載入編譯好的 &lt;code&gt;elf&lt;/code&gt; 檔案，除此之外還需要提供 api 讓我們能在 user space 操作 eBPF map。&lt;/p&gt;
 &lt;p&gt;go 語言有非常多 eBPF library 可供選擇，最主流的選擇不外乎是 Cilium 與 Cloudflare 維護的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/cilium/ebpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ebpf-go&lt;/a&gt;，IO Visor 提供的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/iovisor/gobpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -330,7 +330,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;詳細的程式請參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;，實際跑一次程式才知道具體運作的流程。&lt;/p&gt;
-&lt;h2 id=&#34;實測&#34;&gt;實測
+&lt;h2 id=&#34;實測&#34;&gt;&lt;a href=&#34;#%e5%af%a6%e6%b8%ac&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;實測
 &lt;/h2&gt;&lt;p&gt;首先需要編譯 xdp 程式&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -383,7 +383,7 @@
 &lt;p&gt;可以看到，偶數的 icmp packet 都被捨棄了，所以剛好會有 50 % 的封包收到回應，效果的確符合預期。&lt;/p&gt;
 &lt;p&gt;完整程式碼可以看&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這邊&lt;/a&gt;，實際跑一次能學習的更有效率!&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://networkop.co.uk/post/2021-03-ebpf-intro/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Getting Started with eBPF and Go&lt;/a&gt;&lt;/li&gt;

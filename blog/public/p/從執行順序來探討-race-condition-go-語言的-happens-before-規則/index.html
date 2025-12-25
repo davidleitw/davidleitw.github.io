@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。\nLinux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。\n">
 <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/'>
+<link rel='canonical' href='http://localhost:44973/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="從執行順序來探討 Race condition, go 語言的 happens-before 規則">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="從執行順序來探討 Race condition, go 語言的 happens-before 規則">
 <meta property='og:description' content="同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。\nLinux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/'>
+<meta property='og:url' content='http://localhost:44973/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='concurrency' /><meta property='article:tag' content='parallelism' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='linux_kernel' /><meta property='article:published_time' content='2022-04-01T00:01:01&#43;08:00'/><meta property='article:modified_time' content='2022-04-01T00:01:01&#43;08:00'/>
 <meta name="twitter:title" content="從執行順序來探討 Race condition, go 語言的 happens-before 規則">
 <meta name="twitter:description" content="同步處理(Synchronization) 確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。\nLinux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -268,20 +314,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 6 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -293,7 +325,7 @@
     <section class="article-content">
     
     
-    <h2 id="同步處理synchronization">同步處理(Synchronization)
+    <h2 id="同步處理synchronization"><a href="#%e5%90%8c%e6%ad%a5%e8%99%95%e7%90%86synchronization" class="header-anchor"></a>同步處理(Synchronization)
 </h2><p>確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。</p>
 <p>Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。</p>
 <p><img src="https://i.imgur.com/D6Yurh7.png"
@@ -306,7 +338,7 @@
 ></p>
 <p>可以參考 <a class="link" href="https://web.fe.up.pt/~pfs/aulas/so2021/at/19conc.pdf"  target="_blank" rel="noopener"
     >Concurrency in the Kernel</a> 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。</p>
-<h2 id="race-condition">Race condition
+<h2 id="race-condition"><a href="#race-condition" class="header-anchor"></a>Race condition
 </h2><p>在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為<strong>交錯執行</strong>，導致最後的結果不如預期。</p>
 <p>底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。</p>
 <div class="highlight"><div class="chroma">
@@ -409,14 +441,14 @@
 <li>最後輪到 <code>thread1</code>，把計算好的 <code>temp1</code> assign 給 <code>count</code>，<code>count = temp1 = 1</code>，最後結果 <strong>count = 1</strong>，並不符合我們的預期，因為交錯執行導致出現 <strong>race condition</strong>。</li>
 </ul>
 <p>以 2 條 thread 為例就知道為什麼一開始的範例，跑 20000 條 thread 結果可能會每次都不一樣，因為在同時執行時，沒有處理好同步問題，導致不同 thread 之間可能<strong>交互執行</strong>，最後得到錯的結果。</p>
-<h2 id="執行順序">執行順序
+<h2 id="執行順序"><a href="#%e5%9f%b7%e8%a1%8c%e9%a0%86%e5%ba%8f" class="header-anchor"></a>執行順序
 </h2><p>上面提到了一個簡單的 race condition 例子，在多執行緒環境下，缺乏適度的同步機制，會造成很多無法預期的結果，其實簡單來看，我們的目的就是不要讓 thread 之間交互執行，所以我們應該要關注<strong>執行順序</strong>。</p>
 <p>就是因為<strong>執行順序</strong>沒有按照當初設想，才會出現一些無法預期的結果，在 jserv 老師的 <a class="link" href="https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2Fconcurrency-ordering"  target="_blank" rel="noopener"
     >並行程式設計: 執行順序</a> 講座中介紹了幾個程式語言描述<strong>執行順序</strong>的名詞，下面就簡單的做了一下筆記，最後會介紹一下 go 語言 <code>happens-before</code> 的原則。</p>
-<h2 id="evaluation">Evaluation
+<h2 id="evaluation"><a href="#evaluation" class="header-anchor"></a>Evaluation
 </h2><p>Evaluation 可以想成 value computations 與 side effect 的組合，用上面 <code>func</code> 的例子，value computations 就是把 <code>count+1</code> 計算出來的動作，side effect 就是把計算出來的值 assign 給 <code>count</code> 的步驟。</p>
 <p>side effect 有<strong>改變物件/變數狀態</strong>的語意，你 assign 某個值給變數的同時，如果有另外一個 thread 在呼叫 <code>func</code> 或者訪問被改變的變數，就有可能導致讀到錯誤(不符預期)的值。</p>
-<h3 id="evaluation-orders">Evaluation orders
+<h3 id="evaluation-orders"><a href="#evaluation-orders" class="header-anchor"></a>Evaluation orders
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -429,7 +461,7 @@
 <p>有些語言像是 c++ 沒有強制規定運算元的執行先後順序，而是交給編譯器處理，這時候編譯器可能會選擇<a class="link" href="https://zh.wikipedia.org/wiki/%E6%8C%87%E4%BB%A4%E8%B0%83%E5%BA%A6"  target="_blank" rel="noopener"
     >指令調度(Instruction scheduling)</a>來優化執行效率，可能會先呼叫 <code>f3()</code> 再去求 <code>f1() + f2()</code>，這種改變順序的行為有時候就會導致 side effect 的發生(可能彼此共有一些變數，使呼叫順序改變結果)。</p>
 <p>Evaluation orders 在每個語言的規範都不相同，真的想深入了解一門語言，應該要花點時間去研究一下那個語言的規範，避免踩到坑。</p>
-<h2 id="sequenced-before">sequenced-before
+<h2 id="sequenced-before"><a href="#sequenced-before" class="header-anchor"></a>sequenced-before
 </h2><p>sequenced-before 用來描述<strong>同一個執行緒</strong>下兩個 Evaluation 的先後順序。</p>
 <ul>
 <li>A is sequenced-before B: 代表 A 的 evaluation 會先於 B。</li>
@@ -469,7 +501,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>因為左邊的運算元 <code>a</code> 的 evaluation 會先於右邊的 <code>b</code>，所以在寫 <code>&amp;&amp;</code> 或者 <code>||</code> 的時候可以將比較需要優先檢查的條件放在前面。</p>
-<h2 id="happens-before">Happens-before
+<h2 id="happens-before"><a href="#happens-before" class="header-anchor"></a>Happens-before
 </h2><p>因為 <a class="link" href="https://go.dev/ref/mem"  target="_blank" rel="noopener"
     >go 語言的官方文件</a> 在介紹 Happens-before 的時候有牽扯到一些 go 語言獨有的特性(goroutine)，所以我們先跟 jserv 老師的講座一樣，從 <a class="link" href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5"  target="_blank" rel="noopener"
     >Java 的官方文件</a> 來簡單介紹一下這個名詞。</p>
@@ -538,7 +570,7 @@
 ></p>
 <p>轉換出來，先把 B 放到 eax，先做 B = 1，接著把 eax + 1 的結果放到 A。</p>
 <p>由上面的範例就可以知道為什麼 happens-before 強調的是 <strong>visible</strong>，在 <code>-O2</code> 的優化下，B = 1 這行事實上比 A = B + 1 更早完成，但是就結果來說是沒有錯的，所以寫程式只要在意邏輯的順序，但實際的執行順序可以會因為編譯器的調整而不同。</p>
-<h2 id="synchronized-with">Synchronized-With
+<h2 id="synchronized-with"><a href="#synchronized-with" class="header-anchor"></a>Synchronized-With
 </h2><p>synchronized-with 用來描述<strong>不同執行緒</strong> 下兩個 Evaluation 的先後順序。</p>
 <p>A, B 兩個操作是在不同執行緒， A synchronized-with B 代表 A 對記憶體的操作對於 B 是 <strong>visible</strong> 的。</p>
 <ul>
@@ -557,9 +589,9 @@
 	
 ></p>
 <p>可以看到 synchronizes-with 底下有很多不同的方式可以使用，大部份的語言也都有支援很多套定義多執行緒 happens-before 關係的語法。</p>
-<h2 id="golang-happens-before">golang happens before
+<h2 id="golang-happens-before"><a href="#golang-happens-before" class="header-anchor"></a>golang happens before
 </h2><p>待補</p>
-<h2 id="reference">reference
+<h2 id="reference"><a href="#reference" class="header-anchor"></a>reference
 </h2><ul>
 <li><a class="link" href="https://go.dev/ref/mem"  target="_blank" rel="noopener"
     >The Go Memory Model</a></li>
@@ -587,18 +619,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -846,7 +866,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

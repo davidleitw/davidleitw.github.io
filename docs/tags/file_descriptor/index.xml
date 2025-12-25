@@ -13,12 +13,12 @@
         <pubDate>Tue, 28 Jun 2022 04:16:48 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/linux-file-descriptor-%E7%90%86%E8%A7%A3/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;&lt;strong&gt;file descriptor&lt;/strong&gt; 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 &lt;code&gt;socket&lt;/code&gt; 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 &lt;code&gt;epoll_create&lt;/code&gt; 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。&lt;/p&gt;
 &lt;p&gt;在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。&lt;/p&gt;
 &lt;p&gt;在 &lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/File_descriptor&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;File descriptor&lt;/a&gt; 中可以簡單看一下，究竟在 Linux 中有多少 system call 使用了 File descriptor 的概念，就知道 fd 在 Linux 中的重要性了。&lt;/p&gt;
-&lt;h2 id=&#34;everything-is-a-file&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;everything-is-a-file&#34;&gt;&lt;a href=&#34;#everything-is-a-file&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Everything is a file&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;Linux 秉持著 UNIX 哲學 &lt;strong&gt;Everything is a file&lt;/strong&gt;，這個概念的好處是可以用一組通用的 Interface 來操作不同資源，在資源跟使用者之間加上一層抽象層，進而延伸出 &lt;strong&gt;Universal I/O Model&lt;/strong&gt; 的概念。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Universality of I/O&lt;/strong&gt; 代表可以用相同的 &lt;code&gt;open()&lt;/code&gt;, &lt;code&gt;read()&lt;/code&gt;, &lt;code&gt;write()&lt;/code&gt;, &lt;code&gt;close()&lt;/code&gt; 來操作不同類型的 I/O，後續很多不同的新技術或者機制都是用相同的精神設計，讓一組通用的 API 可以在不同場景有不同的作用。&lt;/p&gt;
@@ -27,7 +27,7 @@
     &gt;Linux 核心設計: 檔案系統&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;因為 &lt;code&gt;open()&lt;/code&gt;, &lt;code&gt;read()&lt;/code&gt;, &lt;code&gt;write()&lt;/code&gt;, &lt;code&gt;close()&lt;/code&gt; 等 system call 以及其他 system call 其實都是用 fd 來控制資源，所以有個說法是 &lt;strong&gt;Everything is a file&lt;/strong&gt; 應該要說成 &lt;strong&gt;Everything is a file descriptor&lt;/strong&gt; 更妥當。&lt;/p&gt;
-&lt;h3 id=&#34;kernel-space--user-space&#34;&gt;Kernel space &amp;amp; User space
+&lt;h3 id=&#34;kernel-space--user-space&#34;&gt;&lt;a href=&#34;#kernel-space--user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Kernel space &amp;amp; User space
 &lt;/h3&gt;&lt;p&gt;為什麼需要 fd 可以先從 kernel space 與 user space 的概念開始思考。&lt;/p&gt;
 &lt;p&gt;寫在 user space 的程式沒辦法直接訪問硬體資源(像是硬碟, 網卡等等)，如果要讀取單個文件，我們會在 user space 呼叫 &lt;code&gt;read()&lt;/code&gt; 來讀取資料時，會先用 system call 的方式跟 kernel 發起資源的請求，在 kernel space 中才會具體跟底層互動，最後才將結果從 kernel space 複製到 user space。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/OrQqXis.png&#34;
@@ -68,7 +68,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;open&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;test.txt&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;O_RDONLY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;默認的-fd&#34;&gt;默認的 fd
+&lt;/div&gt;&lt;h3 id=&#34;默認的-fd&#34;&gt;&lt;a href=&#34;#%e9%bb%98%e8%aa%8d%e7%9a%84-fd&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;默認的 fd
 &lt;/h3&gt;&lt;p&gt;底下看 source code 的時候會了解到每個 process 都會存放自己的 &lt;code&gt;file descriptors table&lt;/code&gt; 來代表該 process 打開或者操作的文件/資源。&lt;/p&gt;
 &lt;p&gt;每個 process 預留了 0, 1, 2 這三個 fd，分別代表 &lt;strong&gt;stdin&lt;/strong&gt;, &lt;strong&gt;stdout&lt;/strong&gt;, &lt;strong&gt;stderr&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/A3azUal.png&#34;
@@ -83,7 +83,7 @@
 &lt;p&gt;詳細參考: &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man3/stdout.3.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;stdin(3) — Linux manual page&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;fd-的範圍&#34;&gt;fd 的範圍
+&lt;h3 id=&#34;fd-的範圍&#34;&gt;&lt;a href=&#34;#fd-%e7%9a%84%e7%af%84%e5%9c%8d&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;fd 的範圍
 &lt;/h3&gt;&lt;p&gt;fd 有基本的範圍限制，可以通過 &lt;code&gt;ulimit&lt;/code&gt; 來查看系統目前的配置&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -97,7 +97,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這個範圍包含著很多學問，詳情可以參考這篇 &lt;a class=&#34;link&#34; href=&#34;https://mp.weixin.qq.com/s/GBn94vdL4xUL80WYrGdUWQ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;刨根问底儿，看我如何处理 Too many open files 错误！&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;file-descriptor-fd&#34;&gt;File descriptor (&lt;code&gt;fd&lt;/code&gt;)
+&lt;h2 id=&#34;file-descriptor-fd&#34;&gt;&lt;a href=&#34;#file-descriptor-fd&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;File descriptor (&lt;code&gt;fd&lt;/code&gt;)
 &lt;/h2&gt;&lt;p&gt;fd 在 kernel 中使用了三種不同的 table 來表示，本文會簡單分析一下底層的 source code。&lt;/p&gt;
 &lt;p&gt;下方為三種 table 的示意圖&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/2KoG0cs.png&#34;
@@ -108,7 +108,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;task_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h#L1076&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;task_&#34;&gt;&lt;a href=&#34;#task_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h#L1076&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;task_struct&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;要理解 fd 的實現就要從 &lt;code&gt;task_struct&lt;/code&gt; 開始看起，我們聚焦在 &lt;code&gt;files&lt;/code&gt; 這個成員。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -131,7 +131,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;files_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L49&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h3 id=&#34;files_&#34;&gt;&lt;a href=&#34;#files_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L49&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;files_struct&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;files_struct&lt;/code&gt; 用來管理/紀錄一個 process 打開的所有文件，這個結構在上方的示意圖的最左方，存放一個 process 的 file descriptors。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -186,7 +186,7 @@
 &lt;li&gt;&lt;code&gt;struct fdtable&lt;/code&gt; 則是動態陣列，在一個 process 開啟文件的數量大於 &lt;strong&gt;NR_OPEN_DEFAULT&lt;/strong&gt; 時啟用&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;大多數 process 只會開啟少數文件，所以只用靜態的 array 即可，開啟大量文件的情況才會用到動態陣列。&lt;/p&gt;
-&lt;h3 id=&#34;fdtable&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;fdtable&#34;&gt;&lt;a href=&#34;#fdtable&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;fdtable&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;fdtable&lt;/code&gt; 是用來管理 &lt;code&gt;fd&lt;/code&gt; 的結構&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -217,7 +217,7 @@
 &lt;/ul&gt;
 &lt;p&gt;關於 &lt;code&gt;fdtable&lt;/code&gt; 的建立，會呼叫 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v5.15/source/fs/file.c#L90&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;alloc_fdtable&lt;/a&gt;，有興趣可以繼續往下看相關的邏輯，也能順便理解什麼情境才會呼叫 &lt;code&gt;alloc_fdtable&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;fd-只是陣列中的索引值&#34;&gt;fd 只是陣列中的索引值
+&lt;h3 id=&#34;fd-只是陣列中的索引值&#34;&gt;&lt;a href=&#34;#fd-%e5%8f%aa%e6%98%af%e9%99%a3%e5%88%97%e4%b8%ad%e7%9a%84%e7%b4%a2%e5%bc%95%e5%80%bc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;fd 只是陣列中的索引值
 &lt;/h3&gt;&lt;p&gt;所以從上面的介紹中可以得知，無論是開啟文件較少時用的 &lt;code&gt;fd_array&lt;/code&gt; 或者動態的 &lt;code&gt;fdtable&lt;/code&gt;，fd 在裡面扮演的角色只是陣列中的&lt;strong&gt;索引&lt;/strong&gt;，最終會指向對應文件的 &lt;code&gt;struct file&lt;/code&gt; 結構。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/bTiyp9S.png&#34;
 	
@@ -230,7 +230,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.qiyacloud.cn/2021/04/2021-04-07/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;來源&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;接著往下 &lt;code&gt;struct file&lt;/code&gt; 還有更深入的 &lt;code&gt;struct inode&lt;/code&gt; 就不在本篇的討論範圍內，避免篇幅過長。 在這篇文章中主要介紹了最外層的 &lt;code&gt;files_struct&lt;/code&gt; 以及知道 fd 的本質就是索引，每個 fd 都可以對應到一個 &lt;code&gt;file&lt;/code&gt; 的結構，更多深入的解析可以在底下 reference 中的連結內繼續往下探索。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://kkc.github.io/2020/08/22/file-descriptor/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Linux 的 file descriptor 筆記&lt;/a&gt;&lt;/li&gt;

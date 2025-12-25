@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 本文章環境基於 Linux v4.14.259\n第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。\n">
 <title>Linux schedule 原始碼解讀</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
+<link rel='canonical' href='http://localhost:44973/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Linux schedule 原始碼解讀">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="Linux schedule 原始碼解讀">
 <meta property='og:description' content=" 本文章環境基於 Linux v4.14.259\n第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
+<meta property='og:url' content='http://localhost:44973/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux_kernel' /><meta property='article:tag' content='system_call' /><meta property='article:tag' content='scheduler' /><meta property='article:published_time' content='2022-01-07T03:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-01-07T03:12:53&#43;08:00'/>
 <meta name="twitter:title" content="Linux schedule 原始碼解讀">
 <meta name="twitter:description" content=" 本文章環境基於 Linux v4.14.259\n第一次 trace 整個排程的流程，kernel 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 function 的作用都沒辦法很好的說明，希望之後可以多閱讀 source code，把相關的知識慢慢補齊，拼湊成完整的知識。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -268,20 +314,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 6 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -297,7 +329,7 @@
 <p>本文章環境基於 Linux v4.14.259</p>
 </blockquote>
 <p>第一次 <code>trace</code> 整個排程的流程，<code>kernel</code> 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 <code>function</code> 的作用都沒辦法很好的說明，希望之後可以多閱讀 <code>source code</code>，把相關的知識慢慢補齊，拼湊成完整的知識。</p>
-<h2 id="schedule"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424"  target="_blank" rel="noopener"
+<h2 id="schedule"><a href="#schedule" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424"  target="_blank" rel="noopener"
     >schedule</a>
 </h2><p>要 <code>trace</code> 排程器要先找到 <code>schedule</code> 的入口，定義在 <code>kernel/sched/core.c</code>，函式定義如下</p>
 <div class="highlight"><div class="chroma">
@@ -340,7 +372,7 @@
 </span></span><span class="line"><span class="cl"><span class="nf">EXPORT_SYMBOL</span><span class="p">(</span><span class="n">schedule</span><span class="p">);</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="sched_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412"  target="_blank" rel="noopener"
+</div><h3 id="sched_"><a href="#sched_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412"  target="_blank" rel="noopener"
     >sched_submit_work</a>
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -373,7 +405,7 @@
 </div><p>在 <code>sched_submit_work</code> 中先檢查 <code>tsk-&gt;state</code> 是否為 0(<code>runnable</code>)，如果是就直接返回。
 <code>tsk_is_pi_blocked</code> 檢查 <code>tsk</code> 的 <code>deadlock</code> 檢測器是否為空。</p>
 <p>注意到 <code>schedule</code> 的 <code>while</code> 迴圈中的 <code>__schedule(false)</code>，<code>__schedule</code> 是真正排程執行的地方，所以繼續往下 <code>trace</code></p>
-<h2 id="_"><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299"  target="_blank" rel="noopener"
+<h2 id="_"><a href="#_" class="header-anchor"></a><a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299"  target="_blank" rel="noopener"
     >_schedule</a>
 </h2><p>在 <code>__schedule()</code> 定義上方有一段註解說明<strong>排程時機</strong>，主要是說明 <code>task_struct</code> 在什麼情況會被排程，底下會大概敘述一下排程器在什麼情況下會考慮排程。</p>
 <div class="highlight"><div class="chroma">
@@ -854,7 +886,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="get-the-number-of-context-switches">get the number of context switches
+</div><h2 id="get-the-number-of-context-switches"><a href="#get-the-number-of-context-switches" class="header-anchor"></a>get the number of context switches
 </h2><p>回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 <code>counter</code> 來計算被排程的次數，只要把 <code>task_struct</code> 中的 <code>tsk-&gt;nivcsw + tsk-&gt;nvcse</code> 就可以得到這個 <code>task_struct</code> 被 <code>context switch</code> 的次數了，甚至可以用 <code>nr_switches</code> 這個變數來直接獲得答案。</p>
 <p>在驗證自己程式的正確性時，我們會參考 <code>/proc/{pid}/sched</code> 中的 <code>nr_switches</code>，實際找到 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924"  target="_blank" rel="noopener"
     >proc_sched_show_task</a> 就會發現 <code>nr_switches</code> 也是用 <code>nivcsw + nvcse</code> 來實現。</p>
@@ -891,7 +923,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>所以題目一的實現如下:</p>
-<h3 id="kernel-space">kernel space
+<h3 id="kernel-space"><a href="#kernel-space" class="header-anchor"></a>kernel space
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -937,7 +969,7 @@
 </div><p>利用 <code>SYSCALL_DEFINE1</code> 的 <code>macro</code> 來展開我們定義的 <code>get_number_of_context_switches</code>，利用 <code>task_struct</code> 的 <code>nvcse, nivcsw</code> 來獲得 <code>number of context switches</code>。</p>
 <p>之所以要用 <code>SYSCALL_DEFINE1</code> 來定義 <code>system call</code> 是因為之前有個 <a class="link" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029"  target="_blank" rel="noopener"
     >CVE-2009-0029</a>，攻擊者可以藉由 <code>32 跟 64 bits</code> 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 <code>SYSCALL_DEFINE</code> 來定義會比較安全。</p>
-<h3 id="user-space">user space
+<h3 id="user-space"><a href="#user-space" class="header-anchor"></a>user space
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -995,7 +1027,7 @@
 	
 	
 ></p>
-<h3 id="refernece">refernece
+<h3 id="refernece"><a href="#refernece" class="header-anchor"></a>refernece
 </h3><ul>
 <li><a class="link" href="http://www.wowotech.net/process_management/447.html"  target="_blank" rel="noopener"
     >CFS调度器（1）-基本原理</a></li>
@@ -1021,18 +1053,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -1280,7 +1300,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

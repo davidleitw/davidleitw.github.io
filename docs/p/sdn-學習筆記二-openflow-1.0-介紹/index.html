@@ -6,13 +6,15 @@
 
 <link rel='canonical' href='https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="SDN 學習筆記(二): OpenFlow 1.0 介紹">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="SDN 學習筆記(二): OpenFlow 1.0 介紹">
 <meta property='og:description' content="SDN 學習筆記第二篇">
 <meta property='og:url' content='https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='network' /><meta property='article:tag' content='SDN' /><meta property='article:published_time' content='2021-08-13T21:34:43&#43;08:00'/><meta property='article:modified_time' content='2021-08-13T21:34:43&#43;08:00'/>
 <meta name="twitter:title" content="SDN 學習筆記(二): OpenFlow 1.0 介紹">
 <meta name="twitter:description" content="SDN 學習筆記第二篇">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -299,20 +345,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 5 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -324,16 +356,16 @@
     <section class="article-content">
     
     
-    <h2 id="前言">前言
+    <h2 id="前言"><a href="#%e5%89%8d%e8%a8%80" class="header-anchor"></a>前言
 </h2><p>想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹<strong>OpenFlow 1.0的架構</strong>，以及一些 spec 的整理.</p>
 <p>之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。</p>
-<h3 id="為什麼會著重在10與13兩個版本呢">為什麼會著重在1.0與1.3兩個版本呢？
+<h3 id="為什麼會著重在10與13兩個版本呢"><a href="#%e7%82%ba%e4%bb%80%e9%ba%bc%e6%9c%83%e8%91%97%e9%87%8d%e5%9c%a810%e8%88%8713%e5%85%a9%e5%80%8b%e7%89%88%e6%9c%ac%e5%91%a2" class="header-anchor"></a>為什麼會著重在1.0與1.3兩個版本呢？
 </h3><blockquote>
 <p>1.0版本與之後的版本不兼容，所以1.0要最先介紹。 <strong>1.0以及1.3版本被選為長期支持的穩定版本</strong> 1.3為目前的主流版本，<strong>多數支持OpenFlow的硬體是支援OpenFlow1.3</strong></p>
 <p>參考資料: <a class="link" href="https://blog.csdn.net/qq_29229567/article/details/88797395"  target="_blank" rel="noopener"
     >OpenFlow 協定演進</a></p>
 </blockquote>
-<h2 id="openflow-10-架構">OpenFlow 1.0 架構
+<h2 id="openflow-10-架構"><a href="#openflow-10-%e6%9e%b6%e6%a7%8b" class="header-anchor"></a>OpenFlow 1.0 架構
 </h2><p><img src="https://imgur.com/AioLuDj.jpg"
 	
 	
@@ -344,7 +376,7 @@
 >
 <strong>OpenFlow 1.0 spec 架構圖</strong></p>
 <hr>
-<h2 id="flow-table">Flow Table
+<h2 id="flow-table"><a href="#flow-table" class="header-anchor"></a>Flow Table
 </h2><p><img src="https://imgur.com/YazXiG6.jpg"
 	
 	
@@ -364,7 +396,7 @@
 <li><code>Counters</code></li>
 <li><code>Actions</code></li>
 </ul>
-<h3 id="header-fields">Header Fields
+<h3 id="header-fields"><a href="#header-fields" class="header-anchor"></a>Header Fields
 </h3><p><strong>OpenFlow 1.0</strong> 協定中共有12種可供匹配的條件， IP部份只支援IPv4。</p>
 <p>分別如下，僅列出條列，細節說明請參考 <strong>OpenFlow 1.0 spec</strong></p>
 <ul>
@@ -408,7 +440,7 @@
 	
 	
 ></p>
-<h3 id="counters">Counters
+<h3 id="counters"><a href="#counters" class="header-anchor"></a>Counters
 </h3><p><code>Counter</code> 會針對每張 <code>Flow Table</code>, 每條 <code>Flow entry</code>, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。</p>
 <p><img src="https://i.imgur.com/exsmUoB.png"
 	
@@ -418,7 +450,7 @@
 	
 	
 ></p>
-<h3 id="actions">Actions
+<h3 id="actions"><a href="#actions" class="header-anchor"></a>Actions
 </h3><p>每一個 <code>Flow entry</code> 都伴隨著0或者多個 <code>actions</code>， <code>actions</code>代表今天封包匹配某個 <code>Header fields</code> 的條件成功之後會執行的動作。</p>
 <p>假設匹配成功之後發現沒有設置 <code>actions</code>， 此時 <code>Switch</code> 就會把<strong>封包丟棄(dropped)</strong>，匹配成功之後執行 actions list 必定會按照原本的順序<strong>依序執行</strong>。</p>
 <blockquote>
@@ -428,7 +460,7 @@
 </ul>
 </blockquote>
 <p><code>Switch</code> 並不需要支援所有在 spec 裡面提及的 <code>action</code>， 只有標注 <strong>Required Action</strong> 的才是一定要支援的，標注 <strong>Optional Action</strong> 的則是選用。</p>
-<h4 id="required-action-forward轉發封包">Required Action: Forward(轉發封包)
+<h4 id="required-action-forward轉發封包"><a href="#required-action-forward%e8%bd%89%e7%99%bc%e5%b0%81%e5%8c%85" class="header-anchor"></a>Required Action: Forward(轉發封包)
 </h4><p>轉發除了要支援基本的 Switch port 之外， 也要支援以下的 <strong>virtual port</strong>。</p>
 <p><img src="https://i.imgur.com/tgv3Nbj.png"
 	
@@ -447,11 +479,11 @@
 	
 	
 ></p>
-<h4 id="required-action-drop丟棄封包">Required Action: Drop(丟棄封包)
+<h4 id="required-action-drop丟棄封包"><a href="#required-action-drop%e4%b8%9f%e6%a3%84%e5%b0%81%e5%8c%85" class="header-anchor"></a>Required Action: Drop(丟棄封包)
 </h4><p>除了可以設定 Drop action 之外， 假設今天有 <code>Flow entry</code> 沒有設定 <code>action</code>，switch 也會預設把封包丟棄。</p>
-<h4 id="optional-action-enqueue">Optional Action: Enqueue
+<h4 id="optional-action-enqueue"><a href="#optional-action-enqueue" class="header-anchor"></a>Optional Action: Enqueue
 </h4><p>Enqueue 可以將封包轉發至某個特定 port 的 queue 中，便於支援<code>QoS</code>。</p>
-<h4 id="optional-action-modify-field修改封包">Optional Action: Modify-Field(修改封包)
+<h4 id="optional-action-modify-field修改封包"><a href="#optional-action-modify-field%e4%bf%ae%e6%94%b9%e5%b0%81%e5%8c%85" class="header-anchor"></a>Optional Action: Modify-Field(修改封包)
 </h4><p>基本上最有彈性的 <strong>Modify-Field</strong> 雖然是標注為 <strong>Optional Action</strong>，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 <code>Switch</code> 都會支援。</p>
 <p><img src="https://i.imgur.com/8L2cErK.png"
 	
@@ -462,8 +494,8 @@
 	
 ></p>
 <hr>
-<h2 id="matching">Matching
-</h2><h3 id="packet-flow-in-an-openflow-switch-封包處理流程">Packet flow in an OpenFlow switch: 封包處理流程
+<h2 id="matching"><a href="#matching" class="header-anchor"></a>Matching
+</h2><h3 id="packet-flow-in-an-openflow-switch-封包處理流程"><a href="#packet-flow-in-an-openflow-switch-%e5%b0%81%e5%8c%85%e8%99%95%e7%90%86%e6%b5%81%e7%a8%8b" class="header-anchor"></a>Packet flow in an OpenFlow switch: 封包處理流程
 </h3><p><img src="https://i.imgur.com/QD4VWvh.png"
 	
 	
@@ -485,7 +517,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="解析封包獲得-header-field-用以檢索符合的-flow-entry">解析封包獲得 Header field 用以檢索符合的 Flow entry
+<h3 id="解析封包獲得-header-field-用以檢索符合的-flow-entry"><a href="#%e8%a7%a3%e6%9e%90%e5%b0%81%e5%8c%85%e7%8d%b2%e5%be%97-header-field-%e7%94%a8%e4%bb%a5%e6%aa%a2%e7%b4%a2%e7%ac%a6%e5%90%88%e7%9a%84-flow-entry" class="header-anchor"></a>解析封包獲得 Header field 用以檢索符合的 Flow entry
 </h3><p><img src="https://i.imgur.com/wJHVTOf.png"
 	
 	
@@ -494,7 +526,7 @@
 	
 	
 ></p>
-<h4 id="解析步驟可以簡單劃分成底下四點">解析步驟可以簡單劃分成底下四點
+<h4 id="解析步驟可以簡單劃分成底下四點"><a href="#%e8%a7%a3%e6%9e%90%e6%ad%a5%e9%a9%9f%e5%8f%af%e4%bb%a5%e7%b0%a1%e5%96%ae%e5%8a%83%e5%88%86%e6%88%90%e5%ba%95%e4%b8%8b%e5%9b%9b%e9%bb%9e" class="header-anchor"></a>解析步驟可以簡單劃分成底下四點
 </h4><ul>
 <li>初始化 <code>Headers</code>
 <ul>
@@ -525,9 +557,9 @@
 <li>根據 IPv4 封包來確定是TCP/UDP/ICMP協定</li>
 <li>寫入TCP/UDP/ICMP協定資料</li>
 </ul>
-<h2 id="secure-channel">Secure Channel
+<h2 id="secure-channel"><a href="#secure-channel" class="header-anchor"></a>Secure Channel
 </h2><p>作為連結 <code>Switch</code> 與 <code>Controller</code> 的橋樑。</p>
-<h2 id="openflow-protocol-message">OpenFlow Protocol Message
+<h2 id="openflow-protocol-message"><a href="#openflow-protocol-message" class="header-anchor"></a>OpenFlow Protocol Message
 </h2><blockquote>
 <p>記得,OpenFlow 是定義 Controller 與 Switch 溝通的通訊協定</p>
 </blockquote>
@@ -537,7 +569,7 @@
 <li><strong>Asynchronous</strong>: 此類消息通常由 <code>Switch</code> 主動發出</li>
 <li><strong>Symmetric</strong>: 此類消息 <code>Controller</code> 以及 <code>Switch</code> 都可以發出</li>
 </ul>
-<h3 id="controller-to-switch">Controller-to-Switch
+<h3 id="controller-to-switch"><a href="#controller-to-switch" class="header-anchor"></a>Controller-to-Switch
 </h3><ul>
 <li>
 <p><strong>Features</strong></p>
@@ -564,7 +596,7 @@
 <p><code>OFPT_BARRIER_REQUEST</code>、<code>OFPT_BARRIER_REPLY</code>。</p>
 </li>
 </ul>
-<h3 id="asynchronous">Asynchronous
+<h3 id="asynchronous"><a href="#asynchronous" class="header-anchor"></a>Asynchronous
 </h3><ul>
 <li>
 <p><strong>Packet-in</strong></p>
@@ -594,7 +626,7 @@
 <p><code>Switch</code> 回傳錯誤訊息。</p>
 </li>
 </ul>
-<h3 id="symmetric">Symmetric
+<h3 id="symmetric"><a href="#symmetric" class="header-anchor"></a>Symmetric
 </h3><ul>
 <li>
 <p><strong>Hello</strong></p>
@@ -609,14 +641,14 @@
 <p>自定義訊息</p>
 </li>
 </ul>
-<h2 id="結語">結語
+<h2 id="結語"><a href="#%e7%b5%90%e8%aa%9e" class="header-anchor"></a>結語
 </h2><p>在 <code>OpenFlow</code> 規格書中通常分成前半部份的<strong>規範</strong>以及後半部份的<strong>協議實作</strong></p>
 <p><strong>規範</strong>通常是講解觀念部份，後半部的<strong>協議</strong>通常探討實現規範的細節，本文章只有大概介紹一下規範讓讀者可以快速的了解 <code>OpenFlow</code> 的概要。</p>
 <p>目前主流的 <code>OpenFlow</code> 版本為 <code>OpenFlow 1.3</code> ，相較於 <code>OpenFlow 1.0</code> 增加了很多方便的新功能， 所以大概看過 <code>OpenFlow 1.0</code> 之後建議將閱讀重心放在1.3版本。</p>
 <p>關於 <code>OpenFlow 1.3</code> 我在網路上找資料的時候有找到中文的全文翻譯，很推薦搭配著原文的規格書一起看， 連結在此: <a class="link" href="https://www.jianshu.com/p/acfeae1771b3"  target="_blank" rel="noopener"
     >OpenFlow 1.3</a>。</p>
 <p><strong>後續的實作都會採用1.3版本為主</strong>， 建議先大概看一輪上述的1.3文檔再繼續接下來的練習。</p>
-<h2 id="reference">Reference
+<h2 id="reference"><a href="#reference" class="header-anchor"></a>Reference
 </h2><blockquote>
 <ul>
 <li><a class="link" href="https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf"  target="_blank" rel="noopener"
@@ -648,18 +680,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 

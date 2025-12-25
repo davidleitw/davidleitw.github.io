@@ -2,121 +2,121 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Categories on davidLei</title>
-        <link>https://davidleitw.github.io/categories/</link>
+        <link>http://localhost:44973/categories/</link>
         <description>Recent content in Categories on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Mon, 06 Feb 2023 21:13:53 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/categories/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 06 Feb 2023 21:13:53 +0800</lastBuildDate><atom:link href="http://localhost:44973/categories/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Go</title>
-        <link>https://davidleitw.github.io/categories/go/</link>
+        <link>http://localhost:44973/categories/go/</link>
         <pubDate>Mon, 06 Feb 2023 21:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/go/</guid>
+        <guid>http://localhost:44973/categories/go/</guid>
         <description></description>
         </item>
         <item>
         <title>Paper</title>
-        <link>https://davidleitw.github.io/categories/paper/</link>
+        <link>http://localhost:44973/categories/paper/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/paper/</guid>
+        <guid>http://localhost:44973/categories/paper/</guid>
         <description></description>
         </item>
         <item>
         <title>EBPF</title>
-        <link>https://davidleitw.github.io/categories/ebpf/</link>
+        <link>http://localhost:44973/categories/ebpf/</link>
         <pubDate>Mon, 12 Dec 2022 21:00:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/ebpf/</guid>
+        <guid>http://localhost:44973/categories/ebpf/</guid>
         <description></description>
         </item>
         <item>
         <title>Shell</title>
-        <link>https://davidleitw.github.io/categories/shell/</link>
+        <link>http://localhost:44973/categories/shell/</link>
         <pubDate>Mon, 24 Oct 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/shell/</guid>
+        <guid>http://localhost:44973/categories/shell/</guid>
         <description></description>
         </item>
         <item>
         <title>Linux_kernel</title>
-        <link>https://davidleitw.github.io/categories/linux_kernel/</link>
+        <link>http://localhost:44973/categories/linux_kernel/</link>
         <pubDate>Tue, 28 Jun 2022 04:16:48 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/linux_kernel/</guid>
+        <guid>http://localhost:44973/categories/linux_kernel/</guid>
         <description></description>
         </item>
         <item>
         <title>Docker</title>
-        <link>https://davidleitw.github.io/categories/docker/</link>
+        <link>http://localhost:44973/categories/docker/</link>
         <pubDate>Wed, 04 May 2022 00:01:01 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/docker/</guid>
+        <guid>http://localhost:44973/categories/docker/</guid>
         <description></description>
         </item>
         <item>
         <title>Concurrency</title>
-        <link>https://davidleitw.github.io/categories/concurrency/</link>
+        <link>http://localhost:44973/categories/concurrency/</link>
         <pubDate>Fri, 01 Apr 2022 00:01:01 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/concurrency/</guid>
+        <guid>http://localhost:44973/categories/concurrency/</guid>
         <description></description>
         </item>
         <item>
         <title>Database</title>
-        <link>https://davidleitw.github.io/categories/database/</link>
+        <link>http://localhost:44973/categories/database/</link>
         <pubDate>Mon, 21 Mar 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/database/</guid>
+        <guid>http://localhost:44973/categories/database/</guid>
         <description></description>
         </item>
         <item>
         <title>Leetcode</title>
-        <link>https://davidleitw.github.io/categories/leetcode/</link>
+        <link>http://localhost:44973/categories/leetcode/</link>
         <pubDate>Tue, 11 Jan 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/leetcode/</guid>
+        <guid>http://localhost:44973/categories/leetcode/</guid>
         <description></description>
         </item>
         <item>
         <title>Vagrant</title>
-        <link>https://davidleitw.github.io/categories/vagrant/</link>
+        <link>http://localhost:44973/categories/vagrant/</link>
         <pubDate>Tue, 28 Dec 2021 01:05:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/vagrant/</guid>
+        <guid>http://localhost:44973/categories/vagrant/</guid>
         <description></description>
         </item>
         <item>
         <title>Socket</title>
-        <link>https://davidleitw.github.io/categories/socket/</link>
+        <link>http://localhost:44973/categories/socket/</link>
         <pubDate>Fri, 12 Nov 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/socket/</guid>
+        <guid>http://localhost:44973/categories/socket/</guid>
         <description></description>
         </item>
         <item>
         <title>C</title>
-        <link>https://davidleitw.github.io/categories/c/</link>
+        <link>http://localhost:44973/categories/c/</link>
         <pubDate>Wed, 01 Sep 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/c/</guid>
+        <guid>http://localhost:44973/categories/c/</guid>
         <description></description>
         </item>
         <item>
         <title>日常紀錄</title>
-        <link>https://davidleitw.github.io/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</link>
+        <link>http://localhost:44973/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</link>
         <pubDate>Fri, 13 Aug 2021 23:01:13 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</guid>
+        <guid>http://localhost:44973/categories/%E6%97%A5%E5%B8%B8%E7%B4%80%E9%8C%84/</guid>
         <description></description>
         </item>
         <item>
         <title>SDN</title>
-        <link>https://davidleitw.github.io/categories/sdn/</link>
+        <link>http://localhost:44973/categories/sdn/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/categories/sdn/</guid>
+        <guid>http://localhost:44973/categories/sdn/</guid>
         <description></description>
         </item>
         

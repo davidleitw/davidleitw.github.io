@@ -6,13 +6,15 @@
 
 <link rel='canonical' href='https://davidleitw.github.io/p/leetcode-476.-number-complement-medium/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="leetcode 476. Number Complement [Medium]">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="leetcode 476. Number Complement [Medium]">
 <meta property='og:description' content="題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。\n">
 <meta property='og:url' content='https://davidleitw.github.io/p/leetcode-476.-number-complement-medium/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='leetcode' /><meta property='article:published_time' content='2021-12-27T01:05:53&#43;08:00'/><meta property='article:modified_time' content='2021-12-27T01:05:53&#43;08:00'/>
 <meta name="twitter:title" content="leetcode 476. Number Complement [Medium]">
 <meta name="twitter:description" content="題目敘述 對一個整數的有效位元做位元轉換(ones' complement)，像是 5 = 101，經過轉換之後結果 2 = 010，前面沒有用到的 bit 則是不做任何操作。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -262,20 +308,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 1 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -287,9 +319,9 @@
     <section class="article-content">
     
     
-    <h2 id="題目敘述">題目敘述
+    <h2 id="題目敘述"><a href="#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0" class="header-anchor"></a>題目敘述
 </h2><p>對一個整數的有效位元做位元轉換(<code>ones' complement</code>)，像是 <code>5 = 101</code>，經過轉換之後結果 <code>2 = 010</code>，前面沒有用到的 <code>bit</code> 則是不做任何操作。</p>
-<h2 id="思路">思路
+<h2 id="思路"><a href="#%e6%80%9d%e8%b7%af" class="header-anchor"></a>思路
 </h2><p>這題算是 <code>Bit Manipulation</code> 的入門題目，很適合練習 <code>bit</code> 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。</p>
 <p>因為這題的範圍限制 <code>1 &lt;= num &lt; 2^31</code>，所以可確保第一個 <code>bit</code> 為<code>0</code></p>
 <p><img src="https://i.imgur.com/rWUxr5v.png"
@@ -300,7 +332,7 @@
 	
 	
 ></p>
-<h3 id="找第一個有效位元">找第一個有效位元
+<h3 id="找第一個有效位元"><a href="#%e6%89%be%e7%ac%ac%e4%b8%80%e5%80%8b%e6%9c%89%e6%95%88%e4%bd%8d%e5%85%83" class="header-anchor"></a>找第一個有效位元
 </h3><p>我的想法是先從左邊第一個 <code>bit</code> 開始找，找到第一個 <code>1</code> ，後面所有的 <code>bit</code> 就都是有效位數，再一一反轉。</p>
 <p>要判斷左邊第一個位元是不是 <code>1</code> 可以寫成</p>
 <div class="highlight"><div class="chroma">
@@ -316,7 +348,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>可以利用這個方式先找到第一個 <code>1</code> 的所在，在對於後面的 <code>bit</code> 做反轉。</p>
-<h3 id="反轉-bits">反轉 bits
+<h3 id="反轉-bits"><a href="#%e5%8f%8d%e8%bd%89-bits" class="header-anchor"></a>反轉 bits
 </h3><ul>
 <li>(一): 逐個 <code>bit</code> 反轉, 利用 <code>XOR</code></li>
 </ul>
@@ -400,18 +432,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 

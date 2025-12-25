@@ -141,12 +141,12 @@
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，&lt;a class=&#34;link&#34; href=&#34;https://marioskogias.github.io/docs/crab.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這篇&lt;/a&gt; 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。&lt;/p&gt;
 &lt;p&gt;這篇論文的作者也用了 P4, eBPF 等技術實現了他們的論文，如果有興趣的也可以研究看看實現的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/epfl-dcsl/crab&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;code&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;常見 LB 技術分類
+&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;&lt;a href=&#34;#%e5%b8%b8%e8%a6%8b-lb-%e6%8a%80%e8%a1%93%e5%88%86%e9%a1%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;常見 LB 技術分類
 &lt;/h2&gt;&lt;p&gt;這篇論文在前面的幾個段落介紹了常見了 Load Belance 技術，然後規劃了一些簡單的實驗來分析各種不同技術的優劣，文中用以下五個標準/指標來分類不同種類的 LB 技術，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/STj3dNc.png&#34;
 	
@@ -172,12 +172,12 @@
 &lt;/blockquote&gt;
 &lt;p&gt;簡單來說，負載平衡技術在雲端環境下會面臨的挑戰在於 LB 或者後端 Server 的數量會根據請求的流量動態調整，或者是以容器為單位的調度，這種時候像是 WRR, P2C 這類的演算法就毫無用武之地，因為 Server 的數目跟狀態隨時都在變更，無法根據當時的狀態找出較好的調度方案。&lt;/p&gt;
 &lt;p&gt;實驗部份就不過多敘述了，接著來看這篇論文提出的 LB 方案想要滿足什麼條件，用什麼方式達成&lt;/p&gt;
-&lt;h2 id=&#34;crab-design&#34;&gt;CRAB design
+&lt;h2 id=&#34;crab-design&#34;&gt;&lt;a href=&#34;#crab-design&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;CRAB design
 &lt;/h2&gt;&lt;p&gt;這篇論文提出的新 LB 技術取名為 &lt;strong&gt;C&lt;/strong&gt;onnection &lt;strong&gt;R&lt;/strong&gt;edirect Lo&lt;strong&gt;A&lt;/strong&gt;d &lt;strong&gt;B&lt;/strong&gt;alancer(&lt;strong&gt;CRAB&lt;/strong&gt;)，作者用這段話總結實作的理念&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Implementing a centralized, stateful load balancing policy at a connection granularity requires the load balancer’s involvement only during connection setup, following which the client and server can communicate directly.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;支援 DSR 模式的 LB 運作流程
+&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;&lt;a href=&#34;#%e6%94%af%e6%8f%b4-dsr-%e6%a8%a1%e5%bc%8f%e7%9a%84-lb-%e9%81%8b%e4%bd%9c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;支援 DSR 模式的 LB 運作流程
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/imKOVJL.png&#34;
 	
 	
@@ -212,7 +212,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;結論&#34;&gt;結論
+&lt;h2 id=&#34;結論&#34;&gt;&lt;a href=&#34;#%e7%b5%90%e8%ab%96&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;結論
 &lt;/h2&gt;&lt;p&gt;這套解決方案的確直觀的降低了 Load Balancer 的壓力，LB 只要專心處理建立連線的 SYN 封包，也能夠搭配自己的負載平衡策略，但缺點可能是如果要妥善利用這個機制需要 Client 也支援 CR，否則不支援的情況會退回原先的 stateless 的 load balance 機制。&lt;/p&gt;
 &lt;p&gt;最後筆者比較在意的地方是把 DIP 暴露給 Client 有一定的風險，我認為這種架構比較適合內部的 LB，論文第一段也有提到適合場景是 Internel load balancer。&lt;/p&gt;
 </description>
@@ -223,7 +223,7 @@
         <pubDate>Mon, 12 Dec 2022 21:00:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;一般來說學習 xdp 都會參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt;，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。&lt;/p&gt;
 &lt;p&gt;但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:&lt;/p&gt;
@@ -245,8 +245,8 @@
 &lt;p&gt;實際上可能會因為 &lt;code&gt;go.mod&lt;/code&gt; 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。&lt;/p&gt;
 &lt;p&gt;底下我們會根據 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 編寫一個簡單的 xdp 程式，然後編譯成 &lt;code&gt;.o&lt;/code&gt; 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。&lt;/p&gt;
-&lt;h2 id=&#34;&#34;&gt;
-&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;編寫 xdp 範例
+&lt;h2 id=&#34;&#34;&gt;&lt;a href=&#34;#&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;&lt;a href=&#34;#%e7%b7%a8%e5%af%ab-xdp-%e7%af%84%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;編寫 xdp 範例
 &lt;/h2&gt;&lt;p&gt;這邊我們參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial/tree/master/packet01-parsing#assignment-3-parsing-the-icmpv6-header-and-reacting-to-it&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;packet01-parsing&lt;/a&gt; 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。&lt;/p&gt;
@@ -395,7 +395,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    rm &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;TARGET&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;user space 編寫
+&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;&lt;a href=&#34;#user-space-%e7%b7%a8%e5%af%ab&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space 編寫
 &lt;/h2&gt;&lt;p&gt;user space 我們使用 go 語言來負責載入編譯好的 &lt;code&gt;elf&lt;/code&gt; 檔案，除此之外還需要提供 api 讓我們能在 user space 操作 eBPF map。&lt;/p&gt;
 &lt;p&gt;go 語言有非常多 eBPF library 可供選擇，最主流的選擇不外乎是 Cilium 與 Cloudflare 維護的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/cilium/ebpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ebpf-go&lt;/a&gt;，IO Visor 提供的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/iovisor/gobpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -540,7 +540,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;詳細的程式請參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;，實際跑一次程式才知道具體運作的流程。&lt;/p&gt;
-&lt;h2 id=&#34;實測&#34;&gt;實測
+&lt;h2 id=&#34;實測&#34;&gt;&lt;a href=&#34;#%e5%af%a6%e6%b8%ac&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;實測
 &lt;/h2&gt;&lt;p&gt;首先需要編譯 xdp 程式&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -593,7 +593,7 @@
 &lt;p&gt;可以看到，偶數的 icmp packet 都被捨棄了，所以剛好會有 50 % 的封包收到回應，效果的確符合預期。&lt;/p&gt;
 &lt;p&gt;完整程式碼可以看&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這邊&lt;/a&gt;，實際跑一次能學習的更有效率!&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://networkop.co.uk/post/2021-03-ebpf-intro/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Getting Started with eBPF and Go&lt;/a&gt;&lt;/li&gt;
@@ -638,12 +638,12 @@
         <pubDate>Tue, 28 Jun 2022 04:16:48 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/linux-file-descriptor-%E7%90%86%E8%A7%A3/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;&lt;strong&gt;file descriptor&lt;/strong&gt; 常被簡稱為 fd, 在學習 Linux 的過程中，會看到很多 system call 藉由 fd 來操作文件或抽象資源，像是 network programming 中呼叫 &lt;code&gt;socket&lt;/code&gt; 之後會使用回傳的 socket fd 去進行後續的操作，或者 I/O 領域的 epoll 同樣在呼叫 &lt;code&gt;epoll_create&lt;/code&gt; 之後會回傳 fd，此後對於 epoll 相關的操作都要把 fd 當作第一個參數傳入。&lt;/p&gt;
 &lt;p&gt;在 Linux 中常常會看到 fd 的身影，但一直沒有花時間去深入了解這個 fd 底層的實現，只是有模糊的概念而已，所以趁這個機會來整理一篇筆記，紀錄一下。&lt;/p&gt;
 &lt;p&gt;在 &lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/File_descriptor&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;File descriptor&lt;/a&gt; 中可以簡單看一下，究竟在 Linux 中有多少 system call 使用了 File descriptor 的概念，就知道 fd 在 Linux 中的重要性了。&lt;/p&gt;
-&lt;h2 id=&#34;everything-is-a-file&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;everything-is-a-file&#34;&gt;&lt;a href=&#34;#everything-is-a-file&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Everything is a file&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;Linux 秉持著 UNIX 哲學 &lt;strong&gt;Everything is a file&lt;/strong&gt;，這個概念的好處是可以用一組通用的 Interface 來操作不同資源，在資源跟使用者之間加上一層抽象層，進而延伸出 &lt;strong&gt;Universal I/O Model&lt;/strong&gt; 的概念。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Universality of I/O&lt;/strong&gt; 代表可以用相同的 &lt;code&gt;open()&lt;/code&gt;, &lt;code&gt;read()&lt;/code&gt;, &lt;code&gt;write()&lt;/code&gt;, &lt;code&gt;close()&lt;/code&gt; 來操作不同類型的 I/O，後續很多不同的新技術或者機制都是用相同的精神設計，讓一組通用的 API 可以在不同場景有不同的作用。&lt;/p&gt;
@@ -652,7 +652,7 @@
     &gt;Linux 核心設計: 檔案系統&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;因為 &lt;code&gt;open()&lt;/code&gt;, &lt;code&gt;read()&lt;/code&gt;, &lt;code&gt;write()&lt;/code&gt;, &lt;code&gt;close()&lt;/code&gt; 等 system call 以及其他 system call 其實都是用 fd 來控制資源，所以有個說法是 &lt;strong&gt;Everything is a file&lt;/strong&gt; 應該要說成 &lt;strong&gt;Everything is a file descriptor&lt;/strong&gt; 更妥當。&lt;/p&gt;
-&lt;h3 id=&#34;kernel-space--user-space&#34;&gt;Kernel space &amp;amp; User space
+&lt;h3 id=&#34;kernel-space--user-space&#34;&gt;&lt;a href=&#34;#kernel-space--user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Kernel space &amp;amp; User space
 &lt;/h3&gt;&lt;p&gt;為什麼需要 fd 可以先從 kernel space 與 user space 的概念開始思考。&lt;/p&gt;
 &lt;p&gt;寫在 user space 的程式沒辦法直接訪問硬體資源(像是硬碟, 網卡等等)，如果要讀取單個文件，我們會在 user space 呼叫 &lt;code&gt;read()&lt;/code&gt; 來讀取資料時，會先用 system call 的方式跟 kernel 發起資源的請求，在 kernel space 中才會具體跟底層互動，最後才將結果從 kernel space 複製到 user space。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/OrQqXis.png&#34;
@@ -693,7 +693,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;fd&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;open&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;test.txt&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;O_RDONLY&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;默認的-fd&#34;&gt;默認的 fd
+&lt;/div&gt;&lt;h3 id=&#34;默認的-fd&#34;&gt;&lt;a href=&#34;#%e9%bb%98%e8%aa%8d%e7%9a%84-fd&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;默認的 fd
 &lt;/h3&gt;&lt;p&gt;底下看 source code 的時候會了解到每個 process 都會存放自己的 &lt;code&gt;file descriptors table&lt;/code&gt; 來代表該 process 打開或者操作的文件/資源。&lt;/p&gt;
 &lt;p&gt;每個 process 預留了 0, 1, 2 這三個 fd，分別代表 &lt;strong&gt;stdin&lt;/strong&gt;, &lt;strong&gt;stdout&lt;/strong&gt;, &lt;strong&gt;stderr&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/A3azUal.png&#34;
@@ -708,7 +708,7 @@
 &lt;p&gt;詳細參考: &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man3/stdout.3.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;stdin(3) — Linux manual page&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;fd-的範圍&#34;&gt;fd 的範圍
+&lt;h3 id=&#34;fd-的範圍&#34;&gt;&lt;a href=&#34;#fd-%e7%9a%84%e7%af%84%e5%9c%8d&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;fd 的範圍
 &lt;/h3&gt;&lt;p&gt;fd 有基本的範圍限制，可以通過 &lt;code&gt;ulimit&lt;/code&gt; 來查看系統目前的配置&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -722,7 +722,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這個範圍包含著很多學問，詳情可以參考這篇 &lt;a class=&#34;link&#34; href=&#34;https://mp.weixin.qq.com/s/GBn94vdL4xUL80WYrGdUWQ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;刨根问底儿，看我如何处理 Too many open files 错误！&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;file-descriptor-fd&#34;&gt;File descriptor (&lt;code&gt;fd&lt;/code&gt;)
+&lt;h2 id=&#34;file-descriptor-fd&#34;&gt;&lt;a href=&#34;#file-descriptor-fd&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;File descriptor (&lt;code&gt;fd&lt;/code&gt;)
 &lt;/h2&gt;&lt;p&gt;fd 在 kernel 中使用了三種不同的 table 來表示，本文會簡單分析一下底層的 source code。&lt;/p&gt;
 &lt;p&gt;下方為三種 table 的示意圖&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/2KoG0cs.png&#34;
@@ -733,7 +733,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;task_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h#L1076&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;task_&#34;&gt;&lt;a href=&#34;#task_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/sched.h#L1076&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;task_struct&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;要理解 fd 的實現就要從 &lt;code&gt;task_struct&lt;/code&gt; 開始看起，我們聚焦在 &lt;code&gt;files&lt;/code&gt; 這個成員。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -756,7 +756,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;files_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L49&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h3 id=&#34;files_&#34;&gt;&lt;a href=&#34;#files_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L49&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;files_struct&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;files_struct&lt;/code&gt; 用來管理/紀錄一個 process 打開的所有文件，這個結構在上方的示意圖的最左方，存放一個 process 的 file descriptors。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -811,7 +811,7 @@
 &lt;li&gt;&lt;code&gt;struct fdtable&lt;/code&gt; 則是動態陣列，在一個 process 開啟文件的數量大於 &lt;strong&gt;NR_OPEN_DEFAULT&lt;/strong&gt; 時啟用&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;大多數 process 只會開啟少數文件，所以只用靜態的 array 即可，開啟大量文件的情況才會用到動態陣列。&lt;/p&gt;
-&lt;h3 id=&#34;fdtable&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;fdtable&#34;&gt;&lt;a href=&#34;#fdtable&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/latest/source/include/linux/fdtable.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;fdtable&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;fdtable&lt;/code&gt; 是用來管理 &lt;code&gt;fd&lt;/code&gt; 的結構&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -842,7 +842,7 @@
 &lt;/ul&gt;
 &lt;p&gt;關於 &lt;code&gt;fdtable&lt;/code&gt; 的建立，會呼叫 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v5.15/source/fs/file.c#L90&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;alloc_fdtable&lt;/a&gt;，有興趣可以繼續往下看相關的邏輯，也能順便理解什麼情境才會呼叫 &lt;code&gt;alloc_fdtable&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;fd-只是陣列中的索引值&#34;&gt;fd 只是陣列中的索引值
+&lt;h3 id=&#34;fd-只是陣列中的索引值&#34;&gt;&lt;a href=&#34;#fd-%e5%8f%aa%e6%98%af%e9%99%a3%e5%88%97%e4%b8%ad%e7%9a%84%e7%b4%a2%e5%bc%95%e5%80%bc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;fd 只是陣列中的索引值
 &lt;/h3&gt;&lt;p&gt;所以從上面的介紹中可以得知，無論是開啟文件較少時用的 &lt;code&gt;fd_array&lt;/code&gt; 或者動態的 &lt;code&gt;fdtable&lt;/code&gt;，fd 在裡面扮演的角色只是陣列中的&lt;strong&gt;索引&lt;/strong&gt;，最終會指向對應文件的 &lt;code&gt;struct file&lt;/code&gt; 結構。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/bTiyp9S.png&#34;
 	
@@ -855,7 +855,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.qiyacloud.cn/2021/04/2021-04-07/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;來源&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;接著往下 &lt;code&gt;struct file&lt;/code&gt; 還有更深入的 &lt;code&gt;struct inode&lt;/code&gt; 就不在本篇的討論範圍內，避免篇幅過長。 在這篇文章中主要介紹了最外層的 &lt;code&gt;files_struct&lt;/code&gt; 以及知道 fd 的本質就是索引，每個 fd 都可以對應到一個 &lt;code&gt;file&lt;/code&gt; 的結構，更多深入的解析可以在底下 reference 中的連結內繼續往下探索。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://kkc.github.io/2020/08/22/file-descriptor/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Linux 的 file descriptor 筆記&lt;/a&gt;&lt;/li&gt;
@@ -881,7 +881,7 @@
         
         <guid>https://davidleitw.github.io/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/</guid>
         <description>&lt;p&gt;在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。&lt;/p&gt;
-&lt;h2 id=&#34;network-namespace&#34;&gt;Network Namespace
+&lt;h2 id=&#34;network-namespace&#34;&gt;&lt;a href=&#34;#network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Network Namespace
 &lt;/h2&gt;&lt;p&gt;在 command line 操作 network namespace 通常會使用 &lt;code&gt;ip netns&lt;/code&gt; 來操作，先引用 &lt;code&gt;ip-netns&lt;/code&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man8/ip-netns.8.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;man page&lt;/a&gt; 來介紹一下 network namespace 的定義&lt;/p&gt;
 &lt;blockquote&gt;
@@ -908,7 +908,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立新的-network-namespace&#34;&gt;建立新的 network namespace
+&lt;h3 id=&#34;建立新的-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立新的 network namespace
 &lt;/h3&gt;&lt;p&gt;建立一個新的 network namespace 可以使用 &lt;code&gt;sudo ip netns add&lt;/code&gt; 加上想要的 namespace 名稱，建立之後用 &lt;code&gt;ip netns ls&lt;/code&gt; 就可以看到多了一個剛剛建立的 network namespace。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -930,7 +930,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;在本地端我們常常會使用 &lt;code&gt;ifconfig&lt;/code&gt; 或者 &lt;code&gt;ip addr&lt;/code&gt; 來檢查一些網路的配置情況，所以 &lt;code&gt;ip netns&lt;/code&gt; 工具為了讓我們更方便的操作，提供了 &lt;code&gt;ip netns exec&lt;/code&gt; 的子命令讓我們可以在對應的 network namespace 執行命令，我們下面的幾個範例都會使用剛剛建立的 &lt;code&gt;ns0&lt;/code&gt; 來操作，先來看看在 &lt;code&gt;ns0&lt;/code&gt; 中執行 &lt;code&gt;ifconfig&lt;/code&gt; 或者 &lt;code&gt;ip addr&lt;/code&gt; 的情況。&lt;/p&gt;
-&lt;h3 id=&#34;執行-cmd-在特定的-network-namespace&#34;&gt;執行 cmd 在特定的 network namespace
+&lt;h3 id=&#34;執行-cmd-在特定的-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%9f%b7%e8%a1%8c-cmd-%e5%9c%a8%e7%89%b9%e5%ae%9a%e7%9a%84-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;執行 cmd 在特定的 network namespace
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;ip netns exec &amp;lt;network namespace name&amp;gt; + cmd&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/QSffLmE.png&#34;
 	
@@ -948,7 +948,7 @@
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://askubuntu.com/questions/247625/what-is-the-loopback-device-and-how-do-i-use-it&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;What is the loopback device and how do I use it?&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;veth---virtual-ethernet-device&#34;&gt;veth - Virtual Ethernet Device
+&lt;h2 id=&#34;veth---virtual-ethernet-device&#34;&gt;&lt;a href=&#34;#veth---virtual-ethernet-device&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;veth - Virtual Ethernet Device
 &lt;/h2&gt;&lt;p&gt;Linux 中有 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man4/veth.4.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;veth - Virtual Ethernet Device&lt;/a&gt; 的概念， &lt;code&gt;veth&lt;/code&gt; 可以拿來建立不同虛擬網路裝置之間的橋樑，讓不同虛擬裝置之間可以連線，像是不同的 network namespace，又或者是 docker container 之間的連線, ovs 內的應用等等，都有使用到 &lt;code&gt;veth&lt;/code&gt; 的概念。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;veth&lt;/code&gt; 都是成對出現的，所以很多文章也把它稱為 &lt;code&gt;veth-pair&lt;/code&gt;，在後續的實驗中我們也可以觀察到 Docker 彼此之間的 &lt;code&gt;veth-pair&lt;/code&gt;。&lt;/p&gt;
@@ -967,7 +967,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ns0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;建立新的-veth-pair&#34;&gt;建立新的 veth Pair
+&lt;/div&gt;&lt;h3 id=&#34;建立新的-veth-pair&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-veth-pair&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立新的 veth Pair
 &lt;/h3&gt;&lt;p&gt;上面有提到 &lt;code&gt;veth&lt;/code&gt; 都是成對出現的，所以在建立的時候也要同時建立兩端，這邊我們將兩端分別取名 &lt;code&gt;vth0&lt;/code&gt; 以及 &lt;code&gt;vth1&lt;/code&gt; 代表等等要接在 &lt;code&gt;ns0&lt;/code&gt; 與 &lt;code&gt;ns1&lt;/code&gt; 上面。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -988,7 +988,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;將-veth-連結到-network-namespace&#34;&gt;將 veth 連結到 network namespace
+&lt;h3 id=&#34;將-veth-連結到-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%b0%87-veth-%e9%80%a3%e7%b5%90%e5%88%b0-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;將 veth 連結到 network namespace
 &lt;/h3&gt;&lt;p&gt;建立好了兩端的 &lt;code&gt;veth&lt;/code&gt; 之後我們就需要把它接到對應的 network namespace&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1018,7 +1018,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;啟動-veth-並且分配一個私有的-ip&#34;&gt;啟動 veth 並且分配一個私有的 ip
+&lt;h3 id=&#34;啟動-veth-並且分配一個私有的-ip&#34;&gt;&lt;a href=&#34;#%e5%95%9f%e5%8b%95-veth-%e4%b8%a6%e4%b8%94%e5%88%86%e9%85%8d%e4%b8%80%e5%80%8b%e7%a7%81%e6%9c%89%e7%9a%84-ip&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;啟動 veth 並且分配一個私有的 ip
 &lt;/h3&gt;&lt;p&gt;光是把 &lt;code&gt;vth0&lt;/code&gt;, &lt;code&gt;vth1&lt;/code&gt; 連結到 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt; 還不夠，為了後續 ping 的實驗我們必須在 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt; 中啟動 &lt;code&gt;veth&lt;/code&gt; 並且分配一個私有的 ip 位置。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1061,7 +1061,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;用-bridge-串連多個不同的-namespace&#34;&gt;用 bridge 串連多個不同的 namespace
+&lt;h2 id=&#34;用-bridge-串連多個不同的-namespace&#34;&gt;&lt;a href=&#34;#%e7%94%a8-bridge-%e4%b8%b2%e9%80%a3%e5%a4%9a%e5%80%8b%e4%b8%8d%e5%90%8c%e7%9a%84-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;用 bridge 串連多個不同的 namespace
 &lt;/h2&gt;&lt;p&gt;上面的情境是兩個 network namespace 想要互相連結，但真實世界的網路拓樸通常都是多個不同的 device 要互相連結，這時候如果再用 &lt;code&gt;veth&lt;/code&gt; 一個一個設置就不切實際，在一般的網路環境我們會想到用 switch 一類的裝置處理，在 Linux 中也可以透過 &lt;code&gt;bridge&lt;/code&gt; 的概念，用類似虛擬 switch 的方式解決多個不同 network namespace 互連的場景。&lt;/p&gt;
 &lt;p&gt;從頭開始，目標是建立 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt;, &lt;code&gt;ns2&lt;/code&gt; 三個 network namespace 並且讓他們可以透過 &lt;code&gt;bridge&lt;/code&gt;互相連結。&lt;/p&gt;
 &lt;p&gt;最後目標的網路拓樸如下圖&lt;/p&gt;
@@ -1074,7 +1074,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;注意，這次我們有做一點調整，把 &lt;code&gt;veth&lt;/code&gt; 連結到 network namespace 之後統一改名成 &lt;code&gt;eth0&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立-bridge-device&#34;&gt;建立 bridge device
+&lt;h3 id=&#34;建立-bridge-device&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b-bridge-device&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立 bridge device
 &lt;/h3&gt;&lt;p&gt;先建立一個 &lt;code&gt;bridge device&lt;/code&gt; 並且取名為 &lt;code&gt;br0&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1211,7 +1211,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;docker-network-drivers&#34;&gt;Docker network drivers
+&lt;h2 id=&#34;docker-network-drivers&#34;&gt;&lt;a href=&#34;#docker-network-drivers&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Docker network drivers
 &lt;/h2&gt;&lt;p&gt;再來介紹完基礎的 network namespace, veth, bridge 之後我們再來看看 Docker 的網路模型。&lt;/p&gt;
 &lt;p&gt;Docker 在設計的時候就提供了很多種不同的 Network drivers 可以替換，不同 Network drivers 代表著不同的網路模型，使用 &lt;code&gt;docker&lt;/code&gt; 指令建立容器時，可以透過 &lt;code&gt;--network&lt;/code&gt; 參數選擇想要的網路模型。&lt;/p&gt;
 &lt;p&gt;大致上可以分為這幾種&lt;/p&gt;
@@ -1259,7 +1259,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立一個新的-container&#34;&gt;建立一個新的 container
+&lt;h3 id=&#34;建立一個新的-container&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e4%b8%80%e5%80%8b%e6%96%b0%e7%9a%84-container&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立一個新的 container
 &lt;/h3&gt;&lt;p&gt;先建立一個 container 來試試預設的網路功能&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1325,7 +1325,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;可以注意到 &lt;code&gt;Containers&lt;/code&gt; 的地方多了剛剛建立的 &lt;code&gt;nginx_test1&lt;/code&gt; 的資料，代表說 &lt;code&gt;nginx_test1&lt;/code&gt; 是透過 &lt;code&gt;bridge&lt;/code&gt; 跟外部建立連線的，這也是為什麼剛剛可以訪問 &lt;code&gt;nginx_test1&lt;/code&gt; 的原因。&lt;/p&gt;
-&lt;h3 id=&#34;兩個-containers-透過預設的-bridge-互連&#34;&gt;兩個 containers 透過預設的 bridge 互連
+&lt;h3 id=&#34;兩個-containers-透過預設的-bridge-互連&#34;&gt;&lt;a href=&#34;#%e5%85%a9%e5%80%8b-containers-%e9%80%8f%e9%81%8e%e9%a0%90%e8%a8%ad%e7%9a%84-bridge-%e4%ba%92%e9%80%a3&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;兩個 containers 透過預設的 bridge 互連
 &lt;/h3&gt;&lt;p&gt;接著來觀察在預設的網路環境， container 之間是否也可以藉由 &lt;code&gt;bridge&lt;/code&gt; 互連，先用 &lt;code&gt;alpine&lt;/code&gt; 的 image 建立兩個 container&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1438,7 +1438,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h1 id=&#34;reference&#34;&gt;reference
+&lt;h1 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h1&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@0xff07/network/https%3A%2F%2Fhackmd.io%2F%400xff07%2FSJzOwViYF&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;計算機網路 - Network Namespace&lt;/a&gt;&lt;/li&gt;
@@ -1462,7 +1462,7 @@
         
         <guid>https://davidleitw.github.io/p/sudo-go-command-not-found-%E5%95%8F%E9%A1%8C%E8%A7%A3%E6%B1%BA/</guid>
         <description>&lt;p&gt;這問題算是一個小坑，每次開新的虛擬機或者建環境的時候都會遇到(&lt;del&gt;然後每次都忘記解決方式跑去google&lt;/del&gt;)，所以在這邊紀錄一下解決方式&lt;/p&gt;
-&lt;h2 id=&#34;etcsudoers&#34;&gt;/etc/sudoers
+&lt;h2 id=&#34;etcsudoers&#34;&gt;&lt;a href=&#34;#etcsudoers&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;/etc/sudoers
 &lt;/h2&gt;&lt;p&gt;在用 &lt;code&gt;sudo&lt;/code&gt; 下指令時，系統會從 &lt;code&gt;/etc/sudoers&lt;/code&gt; 這個文件來獲得環境變數，根據那些路徑去找指令的執行檔案在哪，所以我們需要把 &lt;code&gt;/usr/local/go/bin&lt;/code&gt; 放到 &lt;code&gt;/etc/sudoers&lt;/code&gt; 裡面，讓系統知道 go 指令要去哪執行&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;/etc/sudoers&lt;/code&gt; 裡面有個 secure_path，把 &lt;code&gt;usr/local/go/bin&lt;/code&gt; 加到那個字串即可.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/k4QKhFj.png&#34;
@@ -1481,7 +1481,7 @@
         <pubDate>Fri, 01 Apr 2022 00:01:01 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/</guid>
-        <description>&lt;h2 id=&#34;同步處理synchronization&#34;&gt;同步處理(Synchronization)
+        <description>&lt;h2 id=&#34;同步處理synchronization&#34;&gt;&lt;a href=&#34;#%e5%90%8c%e6%ad%a5%e8%99%95%e7%90%86synchronization&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;同步處理(Synchronization)
 &lt;/h2&gt;&lt;p&gt;確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。&lt;/p&gt;
 &lt;p&gt;Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/D6Yurh7.png&#34;
@@ -1494,7 +1494,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;可以參考 &lt;a class=&#34;link&#34; href=&#34;https://web.fe.up.pt/~pfs/aulas/so2021/at/19conc.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Concurrency in the Kernel&lt;/a&gt; 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。&lt;/p&gt;
-&lt;h2 id=&#34;race-condition&#34;&gt;Race condition
+&lt;h2 id=&#34;race-condition&#34;&gt;&lt;a href=&#34;#race-condition&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Race condition
 &lt;/h2&gt;&lt;p&gt;在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為&lt;strong&gt;交錯執行&lt;/strong&gt;，導致最後的結果不如預期。&lt;/p&gt;
 &lt;p&gt;底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1597,14 +1597,14 @@
 &lt;li&gt;最後輪到 &lt;code&gt;thread1&lt;/code&gt;，把計算好的 &lt;code&gt;temp1&lt;/code&gt; assign 給 &lt;code&gt;count&lt;/code&gt;，&lt;code&gt;count = temp1 = 1&lt;/code&gt;，最後結果 &lt;strong&gt;count = 1&lt;/strong&gt;，並不符合我們的預期，因為交錯執行導致出現 &lt;strong&gt;race condition&lt;/strong&gt;。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;以 2 條 thread 為例就知道為什麼一開始的範例，跑 20000 條 thread 結果可能會每次都不一樣，因為在同時執行時，沒有處理好同步問題，導致不同 thread 之間可能&lt;strong&gt;交互執行&lt;/strong&gt;，最後得到錯的結果。&lt;/p&gt;
-&lt;h2 id=&#34;執行順序&#34;&gt;執行順序
+&lt;h2 id=&#34;執行順序&#34;&gt;&lt;a href=&#34;#%e5%9f%b7%e8%a1%8c%e9%a0%86%e5%ba%8f&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;執行順序
 &lt;/h2&gt;&lt;p&gt;上面提到了一個簡單的 race condition 例子，在多執行緒環境下，缺乏適度的同步機制，會造成很多無法預期的結果，其實簡單來看，我們的目的就是不要讓 thread 之間交互執行，所以我們應該要關注&lt;strong&gt;執行順序&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;就是因為&lt;strong&gt;執行順序&lt;/strong&gt;沒有按照當初設想，才會出現一些無法預期的結果，在 jserv 老師的 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2Fconcurrency-ordering&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;並行程式設計: 執行順序&lt;/a&gt; 講座中介紹了幾個程式語言描述&lt;strong&gt;執行順序&lt;/strong&gt;的名詞，下面就簡單的做了一下筆記，最後會介紹一下 go 語言 &lt;code&gt;happens-before&lt;/code&gt; 的原則。&lt;/p&gt;
-&lt;h2 id=&#34;evaluation&#34;&gt;Evaluation
+&lt;h2 id=&#34;evaluation&#34;&gt;&lt;a href=&#34;#evaluation&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Evaluation
 &lt;/h2&gt;&lt;p&gt;Evaluation 可以想成 value computations 與 side effect 的組合，用上面 &lt;code&gt;func&lt;/code&gt; 的例子，value computations 就是把 &lt;code&gt;count+1&lt;/code&gt; 計算出來的動作，side effect 就是把計算出來的值 assign 給 &lt;code&gt;count&lt;/code&gt; 的步驟。&lt;/p&gt;
 &lt;p&gt;side effect 有&lt;strong&gt;改變物件/變數狀態&lt;/strong&gt;的語意，你 assign 某個值給變數的同時，如果有另外一個 thread 在呼叫 &lt;code&gt;func&lt;/code&gt; 或者訪問被改變的變數，就有可能導致讀到錯誤(不符預期)的值。&lt;/p&gt;
-&lt;h3 id=&#34;evaluation-orders&#34;&gt;Evaluation orders
+&lt;h3 id=&#34;evaluation-orders&#34;&gt;&lt;a href=&#34;#evaluation-orders&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Evaluation orders
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1617,7 +1617,7 @@
 &lt;p&gt;有些語言像是 c++ 沒有強制規定運算元的執行先後順序，而是交給編譯器處理，這時候編譯器可能會選擇&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/%E6%8C%87%E4%BB%A4%E8%B0%83%E5%BA%A6&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;指令調度(Instruction scheduling)&lt;/a&gt;來優化執行效率，可能會先呼叫 &lt;code&gt;f3()&lt;/code&gt; 再去求 &lt;code&gt;f1() + f2()&lt;/code&gt;，這種改變順序的行為有時候就會導致 side effect 的發生(可能彼此共有一些變數，使呼叫順序改變結果)。&lt;/p&gt;
 &lt;p&gt;Evaluation orders 在每個語言的規範都不相同，真的想深入了解一門語言，應該要花點時間去研究一下那個語言的規範，避免踩到坑。&lt;/p&gt;
-&lt;h2 id=&#34;sequenced-before&#34;&gt;sequenced-before
+&lt;h2 id=&#34;sequenced-before&#34;&gt;&lt;a href=&#34;#sequenced-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;sequenced-before
 &lt;/h2&gt;&lt;p&gt;sequenced-before 用來描述&lt;strong&gt;同一個執行緒&lt;/strong&gt;下兩個 Evaluation 的先後順序。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;A is sequenced-before B: 代表 A 的 evaluation 會先於 B。&lt;/li&gt;
@@ -1657,7 +1657,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;因為左邊的運算元 &lt;code&gt;a&lt;/code&gt; 的 evaluation 會先於右邊的 &lt;code&gt;b&lt;/code&gt;，所以在寫 &lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt; 或者 &lt;code&gt;||&lt;/code&gt; 的時候可以將比較需要優先檢查的條件放在前面。&lt;/p&gt;
-&lt;h2 id=&#34;happens-before&#34;&gt;Happens-before
+&lt;h2 id=&#34;happens-before&#34;&gt;&lt;a href=&#34;#happens-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Happens-before
 &lt;/h2&gt;&lt;p&gt;因為 &lt;a class=&#34;link&#34; href=&#34;https://go.dev/ref/mem&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;go 語言的官方文件&lt;/a&gt; 在介紹 Happens-before 的時候有牽扯到一些 go 語言獨有的特性(goroutine)，所以我們先跟 jserv 老師的講座一樣，從 &lt;a class=&#34;link&#34; href=&#34;https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Java 的官方文件&lt;/a&gt; 來簡單介紹一下這個名詞。&lt;/p&gt;
@@ -1726,7 +1726,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;轉換出來，先把 B 放到 eax，先做 B = 1，接著把 eax + 1 的結果放到 A。&lt;/p&gt;
 &lt;p&gt;由上面的範例就可以知道為什麼 happens-before 強調的是 &lt;strong&gt;visible&lt;/strong&gt;，在 &lt;code&gt;-O2&lt;/code&gt; 的優化下，B = 1 這行事實上比 A = B + 1 更早完成，但是就結果來說是沒有錯的，所以寫程式只要在意邏輯的順序，但實際的執行順序可以會因為編譯器的調整而不同。&lt;/p&gt;
-&lt;h2 id=&#34;synchronized-with&#34;&gt;Synchronized-With
+&lt;h2 id=&#34;synchronized-with&#34;&gt;&lt;a href=&#34;#synchronized-with&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Synchronized-With
 &lt;/h2&gt;&lt;p&gt;synchronized-with 用來描述&lt;strong&gt;不同執行緒&lt;/strong&gt; 下兩個 Evaluation 的先後順序。&lt;/p&gt;
 &lt;p&gt;A, B 兩個操作是在不同執行緒， A synchronized-with B 代表 A 對記憶體的操作對於 B 是 &lt;strong&gt;visible&lt;/strong&gt; 的。&lt;/p&gt;
 &lt;ul&gt;
@@ -1745,9 +1745,9 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;可以看到 synchronizes-with 底下有很多不同的方式可以使用，大部份的語言也都有支援很多套定義多執行緒 happens-before 關係的語法。&lt;/p&gt;
-&lt;h2 id=&#34;golang-happens-before&#34;&gt;golang happens before
+&lt;h2 id=&#34;golang-happens-before&#34;&gt;&lt;a href=&#34;#golang-happens-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;golang happens before
 &lt;/h2&gt;&lt;p&gt;待補&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://go.dev/ref/mem&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;The Go Memory Model&lt;/a&gt;&lt;/li&gt;
@@ -1764,11 +1764,11 @@
         <pubDate>Wed, 23 Mar 2022 00:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。&lt;/p&gt;
 &lt;p&gt;裡面有些說法跟圖片是參考 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2FS1AMIFt0D&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;jserv 老師的講座&lt;/a&gt;，裡面內容非常精彩，有機會的話一定要挑戰看看!&lt;/p&gt;
-&lt;h2 id=&#34;concurrency並行-vs-parallelism平行&#34;&gt;Concurrency(並行) vs Parallelism(平行)
+&lt;h2 id=&#34;concurrency並行-vs-parallelism平行&#34;&gt;&lt;a href=&#34;#concurrency%e4%b8%a6%e8%a1%8c-vs-parallelism%e5%b9%b3%e8%a1%8c&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Concurrency(並行) vs Parallelism(平行)
 &lt;/h2&gt;&lt;p&gt;常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。&lt;/p&gt;
 &lt;p&gt;Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調&lt;strong&gt;同時&lt;/strong&gt;執行多個程式，底下會詳細舉例說明兩者的差異。&lt;/p&gt;
 &lt;p&gt;Concurrency 把程式功能拆分的小的 Task 後，如果&lt;strong&gt;同時&lt;/strong&gt;運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。&lt;/p&gt;
@@ -1791,7 +1791,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。&lt;/p&gt;
-&lt;h3 id=&#34;單一-cpu-的-concurrency&#34;&gt;單一 cpu 的 Concurrency
+&lt;h3 id=&#34;單一-cpu-的-concurrency&#34;&gt;&lt;a href=&#34;#%e5%96%ae%e4%b8%80-cpu-%e7%9a%84-concurrency&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;單一 cpu 的 Concurrency
 &lt;/h3&gt;&lt;p&gt;在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。&lt;/p&gt;
 &lt;p&gt;底下的 jserv 老師上課給的範例&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/4nZ9RVx.png&#34;
@@ -1834,17 +1834,17 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身&lt;strong&gt;同時&lt;/strong&gt;進行著某個任務的話，我們就可以說符合 Parallelism 的概念。&lt;/p&gt;
 &lt;p&gt;今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。&lt;/p&gt;
-&lt;h2 id=&#34;process-and-thread&#34;&gt;Process and Thread
+&lt;h2 id=&#34;process-and-thread&#34;&gt;&lt;a href=&#34;#process-and-thread&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Process and Thread
 &lt;/h2&gt;&lt;p&gt;在恐龍書的課本上，對於 process 與 thread 有不同的定義，但在 Linux kernel 中兩者並沒有明確的區分，在程式中都用 &lt;code&gt;task_struct&lt;/code&gt; 來表示一個 process 或者 thread，兩者的區別只有呼叫 system call 時傳入不同的參數，但是本質上都是用 &lt;code&gt;task_struct&lt;/code&gt; 表示一個執行單元。&lt;/p&gt;
-&lt;h2 id=&#34;工作切換-context-switch&#34;&gt;工作切換 (context switch)
+&lt;h2 id=&#34;工作切換-context-switch&#34;&gt;&lt;a href=&#34;#%e5%b7%a5%e4%bd%9c%e5%88%87%e6%8f%9b-context-switch&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;工作切換 (context switch)
 &lt;/h2&gt;&lt;p&gt;context switch 是指 os 想要把目前執行中的 process 暫停，並且切換到下一個要執行的任務，這個動作就被稱為 context switch。&lt;/p&gt;
 &lt;p&gt;一般情況下被暫停的任務之後在某個時間點還是會被繼續執行，所以在進行 context switch 時必須要紀錄舊的 process 的相關資料，像是舊的 process 下個要執行指令的 address，或者被停止時暫存器的相關資料等等。&lt;/p&gt;
 &lt;p&gt;在後續 context switch 到舊的 process 繼續執行時，整個環境必須要回到舊的 process 被停止時的狀態，context switch 的實現很大一部份決定了整個系統 response 的速度，如果 context switch 做的不好，使用者可能會感受到很明顯的延遲。&lt;/p&gt;
-&lt;h2 id=&#34;排程器-scheduler&#34;&gt;排程器 (scheduler)
+&lt;h2 id=&#34;排程器-scheduler&#34;&gt;&lt;a href=&#34;#%e6%8e%92%e7%a8%8b%e5%99%a8-scheduler&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;排程器 (scheduler)
 &lt;/h2&gt;&lt;p&gt;排程器 (scheduler) 的功能是決定 CPU 下一個要執行的任務，並且執行 context switch 指向新的任務下一個要執行的指令位置。&lt;/p&gt;
 &lt;p&gt;排程的演算法也是一個很多人在研究的議題，要如何恰當的分配硬體資源，還要考慮一些工作可能有比較高的 priority，怎麼優先去安排高 priority 的任務等等。&lt;/p&gt;
 &lt;p&gt;每一個任務可能都被分配一定的時間去執行，那段執行的時間被稱為 time slice，time slice 也不一定是固定時間，根據排程演算法的不同，有些演算法會動態的決定一個任務分配到的 time slice。&lt;/p&gt;
-&lt;h2 id=&#34;preemptive-vs-non-preemptive&#34;&gt;Preemptive vs Non-preemptive
+&lt;h2 id=&#34;preemptive-vs-non-preemptive&#34;&gt;&lt;a href=&#34;#preemptive-vs-non-preemptive&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Preemptive vs Non-preemptive
 &lt;/h2&gt;&lt;p&gt;搶佔式(preemptive) 與非搶佔式(non-preemptive) 的差別在於在執行中的工作(process)是否為自願(voluntary)交出 cpu 使用權，又或者被迫放棄 cpu 使用權。&lt;/p&gt;
 &lt;p&gt;non-preemptive 的優點在於可預估程式的完成時間(不會突然被中斷)，context switch 的次數也相對較少，但相對的每個 process 的 waiting time 就會上升。&lt;/p&gt;
 &lt;p&gt;preemptive 系統中 process 可能會在執行的途中被插隊，&lt;strong&gt;被迫放棄&lt;/strong&gt; cpu 週期給另外的 process，被插隊有很多種不同的原因，像是 Time-out, Interrupt 發生，高優先權的 process 插隊等等。&lt;/p&gt;
@@ -1870,7 +1870,7 @@
 &lt;ul&gt;
 &lt;li&gt;收集到 Requirements 最難，很難提出&amp;quot;精準&amp;quot;的需求&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;entity&#34;&gt;Entity
+&lt;h3 id=&#34;entity&#34;&gt;&lt;a href=&#34;#entity&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Entity
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;entity&lt;/code&gt; 是 &lt;code&gt;RDBMS&lt;/code&gt; 中實際的資料實體，可以用程式的概念理解，定義好 &lt;code&gt;struct&lt;/code&gt; 之後一定會在某個地方建立一個實體，裡面會根據 &lt;code&gt;struct field type&lt;/code&gt; 去存放資料。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1895,12 +1895,12 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;studentA&lt;/code&gt; 就可以視為一個 &lt;code&gt;entity&lt;/code&gt;，擁有真正資料的實體。&lt;/p&gt;
-&lt;h3 id=&#34;attribute&#34;&gt;Attribute
+&lt;h3 id=&#34;attribute&#34;&gt;&lt;a href=&#34;#attribute&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Attribute
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;attribute&lt;/code&gt; 描述 &lt;code&gt;entity&lt;/code&gt; 的屬性，拿上面 &lt;code&gt;student&lt;/code&gt; 的例子，&lt;code&gt;name&lt;/code&gt;, &lt;code&gt;age&lt;/code&gt; 都可以當作 &lt;code&gt;attribute&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;在資料庫內 &lt;code&gt;attribute&lt;/code&gt; 分成很多不同類型，大致可以分成 &lt;code&gt;Simple&lt;/code&gt;, &lt;code&gt;Composite&lt;/code&gt;, &lt;code&gt;Multi-valued&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;simple&#34;&gt;Simple
+&lt;h4 id=&#34;simple&#34;&gt;&lt;a href=&#34;#simple&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Simple
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;Simple attribute&lt;/code&gt; 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 &lt;code&gt;data type&lt;/code&gt;，像是 &lt;code&gt;student&lt;/code&gt; 的 &lt;code&gt;age&lt;/code&gt; 就是單純的 &lt;code&gt;int&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;composite&#34;&gt;Composite
+&lt;h4 id=&#34;composite&#34;&gt;&lt;a href=&#34;#composite&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Composite
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;Composite attribute&lt;/code&gt; 是由多個不同的部份組成一起的概念，像是外國的名字可能有 &lt;code&gt;FirstNAme&lt;/code&gt;, &lt;code&gt;MiddleName&lt;/code&gt;, &lt;code&gt;LastName&lt;/code&gt; 等等&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1929,18 +1929,18 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這種時候 &lt;code&gt;name&lt;/code&gt; 代表著三個 &lt;code&gt;string&lt;/code&gt; 的集合，就可以視為一個 &lt;code&gt;Composite attribute&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;multi-valued&#34;&gt;Multi-valued
+&lt;h4 id=&#34;multi-valued&#34;&gt;&lt;a href=&#34;#multi-valued&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Multi-valued
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;Multi-valued attribute&lt;/code&gt; 代表單個 &lt;code&gt;attribute&lt;/code&gt; 內有多個 &lt;code&gt;value&lt;/code&gt;，像是上課舉例是用車子的顏色，一個車子不可能從頭到尾只有一個顏色，不同區域可能會有不同的顏色，這時候如果我們資料庫需要描述這個車子的外觀顏色，就會用到 &lt;code&gt;Multi-valued attribute&lt;/code&gt;，雖然有 &lt;code&gt;Multi-valued attribute&lt;/code&gt;，但實際設計上通常都會把它拆開，實際怎麼分解的之後會再介紹。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Multi-valued&lt;/code&gt; 跟 &lt;code&gt;Composite&lt;/code&gt; 是有可能同時出現的，彼此之間不衝突。&lt;/p&gt;
-&lt;h3 id=&#34;key-attribute&#34;&gt;Key Attribute
+&lt;h3 id=&#34;key-attribute&#34;&gt;&lt;a href=&#34;#key-attribute&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Key Attribute
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;key attribute&lt;/code&gt; 可以識別唯一的 &lt;code&gt;entity&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;對於 &lt;code&gt;key attribute&lt;/code&gt; 沒有特別限制，所以也有機會是 &lt;code&gt;Composite attribute&lt;/code&gt;。某些情形可以需要利用多個 &lt;code&gt;attribute&lt;/code&gt; 才能識別唯一的 &lt;code&gt;entity&lt;/code&gt;。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Key attribute 跟 Primary key 的差別是什麼?&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;entity-setentity-collection&#34;&gt;Entity Set(Entity collection)
+&lt;h3 id=&#34;entity-setentity-collection&#34;&gt;&lt;a href=&#34;#entity-setentity-collection&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Entity Set(Entity collection)
 &lt;/h3&gt;&lt;p&gt;代表當下所有 &lt;code&gt;entity&lt;/code&gt; 的集合。&lt;/p&gt;
-&lt;h2 id=&#34;er-diagrams&#34;&gt;ER diagrams
+&lt;h2 id=&#34;er-diagrams&#34;&gt;&lt;a href=&#34;#er-diagrams&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;ER diagrams
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/qu56dyT.png&#34;
 	
 	
@@ -1995,7 +1995,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Vehicle_id&lt;/code&gt; 跟 &lt;code&gt;Registration&lt;/code&gt; 都可以當作 &lt;code&gt;Key attribute&lt;/code&gt;，所以有加上底線。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Color&lt;/code&gt; 的雙框代表 &lt;code&gt;Multi-valued attribute&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;example-company-db&#34;&gt;Example Company DB
+&lt;h3 id=&#34;example-company-db&#34;&gt;&lt;a href=&#34;#example-company-db&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Example Company DB
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;Company DB&lt;/code&gt; 是課本最常用的例子，目前到第三章的初步設計如下，之後會根據課程進度去逐漸優化。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Department
@@ -2035,7 +2035,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;relationship&#34;&gt;Relationship
+&lt;h3 id=&#34;relationship&#34;&gt;&lt;a href=&#34;#relationship&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship
 &lt;/h3&gt;&lt;p&gt;上面最初步的設計少了 &lt;code&gt;relationship&lt;/code&gt; 的部份，我們沒辦法從上圖得知每個 &lt;code&gt;entity type&lt;/code&gt; 彼此之間的關係。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;relationship&lt;/code&gt; 只能描述 &lt;code&gt;entity type&lt;/code&gt; 與 &lt;code&gt;entity type&lt;/code&gt; 之間的關係，並不能用在 &lt;code&gt;attribute&lt;/code&gt; 之間。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;relationship&lt;/code&gt; 其實沒有規定只能用在兩個 &lt;code&gt;entity type&lt;/code&gt; 之間，可以多個 &lt;code&gt;entity type&lt;/code&gt; 建立 &lt;code&gt;relationship&lt;/code&gt;，不過大部分設計都是建立在兩個不同的 &lt;code&gt;entity type&lt;/code&gt; 之間。&lt;/p&gt;
@@ -2045,9 +2045,9 @@
 &lt;p&gt;應該也有一個 employee 是主管，負責管理 department，&lt;code&gt;MANAGES&lt;/code&gt; 的關係&lt;/p&gt;
 &lt;p&gt;這種情況雖然兩者涉及的 &lt;code&gt;entity type&lt;/code&gt; 一樣，但是因為關係的意義不同，要分成兩個 &lt;code&gt;relationship&lt;/code&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;relationship-degree&#34;&gt;Relationship degree
+&lt;h3 id=&#34;relationship-degree&#34;&gt;&lt;a href=&#34;#relationship-degree&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship degree
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;degree&lt;/code&gt; 來代表這個 &lt;code&gt;relationship&lt;/code&gt; 關聯了幾個 &lt;code&gt;entity type&lt;/code&gt;，如果關聯了兩個 &lt;code&gt;entity type&lt;/code&gt;，可以稱為 &lt;code&gt;binary relationships&lt;/code&gt;，所以 &lt;code&gt;degree=2&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;example&#34;&gt;example
+&lt;h4 id=&#34;example&#34;&gt;&lt;a href=&#34;#example&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;example
 &lt;/h4&gt;&lt;p&gt;回到上面 &lt;code&gt;Company DB&lt;/code&gt; 的示意圖，我們可以每個 &lt;code&gt;Employee&lt;/code&gt; 都應該隸屬於某個 &lt;code&gt;Department&lt;/code&gt;，所以這兩個 &lt;code&gt;entity type&lt;/code&gt; 之間會有 &lt;code&gt;relationship&lt;/code&gt;，這個 &lt;code&gt;relationship&lt;/code&gt; 是一對一的關係。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/nNiLtOI.png&#34;
 	
@@ -2066,10 +2066,10 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;relationship-set&#34;&gt;Relationship Set
+&lt;h4 id=&#34;relationship-set&#34;&gt;&lt;a href=&#34;#relationship-set&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship Set
 &lt;/h4&gt;&lt;p&gt;上圖 r1 ~ r7 總共有七條 &lt;code&gt;relationships&lt;/code&gt;，這些實際存在的 &lt;code&gt;relationship&lt;/code&gt; 集合
 被統稱為 &lt;code&gt;Relationship Set&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;relationship-type&#34;&gt;Relationship type
+&lt;h4 id=&#34;relationship-type&#34;&gt;&lt;a href=&#34;#relationship-type&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship type
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;WORKS_ON&lt;/code&gt; 的關係被稱為 &lt;code&gt;Relationship type&lt;/code&gt;。&lt;/p&gt;
 </description>
         </item>
@@ -2079,7 +2079,7 @@
         <pubDate>Tue, 11 Jan 2022 00:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1022.-sum-of-root-to-leaf-binary-numbers-easy/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://assets.leetcode.com/uploads/2019/04/04/sum-of-root-to-leaf-binary-numbers.png&#34;
 	
 	
@@ -2094,7 +2094,7 @@
 &lt;p&gt;Explanation: (100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;給一個節點為 0 或者 1 的 &lt;code&gt;binary tree&lt;/code&gt;，回傳從 &lt;code&gt;root&lt;/code&gt; 為起點到各個 &lt;code&gt;leaf&lt;/code&gt; 節點路徑組成二進位數的合。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;利用 &lt;code&gt;DFS&lt;/code&gt; 去尋訪，如果 &lt;code&gt;!root-&amp;gt;left &amp;amp;&amp;amp; !root-&amp;gt;right&lt;/code&gt; 就代表到達 &lt;code&gt;leaf&lt;/code&gt;，直接回傳算出來的值。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2139,7 +2139,7 @@
         <description>&lt;blockquote&gt;
 &lt;p&gt;本文章環境基於 Linux v4.14.259&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;概述&#34;&gt;概述
+&lt;h2 id=&#34;概述&#34;&gt;&lt;a href=&#34;#%e6%a6%82%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;概述
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;waitqueue&lt;/code&gt; 如同其名，是 &lt;code&gt;kernel&lt;/code&gt; 中管理一些在&lt;strong&gt;等待資源&lt;/strong&gt;的 &lt;code&gt;task&lt;/code&gt; 的資料結構，在 &lt;code&gt;task&lt;/code&gt; 還沒辦法獲得資源時，會先將其放入 &lt;code&gt;waitqueue&lt;/code&gt; 等待特定條件或者資源準備就緒才會把該 &lt;code&gt;task&lt;/code&gt; 喚醒。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;waitqueue&lt;/code&gt; 有定義兩種資料結構&lt;/p&gt;
 &lt;ul&gt;
@@ -2155,7 +2155,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;wait_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L34&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;wait_&#34;&gt;&lt;a href=&#34;#wait_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L34&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;wait_queue_head_t&lt;/a&gt;
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2173,7 +2173,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;wait_queue_head&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;wait_queue_head_t&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;初始化-waitqueue&#34;&gt;初始化 &lt;code&gt;waitqueue&lt;/code&gt;
+&lt;/div&gt;&lt;h3 id=&#34;初始化-waitqueue&#34;&gt;&lt;a href=&#34;#%e5%88%9d%e5%a7%8b%e5%8c%96-waitqueue&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;初始化 &lt;code&gt;waitqueue&lt;/code&gt;
 &lt;/h3&gt;&lt;p&gt;要建立新的 &lt;code&gt;waitqueue&lt;/code&gt;，必須要先初始化 &lt;code&gt;wait_queue_head_t&lt;/code&gt; 結構，透過 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L63&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;init_waitqueue_head&lt;/a&gt;，定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -2256,7 +2256,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;init_waitqueue_head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;wq_head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;wait_-1&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h2 id=&#34;wait_-1&#34;&gt;&lt;a href=&#34;#wait_-1&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L27&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;wait_queue_entry&lt;/a&gt;
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2284,9 +2284,9 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;一般來說喚醒函數是由排程器實現，所以如果沒有特殊需求，預設的喚醒函數是 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;kernel/sched/core.c 中的 try_to_wake_up&lt;/a&gt;，&lt;code&gt;try_to_wake_up&lt;/code&gt; 在後續會有詳細的介紹。&lt;/p&gt;
-&lt;h3 id=&#34;新增-wait_queue_entry&#34;&gt;新增 wait_queue_entry
+&lt;h3 id=&#34;新增-wait_queue_entry&#34;&gt;&lt;a href=&#34;#%e6%96%b0%e5%a2%9e-wait_queue_entry&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;新增 wait_queue_entry
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;task_struct&lt;/code&gt; 會封裝在 &lt;code&gt;wait_queue_entry&lt;/code&gt; 的 &lt;code&gt;private&lt;/code&gt; 成員內，所以在新增等待事件之前，需要先把 &lt;code&gt;task_struct&lt;/code&gt; 包裝成 &lt;code&gt;wait_queue_entry&lt;/code&gt; 的形式，可以通過 &lt;code&gt;DECLARE_WAITQUEUE&lt;/code&gt; 這個 &lt;code&gt;macro&lt;/code&gt; 來包裝，在建立的過程會把喚醒函數設為 &lt;code&gt;default_wake_function&lt;/code&gt;，對於喚醒函數後面會有更詳細的說明。&lt;/p&gt;
-&lt;h3 id=&#34;declare_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;declare_&#34;&gt;&lt;a href=&#34;#declare_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;DECLARE_WAITQUEUE&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2309,7 +2309,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;把 &lt;code&gt;task&lt;/code&gt; 封裝成 &lt;code&gt;wait_queue_entry&lt;/code&gt; 之後還需要添加到 &lt;code&gt;waitqueue&lt;/code&gt; 當中，可以透過 &lt;code&gt;add_wait_queue&lt;/code&gt; 來實現，定義如下:&lt;/p&gt;
-&lt;h3 id=&#34;add_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;add_&#34;&gt;&lt;a href=&#34;#add_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;add_wait_queue&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2354,7 +2354,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;移除 &lt;code&gt;wait_queue_entry&lt;/code&gt; 則是會呼叫 &lt;code&gt;remove_wait_queue&lt;/code&gt;，具體實現如下:&lt;/p&gt;
-&lt;h3 id=&#34;remove_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;remove_&#34;&gt;&lt;a href=&#34;#remove_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;remove_wait_queue&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2380,8 +2380,8 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;EXPORT_SYMBOL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;remove_wait_queue&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;休眠&#34;&gt;休眠
-&lt;/h2&gt;&lt;h3 id=&#34;wait_-2&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L310&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h2 id=&#34;休眠&#34;&gt;&lt;a href=&#34;#%e4%bc%91%e7%9c%a0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;休眠
+&lt;/h2&gt;&lt;h3 id=&#34;wait_-2&#34;&gt;&lt;a href=&#34;#wait_-2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L310&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;wait_event&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2530,7 +2530,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;prepare_to_wait_event&lt;/code&gt; 是會檢查 &lt;code&gt;wait&lt;/code&gt; 事件是不是有放到 &lt;code&gt;waitqueue&lt;/code&gt; 中避免無法喚醒，本文章是閱讀 &lt;code&gt;Linux v4.14.259&lt;/code&gt; 版本，但是看到後面的版本對於 &lt;code&gt;prepare_to_wait_event&lt;/code&gt; 好像有稍微修改，有興趣可以去研究一下修改了什麼地方。&lt;/p&gt;
-&lt;h3 id=&#34;prepare_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;prepare_&#34;&gt;&lt;a href=&#34;#prepare_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;prepare_to_wait_event&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2609,9 +2609,9 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;所以總結 &lt;code&gt;wait_event&lt;/code&gt; 就是可以讓 &lt;code&gt;task&lt;/code&gt; 進入睡眠狀態直到 &lt;code&gt;condition&lt;/code&gt; 為 &lt;code&gt;true&lt;/code&gt;，在過程中狀態為 &lt;strong&gt;TASK_UNINTERRUPTIBLE&lt;/strong&gt;。&lt;/p&gt;
-&lt;h2 id=&#34;喚醒函數&#34;&gt;喚醒函數
+&lt;h2 id=&#34;喚醒函數&#34;&gt;&lt;a href=&#34;#%e5%96%9a%e9%86%92%e5%87%bd%e6%95%b8&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;喚醒函數
 &lt;/h2&gt;&lt;p&gt;在前面介紹 &lt;code&gt;DECLARE_WAITQUEUE&lt;/code&gt; 的時候有講到一個 &lt;code&gt;task&lt;/code&gt; 包裝成 &lt;code&gt;wait_queue_entry&lt;/code&gt; 時會一併設置喚醒函數為 &lt;code&gt;default_wake_function&lt;/code&gt;，用於喚醒一個正在睡眠的 &lt;code&gt;task&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;default_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;default_&#34;&gt;&lt;a href=&#34;#default_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;default_wake_function&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2632,7 +2632,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;看完定義之後會發現 &lt;code&gt;default_wake_function&lt;/code&gt; 會呼叫 &lt;code&gt;try_to_wake_up&lt;/code&gt;，繼續往下 &lt;code&gt;trace&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;try_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;try_&#34;&gt;&lt;a href=&#34;#try_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;try_to_wake_up&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2905,7 +2905,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這段程式碼中我們聚焦在 &lt;code&gt;ttwu_queue&lt;/code&gt;, &lt;code&gt;ttwu_stat&lt;/code&gt; 中，中間有很大一段在處理 &lt;code&gt;SMP&lt;/code&gt; 的機制，不是本文探討的重點，先介紹一下 &lt;code&gt;ttmu&lt;/code&gt;，在 &lt;code&gt;kernel/sched/core.c&lt;/code&gt; 中有很多 &lt;code&gt;ttmu&lt;/code&gt; 開頭的 &lt;code&gt;function&lt;/code&gt;，到這邊才理解到其實是 &lt;code&gt;try to wake up&lt;/code&gt; 的縮寫。&lt;/p&gt;
-&lt;h3 id=&#34;ttwu_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;ttwu_&#34;&gt;&lt;a href=&#34;#ttwu_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ttwu_queue&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -2954,7 +2954,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;http://oliveryang.net/2016/03/linux-scheduler-2/#22-wakeup-preemption&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;reference&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;ttwu_-1&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;ttwu_-1&#34;&gt;&lt;a href=&#34;#ttwu_-1&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ttwu_do_activate&lt;/a&gt;
 &lt;/h3&gt;&lt;p&gt;為了節省空間，底下的 &lt;code&gt;code&lt;/code&gt; 把 &lt;code&gt;ttwu_do_activate&lt;/code&gt; 呼叫的 &lt;code&gt;function&lt;/code&gt; 實現也放在一起。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -3094,7 +3094,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;try_to_wake_up&lt;/code&gt; 可以理解成最後會將 &lt;code&gt;task&lt;/code&gt; 的 &lt;code&gt;state&lt;/code&gt; 由 &lt;code&gt;TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE&lt;/code&gt; 改成 &lt;code&gt;TASK_RUNNING&lt;/code&gt;，並將其加入 &lt;code&gt;rq&lt;/code&gt; 中等待排程器選擇。&lt;/p&gt;
-&lt;h2 id=&#34;get-the-number-of-entering-a-wait-queue&#34;&gt;get the number of entering a wait queue
+&lt;h2 id=&#34;get-the-number-of-entering-a-wait-queue&#34;&gt;&lt;a href=&#34;#get-the-number-of-entering-a-wait-queue&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;get the number of entering a wait queue
 &lt;/h2&gt;&lt;p&gt;&lt;del&gt;扯遠了&lt;/del&gt;，回到這次作業題目(二)的需求，要寫一個 &lt;code&gt;system call&lt;/code&gt; 來獲得 &lt;code&gt;task_struct&lt;/code&gt; 進入 &lt;code&gt;wait queue&lt;/code&gt; 的次數，先在 &lt;code&gt;task_struct&lt;/code&gt; 中加入 &lt;code&gt;wq_cnt&lt;/code&gt; 變數&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -3213,7 +3213,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;system-call-definition&#34;&gt;system call definition
+&lt;/div&gt;&lt;h3 id=&#34;system-call-definition&#34;&gt;&lt;a href=&#34;#system-call-definition&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;system call definition
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -3256,7 +3256,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;user-space&#34;&gt;user space
+&lt;/div&gt;&lt;h3 id=&#34;user-space&#34;&gt;&lt;a href=&#34;#user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -3361,7 +3361,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;驗證&#34;&gt;驗證
+&lt;/div&gt;&lt;h3 id=&#34;驗證&#34;&gt;&lt;a href=&#34;#%e9%a9%97%e8%ad%89&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;驗證
 &lt;/h3&gt;&lt;p&gt;利用 &lt;code&gt;/proc/{pid}/sched&lt;/code&gt; 中的 &lt;code&gt;se_statistics.nr_wakeups&lt;/code&gt; 來比對結果，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/FAvy2t5.png&#34;
 	
@@ -3372,7 +3372,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;nr_wakeups&lt;/code&gt; 這個值是在 &lt;code&gt;ttwu_stat&lt;/code&gt; 這個 &lt;code&gt;function&lt;/code&gt; 去更新的，在 &lt;code&gt;try_to_wake_up&lt;/code&gt; 的後面會呼叫 &lt;code&gt;ttwu_stat&lt;/code&gt; 來更新相關的資料，&lt;del&gt;所以其實題目二也不用另外加 counter&lt;/del&gt;，具體實現如下&lt;/p&gt;
-&lt;h3 id=&#34;ttwu_-2&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;ttwu_-2&#34;&gt;&lt;a href=&#34;#ttwu_-2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1630&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ttwu_stat&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -3643,7 +3643,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo sysctl kernel.sched_schedstats&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://vflong.github.io/sre/linux/2020/03/12/linux-load-averages.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;【译文】Linux 平均负载：解决这个奥秘&lt;/a&gt;&lt;/li&gt;
@@ -3668,7 +3668,7 @@
 &lt;p&gt;本文章環境基於 Linux v4.14.259&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;第一次 &lt;code&gt;trace&lt;/code&gt; 整個排程的流程，&lt;code&gt;kernel&lt;/code&gt; 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 &lt;code&gt;function&lt;/code&gt; 的作用都沒辦法很好的說明，希望之後可以多閱讀 &lt;code&gt;source code&lt;/code&gt;，把相關的知識慢慢補齊，拼湊成完整的知識。&lt;/p&gt;
-&lt;h2 id=&#34;schedule&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;schedule&#34;&gt;&lt;a href=&#34;#schedule&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;schedule&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;要 &lt;code&gt;trace&lt;/code&gt; 排程器要先找到 &lt;code&gt;schedule&lt;/code&gt; 的入口，定義在 &lt;code&gt;kernel/sched/core.c&lt;/code&gt;，函式定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -3711,7 +3711,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;EXPORT_SYMBOL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;schedule&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;sched_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h3 id=&#34;sched_&#34;&gt;&lt;a href=&#34;#sched_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;sched_submit_work&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -3744,7 +3744,7 @@
 &lt;/div&gt;&lt;p&gt;在 &lt;code&gt;sched_submit_work&lt;/code&gt; 中先檢查 &lt;code&gt;tsk-&amp;gt;state&lt;/code&gt; 是否為 0(&lt;code&gt;runnable&lt;/code&gt;)，如果是就直接返回。
 &lt;code&gt;tsk_is_pi_blocked&lt;/code&gt; 檢查 &lt;code&gt;tsk&lt;/code&gt; 的 &lt;code&gt;deadlock&lt;/code&gt; 檢測器是否為空。&lt;/p&gt;
 &lt;p&gt;注意到 &lt;code&gt;schedule&lt;/code&gt; 的 &lt;code&gt;while&lt;/code&gt; 迴圈中的 &lt;code&gt;__schedule(false)&lt;/code&gt;，&lt;code&gt;__schedule&lt;/code&gt; 是真正排程執行的地方，所以繼續往下 &lt;code&gt;trace&lt;/code&gt;&lt;/p&gt;
-&lt;h2 id=&#34;_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;_&#34;&gt;&lt;a href=&#34;#_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;_schedule&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;在 &lt;code&gt;__schedule()&lt;/code&gt; 定義上方有一段註解說明&lt;strong&gt;排程時機&lt;/strong&gt;，主要是說明 &lt;code&gt;task_struct&lt;/code&gt; 在什麼情況會被排程，底下會大概敘述一下排程器在什麼情況下會考慮排程。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -4225,7 +4225,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;get-the-number-of-context-switches&#34;&gt;get the number of context switches
+&lt;/div&gt;&lt;h2 id=&#34;get-the-number-of-context-switches&#34;&gt;&lt;a href=&#34;#get-the-number-of-context-switches&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;get the number of context switches
 &lt;/h2&gt;&lt;p&gt;回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 &lt;code&gt;counter&lt;/code&gt; 來計算被排程的次數，只要把 &lt;code&gt;task_struct&lt;/code&gt; 中的 &lt;code&gt;tsk-&amp;gt;nivcsw + tsk-&amp;gt;nvcse&lt;/code&gt; 就可以得到這個 &lt;code&gt;task_struct&lt;/code&gt; 被 &lt;code&gt;context switch&lt;/code&gt; 的次數了，甚至可以用 &lt;code&gt;nr_switches&lt;/code&gt; 這個變數來直接獲得答案。&lt;/p&gt;
 &lt;p&gt;在驗證自己程式的正確性時，我們會參考 &lt;code&gt;/proc/{pid}/sched&lt;/code&gt; 中的 &lt;code&gt;nr_switches&lt;/code&gt;，實際找到 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;proc_sched_show_task&lt;/a&gt; 就會發現 &lt;code&gt;nr_switches&lt;/code&gt; 也是用 &lt;code&gt;nivcsw + nvcse&lt;/code&gt; 來實現。&lt;/p&gt;
@@ -4262,7 +4262,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;所以題目一的實現如下:&lt;/p&gt;
-&lt;h3 id=&#34;kernel-space&#34;&gt;kernel space
+&lt;h3 id=&#34;kernel-space&#34;&gt;&lt;a href=&#34;#kernel-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;kernel space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -4308,7 +4308,7 @@
 &lt;/div&gt;&lt;p&gt;利用 &lt;code&gt;SYSCALL_DEFINE1&lt;/code&gt; 的 &lt;code&gt;macro&lt;/code&gt; 來展開我們定義的 &lt;code&gt;get_number_of_context_switches&lt;/code&gt;，利用 &lt;code&gt;task_struct&lt;/code&gt; 的 &lt;code&gt;nvcse, nivcsw&lt;/code&gt; 來獲得 &lt;code&gt;number of context switches&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;之所以要用 &lt;code&gt;SYSCALL_DEFINE1&lt;/code&gt; 來定義 &lt;code&gt;system call&lt;/code&gt; 是因為之前有個 &lt;a class=&#34;link&#34; href=&#34;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;CVE-2009-0029&lt;/a&gt;，攻擊者可以藉由 &lt;code&gt;32 跟 64 bits&lt;/code&gt; 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 &lt;code&gt;SYSCALL_DEFINE&lt;/code&gt; 來定義會比較安全。&lt;/p&gt;
-&lt;h3 id=&#34;user-space&#34;&gt;user space
+&lt;h3 id=&#34;user-space&#34;&gt;&lt;a href=&#34;#user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -4366,7 +4366,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;refernece&#34;&gt;refernece
+&lt;h3 id=&#34;refernece&#34;&gt;&lt;a href=&#34;#refernece&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;refernece
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;http://www.wowotech.net/process_management/447.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;CFS调度器（1）-基本原理&lt;/a&gt;&lt;/li&gt;
@@ -4400,7 +4400,7 @@
 &lt;p&gt;&lt;code&gt;_do_fork()&lt;/code&gt; 更改為 &lt;code&gt;kernel_clone()&lt;/code&gt; 的原因可以參考 &lt;a class=&#34;link&#34; href=&#34;https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;fork: introduce kernel_clone()&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;在深入看 &lt;code&gt;source code&lt;/code&gt; 之前最重要的就是先把 &lt;code&gt;man page&lt;/code&gt; 看過一次，看完 &lt;code&gt;man page&lt;/code&gt; 會對要研究的 &lt;code&gt;system call&lt;/code&gt; 有初步的了解，接著再往下看 &lt;code&gt;source code&lt;/code&gt; 才不會沒有概念的死讀程式碼。&lt;/p&gt;
-&lt;h2 id=&#34;fork---create-a-child-process&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man2/fork.2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;fork---create-a-child-process&#34;&gt;&lt;a href=&#34;#fork---create-a-child-process&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man2/fork.2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;fork - create a child process&lt;/a&gt;
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -4435,7 +4435,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;fork&lt;/code&gt; 在 &lt;code&gt;kernel/fork.c&lt;/code&gt; 的定義，可以看到它使用了 &lt;code&gt;SIGCHLD&lt;/code&gt; 的 &lt;code&gt;flag&lt;/code&gt;，這代表如果 &lt;code&gt;child process&lt;/code&gt; 終止會發送 &lt;code&gt;SIGCHLD&lt;/code&gt; 通知 &lt;code&gt;parent process&lt;/code&gt;.&lt;/p&gt;
-&lt;h3 id=&#34;_do_fork&#34;&gt;_do_fork
+&lt;h3 id=&#34;_do_fork&#34;&gt;&lt;a href=&#34;#_do_fork&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork
 &lt;/h3&gt;&lt;p&gt;第一段有簡單提到，不論是使用 &lt;code&gt;fork&lt;/code&gt; 或者 &lt;code&gt;clone&lt;/code&gt; 等方式，到最後都會呼叫 &lt;code&gt;_do_fork()&lt;/code&gt; 來建立一個新的 &lt;code&gt;task struct&lt;/code&gt;，&lt;code&gt;_do_fork()&lt;/code&gt; 在 &lt;code&gt;kernel v4.14.259&lt;/code&gt; 中定義在 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2063&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;kernel/fork.c line.2063&lt;/a&gt;，定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -4607,7 +4607,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;一開始的段落是有關於 &lt;code&gt;ptrace&lt;/code&gt; 的邏輯處理，&lt;code&gt;trace&lt;/code&gt; 變數代表 &lt;code&gt;child process&lt;/code&gt; 是否可以被追蹤，如果可以，則 &lt;code&gt;trace&lt;/code&gt; 代表這個 &lt;code&gt;child process&lt;/code&gt; 是由哪個 &lt;code&gt;system call&lt;/code&gt; 創立的(&lt;code&gt;vfork&lt;/code&gt;, &lt;code&gt;clone&lt;/code&gt;, &lt;code&gt;fork&lt;/code&gt;)，重點在於後面的 &lt;code&gt;copy_process&lt;/code&gt;，其實講的直觀一點，&lt;code&gt;copy_process&lt;/code&gt; 做的事情就是回傳一個新的 &lt;code&gt;task_struct&lt;/code&gt;，但是在回傳新的 &lt;code&gt;task_struct&lt;/code&gt; 的時候，該 &lt;code&gt;task_struct&lt;/code&gt; 是還沒有開啟的狀態，我們先繼續往 &lt;code&gt;copy_process&lt;/code&gt; 去 &lt;code&gt;trace&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;_do_fork---copy_process&#34;&gt;_do_fork() -&amp;gt; copy_process
+&lt;h3 id=&#34;_do_fork---copy_process&#34;&gt;&lt;a href=&#34;#_do_fork---copy_process&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork() -&amp;gt; copy_process
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;copy_process&lt;/code&gt; 同樣定義在 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L1575&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;&lt;code&gt;/kerenl/fork.c&lt;/code&gt;&lt;/a&gt;內，底下是它的實現&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -4750,7 +4750,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;一開始都是一些有關於 &lt;code&gt;clone_flags&lt;/code&gt; 的處理，之後會呼叫 &lt;code&gt;dup_task_struct(current, node);&lt;/code&gt;，&lt;code&gt;dup_task_struct&lt;/code&gt; 是真正建立 &lt;code&gt;task_struct&lt;/code&gt; 的地方，&lt;code&gt;parent process&lt;/code&gt; 會初始化 &lt;code&gt;child process&lt;/code&gt; 之後回傳指標 &lt;code&gt;p&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;_do_fork---copy_process---dup_task_struct&#34;&gt;_do_fork() -&amp;gt; copy_process -&amp;gt; dup_task_struct
+&lt;h3 id=&#34;_do_fork---copy_process---dup_task_struct&#34;&gt;&lt;a href=&#34;#_do_fork---copy_process---dup_task_struct&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork() -&amp;gt; copy_process -&amp;gt; dup_task_struct
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -5443,7 +5443,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;_do_fork---wake_up_new_taskp&#34;&gt;_do_fork() -&amp;gt; wake_up_new_task(p)
+&lt;/div&gt;&lt;h3 id=&#34;_do_fork---wake_up_new_taskp&#34;&gt;&lt;a href=&#34;#_do_fork---wake_up_new_taskp&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;_do_fork() -&amp;gt; wake_up_new_task(p)
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;wake_up_new_task&lt;/code&gt; 的作用是把新創立的 &lt;code&gt;task_struct&lt;/code&gt; 加入排程的 &lt;code&gt;runqueue&lt;/code&gt; 當中，實現&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;如下&lt;/a&gt;:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -5566,7 +5566,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/linhaostudy/p/9644736.html#autoid-1-4-0&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;_do_fork, do_fork 詳解&lt;/a&gt;&lt;/li&gt;
@@ -5593,14 +5593,14 @@
         <pubDate>Tue, 04 Jan 2022 00:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-997.-find-the-town-judge-easy/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;在小鎮中有 &lt;code&gt;N&lt;/code&gt; 個人，其中裡面有一個是 &lt;code&gt;Judge&lt;/code&gt;，成為 &lt;code&gt;Judge&lt;/code&gt; 要滿足兩個條件&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;Judge&lt;/code&gt; 本身不相信任何人&lt;/li&gt;
 &lt;li&gt;其他 &lt;code&gt;N-1&lt;/code&gt; 個人都相信 &lt;code&gt;Judge&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;一開始看到這個題目是往圖的方向去思考，後來寫出來的結果不盡理想，最後換個思路直接用一個大小為 &lt;code&gt;N&lt;/code&gt; 的 &lt;code&gt;array&lt;/code&gt; 來紀錄，如果 &lt;code&gt;A 信任 B&lt;/code&gt; 那就 &lt;code&gt;array[B]++, array[A]--&lt;/code&gt;，如果 &lt;code&gt;Judge&lt;/code&gt; 存在，它就會有 &lt;code&gt;N-1&lt;/code&gt; 票，如果在其中支持的任一個人，在支持的過程就會 &lt;code&gt;-1&lt;/code&gt; 票，喪失成為法官的條件。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -5651,9 +5651,9 @@
         <pubDate>Sun, 02 Jan 2022 01:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1010.-pairs-of-songs-with-total-durations-divisible-by-60-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;在一個陣列中找出兩兩相加是 &lt;code&gt;60&lt;/code&gt; 的倍數的組合數。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;這個題目如果純粹的硬是把所有的組合都加過一次，一定會 &lt;code&gt;time out&lt;/code&gt;，所以基本上要從 &lt;code&gt;O(n)&lt;/code&gt; 的作法去嘗試。&lt;/p&gt;
 &lt;p&gt;假設 &lt;code&gt;x = 57&lt;/code&gt;，那相加 &lt;code&gt;3, 63 ...&lt;/code&gt; 都可以湊到 &lt;code&gt;60&lt;/code&gt; 的倍數，所以我們只要用一個大小 &lt;code&gt;60&lt;/code&gt; 的 &lt;code&gt;array&lt;/code&gt; 來存 &lt;code&gt;time[i] % 60&lt;/code&gt; 的結果就好了，今天 &lt;code&gt;x = 57&lt;/code&gt; 的情況我們只要去 &lt;code&gt;array&lt;/code&gt; 中查找 &lt;code&gt;array[60 - 57 % 60] = array[3]&lt;/code&gt; 就可以獲得在此之前所有曾經出現過可以跟 &lt;code&gt;57&lt;/code&gt; 湊成 &lt;code&gt;60&lt;/code&gt; 倍數的資料了。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -5702,7 +5702,7 @@
         <pubDate>Sat, 01 Jan 2022 01:12:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1026.-maximum-difference-between-node-and-ancestor-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給一棵二元樹，回傳某個節點與其祖先節點的最大的差(絕對值)。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/67j1exj.png&#34;
 	
@@ -5712,8 +5712,8 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
-&lt;/h2&gt;&lt;h3 id=&#34;dfs&#34;&gt;DFS
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
+&lt;/h2&gt;&lt;h3 id=&#34;dfs&#34;&gt;&lt;a href=&#34;#dfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;DFS
 &lt;/h3&gt;&lt;p&gt;用 &lt;code&gt;DFS&lt;/code&gt; 尋訪每個節點，並且順便紀錄到這個節點之前的 &lt;code&gt;max, min value&lt;/code&gt;，這樣子最大的差就是 &lt;code&gt;max - min&lt;/code&gt;。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -5767,7 +5767,7 @@
         <pubDate>Wed, 29 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-116.-populating-next-right-pointers-in-each-node-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給定一個 &lt;code&gt;perfect binary tree&lt;/code&gt;，定義 &lt;code&gt;next&lt;/code&gt; 指標，&lt;code&gt;root-&amp;gt;next&lt;/code&gt; 為空，每個節點的 &lt;code&gt;left child&lt;/code&gt; 的 &lt;code&gt;next&lt;/code&gt; 為 &lt;code&gt;right child&lt;/code&gt;。每個節點 &lt;code&gt;right child&lt;/code&gt; 的 &lt;code&gt;next&lt;/code&gt; 為該節點 &lt;code&gt;next&lt;/code&gt; 的 &lt;code&gt;left child&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;del&gt;用中文有點難表達，直接看圖吧。&lt;/del&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://assets.leetcode.com/uploads/2019/02/14/116_sample.png&#34;
@@ -5778,9 +5778,9 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;解題流程&#34;&gt;解題流程
+&lt;h2 id=&#34;解題流程&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題流程
 &lt;/h2&gt;&lt;p&gt;這題跟很多 &lt;code&gt;tree&lt;/code&gt; 的題目一樣，可以用 &lt;code&gt;BFS&lt;/code&gt; 或者 &lt;code&gt;DFS&lt;/code&gt; 兩種方式去實現。&lt;/p&gt;
-&lt;h3 id=&#34;bfs&#34;&gt;BFS
+&lt;h3 id=&#34;bfs&#34;&gt;&lt;a href=&#34;#bfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;BFS
 &lt;/h3&gt;&lt;p&gt;用 &lt;code&gt;BFS&lt;/code&gt; 的解法，就是在每個 &lt;code&gt;level&lt;/code&gt; 找到最左邊的 &lt;code&gt;Node&lt;/code&gt; 當作開頭，往右開始每個節點都用 &lt;code&gt;next&lt;/code&gt; 指標連結。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -5848,7 +5848,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;};&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;dfs&#34;&gt;DFS
+&lt;/div&gt;&lt;h3 id=&#34;dfs&#34;&gt;&lt;a href=&#34;#dfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;DFS
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;DFS&lt;/code&gt; 的方式是走訪每個節點，如果該節點有 &lt;code&gt;left child&lt;/code&gt;，就把 &lt;code&gt;left child-&amp;gt;next&lt;/code&gt; 指向 &lt;code&gt;right child&lt;/code&gt;。如果有 &lt;code&gt;right child&lt;/code&gt; 就指向 &lt;code&gt;next child-&amp;gt;left&lt;/code&gt;，詳情可以參考程式碼，因為題目的條件式 &lt;code&gt;perfect binary tree&lt;/code&gt;，所以如果 &lt;code&gt;left child&lt;/code&gt; 存在就不需要再確認 &lt;code&gt;right child&lt;/code&gt; 是不是 &lt;code&gt;nullptr&lt;/code&gt;  了。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -5914,7 +5914,7 @@
         <pubDate>Tue, 28 Dec 2021 01:05:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/%E5%88%A9%E7%94%A8-vagrant-%E5%9F%B7%E8%A1%8C%E8%87%AA%E5%B7%B1%E7%B7%A8%E8%AD%AF%E7%9A%84-kernel%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</guid>
-        <description>&lt;h2 id=&#34;vagrant&#34;&gt;vagrant
+        <description>&lt;h2 id=&#34;vagrant&#34;&gt;&lt;a href=&#34;#vagrant&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;vagrant
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/9aODHGc.png&#34;
 	
 	
@@ -5925,7 +5925,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;vagrant&lt;/code&gt; 是一款建立及管理虛擬機的工具，利用 &lt;code&gt;vagrant&lt;/code&gt; 可以快速在本機端架設實驗環境，並且可以把自己習慣的環境包裝後在任何有安裝 &lt;code&gt;vagrant&lt;/code&gt; 的電腦執行，達到 &lt;code&gt;IaC(Infrastructure as Code)&lt;/code&gt; 的特性，使用 &lt;code&gt;vagrant&lt;/code&gt; 可以大幅降低環境的架設時間，趁這個機會順便學習一下基本的用法。&lt;/p&gt;
 &lt;p&gt;這學期在修 &lt;code&gt;linux&lt;/code&gt; 的課程會有添加 &lt;code&gt;system call&lt;/code&gt; 或者改 &lt;code&gt;kernel&lt;/code&gt; 的需求，所以這篇文章紀錄一下如何使用 &lt;code&gt;vagrant&lt;/code&gt; 來執行自己編譯好的 &lt;code&gt;kernel&lt;/code&gt;，以及一些 &lt;code&gt;vagrant&lt;/code&gt; 的基本用法，用虛擬機做實驗也降低了把自己的環境搞壞的風險。&lt;/p&gt;
-&lt;h2 id=&#34;install&#34;&gt;install
+&lt;h2 id=&#34;install&#34;&gt;&lt;a href=&#34;#install&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;install
 &lt;/h2&gt;&lt;p&gt;安裝可以參考 &lt;a class=&#34;link&#34; href=&#34;https://www.vagrantup.com/downloads&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;官方網站&lt;/a&gt;，在 &lt;code&gt;ubuntu&lt;/code&gt; 的環境安裝 &lt;code&gt;vagrant&lt;/code&gt; 可以用以下指令:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -5953,7 +5953,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;$ sudo apt upgrade virtualbox
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;建立基本的環境&#34;&gt;建立基本的環境
+&lt;/div&gt;&lt;h2 id=&#34;建立基本的環境&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e5%9f%ba%e6%9c%ac%e7%9a%84%e7%92%b0%e5%a2%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立基本的環境
 &lt;/h2&gt;&lt;p&gt;虛擬機的底我們選擇使用 &lt;code&gt;ubuntu 16.04&lt;/code&gt; 版本，可以看 &lt;code&gt;Vagrant Cloud&lt;/code&gt; 中 &lt;code&gt;ubuntu&lt;/code&gt; 官方提供的 &lt;code&gt;Vagrant box&lt;/code&gt; 選擇自己想要的版本, &lt;a class=&#34;link&#34; href=&#34;https://app.vagrantup.com/ubuntu&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ubuntu/boxes&lt;/a&gt;。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -5995,7 +5995,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;vagrantfile&#34;&gt;Vagrantfile
+&lt;h3 id=&#34;vagrantfile&#34;&gt;&lt;a href=&#34;#vagrantfile&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Vagrantfile
 &lt;/h3&gt;&lt;p&gt;在執行 &lt;code&gt;vagrant init&lt;/code&gt; 的指令時，會在該目錄底下創立一個 &lt;code&gt;Vagrantfile&lt;/code&gt;，可以把這個文件當作虛擬機的配置檔案，有點像是 &lt;code&gt;Dockerfile&lt;/code&gt;，如果想深入了解 &lt;code&gt;Vagrantfile&lt;/code&gt; 的寫法還有詳細配置，可以參考 &lt;a class=&#34;link&#34; href=&#34;https://www.vagrantup.com/docs/vagrantfile&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;官方文檔&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;第一次使用 &lt;code&gt;vagrant&lt;/code&gt; 時它會從雲端把指定的 &lt;code&gt;image&lt;/code&gt;下載進本機，會花比較長的時間，下載好之後可以使用 &lt;code&gt;vagrant ssh&lt;/code&gt; 來進入開啟的虛擬機中。&lt;/p&gt;
@@ -6051,7 +6051,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;$ vagrant reload
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;資料共享的特性&#34;&gt;資料共享的特性
+&lt;/div&gt;&lt;h3 id=&#34;資料共享的特性&#34;&gt;&lt;a href=&#34;#%e8%b3%87%e6%96%99%e5%85%b1%e4%ba%ab%e7%9a%84%e7%89%b9%e6%80%a7&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;資料共享的特性
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;vagrant&lt;/code&gt; 還有一個方便的特性，在虛擬機中如果把檔案放到 &lt;code&gt;/vagrant&lt;/code&gt; 內，就可以跟外部放置 &lt;code&gt;Vagrantfile&lt;/code&gt; 的目錄做資料共享。舉例來說我們在虛擬機建立一個 &lt;code&gt;Hello.txt&lt;/code&gt; 放到 &lt;code&gt;/vagrant&lt;/code&gt; 目錄底下，離開虛擬機存取到該檔案。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -6101,7 +6101,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;安裝編譯-kernel-所需要的套件&#34;&gt;安裝編譯 kernel 所需要的套件
+&lt;h3 id=&#34;安裝編譯-kernel-所需要的套件&#34;&gt;&lt;a href=&#34;#%e5%ae%89%e8%a3%9d%e7%b7%a8%e8%ad%af-kernel-%e6%89%80%e9%9c%80%e8%a6%81%e7%9a%84%e5%a5%97%e4%bb%b6&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;安裝編譯 kernel 所需要的套件
 &lt;/h3&gt;&lt;p&gt;接下來安裝一些編譯 &lt;code&gt;kernel&lt;/code&gt; 時依賴的套件，並且用 &lt;code&gt;snapshot&lt;/code&gt; 紀錄一下目前的環境，把名稱設為 &lt;code&gt;installed-tool-env&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -6222,7 +6222,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;host@ubuntu: ~$: vagrant snapshot list
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;讀取-snapshot存檔點&#34;&gt;讀取 snapshot(存檔點)
+&lt;/div&gt;&lt;h2 id=&#34;讀取-snapshot存檔點&#34;&gt;&lt;a href=&#34;#%e8%ae%80%e5%8f%96-snapshot%e5%ad%98%e6%aa%94%e9%bb%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;讀取 snapshot(存檔點)
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -6233,7 +6233,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;host@ubuntu: ~$: vagrant up
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.vagrantup.com/docs&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;vagrant docs&lt;/a&gt;&lt;/li&gt;
@@ -6250,10 +6250,10 @@
         <pubDate>Tue, 28 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-876.-middle-of-the-linked-list-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;獲得 &lt;code&gt;linked list&lt;/code&gt; 的 &lt;code&gt;middle&lt;/code&gt; 節點。&lt;/p&gt;
 &lt;p&gt;經典的快慢指標問題，但是這題找到中間節點之後不需要前面的資料，所以直接用 &lt;code&gt;head&lt;/code&gt; 來當 &lt;code&gt;slow&lt;/code&gt; 指標。&lt;/p&gt;
-&lt;h2 id=&#34;解題流程&#34;&gt;解題流程
+&lt;h2 id=&#34;解題流程&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題流程
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -6292,9 +6292,9 @@
         <pubDate>Mon, 27 Dec 2021 01:05:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-476.-number-complement-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;對一個整數的有效位元做位元轉換(&lt;code&gt;ones&#39; complement&lt;/code&gt;)，像是 &lt;code&gt;5 = 101&lt;/code&gt;，經過轉換之後結果 &lt;code&gt;2 = 010&lt;/code&gt;，前面沒有用到的 &lt;code&gt;bit&lt;/code&gt; 則是不做任何操作。&lt;/p&gt;
-&lt;h2 id=&#34;思路&#34;&gt;思路
+&lt;h2 id=&#34;思路&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%b7%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思路
 &lt;/h2&gt;&lt;p&gt;這題算是 &lt;code&gt;Bit Manipulation&lt;/code&gt; 的入門題目，很適合練習 &lt;code&gt;bit&lt;/code&gt; 的思考方式。剛好這類型的題目之前沒什麼做過，所以這邊來紀錄一下。&lt;/p&gt;
 &lt;p&gt;因為這題的範圍限制 &lt;code&gt;1 &amp;lt;= num &amp;lt; 2^31&lt;/code&gt;，所以可確保第一個 &lt;code&gt;bit&lt;/code&gt; 為&lt;code&gt;0&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/rWUxr5v.png&#34;
@@ -6305,7 +6305,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;找第一個有效位元&#34;&gt;找第一個有效位元
+&lt;h3 id=&#34;找第一個有效位元&#34;&gt;&lt;a href=&#34;#%e6%89%be%e7%ac%ac%e4%b8%80%e5%80%8b%e6%9c%89%e6%95%88%e4%bd%8d%e5%85%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;找第一個有效位元
 &lt;/h3&gt;&lt;p&gt;我的想法是先從左邊第一個 &lt;code&gt;bit&lt;/code&gt; 開始找，找到第一個 &lt;code&gt;1&lt;/code&gt; ，後面所有的 &lt;code&gt;bit&lt;/code&gt; 就都是有效位數，再一一反轉。&lt;/p&gt;
 &lt;p&gt;要判斷左邊第一個位元是不是 &lt;code&gt;1&lt;/code&gt; 可以寫成&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -6321,7 +6321,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;可以利用這個方式先找到第一個 &lt;code&gt;1&lt;/code&gt; 的所在，在對於後面的 &lt;code&gt;bit&lt;/code&gt; 做反轉。&lt;/p&gt;
-&lt;h3 id=&#34;反轉-bits&#34;&gt;反轉 bits
+&lt;h3 id=&#34;反轉-bits&#34;&gt;&lt;a href=&#34;#%e5%8f%8d%e8%bd%89-bits&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;反轉 bits
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;(一): 逐個 &lt;code&gt;bit&lt;/code&gt; 反轉, 利用 &lt;code&gt;XOR&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -6400,10 +6400,10 @@
         <pubDate>Sun, 26 Dec 2021 01:05:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-198.-house-robber-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;看題目直覺想到是 &lt;code&gt;dp&lt;/code&gt; 的題型，在一維陣列中取 &lt;code&gt;n&lt;/code&gt; 個不相鄰的數字，使其有最大的總和。&lt;/p&gt;
 &lt;p&gt;這題算是基本的 &lt;code&gt;dp&lt;/code&gt; 題型，本身不難想，底下的解答還能優化成使用 2 個變數去紀錄狀態。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -6448,7 +6448,7 @@
         <pubDate>Sun, 26 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-973.-k-closest-points-to-origin-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給 &lt;code&gt;n&lt;/code&gt; 個座標，返回距離原點最近的 &lt;code&gt;k&lt;/code&gt; 個座標&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/rz0Xzv8.png&#34;
 	
@@ -6458,8 +6458,8 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
-&lt;/h2&gt;&lt;h3 id=&#34;解法一&#34;&gt;解法一
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
+&lt;/h2&gt;&lt;h3 id=&#34;解法一&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b3%95%e4%b8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解法一
 &lt;/h3&gt;&lt;p&gt;因為要返回的只有座標點，所以其實不需要開根號，直接用 &lt;code&gt;(x^2 + y^2)&lt;/code&gt; 比較即可。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -6503,7 +6503,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;auto&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ios_base&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sync_with_stdio&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;}();&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;解法二&#34;&gt;解法二
+&lt;/div&gt;&lt;h3 id=&#34;解法二&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b3%95%e4%ba%8c&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解法二
 &lt;/h3&gt;&lt;p&gt;求最近的 &lt;code&gt;k&lt;/code&gt; 個節點，其實可以換個思路，利用 &lt;code&gt;maxHeap&lt;/code&gt; 來實現。&lt;/p&gt;
 &lt;p&gt;每次計算距離之後連同座標 &lt;code&gt;push&lt;/code&gt; 進 &lt;code&gt;maxHeap&lt;/code&gt;，因為要維持前 &lt;code&gt;k&lt;/code&gt; 個，所以如果 &lt;code&gt;maxHeap&lt;/code&gt; 內的元素多餘 &lt;code&gt;k&lt;/code&gt; 個時，就利用 &lt;code&gt;maxHeap&lt;/code&gt; 的特性，把裡面最大的元素 &lt;code&gt;pop&lt;/code&gt; 出來。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -6572,7 +6572,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;static&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;auto&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;_&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[]&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;()&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ios_base&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;::&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sync_with_stdio&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nb&#34;&gt;false&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cin&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;cout&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tie&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;return&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;}();&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;解法三-quickselect&#34;&gt;解法三 QuickSelect
+&lt;/div&gt;&lt;h3 id=&#34;解法三-quickselect&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b3%95%e4%b8%89-quickselect&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解法三 QuickSelect
 &lt;/h3&gt;&lt;p&gt;待補，最佳解&lt;/p&gt;
 </description>
         </item>
@@ -6582,9 +6582,9 @@
         <pubDate>Sat, 25 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-227.-basic-calculator-ii-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;輸入算式的字串，返回解答。運算子只有 &lt;code&gt;+&lt;/code&gt;, &lt;code&gt;-&lt;/code&gt;, &lt;code&gt;*&lt;/code&gt;, &lt;code&gt;/&lt;/code&gt;，這題還沒有出現包含括號的情況。&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;這次是直覺的用 &lt;code&gt;stack&lt;/code&gt; 解出來，但是仔細思考過後發覺好像不一定要用 &lt;code&gt;stack&lt;/code&gt;，可以用變數去存資料，之後待補XD&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -6728,7 +6728,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;time&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;單次定時事件---timer&#34;&gt;單次定時事件 - Timer
+&lt;/div&gt;&lt;h3 id=&#34;單次定時事件---timer&#34;&gt;&lt;a href=&#34;#%e5%96%ae%e6%ac%a1%e5%ae%9a%e6%99%82%e4%ba%8b%e4%bb%b6---timer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;單次定時事件 - Timer
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -6807,7 +6807,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;newtimer&#34;&gt;NewTimer
+&lt;h3 id=&#34;newtimer&#34;&gt;&lt;a href=&#34;#newtimer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;NewTimer
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -6845,7 +6845,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;NewTimer&lt;/code&gt; 的 &lt;code&gt;d&lt;/code&gt; 參數代 &lt;code&gt;Timer&lt;/code&gt; 需要等待多長時間，&lt;code&gt;Timer.C&lt;/code&gt; 是一個帶有 &lt;code&gt;buffer&lt;/code&gt; 的 &lt;code&gt;channel&lt;/code&gt;，在上面的範例中，&lt;code&gt;&amp;lt;-timer.C&lt;/code&gt; 那行會把程式阻塞直到 &lt;code&gt;Timer&lt;/code&gt; 往 &lt;code&gt;Timer.C&lt;/code&gt; 裡面傳送時間(當時倒數完的結果)，阻塞解除後才可以繼續往下執行，達到延遲執行，或者定時觸發的目的。&lt;/p&gt;
-&lt;h3 id=&#34;循環執行的定時任務---ticker&#34;&gt;循環執行的定時任務 - Ticker
+&lt;h3 id=&#34;循環執行的定時任務---ticker&#34;&gt;&lt;a href=&#34;#%e5%be%aa%e7%92%b0%e5%9f%b7%e8%a1%8c%e7%9a%84%e5%ae%9a%e6%99%82%e4%bb%bb%e5%8b%99---ticker&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;循環執行的定時任務 - Ticker
 &lt;/h3&gt;&lt;p&gt;對於有持續執行的定時任務，可以使用 &lt;code&gt;time.Sleep&lt;/code&gt; 或者 &lt;code&gt;time.Ticker&lt;/code&gt; 兩種方式來實現。&lt;/p&gt;
 &lt;p&gt;用 &lt;code&gt;time.Sleep&lt;/code&gt; 方式實現&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -6974,7 +6974,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;利用 &lt;code&gt;defer&lt;/code&gt; 的機制讓退出時自動呼叫 &lt;code&gt;Stop&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;ticker-的一些注意事項&#34;&gt;Ticker 的一些注意事項
+&lt;h3 id=&#34;ticker-的一些注意事項&#34;&gt;&lt;a href=&#34;#ticker-%e7%9a%84%e4%b8%80%e4%ba%9b%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a0%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Ticker 的一些注意事項
 &lt;/h3&gt;&lt;p&gt;以下是 &lt;code&gt;NewTicker&lt;/code&gt; 與 &lt;code&gt;Stop&lt;/code&gt; 的具體實現，位置在 &lt;code&gt;src/time/tick.go&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -7201,9 +7201,9 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;這次我們利用 &lt;code&gt;defer&lt;/code&gt; 的機制，在 &lt;code&gt;goroutine&lt;/code&gt; 內部呼叫 &lt;code&gt;Stop&lt;/code&gt; 的方式，可以看到這種寫法在相較用 &lt;code&gt;for range&lt;/code&gt; 來說，彈性高出很多，而且在調用 &lt;code&gt;Tocker.Stop&lt;/code&gt; 時並不會 &lt;code&gt;close&lt;/code&gt; 該 &lt;code&gt;channel&lt;/code&gt;，用 &lt;code&gt;for range&lt;/code&gt; 的寫法會造成一個無限迴圈卡在那裡，&lt;code&gt;golang&lt;/code&gt; 中只要沒有 &lt;code&gt;goroutine&lt;/code&gt; 持有該 &lt;code&gt;channel&lt;/code&gt;，到最後那個 &lt;code&gt;channel&lt;/code&gt; 就會被 &lt;code&gt;gc&lt;/code&gt;，這就是為什麼不推薦使用 &lt;code&gt;for range&lt;/code&gt; 的緣故，一般來說使用 &lt;code&gt;for range&lt;/code&gt; 的寫法都要配合 &lt;code&gt;close&lt;/code&gt;，但是在 &lt;code&gt;Timer&lt;/code&gt; 的情況，無法主動關閉內部的 &lt;code&gt;channel&lt;/code&gt;，只好退出 &lt;code&gt;goroutine&lt;/code&gt; 讓 &lt;code&gt;gc&lt;/code&gt; 回收。&lt;/p&gt;
-&lt;h3 id=&#34;timer-vs-ticker&#34;&gt;Timer vs Ticker
+&lt;h3 id=&#34;timer-vs-ticker&#34;&gt;&lt;a href=&#34;#timer-vs-ticker&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Timer vs Ticker
 &lt;/h3&gt;&lt;p&gt;以用法來說，&lt;code&gt;Timer&lt;/code&gt; 就是在 &lt;code&gt;timeout&lt;/code&gt; 之後觸發一次，&lt;code&gt;Ticker&lt;/code&gt; 則是週期性的觸發定時事件，因為 &lt;code&gt;Ticker&lt;/code&gt; 是週期性的，所以如果沒有顯式的呼叫 &lt;code&gt;Stop&lt;/code&gt; 就會發生上面提到的 &lt;code&gt;Resource leak&lt;/code&gt; 問題，之後會再寫一兩篇文章從 &lt;code&gt;source code&lt;/code&gt; 切入，還有 &lt;code&gt;Timer reset&lt;/code&gt; 的問題也值得探討。&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/yjp19871013/article/details/82048944&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Golang 如何正確的停止 Ticker&lt;/a&gt;&lt;/li&gt;
@@ -7220,9 +7220,9 @@
         <pubDate>Fri, 24 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-56.-merge-intervals-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;這題的題目本身意思很直觀，給很多 &lt;code&gt;區間&lt;/code&gt;，然後將所有範圍重疊的 &lt;code&gt;區間&lt;/code&gt; 合併。&lt;/p&gt;
-&lt;h2 id=&#34;思考&#34;&gt;思考
+&lt;h2 id=&#34;思考&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%80%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思考
 &lt;/h2&gt;&lt;p&gt;一開始在看到題目的時候沒有想清楚就開始寫了，起初的想法是把 &lt;code&gt;case&lt;/code&gt; 分成三種，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/mp8TRLh.png&#34;
 	
@@ -7233,7 +7233,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;這樣判斷起來很沒有效率，後來才想到可以利用排序的方式，來讓所有的 &lt;code&gt;case B&lt;/code&gt; 都消失，簡化主要邏輯判斷。如果在寫題目的過程中，發現自己的寫法可能遇到物件出現在前後的 &lt;code&gt;case&lt;/code&gt;，必須要先思考看看是否能透過排序來解決，在這題中，透過排序可以讓每個分段都按照 &lt;code&gt;start&lt;/code&gt; 先排過一輪，就不會出線上圖 &lt;code&gt;case B&lt;/code&gt; 的情況了。&lt;/p&gt;
-&lt;h2 id=&#34;解題流程&#34;&gt;解題流程
+&lt;h2 id=&#34;解題流程&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題流程
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -7303,9 +7303,9 @@
         <pubDate>Thu, 23 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-210.-course-schedule-ii-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給一個 &lt;code&gt;prerequisites&lt;/code&gt;，每個元素 &lt;code&gt;prerequisites[i] = [a, b]&lt;/code&gt;，都代表如果想選 &lt;code&gt;a&lt;/code&gt; 課程，必須先修過 &lt;code&gt;b&lt;/code&gt; 課程。題目要求回傳可能的修課順序，如果不可能修過全部的課程，回傳一個空的陣列。&lt;/p&gt;
-&lt;h2 id=&#34;思考&#34;&gt;思考
+&lt;h2 id=&#34;思考&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%80%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思考
 &lt;/h2&gt;&lt;p&gt;什麼情況下會導致無法修過全部的課程? 考慮以下組合為例&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;prerequisites[0] = (1, 0), 修課程 &lt;code&gt;1&lt;/code&gt; 之前必須修過課程 &lt;code&gt;0&lt;/code&gt;&lt;/li&gt;
@@ -7323,7 +7323,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;所以說這題其實是一題圖論的題目，把修課的條件建立成一個 &lt;code&gt;graph&lt;/code&gt;，然後用 &lt;code&gt;dfs&lt;/code&gt; 去尋訪，如果偵測到 &lt;code&gt;cycle&lt;/code&gt; 代表一定有課程沒辦法修到，回傳空陣列。&lt;/p&gt;
 &lt;p&gt;在 &lt;code&gt;dfs&lt;/code&gt; 的過程中用 &lt;code&gt;status&lt;/code&gt; 來紀錄每個節點的狀態，如果 &lt;code&gt;status[cur] == 1&lt;/code&gt;，代表這個節點是目前尋訪的點，用 &lt;code&gt;status&lt;/code&gt; 來判斷是否有 &lt;code&gt;cycle&lt;/code&gt; 的存在。&lt;/p&gt;
-&lt;h3 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h3 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -7420,14 +7420,14 @@
         <pubDate>Thu, 09 Dec 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/leetcode-1306.-jump-game-iii-medium/</guid>
-        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+        <description>&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給定一非負整數陣列 arr，你一開始位於位置 start。當你位於索引值 i 時，你可以跳到 i + arr[i] 或是 i - arr[i]，判斷你是否可以抵達任何位置其陣列值為 0 。&lt;/p&gt;
 &lt;p&gt;注意你在任意時刻都不能跳出陣列。&lt;/p&gt;
 &lt;p&gt;限制：
 1 ≦ arr.length ≦ 5 × 10 ^ 4
 0 ≦ arr[i] &amp;lt; arr.length
 0 ≦ start &amp;lt; arr.length&lt;/p&gt;
-&lt;h2 id=&#34;解題紀錄&#34;&gt;解題紀錄
+&lt;h2 id=&#34;解題紀錄&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e7%b4%80%e9%8c%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題紀錄
 &lt;/h2&gt;&lt;p&gt;簡單的 dfs 解決，用一個 &lt;code&gt;vector&amp;lt;bool&amp;gt;&lt;/code&gt; 去紀錄該 &lt;code&gt;index&lt;/code&gt; 是否走過，避免發生無限迴圈的情況，如果 &lt;code&gt;record[index] == true&lt;/code&gt; 代表已經走過，直接返回 &lt;code&gt;false&lt;/code&gt;，記得還要判斷這次 &lt;code&gt;jump&lt;/code&gt; 之後有沒有跳出迴圈的範圍。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -7548,7 +7548,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;arpa/inet.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;inet_addr&#34;&gt;inet_addr
+&lt;/div&gt;&lt;h3 id=&#34;inet_addr&#34;&gt;&lt;a href=&#34;#inet_addr&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_addr
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -7564,7 +7564,7 @@
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/socket/blob/master/address/inet_addr_ex.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;範例程式: inet_addr_ex.c&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;inet_aton&#34;&gt;inet_aton
+&lt;h3 id=&#34;inet_aton&#34;&gt;&lt;a href=&#34;#inet_aton&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_aton
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -7577,7 +7577,7 @@
 &lt;p&gt;&lt;strong&gt;回傳&lt;/strong&gt;: 轉換成功，會回傳一個非零的值，失敗則會回傳 &lt;code&gt;0&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/socket/blob/master/address/inet_aton_ex.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;範例程式: inet_aton_ex.c&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;inet_ntoa&#34;&gt;inet_ntoa
+&lt;h3 id=&#34;inet_ntoa&#34;&gt;&lt;a href=&#34;#inet_ntoa&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_ntoa
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -7594,7 +7594,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.hubert.tw/2009/04/18/%E5%BE%9E-inet_ntoa-%E7%9C%8B-thread-safe-%E7%9A%84-api/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;可怕的坑&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;inet_pton--inet_ntop&#34;&gt;inet_pton &amp;amp; inet_ntop
+&lt;h3 id=&#34;inet_pton--inet_ntop&#34;&gt;&lt;a href=&#34;#inet_pton--inet_ntop&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_pton &amp;amp; inet_ntop
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -7661,10 +7661,10 @@
         <guid>https://davidleitw.github.io/p/leetcode-222.-count-complete-tree-nodes-medium/</guid>
         <description>&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://leetcode.com/problems/count-complete-tree-nodes/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;題目連結&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;題目敘述&#34;&gt;題目敘述
+&lt;h2 id=&#34;題目敘述&#34;&gt;&lt;a href=&#34;#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;題目敘述
 &lt;/h2&gt;&lt;p&gt;給予一棵 &lt;em&gt;&lt;code&gt;Complete Binary Tree&lt;/code&gt;&lt;/em&gt;，求節點個數。&lt;/p&gt;
-&lt;h3 id=&#34;complete-binary-tree-定義&#34;&gt;&lt;em&gt;Complete Binary Tree&lt;/em&gt; 定義
-&lt;/h3&gt;&lt;h4 id=&#34;bfs&#34;&gt;&lt;em&gt;BFS&lt;/em&gt;
+&lt;h3 id=&#34;complete-binary-tree-定義&#34;&gt;&lt;a href=&#34;#complete-binary-tree-%e5%ae%9a%e7%be%a9&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;Complete Binary Tree&lt;/em&gt; 定義
+&lt;/h3&gt;&lt;h4 id=&#34;bfs&#34;&gt;&lt;a href=&#34;#bfs&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;BFS&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;用最直觀的 &lt;code&gt;BFS&lt;/code&gt; 來解，每從 &lt;code&gt;queue&lt;/code&gt; 拿出一個節點，&lt;code&gt;count&lt;/code&gt; 加一。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -7718,7 +7718,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;Memory&lt;/span&gt; &lt;span class=&#34;nl&#34;&gt;Usage&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;31.5&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;MB&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;less&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;than&lt;/span&gt; &lt;span class=&#34;mf&#34;&gt;6.88&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;%&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;of&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;C&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;online&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;submissions&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Count&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Complete&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Tree&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;Nodes&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h4 id=&#34;利用-complete-binary-tree-條件優化&#34;&gt;利用 &lt;em&gt;Complete Binary Tree&lt;/em&gt; 條件優化
+&lt;/div&gt;&lt;h4 id=&#34;利用-complete-binary-tree-條件優化&#34;&gt;&lt;a href=&#34;#%e5%88%a9%e7%94%a8-complete-binary-tree-%e6%a2%9d%e4%bb%b6%e5%84%aa%e5%8c%96&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;利用 &lt;em&gt;Complete Binary Tree&lt;/em&gt; 條件優化
 &lt;/h4&gt;&lt;p&gt;如果樹是 &lt;code&gt;Perfect Binary Tree&lt;/code&gt;，那它一定也會是 &lt;code&gt;Complete Binary Tree&lt;/code&gt;，一開始 &lt;code&gt;lnode&lt;/code&gt; 與 &lt;code&gt;rnode&lt;/code&gt; 分別往左與右遍歷，假設最後 &lt;code&gt;left height&lt;/code&gt; 跟 &lt;code&gt;right height&lt;/code&gt; 相同，就代表這棵樹屬於 &lt;code&gt;Perfect Binary Tree&lt;/code&gt;，代表節點數目會是 $2^h - 1$，&lt;code&gt;h&lt;/code&gt; 為樹高。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -7784,7 +7784,7 @@
         <pubDate>Tue, 26 Oct 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/linux-socket-programming%E4%BA%8C-socket-%E4%B8%AD%E7%94%A8%E4%BE%86%E5%AD%98%E6%94%BE%E5%9C%B0%E5%9D%80%E7%9A%84-sockaddr/</guid>
-        <description>&lt;h2 id=&#34;sockaddr&#34;&gt;sockaddr
+        <description>&lt;h2 id=&#34;sockaddr&#34;&gt;&lt;a href=&#34;#sockaddr&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;sockaddr
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;sockaddr&lt;/code&gt; 是 &lt;code&gt;socket&lt;/code&gt; 的通用地址結構，就如同一開始提到的，&lt;code&gt;socket&lt;/code&gt; 除了在網路領域之外，也可以在很多不同的地方用來通訊。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;sockaddr&lt;/code&gt; 結構，定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -7921,7 +7921,7 @@
         <pubDate>Mon, 25 Oct 2021 01:04:53 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/</guid>
-        <description>&lt;h1 id=&#34;socket-programming&#34;&gt;socket programming
+        <description>&lt;h1 id=&#34;socket-programming&#34;&gt;&lt;a href=&#34;#socket-programming&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;socket programming
 &lt;/h1&gt;&lt;p&gt;&lt;code&gt;socket&lt;/code&gt; 本質上是一種 &lt;strong&gt;IPC&lt;/strong&gt; (&lt;code&gt;Inter-Process Communication&lt;/code&gt;) 的技術，用於兩個或多個 &lt;code&gt;process&lt;/code&gt; 進行資料交換或者通訊。&lt;/p&gt;
 &lt;p&gt;在網路領域，&lt;code&gt;socket&lt;/code&gt; 著重的不是同一台主機間 &lt;code&gt;process&lt;/code&gt; 的通訊，而是不同主機執行的 &lt;code&gt;process&lt;/code&gt; 互相交換資料的通訊。&lt;/p&gt;
 &lt;p&gt;我們在寫 &lt;code&gt;socket programming&lt;/code&gt; 的時候會使用 &lt;code&gt;os&lt;/code&gt; 提供的 &lt;code&gt;API&lt;/code&gt;，來避免重複造輪子，今天的筆記會簡單介紹一下 &lt;code&gt;linux&lt;/code&gt; 提供的 &lt;code&gt;socket API&lt;/code&gt;，並用兩個簡單的範例介紹如何用 &lt;code&gt;tcp&lt;/code&gt; 跟 &lt;code&gt;udp&lt;/code&gt; 協定透過 &lt;code&gt;socket&lt;/code&gt; 傳輸資料。&lt;/p&gt;
@@ -7950,7 +7950,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/socket.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;socket&#34;&gt;socket
+&lt;/div&gt;&lt;h2 id=&#34;socket&#34;&gt;&lt;a href=&#34;#socket&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;socket
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -7959,7 +7959,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;socket&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;domain&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;protocol&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h4 id=&#34;domain&#34;&gt;&lt;em&gt;domain&lt;/em&gt;
+&lt;/div&gt;&lt;h4 id=&#34;domain&#34;&gt;&lt;a href=&#34;#domain&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;domain&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;定義要建立哪一種類型的 &lt;code&gt;socket&lt;/code&gt;，常用的有以下幾種類型&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;AF_UNIX&lt;/strong&gt;, &lt;strong&gt;AF_LOCAL&lt;/strong&gt;: 用於本機間 &lt;code&gt;process&lt;/code&gt; 的溝通&lt;/li&gt;
@@ -7972,22 +7972,22 @@
 &lt;/ul&gt;
 &lt;p&gt;詳細的選項可以參考 &lt;code&gt;socket&lt;/code&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man2/socket.2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;man page&lt;/a&gt;&lt;/p&gt;
-&lt;h4 id=&#34;type&#34;&gt;&lt;em&gt;type&lt;/em&gt;
+&lt;h4 id=&#34;type&#34;&gt;&lt;a href=&#34;#type&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;type&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;socket&lt;/code&gt; 傳輸資料的手段(&lt;code&gt;communication semantics&lt;/code&gt;)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;SOCK_STREAM&lt;/strong&gt;: 對應到 &lt;code&gt;tcp&lt;/code&gt; 協定&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;SOCK_DGRAM&lt;/strong&gt;: 對應到 &lt;code&gt;udp&lt;/code&gt; 協定&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;protocol&#34;&gt;&lt;em&gt;protocol&lt;/em&gt;
+&lt;h4 id=&#34;protocol&#34;&gt;&lt;a href=&#34;#protocol&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;protocol&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;設定通訊協定的號碼，通常在寫的時候會填入 &lt;code&gt;0&lt;/code&gt;，&lt;code&gt;kernel&lt;/code&gt; 會根據上面的兩個參數自動選擇合適的協定。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man5/protocols.5.html#top_of_page&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;protocol man page&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;code&gt;/etc/protocols&lt;/code&gt; 可以看到 &lt;code&gt;linux&lt;/code&gt; 底下支援的協定&lt;/p&gt;
-&lt;h4 id=&#34;return-value&#34;&gt;&lt;em&gt;Return Value&lt;/em&gt;
+&lt;h4 id=&#34;return-value&#34;&gt;&lt;a href=&#34;#return-value&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;Return Value&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;成功建立 &lt;code&gt;socket&lt;/code&gt; 之後，此函式會返回該 &lt;code&gt;socket&lt;/code&gt; 的&lt;strong&gt;檔案描述符&lt;/strong&gt;(&lt;code&gt;socket file descriptor&lt;/code&gt;)，在之後的操作可以透過這個回傳值來操作我們建立的 &lt;code&gt;socket&lt;/code&gt;。 如果建立失敗則會回傳 &lt;code&gt;-1(INVALID_SOCKET)&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;檔案描述符是什麼&#34;&gt;檔案描述符是什麼?
+&lt;h3 id=&#34;檔案描述符是什麼&#34;&gt;&lt;a href=&#34;#%e6%aa%94%e6%a1%88%e6%8f%8f%e8%bf%b0%e7%ac%a6%e6%98%af%e4%bb%80%e9%ba%bc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;檔案描述符是什麼?
 &lt;/h3&gt;&lt;p&gt;參考資料&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -7997,7 +7997,7 @@
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/chorm590/p/12745824.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Linux 下 socket 通訊所用的 sockfd 怎麼來的&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;建立-socket-example&#34;&gt;建立 socket example
+&lt;h3 id=&#34;建立-socket-example&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b-socket-example&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立 socket example
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -8217,7 +8217,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;解題思路&#34;&gt;解題思路
+&lt;/div&gt;&lt;h3 id=&#34;解題思路&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e9%a1%8c%e6%80%9d%e8%b7%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解題思路
 &lt;/h3&gt;&lt;p&gt;先觀察 &lt;code&gt;sort&lt;/code&gt; 會看到該函式在內部會呼叫 &lt;code&gt;sort&lt;/code&gt;，所以為遞迴函式。
 知道是遞迴函式就要先關注遞迴的&lt;strong&gt;終止條件&lt;/strong&gt;。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -8302,7 +8302,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;sort&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;right&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;遞迴呼叫思考&#34;&gt;遞迴呼叫思考
+&lt;/div&gt;&lt;h3 id=&#34;遞迴呼叫思考&#34;&gt;&lt;a href=&#34;#%e9%81%9e%e8%bf%b4%e5%91%bc%e5%8f%ab%e6%80%9d%e8%80%83&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;遞迴呼叫思考
 &lt;/h3&gt;&lt;p&gt;接著思考一下今天我們 input 的 &lt;code&gt;list&lt;/code&gt; 有五筆資料好了&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -8409,7 +8409,7 @@
 &lt;p&gt;合併成最終排序完成的 list: &lt;code&gt;-4 -&amp;gt; -3 -&amp;gt; 1 -&amp;gt; 2 -&amp;gt; 5&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;有發現嗎？ 每次合併的時候都像是在做 &lt;code&gt;insert sort&lt;/code&gt;，但是比較不一樣的是我們是從右邊開始一個一個元素 &lt;code&gt;insert&lt;/code&gt; 到最左邊的元素。&lt;/p&gt;
 &lt;p&gt;所以上面我們已經完成了呼叫遞迴的邏輯，下面要來思考怎麼 &lt;code&gt;merge&lt;/code&gt;，才可以把 &lt;code&gt;left&lt;/code&gt; 跟 &lt;code&gt;right&lt;/code&gt; 組合，並且回傳以排序好的 &lt;code&gt;list&#39;s head&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;merge-邏輯&#34;&gt;merge 邏輯
+&lt;h3 id=&#34;merge-邏輯&#34;&gt;&lt;a href=&#34;#merge-%e9%82%8f%e8%bc%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;merge 邏輯
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -8937,17 +8937,17 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;思考過程&#34;&gt;思考過程
+&lt;/div&gt;&lt;h3 id=&#34;思考過程&#34;&gt;&lt;a href=&#34;#%e6%80%9d%e8%80%83%e9%81%8e%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;思考過程
 &lt;/h3&gt;&lt;p&gt;如果沒辦法理解上面的內容，也可以嘗試著代入實際的值，用紙筆簡單跑過一次流程
 不用太複雜的數字，可以用&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;left: -4&lt;/code&gt;, &lt;code&gt;right: -5-&amp;gt;2-&amp;gt;8&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;這種 &lt;code&gt;right&lt;/code&gt; 開頭比 &lt;code&gt;left&lt;/code&gt; 小的 &lt;code&gt;case&lt;/code&gt;，再想一個 &lt;code&gt;left&lt;/code&gt; 開頭比較小的 &lt;code&gt;case&lt;/code&gt;等等..
 這樣子就能更清楚的思考出該演算法的運作流程。&lt;/p&gt;
-&lt;h3 id=&#34;驗證正確性&#34;&gt;驗證正確性
+&lt;h3 id=&#34;驗證正確性&#34;&gt;&lt;a href=&#34;#%e9%a9%97%e8%ad%89%e6%ad%a3%e7%a2%ba%e6%80%a7&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;驗證正確性
 &lt;/h3&gt;&lt;p&gt;// 待補充&lt;/p&gt;
 &lt;p&gt;之後會補上測試正確性的程式碼，目前完整的檔案可以參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/linked_list/blob/master/question/question3.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;!-- - [snprintf 妙無窮](https://wirelessr.gitbooks.io/working-life/content/snprintf_miao_wu_qiong.html) --&gt;</description>
         </item>
         <item>
@@ -8956,7 +8956,7 @@
         <pubDate>Wed, 25 Aug 2021 04:16:48 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/circular-doubly-linked-list-%E5%AF%A6%E4%BD%9C-bubble-sort/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;本問題出自於 &lt;a class=&#34;link&#34; href=&#34;http://wiki.csie.ncku.edu.tw/linux/schedule&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;jserv - Linux 核心設計講座&lt;/a&gt; 第一周 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/c-linked-list&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;linked list 和非連續記憶體操作&lt;/a&gt; 底下&lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@jserv/SyK-WApKM?type=view&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -8970,7 +8970,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;在這篇文章會紀錄關於 &lt;code&gt;bubble sort&lt;/code&gt; 的實現。&lt;/p&gt;
-&lt;h2 id=&#34;node-結構&#34;&gt;node 結構
+&lt;h2 id=&#34;node-結構&#34;&gt;&lt;a href=&#34;#node-%e7%b5%90%e6%a7%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;node 結構
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -8987,7 +8987,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;本題目 &lt;code&gt;linked list&lt;/code&gt; 屬於 &lt;code&gt;circular doubly linked list&lt;/code&gt;, 所以處理上還需要考慮循環的問題。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;swap&lt;/code&gt; 之後要把 &lt;code&gt;node&lt;/code&gt; 的 &lt;code&gt;prev&lt;/code&gt; 跟 &lt;code&gt;next pointer&lt;/code&gt; 處理好。&lt;/p&gt;
-&lt;h2 id=&#34;bubble-sort&#34;&gt;Bubble sort
+&lt;h2 id=&#34;bubble-sort&#34;&gt;&lt;a href=&#34;#bubble-sort&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Bubble sort
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -9026,7 +9026,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;在寫 &lt;code&gt;linked list&lt;/code&gt; 版本的 &lt;code&gt;sort&lt;/code&gt; 之前，先來看一下一般 &lt;code&gt;array&lt;/code&gt; 版本的實現方式。
 基本上 &lt;code&gt;bubble sort&lt;/code&gt; 算是一個容易理解的演算法，現在比較大的問題是要先實現一個 &lt;code&gt;swap&lt;/code&gt; 來對兩個 &lt;code&gt;node&lt;/code&gt; 交換。&lt;/p&gt;
-&lt;h3 id=&#34;swap_node&#34;&gt;swap_node
+&lt;h3 id=&#34;swap_node&#34;&gt;&lt;a href=&#34;#swap_node&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;swap_node
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -9164,7 +9164,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;建議如果對指標不熟悉的最好自己拿紙筆畫一次，會清楚很多。&lt;/p&gt;
-&lt;h2 id=&#34;bubble-sort-with-circular-doubly-linked-list&#34;&gt;Bubble sort with Circular doubly linked list
+&lt;h2 id=&#34;bubble-sort-with-circular-doubly-linked-list&#34;&gt;&lt;a href=&#34;#bubble-sort-with-circular-doubly-linked-list&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Bubble sort with Circular doubly linked list
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -9311,7 +9311,7 @@
 &lt;/div&gt;&lt;p&gt;完整的程式碼放在 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/linked_list/blob/master/question/bubblesort.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;之後也會補上延伸題目的 &lt;code&gt;merge sort&lt;/code&gt;。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://ithelp.ithome.com.tw/articles/10236214&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;舌尖上的演算法系列: Day7 &amp;ndash; Brute Force - Bubble Sort&lt;/a&gt;&lt;/li&gt;
@@ -9335,7 +9335,7 @@
         <pubDate>Mon, 16 Aug 2021 01:37:36 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/golang-cobra-%E5%9C%A8%E6%B2%92%E6%9C%89%E6%B7%BB%E5%8A%A0%E4%BB%BB%E4%BD%95%E5%8F%83%E6%95%B8%E7%9A%84%E6%83%85%E6%B3%81%E4%B8%8B%E9%A0%90%E8%A8%AD%E7%94%A2%E7%94%9F-help-message/</guid>
-        <description>&lt;h2 id=&#34;問題描述&#34;&gt;問題描述
+        <description>&lt;h2 id=&#34;問題描述&#34;&gt;&lt;a href=&#34;#%e5%95%8f%e9%a1%8c%e6%8f%8f%e8%bf%b0&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;問題描述
 &lt;/h2&gt;&lt;p&gt;最近在使用 &lt;a class=&#34;link&#34; href=&#34;https://github.com/spf13/cobra&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;cobra&lt;/a&gt; 編寫一個簡單的 &lt;code&gt;command line&lt;/code&gt; 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊&lt;/p&gt;
 &lt;p&gt;一般來說用 &lt;code&gt;cobra&lt;/code&gt; 寫的程式要顯示詳細的使用教學都要使用 &lt;code&gt;--help&lt;/code&gt; 參數，如圖&lt;/p&gt;
@@ -9360,7 +9360,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;所以我特別找了一些資料，發現其實解決的方法滿簡單的&lt;/p&gt;
-&lt;h2 id=&#34;解決方法&#34;&gt;解決方法
+&lt;h2 id=&#34;解決方法&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%b1%ba%e6%96%b9%e6%b3%95&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解決方法
 &lt;/h2&gt;&lt;p&gt;一般的教學文章在介紹 &lt;a class=&#34;link&#34; href=&#34;https://github.com/spf13/cobra&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;cobra&lt;/a&gt; 的時候都會訂一個 &lt;code&gt;rootCmd&lt;/code&gt; 一類的物件，作為你的 &lt;code&gt;command line&lt;/code&gt; 應用一開始的 &lt;code&gt;root&lt;/code&gt;，之後的指令就會用&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -9419,7 +9419,7 @@
         <guid>https://davidleitw.github.io/p/c-function-pointer-%E5%9F%BA%E7%A4%8E%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/</guid>
         <description>&lt;p&gt;這最近在看 &lt;code&gt;jserv&lt;/code&gt; 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 &lt;code&gt;function pointer&lt;/code&gt; 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。&lt;/p&gt;
 &lt;p&gt;之後在學習的過程中如果遇到 &lt;code&gt;function pointer&lt;/code&gt; 的應用也會一併整理在這篇文章中。&lt;/p&gt;
-&lt;h2 id=&#34;function-pointer&#34;&gt;function pointer
+&lt;h2 id=&#34;function-pointer&#34;&gt;&lt;a href=&#34;#function-pointer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;function pointer
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;function pointer&lt;/code&gt; 顧名思義就是指向某個 &lt;code&gt;function&lt;/code&gt; 的 &lt;code&gt;pointer&lt;/code&gt;，有了 &lt;code&gt;function pointer&lt;/code&gt; 我們就可以實現把 &lt;code&gt;function&lt;/code&gt; 當作參數，傳進一個 &lt;code&gt;function&lt;/code&gt; 之中，或者更加彈性的設計我們的程式，減少多餘的 &lt;code&gt;if/else&lt;/code&gt;, &lt;code&gt;switch case&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;我們先從一個簡單的 &lt;code&gt;function pointer&lt;/code&gt; 宣告開始講起&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -9508,7 +9508,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://ideone.com/CaCBwE&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;程式執行結果&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;注意&#34;&gt;注意
+&lt;h3 id=&#34;注意&#34;&gt;&lt;a href=&#34;#%e6%b3%a8%e6%84%8f&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;注意
 &lt;/h3&gt;&lt;p&gt;上面在宣告 &lt;code&gt;function pointer&lt;/code&gt; 的時候&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -9529,7 +9529,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這樣子 &lt;code&gt;myFunc&lt;/code&gt; 就不是 &lt;code&gt;function pointer&lt;/code&gt; 了，而是單純宣告一個 &lt;code&gt;function&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;jserv-上課的範例&#34;&gt;Jserv 上課的範例
+&lt;h3 id=&#34;jserv-上課的範例&#34;&gt;&lt;a href=&#34;#jserv-%e4%b8%8a%e8%aa%b2%e7%9a%84%e7%af%84%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Jserv 上課的範例
 &lt;/h3&gt;&lt;p&gt;簡單的例子看完就可以來看看 &lt;code&gt;Jserv&lt;/code&gt; 在 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/c-pointer&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;你所不知道的C語言：指標篇&lt;/a&gt; 開頭所舉出來的範例&lt;/p&gt;
 &lt;p&gt;試試看能不能自己寫出該宣告怎麼解釋&lt;/p&gt;
@@ -9560,7 +9560,7 @@
 &lt;/li&gt;
 &lt;li&gt;return a pointer to a pointer to &lt;em&gt;&lt;code&gt;void&lt;/code&gt;&lt;/em&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;應用舉例&#34;&gt;應用舉例
+&lt;h2 id=&#34;應用舉例&#34;&gt;&lt;a href=&#34;#%e6%87%89%e7%94%a8%e8%88%89%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;應用舉例
 &lt;/h2&gt;&lt;p&gt;今天如果我想寫一個 &lt;code&gt;calculate&lt;/code&gt; 的 &lt;code&gt;function&lt;/code&gt; 該 function 有三個參數&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;a&lt;/li&gt;
@@ -9622,7 +9622,7 @@
 &lt;/div&gt;&lt;p&gt;這樣子我們在看 &lt;code&gt;calculate&lt;/code&gt; 宣告的時候就會清楚的知道第三個參數要把指定的 &lt;code&gt;method&lt;/code&gt; 傳進去。&lt;/p&gt;
 &lt;p&gt;完整的程式碼我放在 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/c-pointer-review&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;，可以把 code 載下來自己 run 一次，順便改改看寫法，觀察其中的不同。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/c-pointer&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;你所不知道的C語言：指標篇&lt;/a&gt;&lt;/li&gt;
@@ -9672,7 +9672,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;git push
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.timtnlee.me/post/development/spa-on-github-page&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;使用 GitHub Pages 展示你的 Single Page Application&lt;/a&gt;&lt;/li&gt;
@@ -9695,7 +9695,7 @@
 &lt;blockquote&gt;
 &lt;p&gt;很多篇文章都不推薦使用 docker 存放資料庫，我也認為 Volume 比較適合使用在本地端或者非生產環境的小專案上。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;volume-是什麼&#34;&gt;&lt;code&gt;Volume&lt;/code&gt; 是什麼
+&lt;h2 id=&#34;volume-是什麼&#34;&gt;&lt;a href=&#34;#volume-%e6%98%af%e4%bb%80%e9%ba%bc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;code&gt;Volume&lt;/code&gt; 是什麼
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;Volume&lt;/code&gt; 可以想成一個可供單個或多個容器使用的特殊目錄，有以下特性:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;code&gt;Volume&lt;/code&gt; 可以在容器間共享資源，檔案&lt;/li&gt;
@@ -9703,7 +9703,7 @@
 &lt;li&gt;&lt;strong&gt;&lt;code&gt;Volume&lt;/code&gt; 會持續存在，並不會隨著容器刪除而消失&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;有點類似 Linux 底下的掛載，Image 中被指定掛載的目錄/檔案會複製到 &lt;code&gt;Volume&lt;/code&gt; 中。&lt;/p&gt;
-&lt;h2 id=&#34;創建-volume&#34;&gt;創建 &lt;code&gt;Volume&lt;/code&gt;
+&lt;h2 id=&#34;創建-volume&#34;&gt;&lt;a href=&#34;#%e5%89%b5%e5%bb%ba-volume&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;創建 &lt;code&gt;Volume&lt;/code&gt;
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -9742,7 +9742,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;運行一個掛載-volume-的-container&#34;&gt;運行一個掛載 &lt;code&gt;Volume&lt;/code&gt; 的 Container
+&lt;h2 id=&#34;運行一個掛載-volume-的-container&#34;&gt;&lt;a href=&#34;#%e9%81%8b%e8%a1%8c%e4%b8%80%e5%80%8b%e6%8e%9b%e8%bc%89-volume-%e7%9a%84-container&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;運行一個掛載 &lt;code&gt;Volume&lt;/code&gt; 的 Container
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -9789,7 +9789,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;上述的操作通常用在 container 產生一些 data，我們想要讓那些 data 不會在 container 被刪除之後消失，做資料持久化的時候才會使用。&lt;/p&gt;
-&lt;h2 id=&#34;掛載一個本機目錄至容器內&#34;&gt;掛載一個本機目錄至容器內
+&lt;h2 id=&#34;掛載一個本機目錄至容器內&#34;&gt;&lt;a href=&#34;#%e6%8e%9b%e8%bc%89%e4%b8%80%e5%80%8b%e6%9c%ac%e6%a9%9f%e7%9b%ae%e9%8c%84%e8%87%b3%e5%ae%b9%e5%99%a8%e5%85%a7&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;掛載一個本機目錄至容器內
 &lt;/h2&gt;&lt;p&gt;除了將容器內指定的檔案綁定到本機之外，我們也可以將原先就存在於本機的檔案/資料夾&lt;strong&gt;加載&lt;/strong&gt;到容器內部，舉例來說今天寫了一個影像處理相關的程式，我們把它丟到 docker 上面跑，我們可以把想要處理的影像存在本地端，然後加載到容器內，就可以很方便的測試結果是否正確。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -9824,7 +9824,7 @@
 &lt;/div&gt;&lt;blockquote&gt;
 &lt;p&gt;除了目錄以外也可以掛載單個文件，像是想要紀錄 container 內部的 history，可以綁定/root/.bash_history 等等多種應用&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;reference&#34;&gt;Reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://vuepress.mirror.docker-practice.com/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Docker 從入門到實踐&lt;/a&gt;&lt;/li&gt;
@@ -9851,7 +9851,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;我們這時候就可以用一個變數來取代常用的字串&lt;/p&gt;
 &lt;p&gt;在這之前先介紹一下變數的取用&lt;/p&gt;
-&lt;h3 id=&#34;echo&#34;&gt;echo
+&lt;h3 id=&#34;echo&#34;&gt;&lt;a href=&#34;#echo&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;echo
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -9906,7 +9906,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;變數的設定規則&#34;&gt;變數的設定規則
+&lt;h3 id=&#34;變數的設定規則&#34;&gt;&lt;a href=&#34;#%e8%ae%8a%e6%95%b8%e7%9a%84%e8%a8%ad%e5%ae%9a%e8%a6%8f%e5%89%87&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;變數的設定規則
 &lt;/h3&gt;&lt;ol&gt;
 &lt;li&gt;設定變數中間以 &amp;ldquo;=&amp;rdquo; 連結，並且等號兩側不能有空格&lt;/li&gt;
 &lt;/ol&gt;
@@ -9993,7 +9993,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;http://linux.vbird.org/linux_basic/0320bash.php#variable_var&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;鳥哥的 Linux 私房菜 認識與學習BASH&lt;/a&gt;&lt;/li&gt;
@@ -10007,7 +10007,7 @@
         
         <guid>https://davidleitw.github.io/p/linux-shell-%E8%AE%8A%E6%95%B8%E7%9B%B8%E9%97%9C%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86%E4%BA%8C-read-declare-array/</guid>
         <description>&lt;p&gt;很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。&lt;/p&gt;
-&lt;h2 id=&#34;read&#34;&gt;read
+&lt;h2 id=&#34;read&#34;&gt;&lt;a href=&#34;#read&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;read
 &lt;/h2&gt;&lt;p&gt;讀取從鍵盤輸入的變數，常常會出現在 &lt;code&gt;shell script&lt;/code&gt; 之中&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -10033,7 +10033,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;declare&#34;&gt;declare
+&lt;h2 id=&#34;declare&#34;&gt;&lt;a href=&#34;#declare&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;declare
 &lt;/h2&gt;&lt;p&gt;可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -10083,7 +10083,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;array&#34;&gt;array
+&lt;h2 id=&#34;array&#34;&gt;&lt;a href=&#34;#array&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;array
 &lt;/h2&gt;&lt;p&gt;以 &lt;code&gt;arr[index]=content&lt;/code&gt; 的形式來指定 array Index 所代表的值。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/ZMIa41Y.png&#34;
 	
@@ -10093,7 +10093,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;http://linux.vbird.org/linux_basic/0320bash.php#variable_environ&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;鳥哥的 Linux 私房菜&lt;/a&gt;&lt;/li&gt;
@@ -10109,11 +10109,11 @@
         <description>&lt;p&gt;此專案用來整理一些學習 SDN 的相關知識以及參考資料。
 由於剛開始學習沒多久，所以會著重於個人學習的&lt;strong&gt;順序&lt;/strong&gt;，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。&lt;/p&gt;
 &lt;p&gt;當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點&lt;/p&gt;
-&lt;h2 id=&#34;預備知識&#34;&gt;預備知識
+&lt;h2 id=&#34;預備知識&#34;&gt;&lt;a href=&#34;#%e9%a0%90%e5%82%99%e7%9f%a5%e8%ad%98&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;預備知識
 &lt;/h2&gt;&lt;p&gt;在學習 SDN 之前我準備先複習了一輪 &lt;a class=&#34;link&#34; href=&#34;https://www.ucg.ac.me/skladiste/blog_44233/objava_64433/fajlovi/Computer%20Networking%20_%20A%20Top%20Down%20Approach,%207th,%20converted.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;computer networking a top-down approach 7th&lt;/a&gt;，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。&lt;/p&gt;
 &lt;p&gt;之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。&lt;/p&gt;
-&lt;h2 id=&#34;什麼是-sdn-以及-sdn-的發展歷史&#34;&gt;什麼是 SDN 以及 SDN 的發展歷史
+&lt;h2 id=&#34;什麼是-sdn-以及-sdn-的發展歷史&#34;&gt;&lt;a href=&#34;#%e4%bb%80%e9%ba%bc%e6%98%af-sdn-%e4%bb%a5%e5%8f%8a-sdn-%e7%9a%84%e7%99%bc%e5%b1%95%e6%ad%b7%e5%8f%b2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;什麼是 SDN 以及 SDN 的發展歷史
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;p&gt;參考文章&lt;/p&gt;
 &lt;ul&gt;
@@ -10140,7 +10140,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;SDN 並非一種技術，而是一種設計的理念，只要符合&lt;strong&gt;控制面以及轉接面的分離&lt;/strong&gt;，以及開放的&lt;strong&gt;可程式化&lt;/strong&gt;設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著&lt;strong&gt;集中控制&lt;/strong&gt;的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。&lt;/p&gt;
-&lt;h2 id=&#34;常用名詞解釋&#34;&gt;常用名詞解釋
+&lt;h2 id=&#34;常用名詞解釋&#34;&gt;&lt;a href=&#34;#%e5%b8%b8%e7%94%a8%e5%90%8d%e8%a9%9e%e8%a7%a3%e9%87%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;常用名詞解釋
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://sites.google.com/a/cnsrl.cycu.edu.tw/da-shu-bi-ji/_/rsrc/1565708281052/sdn/sdn_architecture.png&#34;
 	
 	
@@ -10149,7 +10149,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;network-device-網路設備&#34;&gt;Network Device 網路設備
+&lt;h3 id=&#34;network-device-網路設備&#34;&gt;&lt;a href=&#34;#network-device-%e7%b6%b2%e8%b7%af%e8%a8%ad%e5%82%99&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Network Device 網路設備
 &lt;/h3&gt;&lt;p&gt;網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。&lt;/p&gt;
 &lt;p&gt;有時候網路設備也被稱為 &lt;strong&gt;Data Plane&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;支援 OpenFlow 的 switch 會有以下功能&lt;/p&gt;
@@ -10158,26 +10158,26 @@
 &lt;li&gt;對於接收到的封包進行轉送到 Controller 的動作(Packet-In)。&lt;/li&gt;
 &lt;li&gt;對於接收到來自 Controller 的封包轉送到指定的連接埠(Packet-Out)。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;南向界面southbound-interface-control-data-plane-interface&#34;&gt;南向界面(Southbound Interface/ Control Data Plane Interface)
+&lt;h3 id=&#34;南向界面southbound-interface-control-data-plane-interface&#34;&gt;&lt;a href=&#34;#%e5%8d%97%e5%90%91%e7%95%8c%e9%9d%a2southbound-interface-control-data-plane-interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;南向界面(Southbound Interface/ Control Data Plane Interface)
 &lt;/h3&gt;&lt;p&gt;南向界面是指 Data Plane 以及 Controller 之間的界面，在 SDN 架構中，希望南向界面是標準化的，這樣才可以讓軟體可以不受硬體的限制，在任何設備上都能執行，不過現在還只是理想。&lt;/p&gt;
 &lt;p&gt;目前主流的南向界面標準是 OpenFlow 協定，雖然還有其他各種南向界面，不過還是 OpenFlow 為大宗。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;因為我也還是新手的緣故，所以也是從 OpenFlow 開始學習 SDN 的，此篇心得文也會著重在 OpenFlow 協定上。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;控制器controller&#34;&gt;控制器(Controller)
+&lt;h3 id=&#34;控制器controller&#34;&gt;&lt;a href=&#34;#%e6%8e%a7%e5%88%b6%e5%99%a8controller&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;控制器(Controller)
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Controller&lt;/strong&gt; 是 SDN 的核心，北向有應用程式提供業務邏輯經由 Controller 將轉送的規則藉由 Southbound Interface 傳給網路設備，屬於 SDN 架構中最重要的部份。&lt;/p&gt;
 &lt;p&gt;目前 Controller 百家爭鳴，有很多開源的 controller (例如 Ryu, FloodLight, NOX/POX)等等，也有很多公司開發的商用版本，本篇心得文會使用 Ryu 去做一些 OpenFlow 相關的實驗。&lt;/p&gt;
-&lt;h3 id=&#34;北向界面northbound-interface&#34;&gt;北向界面(Northbound Interface)
+&lt;h3 id=&#34;北向界面northbound-interface&#34;&gt;&lt;a href=&#34;#%e5%8c%97%e5%90%91%e7%95%8c%e9%9d%a2northbound-interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;北向界面(Northbound Interface)
 &lt;/h3&gt;&lt;p&gt;北向界面是指應用程式以及 Controller 之間溝通的界面，目前還沒有一個統一的標準，通常會因為狀況不同而採用不同的方案。&lt;/p&gt;
-&lt;h3 id=&#34;applicationservices&#34;&gt;Application(Services)
+&lt;h3 id=&#34;applicationservices&#34;&gt;&lt;a href=&#34;#applicationservices&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Application(Services)
 &lt;/h3&gt;&lt;p&gt;這裡的 Application 是指幾乎所有網路的應用，包含load balancing, security, monitoring 等等.. 應用程式的業務邏輯就透過 Controller 傳送規則給網路設備，讓設備彈性的執行我們要的功能。&lt;/p&gt;
-&lt;h2 id=&#34;openflow-協定&#34;&gt;OpenFlow 協定
+&lt;h2 id=&#34;openflow-協定&#34;&gt;&lt;a href=&#34;#openflow-%e5%8d%94%e5%ae%9a&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow 協定
 &lt;/h2&gt;&lt;p&gt;OpenFlow 為最有代表性的南向界面，被視為第一個 SDN 的標準之一。它最初在 SDN 環境中定義了通信協定，使 SDN 控制器能夠與物理和虛擬的交換機和路由器等網路裝置的轉發平面直接進行互動，從而更好地適應不斷變化的業務需求。&lt;/p&gt;
-&lt;h3 id=&#34;概述維基百科&#34;&gt;概述(&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/OpenFlow&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;概述維基百科&#34;&gt;&lt;a href=&#34;#%e6%a6%82%e8%bf%b0%e7%b6%ad%e5%9f%ba%e7%99%be%e7%a7%91&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;概述(&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/OpenFlow&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;維基百科&lt;/a&gt;)
 &lt;/h3&gt;&lt;p&gt;OpenFlow 能夠啟動遠端的控制器，經由網路交換器，決定網路封包要由何種路徑通過網路交換機。這個協定的發明者，將它當成軟體定義網路（Software-defined networking）的啟動器。&lt;/p&gt;
 &lt;p&gt;OpenFlow 允許從遠端控制網路交換器的封包轉送表，透過新增、修改與移除封包控制規則與行動，來改變封包轉送的路徑。比起用存取控制列表 (ACLs) 和路由協定，允許更複雜的流量管理。同時，OpenFlow 允許不同供應商用一個簡單，開源的協定去遠端管理交換機（通常提供專有的介面和描述語言)。&lt;/p&gt;
-&lt;h3 id=&#34;協定內容&#34;&gt;協定內容
+&lt;h3 id=&#34;協定內容&#34;&gt;&lt;a href=&#34;#%e5%8d%94%e5%ae%9a%e5%85%a7%e5%ae%b9&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;協定內容
 &lt;/h3&gt;&lt;p&gt;因為 OpenFlow 算是一個很有指標性的 SDN 協定，所以對於要學習 SDN 的人來說，他的 specification 也非常值得一看，我們會就 &lt;strong&gt;OpenFlow&lt;/strong&gt; 獨立一個章節來談論。請點以下連結:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/learn_SDN/blob/master/OpenFlow.md&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -10205,16 +10205,16 @@
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
         <guid>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹&lt;strong&gt;OpenFlow 1.0的架構&lt;/strong&gt;，以及一些 spec 的整理.&lt;/p&gt;
 &lt;p&gt;之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。&lt;/p&gt;
-&lt;h3 id=&#34;為什麼會著重在10與13兩個版本呢&#34;&gt;為什麼會著重在1.0與1.3兩個版本呢？
+&lt;h3 id=&#34;為什麼會著重在10與13兩個版本呢&#34;&gt;&lt;a href=&#34;#%e7%82%ba%e4%bb%80%e9%ba%bc%e6%9c%83%e8%91%97%e9%87%8d%e5%9c%a810%e8%88%8713%e5%85%a9%e5%80%8b%e7%89%88%e6%9c%ac%e5%91%a2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;為什麼會著重在1.0與1.3兩個版本呢？
 &lt;/h3&gt;&lt;blockquote&gt;
 &lt;p&gt;1.0版本與之後的版本不兼容，所以1.0要最先介紹。 &lt;strong&gt;1.0以及1.3版本被選為長期支持的穩定版本&lt;/strong&gt; 1.3為目前的主流版本，&lt;strong&gt;多數支持OpenFlow的硬體是支援OpenFlow1.3&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;參考資料: &lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/qq_29229567/article/details/88797395&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;OpenFlow 協定演進&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;openflow-10-架構&#34;&gt;OpenFlow 1.0 架構
+&lt;h2 id=&#34;openflow-10-架構&#34;&gt;&lt;a href=&#34;#openflow-10-%e6%9e%b6%e6%a7%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow 1.0 架構
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://imgur.com/AioLuDj.jpg&#34;
 	
 	
@@ -10225,7 +10225,7 @@
 &gt;
 &lt;strong&gt;OpenFlow 1.0 spec 架構圖&lt;/strong&gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;flow-table&#34;&gt;Flow Table
+&lt;h2 id=&#34;flow-table&#34;&gt;&lt;a href=&#34;#flow-table&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Flow Table
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://imgur.com/YazXiG6.jpg&#34;
 	
 	
@@ -10245,7 +10245,7 @@
 &lt;li&gt;&lt;code&gt;Counters&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;Actions&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;header-fields&#34;&gt;Header Fields
+&lt;h3 id=&#34;header-fields&#34;&gt;&lt;a href=&#34;#header-fields&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Header Fields
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;OpenFlow 1.0&lt;/strong&gt; 協定中共有12種可供匹配的條件， IP部份只支援IPv4。&lt;/p&gt;
 &lt;p&gt;分別如下，僅列出條列，細節說明請參考 &lt;strong&gt;OpenFlow 1.0 spec&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -10289,7 +10289,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;counters&#34;&gt;Counters
+&lt;h3 id=&#34;counters&#34;&gt;&lt;a href=&#34;#counters&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Counters
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;Counter&lt;/code&gt; 會針對每張 &lt;code&gt;Flow Table&lt;/code&gt;, 每條 &lt;code&gt;Flow entry&lt;/code&gt;, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/exsmUoB.png&#34;
 	
@@ -10299,7 +10299,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;actions&#34;&gt;Actions
+&lt;h3 id=&#34;actions&#34;&gt;&lt;a href=&#34;#actions&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Actions
 &lt;/h3&gt;&lt;p&gt;每一個 &lt;code&gt;Flow entry&lt;/code&gt; 都伴隨著0或者多個 &lt;code&gt;actions&lt;/code&gt;， &lt;code&gt;actions&lt;/code&gt;代表今天封包匹配某個 &lt;code&gt;Header fields&lt;/code&gt; 的條件成功之後會執行的動作。&lt;/p&gt;
 &lt;p&gt;假設匹配成功之後發現沒有設置 &lt;code&gt;actions&lt;/code&gt;， 此時 &lt;code&gt;Switch&lt;/code&gt; 就會把&lt;strong&gt;封包丟棄(dropped)&lt;/strong&gt;，匹配成功之後執行 actions list 必定會按照原本的順序&lt;strong&gt;依序執行&lt;/strong&gt;。&lt;/p&gt;
 &lt;blockquote&gt;
@@ -10309,7 +10309,7 @@
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;Switch&lt;/code&gt; 並不需要支援所有在 spec 裡面提及的 &lt;code&gt;action&lt;/code&gt;， 只有標注 &lt;strong&gt;Required Action&lt;/strong&gt; 的才是一定要支援的，標注 &lt;strong&gt;Optional Action&lt;/strong&gt; 的則是選用。&lt;/p&gt;
-&lt;h4 id=&#34;required-action-forward轉發封包&#34;&gt;Required Action: Forward(轉發封包)
+&lt;h4 id=&#34;required-action-forward轉發封包&#34;&gt;&lt;a href=&#34;#required-action-forward%e8%bd%89%e7%99%bc%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Required Action: Forward(轉發封包)
 &lt;/h4&gt;&lt;p&gt;轉發除了要支援基本的 Switch port 之外， 也要支援以下的 &lt;strong&gt;virtual port&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/tgv3Nbj.png&#34;
 	
@@ -10328,11 +10328,11 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;required-action-drop丟棄封包&#34;&gt;Required Action: Drop(丟棄封包)
+&lt;h4 id=&#34;required-action-drop丟棄封包&#34;&gt;&lt;a href=&#34;#required-action-drop%e4%b8%9f%e6%a3%84%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Required Action: Drop(丟棄封包)
 &lt;/h4&gt;&lt;p&gt;除了可以設定 Drop action 之外， 假設今天有 &lt;code&gt;Flow entry&lt;/code&gt; 沒有設定 &lt;code&gt;action&lt;/code&gt;，switch 也會預設把封包丟棄。&lt;/p&gt;
-&lt;h4 id=&#34;optional-action-enqueue&#34;&gt;Optional Action: Enqueue
+&lt;h4 id=&#34;optional-action-enqueue&#34;&gt;&lt;a href=&#34;#optional-action-enqueue&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Optional Action: Enqueue
 &lt;/h4&gt;&lt;p&gt;Enqueue 可以將封包轉發至某個特定 port 的 queue 中，便於支援&lt;code&gt;QoS&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;optional-action-modify-field修改封包&#34;&gt;Optional Action: Modify-Field(修改封包)
+&lt;h4 id=&#34;optional-action-modify-field修改封包&#34;&gt;&lt;a href=&#34;#optional-action-modify-field%e4%bf%ae%e6%94%b9%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Optional Action: Modify-Field(修改封包)
 &lt;/h4&gt;&lt;p&gt;基本上最有彈性的 &lt;strong&gt;Modify-Field&lt;/strong&gt; 雖然是標注為 &lt;strong&gt;Optional Action&lt;/strong&gt;，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 &lt;code&gt;Switch&lt;/code&gt; 都會支援。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/8L2cErK.png&#34;
 	
@@ -10343,8 +10343,8 @@
 	
 &gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;matching&#34;&gt;Matching
-&lt;/h2&gt;&lt;h3 id=&#34;packet-flow-in-an-openflow-switch-封包處理流程&#34;&gt;Packet flow in an OpenFlow switch: 封包處理流程
+&lt;h2 id=&#34;matching&#34;&gt;&lt;a href=&#34;#matching&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Matching
+&lt;/h2&gt;&lt;h3 id=&#34;packet-flow-in-an-openflow-switch-封包處理流程&#34;&gt;&lt;a href=&#34;#packet-flow-in-an-openflow-switch-%e5%b0%81%e5%8c%85%e8%99%95%e7%90%86%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Packet flow in an OpenFlow switch: 封包處理流程
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/QD4VWvh.png&#34;
 	
 	
@@ -10366,7 +10366,7 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;解析封包獲得-header-field-用以檢索符合的-flow-entry&#34;&gt;解析封包獲得 Header field 用以檢索符合的 Flow entry
+&lt;h3 id=&#34;解析封包獲得-header-field-用以檢索符合的-flow-entry&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%9e%90%e5%b0%81%e5%8c%85%e7%8d%b2%e5%be%97-header-field-%e7%94%a8%e4%bb%a5%e6%aa%a2%e7%b4%a2%e7%ac%a6%e5%90%88%e7%9a%84-flow-entry&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解析封包獲得 Header field 用以檢索符合的 Flow entry
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/wJHVTOf.png&#34;
 	
 	
@@ -10375,7 +10375,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;解析步驟可以簡單劃分成底下四點&#34;&gt;解析步驟可以簡單劃分成底下四點
+&lt;h4 id=&#34;解析步驟可以簡單劃分成底下四點&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%9e%90%e6%ad%a5%e9%a9%9f%e5%8f%af%e4%bb%a5%e7%b0%a1%e5%96%ae%e5%8a%83%e5%88%86%e6%88%90%e5%ba%95%e4%b8%8b%e5%9b%9b%e9%bb%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解析步驟可以簡單劃分成底下四點
 &lt;/h4&gt;&lt;ul&gt;
 &lt;li&gt;初始化 &lt;code&gt;Headers&lt;/code&gt;
 &lt;ul&gt;
@@ -10406,9 +10406,9 @@
 &lt;li&gt;根據 IPv4 封包來確定是TCP/UDP/ICMP協定&lt;/li&gt;
 &lt;li&gt;寫入TCP/UDP/ICMP協定資料&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;secure-channel&#34;&gt;Secure Channel
+&lt;h2 id=&#34;secure-channel&#34;&gt;&lt;a href=&#34;#secure-channel&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Secure Channel
 &lt;/h2&gt;&lt;p&gt;作為連結 &lt;code&gt;Switch&lt;/code&gt; 與 &lt;code&gt;Controller&lt;/code&gt; 的橋樑。&lt;/p&gt;
-&lt;h2 id=&#34;openflow-protocol-message&#34;&gt;OpenFlow Protocol Message
+&lt;h2 id=&#34;openflow-protocol-message&#34;&gt;&lt;a href=&#34;#openflow-protocol-message&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow Protocol Message
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;p&gt;記得,OpenFlow 是定義 Controller 與 Switch 溝通的通訊協定&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -10418,7 +10418,7 @@
 &lt;li&gt;&lt;strong&gt;Asynchronous&lt;/strong&gt;: 此類消息通常由 &lt;code&gt;Switch&lt;/code&gt; 主動發出&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Symmetric&lt;/strong&gt;: 此類消息 &lt;code&gt;Controller&lt;/code&gt; 以及 &lt;code&gt;Switch&lt;/code&gt; 都可以發出&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;controller-to-switch&#34;&gt;Controller-to-Switch
+&lt;h3 id=&#34;controller-to-switch&#34;&gt;&lt;a href=&#34;#controller-to-switch&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Controller-to-Switch
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Features&lt;/strong&gt;&lt;/p&gt;
@@ -10445,7 +10445,7 @@
 &lt;p&gt;&lt;code&gt;OFPT_BARRIER_REQUEST&lt;/code&gt;、&lt;code&gt;OFPT_BARRIER_REPLY&lt;/code&gt;。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;asynchronous&#34;&gt;Asynchronous
+&lt;h3 id=&#34;asynchronous&#34;&gt;&lt;a href=&#34;#asynchronous&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Asynchronous
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Packet-in&lt;/strong&gt;&lt;/p&gt;
@@ -10475,7 +10475,7 @@
 &lt;p&gt;&lt;code&gt;Switch&lt;/code&gt; 回傳錯誤訊息。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;symmetric&#34;&gt;Symmetric
+&lt;h3 id=&#34;symmetric&#34;&gt;&lt;a href=&#34;#symmetric&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Symmetric
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Hello&lt;/strong&gt;&lt;/p&gt;
@@ -10490,14 +10490,14 @@
 &lt;p&gt;自定義訊息&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;結語&#34;&gt;結語
+&lt;h2 id=&#34;結語&#34;&gt;&lt;a href=&#34;#%e7%b5%90%e8%aa%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;結語
 &lt;/h2&gt;&lt;p&gt;在 &lt;code&gt;OpenFlow&lt;/code&gt; 規格書中通常分成前半部份的&lt;strong&gt;規範&lt;/strong&gt;以及後半部份的&lt;strong&gt;協議實作&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;規範&lt;/strong&gt;通常是講解觀念部份，後半部的&lt;strong&gt;協議&lt;/strong&gt;通常探討實現規範的細節，本文章只有大概介紹一下規範讓讀者可以快速的了解 &lt;code&gt;OpenFlow&lt;/code&gt; 的概要。&lt;/p&gt;
 &lt;p&gt;目前主流的 &lt;code&gt;OpenFlow&lt;/code&gt; 版本為 &lt;code&gt;OpenFlow 1.3&lt;/code&gt; ，相較於 &lt;code&gt;OpenFlow 1.0&lt;/code&gt; 增加了很多方便的新功能， 所以大概看過 &lt;code&gt;OpenFlow 1.0&lt;/code&gt; 之後建議將閱讀重心放在1.3版本。&lt;/p&gt;
 &lt;p&gt;關於 &lt;code&gt;OpenFlow 1.3&lt;/code&gt; 我在網路上找資料的時候有找到中文的全文翻譯，很推薦搭配著原文的規格書一起看， 連結在此: &lt;a class=&#34;link&#34; href=&#34;https://www.jianshu.com/p/acfeae1771b3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;OpenFlow 1.3&lt;/a&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;後續的實作都會採用1.3版本為主&lt;/strong&gt;， 建議先大概看一輪上述的1.3文檔再繼續接下來的練習。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;Reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Reference
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -10525,7 +10525,7 @@
         <description>&lt;p&gt;跟著 &lt;a class=&#34;link&#34; href=&#34;https://pdos.csail.mit.edu/6.824/schedule.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;MIT6.824&lt;/a&gt; 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，&lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 &lt;a class=&#34;link&#34; href=&#34;https://pdos.csail.mit.edu/6.824/papers/gfs.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;The Google File System&lt;/a&gt; 這篇論文來分享一些 &lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。&lt;/p&gt;
-&lt;h2 id=&#34;背景&#34;&gt;背景
+&lt;h2 id=&#34;背景&#34;&gt;&lt;a href=&#34;#%e8%83%8c%e6%99%af&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;背景
 &lt;/h2&gt;&lt;p&gt;為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 &lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 這套分散式檔案系統。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量&lt;/p&gt;
@@ -10557,7 +10557,7 @@
 &lt;p&gt;對於 append 實現了原子操作，使得多個 client 端可以同時對一個文件寫入又不需要額外的同步操作來維持一致性。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 沒有強調低延遲，而是把重點放在巨大的 &lt;strong&gt;throughput&lt;/strong&gt; 。&lt;/p&gt;
 &lt;p&gt;在 paper 的 &lt;code&gt;2.1 Assumptions&lt;/code&gt; 章節中簡單描述的設計 &lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 的預期目標。&lt;/p&gt;
-&lt;h2 id=&#34;interface&#34;&gt;Interface
+&lt;h2 id=&#34;interface&#34;&gt;&lt;a href=&#34;#interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Interface
 &lt;/h2&gt;&lt;p&gt;&lt;strong&gt;&lt;code&gt;GFS&lt;/code&gt;&lt;/strong&gt; 提供了一系列類似傳統文件系統的 API 接口，且並沒有完全遵照 POSIX 的規範。&lt;/p&gt;
 &lt;p&gt;支持一些常見的功能&lt;/p&gt;
 &lt;ul&gt;
@@ -10572,7 +10572,7 @@
 &lt;/ul&gt;
 &lt;p&gt;&lt;strong&gt;snapshot&lt;/strong&gt; 指令可以用很低的成本創建一個文件或者目錄的 &lt;code&gt;copy&lt;/code&gt;。
 &lt;strong&gt;record append&lt;/strong&gt; 指令允許多個 &lt;code&gt;clients&lt;/code&gt; 同時對一個文件進行寫入動作，同時確保了每個 &lt;code&gt;client&lt;/code&gt; 端寫入動作的原子性。讓 &lt;code&gt;client&lt;/code&gt; 端可以不用花費額外的心力解決同步問題。&lt;/p&gt;
-&lt;h2 id=&#34;architecture&#34;&gt;Architecture
+&lt;h2 id=&#34;architecture&#34;&gt;&lt;a href=&#34;#architecture&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Architecture
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/ftek3c4.png&#34;
 	
 	
@@ -10602,14 +10602,14 @@
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;Master&lt;/code&gt; 會以 &lt;strong&gt;HeartBeat message&lt;/strong&gt; 的形式週期性得與每個 &lt;code&gt;chunk server&lt;/code&gt; 通訊，以獲得 &lt;code&gt;chunk server&lt;/code&gt; 的狀態。&lt;/p&gt;
 &lt;p&gt;metadata會在後面的章節詳細再說明&lt;/p&gt;
-&lt;h2 id=&#34;single-master-設計理念&#34;&gt;Single Master 設計理念
+&lt;h2 id=&#34;single-master-設計理念&#34;&gt;&lt;a href=&#34;#single-master-%e8%a8%ad%e8%a8%88%e7%90%86%e5%bf%b5&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Single Master 設計理念
 &lt;/h2&gt;&lt;p&gt;single master 的設計可以讓其透過全局的訊息來紀錄每個 &lt;code&gt;chunk&lt;/code&gt; 的位置還有關於資料複製的決策，大大減少了設計的難度。&lt;/p&gt;
 &lt;p&gt;之後就衍生出另一個問題是只有 single master 的話，設計上需要盡可能的減少 &lt;code&gt;Master&lt;/code&gt; 的工作量，不能讓 single master 的設計反而成為整個系統的效能瓶頸。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;client&lt;/code&gt; 的文件讀寫絕對不會透過 &lt;code&gt;Master&lt;/code&gt; 來與 &lt;code&gt;chunk server&lt;/code&gt; 溝通，&lt;code&gt;Master&lt;/code&gt; 的工作只有傳送 &lt;code&gt;chunk&lt;/code&gt; 的各種資料，&lt;code&gt;client&lt;/code&gt; 獲得應該要與哪一個 &lt;code&gt;chunk server&lt;/code&gt; 溝通後，會直接與其連線。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;client 會將 chunk 的 metadata 緩存一段時間，讓後續相同的操作不需要再去詢問 master。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;chunk-size-選擇議題&#34;&gt;chunk size 選擇議題
+&lt;h2 id=&#34;chunk-size-選擇議題&#34;&gt;&lt;a href=&#34;#chunk-size-%e9%81%b8%e6%93%87%e8%ad%b0%e9%a1%8c&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;chunk size 選擇議題
 &lt;/h2&gt;&lt;p&gt;paper 中有一個章節簡單分析了一下 &lt;code&gt;chunk size&lt;/code&gt; 選擇的問題，會甚麼選擇 64MB 這個遠大於普通 block 的大小，以及選擇的優缺點。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;優點:減少 &lt;code&gt;client&lt;/code&gt; 與 &lt;code&gt;master&lt;/code&gt; 的通訊量， metadata 大小:&lt;/li&gt;
@@ -10621,7 +10621,7 @@
 &lt;/ul&gt;
 &lt;p&gt;對於小文件來說，很可能 &lt;code&gt;chunk&lt;/code&gt; 的數量很小，可能只有一個 &lt;code&gt;chunk&lt;/code&gt;，這種情況下有可能會發生同時有多個 &lt;code&gt;client&lt;/code&gt; 訪問同一個文件的，導致熱點的發生。&lt;/p&gt;
 &lt;p&gt;這個 file 可能是配置參數 or something else，解決這個方案的長久之計可能是當遇到這種情況的時候允許 &lt;code&gt;client&lt;/code&gt; 可以從別的 &lt;code&gt;client&lt;/code&gt; 端讀取資料。&lt;/p&gt;
-&lt;h2 id=&#34;metadata&#34;&gt;Metadata
+&lt;h2 id=&#34;metadata&#34;&gt;&lt;a href=&#34;#metadata&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Metadata
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;Master&lt;/code&gt; 主要維護三種類型的 &lt;code&gt;metadata&lt;/code&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;命名空間相關&lt;/li&gt;
@@ -10641,11 +10641,11 @@
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;把 &lt;code&gt;metadata&lt;/code&gt; 保存在記憶體可以讓 &lt;code&gt;master&lt;/code&gt; 很有效率的定期掃描所有的 &lt;code&gt;metadata&lt;/code&gt;，藉此來達到 &lt;code&gt;chunk&lt;/code&gt; 回收，負載平衡等操作。&lt;/p&gt;
-&lt;h2 id=&#34;263-operation-log&#34;&gt;2.6.3 Operation Log
+&lt;h2 id=&#34;263-operation-log&#34;&gt;&lt;a href=&#34;#263-operation-log&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;2.6.3 Operation Log
 &lt;/h2&gt;&lt;p&gt;假設今天系統已經跑了好幾個月甚至一兩年了，突然 &lt;code&gt;master&lt;/code&gt; crush，需要按照 &lt;code&gt;operation log&lt;/code&gt; 重新 set up 整個系統，如果從一開始的 &lt;code&gt;log&lt;/code&gt; 慢慢條列執行，可以預期整個系統重啟的時間會非常的久，這對於一個大型系統來說是不太能接受的。&lt;/p&gt;
 &lt;p&gt;為了讓重新啟動的時間降低，必須要想辦法讓 &lt;code&gt;log&lt;/code&gt; 盡可能的變小，所以在 &lt;code&gt;log&lt;/code&gt; 增長一定長度之後 &lt;code&gt;master&lt;/code&gt; 就會創建 &lt;code&gt;checkpoint file&lt;/code&gt;(並且刪掉舊的 &lt;code&gt;log file&lt;/code&gt;)，就像是遊戲的存檔點一樣，可以讓我們死掉之後不用重頭開始玩起。&lt;/p&gt;
 &lt;p&gt;有了 &lt;code&gt;checkpoint&lt;/code&gt; 之後 &lt;code&gt;master&lt;/code&gt; 重啟只要讀取最新的一次 &lt;code&gt;checkpoint file&lt;/code&gt; 即可，&lt;code&gt;checkpoint file&lt;/code&gt; 是以類似 compact B-tree 的資料結構儲存的，讀取這個檔案後可以把整個 data structure 映射到記憶體內不需要額外的處理，大大的加快了整個重啟的時間。&lt;/p&gt;
-&lt;h2 id=&#34;consistency-model-一致性模型&#34;&gt;Consistency Model 一致性模型
+&lt;h2 id=&#34;consistency-model-一致性模型&#34;&gt;&lt;a href=&#34;#consistency-model-%e4%b8%80%e8%87%b4%e6%80%a7%e6%a8%a1%e5%9e%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Consistency Model 一致性模型
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;任何有關於 &lt;code&gt;file namespace&lt;/code&gt; 的操作都是 atomic的，例如 &lt;code&gt;create&lt;/code&gt; 等等操作，並且經由 &lt;code&gt;master&lt;/code&gt; 直接處理。&lt;/li&gt;
 &lt;/ul&gt;
@@ -10708,19 +10708,19 @@ paper 中這個章節都是用 region 代指資料。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;通常 master 偵測到錯誤並且反應的時間大概是幾分鐘之內。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;272-implications-for-applications&#34;&gt;2.7.2 Implications for Applications
+&lt;h2 id=&#34;272-implications-for-applications&#34;&gt;&lt;a href=&#34;#272-implications-for-applications&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;2.7.2 Implications for Applications
 &lt;/h2&gt;&lt;p&gt;大部分的 &lt;code&gt;application&lt;/code&gt; 都採取 &lt;strong&gt;appending(寫在尾部)&lt;/strong&gt; 的寫入方式， &lt;code&gt;GFS&lt;/code&gt; 對於 append 有做性能上的優化。通常一個 &lt;code&gt;writer&lt;/code&gt; 只會負責單一文件，不會寫入到一半跑去寫別的文件，當這次的寫入完成時，&lt;code&gt;GFS&lt;/code&gt; 會保證原子性的方式把文件改名成一個永久的文件名稱。&lt;/p&gt;
-&lt;h3 id=&#34;checkpoint&#34;&gt;checkpoint
+&lt;h3 id=&#34;checkpoint&#34;&gt;&lt;a href=&#34;#checkpoint&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;checkpoint
 &lt;/h3&gt;&lt;p&gt;每個 &lt;code&gt;application&lt;/code&gt; 都會週期性的維護一個 &lt;code&gt;checkpoint&lt;/code&gt; 訊息，該訊息紀錄每次成功寫入後的位置同時也是 &lt;code&gt;Defined&lt;/code&gt; 狀態的結束位置，每次 &lt;code&gt;append&lt;/code&gt; 的操作都會更新這個訊息，&lt;code&gt;writer&lt;/code&gt; 如果遇到什麼突發狀況中止了，下次也可以從 &lt;code&gt;checkpoint&lt;/code&gt; 開始繼續寫入，&lt;code&gt;reader&lt;/code&gt; 讀取資料也會把 &lt;code&gt;checkpoint&lt;/code&gt; 當作結束位置。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;checkpoint&lt;/code&gt; 也會同時紀錄 &lt;code&gt;checksums&lt;/code&gt; 來確保每個段落的正確性。&lt;code&gt;checkpoint&lt;/code&gt; 的設計可以使得 &lt;code&gt;writer&lt;/code&gt; 一段一段的寫入資料，讓 &lt;code&gt;reader&lt;/code&gt; 可以從還沒有寫入完成的文件中讀取資料。&lt;/p&gt;
-&lt;h3 id=&#34;concurrently-append&#34;&gt;concurrently append
+&lt;h3 id=&#34;concurrently-append&#34;&gt;&lt;a href=&#34;#concurrently-append&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;concurrently append
 &lt;/h3&gt;&lt;p&gt;在另外一個常見的使用場景，通常會有很多 &lt;code&gt;writer&lt;/code&gt; 同時對同一個檔案做修改，通常是在合併結果或者是用於 &lt;code&gt;生產者–消費者模型&lt;/code&gt;。&lt;code&gt;Record append&lt;/code&gt; 的 &lt;code&gt;append-at-least-once&lt;/code&gt; 特性保證了每個 &lt;code&gt;writer&lt;/code&gt; 的輸出。&lt;/p&gt;
 &lt;p&gt;在前面的&lt;a class=&#34;link&#34; href=&#34;#Consistency-Model-%e4%b8%80%e8%87%b4%e6%80%a7%e6%a8%a1%e5%9e%8b&#34; &gt;說明&lt;/a&gt;中有簡單提到過 &lt;code&gt;GFS&lt;/code&gt; 可能會在文件中寫入 &lt;code&gt;padding(填充)&lt;/code&gt; 或者&lt;code&gt;duplicates(重複的資料)&lt;/code&gt;。&lt;code&gt;checkpoint&lt;/code&gt; 也可以讓 &lt;code&gt;reader&lt;/code&gt; 有效的處理上述的問題，盡可能得去避免讀到錯誤的資料。&lt;code&gt;writer&lt;/code&gt; 在每次 &lt;code&gt;checkpoint&lt;/code&gt; 的時候都會加入 &lt;code&gt;checksum&lt;/code&gt; 來驗證上面段落的有效性，&lt;code&gt;reader&lt;/code&gt; 可以藉由 &lt;code&gt;checksum&lt;/code&gt; 來辨識 &lt;code&gt;padding&lt;/code&gt; 或者 &lt;code&gt;duplicates&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;在 paper 中也有簡單說明如果 &lt;code&gt;application&lt;/code&gt; 某些應用場景無法忍受偶發的重複資料，可以在 &lt;code&gt;checkpoint&lt;/code&gt; 的地方加入一個 &lt;code&gt;unique identifiers&lt;/code&gt;，讀入資料的時候可以藉由 ID 來避免重複資料。&lt;/p&gt;
-&lt;h2 id=&#34;system-interactions&#34;&gt;System interactions
-&lt;/h2&gt;&lt;h3 id=&#34;lease租約&#34;&gt;Lease(租約)
+&lt;h2 id=&#34;system-interactions&#34;&gt;&lt;a href=&#34;#system-interactions&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;System interactions
+&lt;/h2&gt;&lt;h3 id=&#34;lease租約&#34;&gt;&lt;a href=&#34;#lease%e7%a7%9f%e7%b4%84&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Lease(租約)
 &lt;/h3&gt;&lt;p&gt;因為我們每份 &lt;code&gt;chunk&lt;/code&gt; 都會備份在不同的 &lt;code&gt;chunk server&lt;/code&gt; 內，所以需要有一個機制在修改完 &lt;code&gt;chunk&lt;/code&gt; 之後讓所有複製的 &lt;code&gt;chunk&lt;/code&gt; 都相同的內容。&lt;code&gt;GFS&lt;/code&gt; 中使用 &lt;code&gt;leases&lt;/code&gt; 去處理多個 &lt;code&gt;chunk&lt;/code&gt; 在經過修改之後的一致性問題。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.itread01.com/content/1546962067.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Google File System及其繼任者Colossus

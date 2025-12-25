@@ -2,25 +2,25 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>SDN on davidLei</title>
-        <link>https://davidleitw.github.io/categories/sdn/</link>
+        <link>http://localhost:44973/categories/sdn/</link>
         <description>Recent content in SDN on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Fri, 13 Aug 2021 21:34:43 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/categories/sdn/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 13 Aug 2021 21:34:43 +0800</lastBuildDate><atom:link href="http://localhost:44973/categories/sdn/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
-        <link>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</link>
+        <link>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
+        <guid>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
         <description>&lt;p&gt;此專案用來整理一些學習 SDN 的相關知識以及參考資料。
 由於剛開始學習沒多久，所以會著重於個人學習的&lt;strong&gt;順序&lt;/strong&gt;，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。&lt;/p&gt;
 &lt;p&gt;當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點&lt;/p&gt;
-&lt;h2 id=&#34;預備知識&#34;&gt;預備知識
+&lt;h2 id=&#34;預備知識&#34;&gt;&lt;a href=&#34;#%e9%a0%90%e5%82%99%e7%9f%a5%e8%ad%98&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;預備知識
 &lt;/h2&gt;&lt;p&gt;在學習 SDN 之前我準備先複習了一輪 &lt;a class=&#34;link&#34; href=&#34;https://www.ucg.ac.me/skladiste/blog_44233/objava_64433/fajlovi/Computer%20Networking%20_%20A%20Top%20Down%20Approach,%207th,%20converted.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;computer networking a top-down approach 7th&lt;/a&gt;，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。&lt;/p&gt;
 &lt;p&gt;之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。&lt;/p&gt;
-&lt;h2 id=&#34;什麼是-sdn-以及-sdn-的發展歷史&#34;&gt;什麼是 SDN 以及 SDN 的發展歷史
+&lt;h2 id=&#34;什麼是-sdn-以及-sdn-的發展歷史&#34;&gt;&lt;a href=&#34;#%e4%bb%80%e9%ba%bc%e6%98%af-sdn-%e4%bb%a5%e5%8f%8a-sdn-%e7%9a%84%e7%99%bc%e5%b1%95%e6%ad%b7%e5%8f%b2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;什麼是 SDN 以及 SDN 的發展歷史
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;p&gt;參考文章&lt;/p&gt;
 &lt;ul&gt;
@@ -47,7 +47,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;SDN 並非一種技術，而是一種設計的理念，只要符合&lt;strong&gt;控制面以及轉接面的分離&lt;/strong&gt;，以及開放的&lt;strong&gt;可程式化&lt;/strong&gt;設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著&lt;strong&gt;集中控制&lt;/strong&gt;的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。&lt;/p&gt;
-&lt;h2 id=&#34;常用名詞解釋&#34;&gt;常用名詞解釋
+&lt;h2 id=&#34;常用名詞解釋&#34;&gt;&lt;a href=&#34;#%e5%b8%b8%e7%94%a8%e5%90%8d%e8%a9%9e%e8%a7%a3%e9%87%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;常用名詞解釋
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://sites.google.com/a/cnsrl.cycu.edu.tw/da-shu-bi-ji/_/rsrc/1565708281052/sdn/sdn_architecture.png&#34;
 	
 	
@@ -56,7 +56,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;network-device-網路設備&#34;&gt;Network Device 網路設備
+&lt;h3 id=&#34;network-device-網路設備&#34;&gt;&lt;a href=&#34;#network-device-%e7%b6%b2%e8%b7%af%e8%a8%ad%e5%82%99&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Network Device 網路設備
 &lt;/h3&gt;&lt;p&gt;網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。&lt;/p&gt;
 &lt;p&gt;有時候網路設備也被稱為 &lt;strong&gt;Data Plane&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;支援 OpenFlow 的 switch 會有以下功能&lt;/p&gt;
@@ -65,26 +65,26 @@
 &lt;li&gt;對於接收到的封包進行轉送到 Controller 的動作(Packet-In)。&lt;/li&gt;
 &lt;li&gt;對於接收到來自 Controller 的封包轉送到指定的連接埠(Packet-Out)。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;南向界面southbound-interface-control-data-plane-interface&#34;&gt;南向界面(Southbound Interface/ Control Data Plane Interface)
+&lt;h3 id=&#34;南向界面southbound-interface-control-data-plane-interface&#34;&gt;&lt;a href=&#34;#%e5%8d%97%e5%90%91%e7%95%8c%e9%9d%a2southbound-interface-control-data-plane-interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;南向界面(Southbound Interface/ Control Data Plane Interface)
 &lt;/h3&gt;&lt;p&gt;南向界面是指 Data Plane 以及 Controller 之間的界面，在 SDN 架構中，希望南向界面是標準化的，這樣才可以讓軟體可以不受硬體的限制，在任何設備上都能執行，不過現在還只是理想。&lt;/p&gt;
 &lt;p&gt;目前主流的南向界面標準是 OpenFlow 協定，雖然還有其他各種南向界面，不過還是 OpenFlow 為大宗。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;因為我也還是新手的緣故，所以也是從 OpenFlow 開始學習 SDN 的，此篇心得文也會著重在 OpenFlow 協定上。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;控制器controller&#34;&gt;控制器(Controller)
+&lt;h3 id=&#34;控制器controller&#34;&gt;&lt;a href=&#34;#%e6%8e%a7%e5%88%b6%e5%99%a8controller&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;控制器(Controller)
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Controller&lt;/strong&gt; 是 SDN 的核心，北向有應用程式提供業務邏輯經由 Controller 將轉送的規則藉由 Southbound Interface 傳給網路設備，屬於 SDN 架構中最重要的部份。&lt;/p&gt;
 &lt;p&gt;目前 Controller 百家爭鳴，有很多開源的 controller (例如 Ryu, FloodLight, NOX/POX)等等，也有很多公司開發的商用版本，本篇心得文會使用 Ryu 去做一些 OpenFlow 相關的實驗。&lt;/p&gt;
-&lt;h3 id=&#34;北向界面northbound-interface&#34;&gt;北向界面(Northbound Interface)
+&lt;h3 id=&#34;北向界面northbound-interface&#34;&gt;&lt;a href=&#34;#%e5%8c%97%e5%90%91%e7%95%8c%e9%9d%a2northbound-interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;北向界面(Northbound Interface)
 &lt;/h3&gt;&lt;p&gt;北向界面是指應用程式以及 Controller 之間溝通的界面，目前還沒有一個統一的標準，通常會因為狀況不同而採用不同的方案。&lt;/p&gt;
-&lt;h3 id=&#34;applicationservices&#34;&gt;Application(Services)
+&lt;h3 id=&#34;applicationservices&#34;&gt;&lt;a href=&#34;#applicationservices&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Application(Services)
 &lt;/h3&gt;&lt;p&gt;這裡的 Application 是指幾乎所有網路的應用，包含load balancing, security, monitoring 等等.. 應用程式的業務邏輯就透過 Controller 傳送規則給網路設備，讓設備彈性的執行我們要的功能。&lt;/p&gt;
-&lt;h2 id=&#34;openflow-協定&#34;&gt;OpenFlow 協定
+&lt;h2 id=&#34;openflow-協定&#34;&gt;&lt;a href=&#34;#openflow-%e5%8d%94%e5%ae%9a&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow 協定
 &lt;/h2&gt;&lt;p&gt;OpenFlow 為最有代表性的南向界面，被視為第一個 SDN 的標準之一。它最初在 SDN 環境中定義了通信協定，使 SDN 控制器能夠與物理和虛擬的交換機和路由器等網路裝置的轉發平面直接進行互動，從而更好地適應不斷變化的業務需求。&lt;/p&gt;
-&lt;h3 id=&#34;概述維基百科&#34;&gt;概述(&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/OpenFlow&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;概述維基百科&#34;&gt;&lt;a href=&#34;#%e6%a6%82%e8%bf%b0%e7%b6%ad%e5%9f%ba%e7%99%be%e7%a7%91&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;概述(&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/OpenFlow&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;維基百科&lt;/a&gt;)
 &lt;/h3&gt;&lt;p&gt;OpenFlow 能夠啟動遠端的控制器，經由網路交換器，決定網路封包要由何種路徑通過網路交換機。這個協定的發明者，將它當成軟體定義網路（Software-defined networking）的啟動器。&lt;/p&gt;
 &lt;p&gt;OpenFlow 允許從遠端控制網路交換器的封包轉送表，透過新增、修改與移除封包控制規則與行動，來改變封包轉送的路徑。比起用存取控制列表 (ACLs) 和路由協定，允許更複雜的流量管理。同時，OpenFlow 允許不同供應商用一個簡單，開源的協定去遠端管理交換機（通常提供專有的介面和描述語言)。&lt;/p&gt;
-&lt;h3 id=&#34;協定內容&#34;&gt;協定內容
+&lt;h3 id=&#34;協定內容&#34;&gt;&lt;a href=&#34;#%e5%8d%94%e5%ae%9a%e5%85%a7%e5%ae%b9&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;協定內容
 &lt;/h3&gt;&lt;p&gt;因為 OpenFlow 算是一個很有指標性的 SDN 協定，所以對於要學習 SDN 的人來說，他的 specification 也非常值得一看，我們會就 &lt;strong&gt;OpenFlow&lt;/strong&gt; 獨立一個章節來談論。請點以下連結:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/learn_SDN/blob/master/OpenFlow.md&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -108,20 +108,20 @@
         </item>
         <item>
         <title>SDN 學習筆記(二): OpenFlow 1.0 介紹</title>
-        <link>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</link>
+        <link>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <guid>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</guid>
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹&lt;strong&gt;OpenFlow 1.0的架構&lt;/strong&gt;，以及一些 spec 的整理.&lt;/p&gt;
 &lt;p&gt;之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。&lt;/p&gt;
-&lt;h3 id=&#34;為什麼會著重在10與13兩個版本呢&#34;&gt;為什麼會著重在1.0與1.3兩個版本呢？
+&lt;h3 id=&#34;為什麼會著重在10與13兩個版本呢&#34;&gt;&lt;a href=&#34;#%e7%82%ba%e4%bb%80%e9%ba%bc%e6%9c%83%e8%91%97%e9%87%8d%e5%9c%a810%e8%88%8713%e5%85%a9%e5%80%8b%e7%89%88%e6%9c%ac%e5%91%a2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;為什麼會著重在1.0與1.3兩個版本呢？
 &lt;/h3&gt;&lt;blockquote&gt;
 &lt;p&gt;1.0版本與之後的版本不兼容，所以1.0要最先介紹。 &lt;strong&gt;1.0以及1.3版本被選為長期支持的穩定版本&lt;/strong&gt; 1.3為目前的主流版本，&lt;strong&gt;多數支持OpenFlow的硬體是支援OpenFlow1.3&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;參考資料: &lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/qq_29229567/article/details/88797395&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;OpenFlow 協定演進&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;openflow-10-架構&#34;&gt;OpenFlow 1.0 架構
+&lt;h2 id=&#34;openflow-10-架構&#34;&gt;&lt;a href=&#34;#openflow-10-%e6%9e%b6%e6%a7%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow 1.0 架構
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://imgur.com/AioLuDj.jpg&#34;
 	
 	
@@ -132,7 +132,7 @@
 &gt;
 &lt;strong&gt;OpenFlow 1.0 spec 架構圖&lt;/strong&gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;flow-table&#34;&gt;Flow Table
+&lt;h2 id=&#34;flow-table&#34;&gt;&lt;a href=&#34;#flow-table&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Flow Table
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://imgur.com/YazXiG6.jpg&#34;
 	
 	
@@ -152,7 +152,7 @@
 &lt;li&gt;&lt;code&gt;Counters&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;Actions&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;header-fields&#34;&gt;Header Fields
+&lt;h3 id=&#34;header-fields&#34;&gt;&lt;a href=&#34;#header-fields&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Header Fields
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;OpenFlow 1.0&lt;/strong&gt; 協定中共有12種可供匹配的條件， IP部份只支援IPv4。&lt;/p&gt;
 &lt;p&gt;分別如下，僅列出條列，細節說明請參考 &lt;strong&gt;OpenFlow 1.0 spec&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -196,7 +196,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;counters&#34;&gt;Counters
+&lt;h3 id=&#34;counters&#34;&gt;&lt;a href=&#34;#counters&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Counters
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;Counter&lt;/code&gt; 會針對每張 &lt;code&gt;Flow Table&lt;/code&gt;, 每條 &lt;code&gt;Flow entry&lt;/code&gt;, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/exsmUoB.png&#34;
 	
@@ -206,7 +206,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;actions&#34;&gt;Actions
+&lt;h3 id=&#34;actions&#34;&gt;&lt;a href=&#34;#actions&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Actions
 &lt;/h3&gt;&lt;p&gt;每一個 &lt;code&gt;Flow entry&lt;/code&gt; 都伴隨著0或者多個 &lt;code&gt;actions&lt;/code&gt;， &lt;code&gt;actions&lt;/code&gt;代表今天封包匹配某個 &lt;code&gt;Header fields&lt;/code&gt; 的條件成功之後會執行的動作。&lt;/p&gt;
 &lt;p&gt;假設匹配成功之後發現沒有設置 &lt;code&gt;actions&lt;/code&gt;， 此時 &lt;code&gt;Switch&lt;/code&gt; 就會把&lt;strong&gt;封包丟棄(dropped)&lt;/strong&gt;，匹配成功之後執行 actions list 必定會按照原本的順序&lt;strong&gt;依序執行&lt;/strong&gt;。&lt;/p&gt;
 &lt;blockquote&gt;
@@ -216,7 +216,7 @@
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;Switch&lt;/code&gt; 並不需要支援所有在 spec 裡面提及的 &lt;code&gt;action&lt;/code&gt;， 只有標注 &lt;strong&gt;Required Action&lt;/strong&gt; 的才是一定要支援的，標注 &lt;strong&gt;Optional Action&lt;/strong&gt; 的則是選用。&lt;/p&gt;
-&lt;h4 id=&#34;required-action-forward轉發封包&#34;&gt;Required Action: Forward(轉發封包)
+&lt;h4 id=&#34;required-action-forward轉發封包&#34;&gt;&lt;a href=&#34;#required-action-forward%e8%bd%89%e7%99%bc%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Required Action: Forward(轉發封包)
 &lt;/h4&gt;&lt;p&gt;轉發除了要支援基本的 Switch port 之外， 也要支援以下的 &lt;strong&gt;virtual port&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/tgv3Nbj.png&#34;
 	
@@ -235,11 +235,11 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;required-action-drop丟棄封包&#34;&gt;Required Action: Drop(丟棄封包)
+&lt;h4 id=&#34;required-action-drop丟棄封包&#34;&gt;&lt;a href=&#34;#required-action-drop%e4%b8%9f%e6%a3%84%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Required Action: Drop(丟棄封包)
 &lt;/h4&gt;&lt;p&gt;除了可以設定 Drop action 之外， 假設今天有 &lt;code&gt;Flow entry&lt;/code&gt; 沒有設定 &lt;code&gt;action&lt;/code&gt;，switch 也會預設把封包丟棄。&lt;/p&gt;
-&lt;h4 id=&#34;optional-action-enqueue&#34;&gt;Optional Action: Enqueue
+&lt;h4 id=&#34;optional-action-enqueue&#34;&gt;&lt;a href=&#34;#optional-action-enqueue&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Optional Action: Enqueue
 &lt;/h4&gt;&lt;p&gt;Enqueue 可以將封包轉發至某個特定 port 的 queue 中，便於支援&lt;code&gt;QoS&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;optional-action-modify-field修改封包&#34;&gt;Optional Action: Modify-Field(修改封包)
+&lt;h4 id=&#34;optional-action-modify-field修改封包&#34;&gt;&lt;a href=&#34;#optional-action-modify-field%e4%bf%ae%e6%94%b9%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Optional Action: Modify-Field(修改封包)
 &lt;/h4&gt;&lt;p&gt;基本上最有彈性的 &lt;strong&gt;Modify-Field&lt;/strong&gt; 雖然是標注為 &lt;strong&gt;Optional Action&lt;/strong&gt;，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 &lt;code&gt;Switch&lt;/code&gt; 都會支援。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/8L2cErK.png&#34;
 	
@@ -250,8 +250,8 @@
 	
 &gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;matching&#34;&gt;Matching
-&lt;/h2&gt;&lt;h3 id=&#34;packet-flow-in-an-openflow-switch-封包處理流程&#34;&gt;Packet flow in an OpenFlow switch: 封包處理流程
+&lt;h2 id=&#34;matching&#34;&gt;&lt;a href=&#34;#matching&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Matching
+&lt;/h2&gt;&lt;h3 id=&#34;packet-flow-in-an-openflow-switch-封包處理流程&#34;&gt;&lt;a href=&#34;#packet-flow-in-an-openflow-switch-%e5%b0%81%e5%8c%85%e8%99%95%e7%90%86%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Packet flow in an OpenFlow switch: 封包處理流程
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/QD4VWvh.png&#34;
 	
 	
@@ -273,7 +273,7 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;解析封包獲得-header-field-用以檢索符合的-flow-entry&#34;&gt;解析封包獲得 Header field 用以檢索符合的 Flow entry
+&lt;h3 id=&#34;解析封包獲得-header-field-用以檢索符合的-flow-entry&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%9e%90%e5%b0%81%e5%8c%85%e7%8d%b2%e5%be%97-header-field-%e7%94%a8%e4%bb%a5%e6%aa%a2%e7%b4%a2%e7%ac%a6%e5%90%88%e7%9a%84-flow-entry&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解析封包獲得 Header field 用以檢索符合的 Flow entry
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/wJHVTOf.png&#34;
 	
 	
@@ -282,7 +282,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;解析步驟可以簡單劃分成底下四點&#34;&gt;解析步驟可以簡單劃分成底下四點
+&lt;h4 id=&#34;解析步驟可以簡單劃分成底下四點&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%9e%90%e6%ad%a5%e9%a9%9f%e5%8f%af%e4%bb%a5%e7%b0%a1%e5%96%ae%e5%8a%83%e5%88%86%e6%88%90%e5%ba%95%e4%b8%8b%e5%9b%9b%e9%bb%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解析步驟可以簡單劃分成底下四點
 &lt;/h4&gt;&lt;ul&gt;
 &lt;li&gt;初始化 &lt;code&gt;Headers&lt;/code&gt;
 &lt;ul&gt;
@@ -313,9 +313,9 @@
 &lt;li&gt;根據 IPv4 封包來確定是TCP/UDP/ICMP協定&lt;/li&gt;
 &lt;li&gt;寫入TCP/UDP/ICMP協定資料&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;secure-channel&#34;&gt;Secure Channel
+&lt;h2 id=&#34;secure-channel&#34;&gt;&lt;a href=&#34;#secure-channel&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Secure Channel
 &lt;/h2&gt;&lt;p&gt;作為連結 &lt;code&gt;Switch&lt;/code&gt; 與 &lt;code&gt;Controller&lt;/code&gt; 的橋樑。&lt;/p&gt;
-&lt;h2 id=&#34;openflow-protocol-message&#34;&gt;OpenFlow Protocol Message
+&lt;h2 id=&#34;openflow-protocol-message&#34;&gt;&lt;a href=&#34;#openflow-protocol-message&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow Protocol Message
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;p&gt;記得,OpenFlow 是定義 Controller 與 Switch 溝通的通訊協定&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -325,7 +325,7 @@
 &lt;li&gt;&lt;strong&gt;Asynchronous&lt;/strong&gt;: 此類消息通常由 &lt;code&gt;Switch&lt;/code&gt; 主動發出&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Symmetric&lt;/strong&gt;: 此類消息 &lt;code&gt;Controller&lt;/code&gt; 以及 &lt;code&gt;Switch&lt;/code&gt; 都可以發出&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;controller-to-switch&#34;&gt;Controller-to-Switch
+&lt;h3 id=&#34;controller-to-switch&#34;&gt;&lt;a href=&#34;#controller-to-switch&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Controller-to-Switch
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Features&lt;/strong&gt;&lt;/p&gt;
@@ -352,7 +352,7 @@
 &lt;p&gt;&lt;code&gt;OFPT_BARRIER_REQUEST&lt;/code&gt;、&lt;code&gt;OFPT_BARRIER_REPLY&lt;/code&gt;。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;asynchronous&#34;&gt;Asynchronous
+&lt;h3 id=&#34;asynchronous&#34;&gt;&lt;a href=&#34;#asynchronous&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Asynchronous
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Packet-in&lt;/strong&gt;&lt;/p&gt;
@@ -382,7 +382,7 @@
 &lt;p&gt;&lt;code&gt;Switch&lt;/code&gt; 回傳錯誤訊息。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;symmetric&#34;&gt;Symmetric
+&lt;h3 id=&#34;symmetric&#34;&gt;&lt;a href=&#34;#symmetric&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Symmetric
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Hello&lt;/strong&gt;&lt;/p&gt;
@@ -397,14 +397,14 @@
 &lt;p&gt;自定義訊息&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;結語&#34;&gt;結語
+&lt;h2 id=&#34;結語&#34;&gt;&lt;a href=&#34;#%e7%b5%90%e8%aa%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;結語
 &lt;/h2&gt;&lt;p&gt;在 &lt;code&gt;OpenFlow&lt;/code&gt; 規格書中通常分成前半部份的&lt;strong&gt;規範&lt;/strong&gt;以及後半部份的&lt;strong&gt;協議實作&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;規範&lt;/strong&gt;通常是講解觀念部份，後半部的&lt;strong&gt;協議&lt;/strong&gt;通常探討實現規範的細節，本文章只有大概介紹一下規範讓讀者可以快速的了解 &lt;code&gt;OpenFlow&lt;/code&gt; 的概要。&lt;/p&gt;
 &lt;p&gt;目前主流的 &lt;code&gt;OpenFlow&lt;/code&gt; 版本為 &lt;code&gt;OpenFlow 1.3&lt;/code&gt; ，相較於 &lt;code&gt;OpenFlow 1.0&lt;/code&gt; 增加了很多方便的新功能， 所以大概看過 &lt;code&gt;OpenFlow 1.0&lt;/code&gt; 之後建議將閱讀重心放在1.3版本。&lt;/p&gt;
 &lt;p&gt;關於 &lt;code&gt;OpenFlow 1.3&lt;/code&gt; 我在網路上找資料的時候有找到中文的全文翻譯，很推薦搭配著原文的規格書一起看， 連結在此: &lt;a class=&#34;link&#34; href=&#34;https://www.jianshu.com/p/acfeae1771b3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;OpenFlow 1.3&lt;/a&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;後續的實作都會採用1.3版本為主&lt;/strong&gt;， 建議先大概看一輪上述的1.3文檔再繼續接下來的練習。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;Reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Reference
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;

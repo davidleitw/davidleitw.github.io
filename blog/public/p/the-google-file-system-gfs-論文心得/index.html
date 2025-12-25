@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="GFS">
 <title>The Google File System (GFS) 論文心得</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/'>
+<link rel='canonical' href='http://localhost:44973/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="The Google File System (GFS) 論文心得">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="The Google File System (GFS) 論文心得">
 <meta property='og:description' content="GFS">
-<meta property='og:url' content='https://davidleitw.github.io/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/'>
+<meta property='og:url' content='http://localhost:44973/p/the-google-file-system-gfs-%E8%AB%96%E6%96%87%E5%BF%83%E5%BE%97/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='distributed' /><meta property='article:tag' content='paper' /><meta property='article:published_time' content='2021-08-13T21:34:43&#43;08:00'/><meta property='article:modified_time' content='2021-08-13T21:34:43&#43;08:00'/>
 <meta name="twitter:title" content="The Google File System (GFS) 論文心得">
 <meta name="twitter:description" content="GFS">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -279,20 +325,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 9 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -307,7 +339,7 @@
     <p>跟著 <a class="link" href="https://pdos.csail.mit.edu/6.824/schedule.html"  target="_blank" rel="noopener"
     >MIT6.824</a> 的課程進度， 在 Lec3 終於拜讀了這篇經典的論文，<strong><code>GFS</code></strong> 是一個分散式的檔案系統，由 Google 開發。 在2003年時 Google 發表了 <a class="link" href="https://pdos.csail.mit.edu/6.824/papers/gfs.pdf"  target="_blank" rel="noopener"
     >The Google File System</a> 這篇論文來分享一些 <strong><code>GFS</code></strong> 開發上的細節， 雖然 Google 沒有開源這個著名的檔案系統， 不過還是可以由 paper 來窺探當初 Google 設計的細節以及整體的架構。</p>
-<h2 id="背景">背景
+<h2 id="背景"><a href="#%e8%83%8c%e6%99%af" class="header-anchor"></a>背景
 </h2><p>為了滿足當初 Google 日漸增長的資料處理需求， Google開發了 <strong><code>GFS</code></strong> 這套分散式檔案系統。</p>
 <blockquote>
 <p>用分散式的原因: 要處理的檔案大小已經遠遠超過單機可以容納的資料量</p>
@@ -339,7 +371,7 @@
 <p>對於 append 實現了原子操作，使得多個 client 端可以同時對一個文件寫入又不需要額外的同步操作來維持一致性。</p>
 <p><strong><code>GFS</code></strong> 沒有強調低延遲，而是把重點放在巨大的 <strong>throughput</strong> 。</p>
 <p>在 paper 的 <code>2.1 Assumptions</code> 章節中簡單描述的設計 <strong><code>GFS</code></strong> 的預期目標。</p>
-<h2 id="interface">Interface
+<h2 id="interface"><a href="#interface" class="header-anchor"></a>Interface
 </h2><p><strong><code>GFS</code></strong> 提供了一系列類似傳統文件系統的 API 接口，且並沒有完全遵照 POSIX 的規範。</p>
 <p>支持一些常見的功能</p>
 <ul>
@@ -354,7 +386,7 @@
 </ul>
 <p><strong>snapshot</strong> 指令可以用很低的成本創建一個文件或者目錄的 <code>copy</code>。
 <strong>record append</strong> 指令允許多個 <code>clients</code> 同時對一個文件進行寫入動作，同時確保了每個 <code>client</code> 端寫入動作的原子性。讓 <code>client</code> 端可以不用花費額外的心力解決同步問題。</p>
-<h2 id="architecture">Architecture
+<h2 id="architecture"><a href="#architecture" class="header-anchor"></a>Architecture
 </h2><p><img src="https://i.imgur.com/ftek3c4.png"
 	
 	
@@ -384,14 +416,14 @@
 </blockquote>
 <p><code>Master</code> 會以 <strong>HeartBeat message</strong> 的形式週期性得與每個 <code>chunk server</code> 通訊，以獲得 <code>chunk server</code> 的狀態。</p>
 <p>metadata會在後面的章節詳細再說明</p>
-<h2 id="single-master-設計理念">Single Master 設計理念
+<h2 id="single-master-設計理念"><a href="#single-master-%e8%a8%ad%e8%a8%88%e7%90%86%e5%bf%b5" class="header-anchor"></a>Single Master 設計理念
 </h2><p>single master 的設計可以讓其透過全局的訊息來紀錄每個 <code>chunk</code> 的位置還有關於資料複製的決策，大大減少了設計的難度。</p>
 <p>之後就衍生出另一個問題是只有 single master 的話，設計上需要盡可能的減少 <code>Master</code> 的工作量，不能讓 single master 的設計反而成為整個系統的效能瓶頸。</p>
 <p><code>client</code> 的文件讀寫絕對不會透過 <code>Master</code> 來與 <code>chunk server</code> 溝通，<code>Master</code> 的工作只有傳送 <code>chunk</code> 的各種資料，<code>client</code> 獲得應該要與哪一個 <code>chunk server</code> 溝通後，會直接與其連線。</p>
 <blockquote>
 <p>client 會將 chunk 的 metadata 緩存一段時間，讓後續相同的操作不需要再去詢問 master。</p>
 </blockquote>
-<h2 id="chunk-size-選擇議題">chunk size 選擇議題
+<h2 id="chunk-size-選擇議題"><a href="#chunk-size-%e9%81%b8%e6%93%87%e8%ad%b0%e9%a1%8c" class="header-anchor"></a>chunk size 選擇議題
 </h2><p>paper 中有一個章節簡單分析了一下 <code>chunk size</code> 選擇的問題，會甚麼選擇 64MB 這個遠大於普通 block 的大小，以及選擇的優缺點。</p>
 <ul>
 <li>優點:減少 <code>client</code> 與 <code>master</code> 的通訊量， metadata 大小:</li>
@@ -403,7 +435,7 @@
 </ul>
 <p>對於小文件來說，很可能 <code>chunk</code> 的數量很小，可能只有一個 <code>chunk</code>，這種情況下有可能會發生同時有多個 <code>client</code> 訪問同一個文件的，導致熱點的發生。</p>
 <p>這個 file 可能是配置參數 or something else，解決這個方案的長久之計可能是當遇到這種情況的時候允許 <code>client</code> 可以從別的 <code>client</code> 端讀取資料。</p>
-<h2 id="metadata">Metadata
+<h2 id="metadata"><a href="#metadata" class="header-anchor"></a>Metadata
 </h2><p><code>Master</code> 主要維護三種類型的 <code>metadata</code></p>
 <ul>
 <li>命名空間相關</li>
@@ -423,11 +455,11 @@
 </ul>
 </blockquote>
 <p>把 <code>metadata</code> 保存在記憶體可以讓 <code>master</code> 很有效率的定期掃描所有的 <code>metadata</code>，藉此來達到 <code>chunk</code> 回收，負載平衡等操作。</p>
-<h2 id="263-operation-log">2.6.3 Operation Log
+<h2 id="263-operation-log"><a href="#263-operation-log" class="header-anchor"></a>2.6.3 Operation Log
 </h2><p>假設今天系統已經跑了好幾個月甚至一兩年了，突然 <code>master</code> crush，需要按照 <code>operation log</code> 重新 set up 整個系統，如果從一開始的 <code>log</code> 慢慢條列執行，可以預期整個系統重啟的時間會非常的久，這對於一個大型系統來說是不太能接受的。</p>
 <p>為了讓重新啟動的時間降低，必須要想辦法讓 <code>log</code> 盡可能的變小，所以在 <code>log</code> 增長一定長度之後 <code>master</code> 就會創建 <code>checkpoint file</code>(並且刪掉舊的 <code>log file</code>)，就像是遊戲的存檔點一樣，可以讓我們死掉之後不用重頭開始玩起。</p>
 <p>有了 <code>checkpoint</code> 之後 <code>master</code> 重啟只要讀取最新的一次 <code>checkpoint file</code> 即可，<code>checkpoint file</code> 是以類似 compact B-tree 的資料結構儲存的，讀取這個檔案後可以把整個 data structure 映射到記憶體內不需要額外的處理，大大的加快了整個重啟的時間。</p>
-<h2 id="consistency-model-一致性模型">Consistency Model 一致性模型
+<h2 id="consistency-model-一致性模型"><a href="#consistency-model-%e4%b8%80%e8%87%b4%e6%80%a7%e6%a8%a1%e5%9e%8b" class="header-anchor"></a>Consistency Model 一致性模型
 </h2><ul>
 <li>任何有關於 <code>file namespace</code> 的操作都是 atomic的，例如 <code>create</code> 等等操作，並且經由 <code>master</code> 直接處理。</li>
 </ul>
@@ -490,19 +522,19 @@ paper 中這個章節都是用 region 代指資料。</p>
 <blockquote>
 <p>通常 master 偵測到錯誤並且反應的時間大概是幾分鐘之內。</p>
 </blockquote>
-<h2 id="272-implications-for-applications">2.7.2 Implications for Applications
+<h2 id="272-implications-for-applications"><a href="#272-implications-for-applications" class="header-anchor"></a>2.7.2 Implications for Applications
 </h2><p>大部分的 <code>application</code> 都採取 <strong>appending(寫在尾部)</strong> 的寫入方式， <code>GFS</code> 對於 append 有做性能上的優化。通常一個 <code>writer</code> 只會負責單一文件，不會寫入到一半跑去寫別的文件，當這次的寫入完成時，<code>GFS</code> 會保證原子性的方式把文件改名成一個永久的文件名稱。</p>
-<h3 id="checkpoint">checkpoint
+<h3 id="checkpoint"><a href="#checkpoint" class="header-anchor"></a>checkpoint
 </h3><p>每個 <code>application</code> 都會週期性的維護一個 <code>checkpoint</code> 訊息，該訊息紀錄每次成功寫入後的位置同時也是 <code>Defined</code> 狀態的結束位置，每次 <code>append</code> 的操作都會更新這個訊息，<code>writer</code> 如果遇到什麼突發狀況中止了，下次也可以從 <code>checkpoint</code> 開始繼續寫入，<code>reader</code> 讀取資料也會把 <code>checkpoint</code> 當作結束位置。</p>
 <p><code>checkpoint</code> 也會同時紀錄 <code>checksums</code> 來確保每個段落的正確性。<code>checkpoint</code> 的設計可以使得 <code>writer</code> 一段一段的寫入資料，讓 <code>reader</code> 可以從還沒有寫入完成的文件中讀取資料。</p>
-<h3 id="concurrently-append">concurrently append
+<h3 id="concurrently-append"><a href="#concurrently-append" class="header-anchor"></a>concurrently append
 </h3><p>在另外一個常見的使用場景，通常會有很多 <code>writer</code> 同時對同一個檔案做修改，通常是在合併結果或者是用於 <code>生產者–消費者模型</code>。<code>Record append</code> 的 <code>append-at-least-once</code> 特性保證了每個 <code>writer</code> 的輸出。</p>
 <p>在前面的<a class="link" href="#Consistency-Model-%e4%b8%80%e8%87%b4%e6%80%a7%e6%a8%a1%e5%9e%8b" >說明</a>中有簡單提到過 <code>GFS</code> 可能會在文件中寫入 <code>padding(填充)</code> 或者<code>duplicates(重複的資料)</code>。<code>checkpoint</code> 也可以讓 <code>reader</code> 有效的處理上述的問題，盡可能得去避免讀到錯誤的資料。<code>writer</code> 在每次 <code>checkpoint</code> 的時候都會加入 <code>checksum</code> 來驗證上面段落的有效性，<code>reader</code> 可以藉由 <code>checksum</code> 來辨識 <code>padding</code> 或者 <code>duplicates</code>。</p>
 <p>在 paper 中也有簡單說明如果 <code>application</code> 某些應用場景無法忍受偶發的重複資料，可以在 <code>checkpoint</code> 的地方加入一個 <code>unique identifiers</code>，讀入資料的時候可以藉由 ID 來避免重複資料。</p>
-<h2 id="system-interactions">System interactions
-</h2><h3 id="lease租約">Lease(租約)
+<h2 id="system-interactions"><a href="#system-interactions" class="header-anchor"></a>System interactions
+</h2><h3 id="lease租約"><a href="#lease%e7%a7%9f%e7%b4%84" class="header-anchor"></a>Lease(租約)
 </h3><p>因為我們每份 <code>chunk</code> 都會備份在不同的 <code>chunk server</code> 內，所以需要有一個機制在修改完 <code>chunk</code> 之後讓所有複製的 <code>chunk</code> 都相同的內容。<code>GFS</code> 中使用 <code>leases</code> 去處理多個 <code>chunk</code> 在經過修改之後的一致性問題。</p>
-<h2 id="reference">reference
+<h2 id="reference"><a href="#reference" class="header-anchor"></a>reference
 </h2><ul>
 <li><a class="link" href="https://www.itread01.com/content/1546962067.html"  target="_blank" rel="noopener"
     >Google File System及其繼任者Colossus
@@ -529,18 +561,6 @@ paper 中這個章節都是用 region 代指資料。</p>
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -762,7 +782,7 @@ paper 中這個章節都是用 region 代指資料。</p>
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

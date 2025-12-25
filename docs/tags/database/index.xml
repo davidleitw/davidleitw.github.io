@@ -24,7 +24,7 @@
 &lt;ul&gt;
 &lt;li&gt;收集到 Requirements 最難，很難提出&amp;quot;精準&amp;quot;的需求&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;entity&#34;&gt;Entity
+&lt;h3 id=&#34;entity&#34;&gt;&lt;a href=&#34;#entity&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Entity
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;entity&lt;/code&gt; 是 &lt;code&gt;RDBMS&lt;/code&gt; 中實際的資料實體，可以用程式的概念理解，定義好 &lt;code&gt;struct&lt;/code&gt; 之後一定會在某個地方建立一個實體，裡面會根據 &lt;code&gt;struct field type&lt;/code&gt; 去存放資料。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -49,12 +49,12 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;studentA&lt;/code&gt; 就可以視為一個 &lt;code&gt;entity&lt;/code&gt;，擁有真正資料的實體。&lt;/p&gt;
-&lt;h3 id=&#34;attribute&#34;&gt;Attribute
+&lt;h3 id=&#34;attribute&#34;&gt;&lt;a href=&#34;#attribute&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Attribute
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;attribute&lt;/code&gt; 描述 &lt;code&gt;entity&lt;/code&gt; 的屬性，拿上面 &lt;code&gt;student&lt;/code&gt; 的例子，&lt;code&gt;name&lt;/code&gt;, &lt;code&gt;age&lt;/code&gt; 都可以當作 &lt;code&gt;attribute&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;在資料庫內 &lt;code&gt;attribute&lt;/code&gt; 分成很多不同類型，大致可以分成 &lt;code&gt;Simple&lt;/code&gt;, &lt;code&gt;Composite&lt;/code&gt;, &lt;code&gt;Multi-valued&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;simple&#34;&gt;Simple
+&lt;h4 id=&#34;simple&#34;&gt;&lt;a href=&#34;#simple&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Simple
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;Simple attribute&lt;/code&gt; 通常指那些無法繼續再分割的 field，對應到程式語言可以理解成基本的 &lt;code&gt;data type&lt;/code&gt;，像是 &lt;code&gt;student&lt;/code&gt; 的 &lt;code&gt;age&lt;/code&gt; 就是單純的 &lt;code&gt;int&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;composite&#34;&gt;Composite
+&lt;h4 id=&#34;composite&#34;&gt;&lt;a href=&#34;#composite&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Composite
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;Composite attribute&lt;/code&gt; 是由多個不同的部份組成一起的概念，像是外國的名字可能有 &lt;code&gt;FirstNAme&lt;/code&gt;, &lt;code&gt;MiddleName&lt;/code&gt;, &lt;code&gt;LastName&lt;/code&gt; 等等&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -83,18 +83,18 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;這種時候 &lt;code&gt;name&lt;/code&gt; 代表著三個 &lt;code&gt;string&lt;/code&gt; 的集合，就可以視為一個 &lt;code&gt;Composite attribute&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;multi-valued&#34;&gt;Multi-valued
+&lt;h4 id=&#34;multi-valued&#34;&gt;&lt;a href=&#34;#multi-valued&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Multi-valued
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;Multi-valued attribute&lt;/code&gt; 代表單個 &lt;code&gt;attribute&lt;/code&gt; 內有多個 &lt;code&gt;value&lt;/code&gt;，像是上課舉例是用車子的顏色，一個車子不可能從頭到尾只有一個顏色，不同區域可能會有不同的顏色，這時候如果我們資料庫需要描述這個車子的外觀顏色，就會用到 &lt;code&gt;Multi-valued attribute&lt;/code&gt;，雖然有 &lt;code&gt;Multi-valued attribute&lt;/code&gt;，但實際設計上通常都會把它拆開，實際怎麼分解的之後會再介紹。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Multi-valued&lt;/code&gt; 跟 &lt;code&gt;Composite&lt;/code&gt; 是有可能同時出現的，彼此之間不衝突。&lt;/p&gt;
-&lt;h3 id=&#34;key-attribute&#34;&gt;Key Attribute
+&lt;h3 id=&#34;key-attribute&#34;&gt;&lt;a href=&#34;#key-attribute&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Key Attribute
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;key attribute&lt;/code&gt; 可以識別唯一的 &lt;code&gt;entity&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;對於 &lt;code&gt;key attribute&lt;/code&gt; 沒有特別限制，所以也有機會是 &lt;code&gt;Composite attribute&lt;/code&gt;。某些情形可以需要利用多個 &lt;code&gt;attribute&lt;/code&gt; 才能識別唯一的 &lt;code&gt;entity&lt;/code&gt;。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Key attribute 跟 Primary key 的差別是什麼?&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;entity-setentity-collection&#34;&gt;Entity Set(Entity collection)
+&lt;h3 id=&#34;entity-setentity-collection&#34;&gt;&lt;a href=&#34;#entity-setentity-collection&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Entity Set(Entity collection)
 &lt;/h3&gt;&lt;p&gt;代表當下所有 &lt;code&gt;entity&lt;/code&gt; 的集合。&lt;/p&gt;
-&lt;h2 id=&#34;er-diagrams&#34;&gt;ER diagrams
+&lt;h2 id=&#34;er-diagrams&#34;&gt;&lt;a href=&#34;#er-diagrams&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;ER diagrams
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/qu56dyT.png&#34;
 	
 	
@@ -149,7 +149,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Vehicle_id&lt;/code&gt; 跟 &lt;code&gt;Registration&lt;/code&gt; 都可以當作 &lt;code&gt;Key attribute&lt;/code&gt;，所以有加上底線。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;Color&lt;/code&gt; 的雙框代表 &lt;code&gt;Multi-valued attribute&lt;/code&gt;。&lt;/p&gt;
-&lt;h3 id=&#34;example-company-db&#34;&gt;Example Company DB
+&lt;h3 id=&#34;example-company-db&#34;&gt;&lt;a href=&#34;#example-company-db&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Example Company DB
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;Company DB&lt;/code&gt; 是課本最常用的例子，目前到第三章的初步設計如下，之後會根據課程進度去逐漸優化。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Department
@@ -189,7 +189,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;relationship&#34;&gt;Relationship
+&lt;h3 id=&#34;relationship&#34;&gt;&lt;a href=&#34;#relationship&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship
 &lt;/h3&gt;&lt;p&gt;上面最初步的設計少了 &lt;code&gt;relationship&lt;/code&gt; 的部份，我們沒辦法從上圖得知每個 &lt;code&gt;entity type&lt;/code&gt; 彼此之間的關係。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;relationship&lt;/code&gt; 只能描述 &lt;code&gt;entity type&lt;/code&gt; 與 &lt;code&gt;entity type&lt;/code&gt; 之間的關係，並不能用在 &lt;code&gt;attribute&lt;/code&gt; 之間。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;relationship&lt;/code&gt; 其實沒有規定只能用在兩個 &lt;code&gt;entity type&lt;/code&gt; 之間，可以多個 &lt;code&gt;entity type&lt;/code&gt; 建立 &lt;code&gt;relationship&lt;/code&gt;，不過大部分設計都是建立在兩個不同的 &lt;code&gt;entity type&lt;/code&gt; 之間。&lt;/p&gt;
@@ -199,9 +199,9 @@
 &lt;p&gt;應該也有一個 employee 是主管，負責管理 department，&lt;code&gt;MANAGES&lt;/code&gt; 的關係&lt;/p&gt;
 &lt;p&gt;這種情況雖然兩者涉及的 &lt;code&gt;entity type&lt;/code&gt; 一樣，但是因為關係的意義不同，要分成兩個 &lt;code&gt;relationship&lt;/code&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;relationship-degree&#34;&gt;Relationship degree
+&lt;h3 id=&#34;relationship-degree&#34;&gt;&lt;a href=&#34;#relationship-degree&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship degree
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;degree&lt;/code&gt; 來代表這個 &lt;code&gt;relationship&lt;/code&gt; 關聯了幾個 &lt;code&gt;entity type&lt;/code&gt;，如果關聯了兩個 &lt;code&gt;entity type&lt;/code&gt;，可以稱為 &lt;code&gt;binary relationships&lt;/code&gt;，所以 &lt;code&gt;degree=2&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;example&#34;&gt;example
+&lt;h4 id=&#34;example&#34;&gt;&lt;a href=&#34;#example&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;example
 &lt;/h4&gt;&lt;p&gt;回到上面 &lt;code&gt;Company DB&lt;/code&gt; 的示意圖，我們可以每個 &lt;code&gt;Employee&lt;/code&gt; 都應該隸屬於某個 &lt;code&gt;Department&lt;/code&gt;，所以這兩個 &lt;code&gt;entity type&lt;/code&gt; 之間會有 &lt;code&gt;relationship&lt;/code&gt;，這個 &lt;code&gt;relationship&lt;/code&gt; 是一對一的關係。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/nNiLtOI.png&#34;
 	
@@ -220,10 +220,10 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;relationship-set&#34;&gt;Relationship Set
+&lt;h4 id=&#34;relationship-set&#34;&gt;&lt;a href=&#34;#relationship-set&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship Set
 &lt;/h4&gt;&lt;p&gt;上圖 r1 ~ r7 總共有七條 &lt;code&gt;relationships&lt;/code&gt;，這些實際存在的 &lt;code&gt;relationship&lt;/code&gt; 集合
 被統稱為 &lt;code&gt;Relationship Set&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;relationship-type&#34;&gt;Relationship type
+&lt;h4 id=&#34;relationship-type&#34;&gt;&lt;a href=&#34;#relationship-type&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Relationship type
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;WORKS_ON&lt;/code&gt; 的關係被稱為 &lt;code&gt;Relationship type&lt;/code&gt;。&lt;/p&gt;
 </description>
         </item>

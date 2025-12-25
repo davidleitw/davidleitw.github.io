@@ -1,0 +1,100 @@
+// 深藍色主題 - 質感設計
+:root {
+    // 主色調 - 深藍色系
+    --accent-color: #2980b9;
+    --accent-color-darker: #1a5276;
+    --accent-color-text: #fff;
+
+    // 背景與文字
+    --body-background: #f8f9fa;
+    --body-text-color: #4a4a4a;
+
+    // 卡片樣式
+    --card-border-radius: 12px;
+    --card-background: #fff;
+
+    // 標籤樣式
+    --tag-border-radius: 6px;
+
+    // 文章內容
+    --article-font-size: 1.6rem;
+    --article-line-height: 1.9;
+
+    // 區塊引用
+    --blockquote-border-size: 3px;
+
+    // 連結樣式
+    --link-background-opacity: 0.3;
+    --link-background-opacity-hover: 0.5;
+}
+
+// 深色模式
+[data-scheme="dark"] {
+    --accent-color: #3498db;
+    --accent-color-darker: #2980b9;
+    --body-background: #1a1a2e;
+    --body-text-color: rgba(255, 255, 255, 0.8);
+    --card-background: #16213e;
+}
+
+// Sidebar 樣式優化
+.sidebar {
+    .site-avatar {
+        .site-logo {
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+
+            &:hover {
+                transform: scale(1.05);
+            }
+        }
+    }
+
+    .site-name {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+}
+
+// 文章卡片 hover 效果
+.article-list article {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+}
+
+// 程式碼區塊優化
+.highlight {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+// 標題樣式
+.article-content {
+    h2, h3, h4 {
+        font-weight: 600;
+        margin-top: 2em;
+    }
+
+    // 連結樣式
+    a {
+        text-decoration: none;
+        border-bottom: 1px solid var(--accent-color);
+        transition: border-color 0.2s ease;
+
+        &:hover {
+            border-bottom-width: 2px;
+        }
+    }
+}
+
+// 搜索框優化
+.search-form {
+    input {
+        border-radius: 8px;
+    }
+}

@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。\n">
 <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
+<link rel='canonical' href='http://localhost:44973/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹">
 <meta property='og:description' content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
+<meta property='og:url' content='http://localhost:44973/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='concurrency' /><meta property='article:tag' content='parallelism' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='linux_kernel' /><meta property='article:published_time' content='2022-03-23T00:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-03-23T00:12:53&#43;08:00'/>
 <meta name="twitter:title" content="Concurrency vs Parallelism 淺談兩者區別以及名詞介紹">
 <meta name="twitter:description" content="前言 最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -265,20 +311,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 5 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -290,11 +322,11 @@
     <section class="article-content">
     
     
-    <h2 id="前言">前言
+    <h2 id="前言"><a href="#%e5%89%8d%e8%a8%80" class="header-anchor"></a>前言
 </h2><p>最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。</p>
 <p>裡面有些說法跟圖片是參考 <a class="link" href="https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2FS1AMIFt0D"  target="_blank" rel="noopener"
     >jserv 老師的講座</a>，裡面內容非常精彩，有機會的話一定要挑戰看看!</p>
-<h2 id="concurrency並行-vs-parallelism平行">Concurrency(並行) vs Parallelism(平行)
+<h2 id="concurrency並行-vs-parallelism平行"><a href="#concurrency%e4%b8%a6%e8%a1%8c-vs-parallelism%e5%b9%b3%e8%a1%8c" class="header-anchor"></a>Concurrency(並行) vs Parallelism(平行)
 </h2><p>常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。</p>
 <p>Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調<strong>同時</strong>執行多個程式，底下會詳細舉例說明兩者的差異。</p>
 <p>Concurrency 把程式功能拆分的小的 Task 後，如果<strong>同時</strong>運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。</p>
@@ -317,7 +349,7 @@
 	
 ></p>
 <p>所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。</p>
-<h3 id="單一-cpu-的-concurrency">單一 cpu 的 Concurrency
+<h3 id="單一-cpu-的-concurrency"><a href="#%e5%96%ae%e4%b8%80-cpu-%e7%9a%84-concurrency" class="header-anchor"></a>單一 cpu 的 Concurrency
 </h3><p>在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。</p>
 <p>底下的 jserv 老師上課給的範例</p>
 <p><img src="https://i.imgur.com/4nZ9RVx.png"
@@ -360,17 +392,17 @@
 ></p>
 <p>在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身<strong>同時</strong>進行著某個任務的話，我們就可以說符合 Parallelism 的概念。</p>
 <p>今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。</p>
-<h2 id="process-and-thread">Process and Thread
+<h2 id="process-and-thread"><a href="#process-and-thread" class="header-anchor"></a>Process and Thread
 </h2><p>在恐龍書的課本上，對於 process 與 thread 有不同的定義，但在 Linux kernel 中兩者並沒有明確的區分，在程式中都用 <code>task_struct</code> 來表示一個 process 或者 thread，兩者的區別只有呼叫 system call 時傳入不同的參數，但是本質上都是用 <code>task_struct</code> 表示一個執行單元。</p>
-<h2 id="工作切換-context-switch">工作切換 (context switch)
+<h2 id="工作切換-context-switch"><a href="#%e5%b7%a5%e4%bd%9c%e5%88%87%e6%8f%9b-context-switch" class="header-anchor"></a>工作切換 (context switch)
 </h2><p>context switch 是指 os 想要把目前執行中的 process 暫停，並且切換到下一個要執行的任務，這個動作就被稱為 context switch。</p>
 <p>一般情況下被暫停的任務之後在某個時間點還是會被繼續執行，所以在進行 context switch 時必須要紀錄舊的 process 的相關資料，像是舊的 process 下個要執行指令的 address，或者被停止時暫存器的相關資料等等。</p>
 <p>在後續 context switch 到舊的 process 繼續執行時，整個環境必須要回到舊的 process 被停止時的狀態，context switch 的實現很大一部份決定了整個系統 response 的速度，如果 context switch 做的不好，使用者可能會感受到很明顯的延遲。</p>
-<h2 id="排程器-scheduler">排程器 (scheduler)
+<h2 id="排程器-scheduler"><a href="#%e6%8e%92%e7%a8%8b%e5%99%a8-scheduler" class="header-anchor"></a>排程器 (scheduler)
 </h2><p>排程器 (scheduler) 的功能是決定 CPU 下一個要執行的任務，並且執行 context switch 指向新的任務下一個要執行的指令位置。</p>
 <p>排程的演算法也是一個很多人在研究的議題，要如何恰當的分配硬體資源，還要考慮一些工作可能有比較高的 priority，怎麼優先去安排高 priority 的任務等等。</p>
 <p>每一個任務可能都被分配一定的時間去執行，那段執行的時間被稱為 time slice，time slice 也不一定是固定時間，根據排程演算法的不同，有些演算法會動態的決定一個任務分配到的 time slice。</p>
-<h2 id="preemptive-vs-non-preemptive">Preemptive vs Non-preemptive
+<h2 id="preemptive-vs-non-preemptive"><a href="#preemptive-vs-non-preemptive" class="header-anchor"></a>Preemptive vs Non-preemptive
 </h2><p>搶佔式(preemptive) 與非搶佔式(non-preemptive) 的差別在於在執行中的工作(process)是否為自願(voluntary)交出 cpu 使用權，又或者被迫放棄 cpu 使用權。</p>
 <p>non-preemptive 的優點在於可預估程式的完成時間(不會突然被中斷)，context switch 的次數也相對較少，但相對的每個 process 的 waiting time 就會上升。</p>
 <p>preemptive 系統中 process 可能會在執行的途中被插隊，<strong>被迫放棄</strong> cpu 週期給另外的 process，被插隊有很多種不同的原因，像是 Time-out, Interrupt 發生，高優先權的 process 插隊等等。</p>
@@ -396,18 +428,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -655,7 +675,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

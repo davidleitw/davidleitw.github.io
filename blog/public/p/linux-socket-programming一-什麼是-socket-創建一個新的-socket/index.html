@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。\n在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。\n">
 <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/'>
+<link rel='canonical' href='http://localhost:44973/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="linux socket programming(一): 什麼是 socket & 創建一個新的 socket">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="linux socket programming(一): 什麼是 socket & 創建一個新的 socket">
 <meta property='og:description' content="socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。\n在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/'>
+<meta property='og:url' content='http://localhost:44973/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='network' /><meta property='article:tag' content='socket' /><meta property='article:tag' content='c' /><meta property='article:published_time' content='2021-10-25T01:04:53&#43;08:00'/><meta property='article:modified_time' content='2021-10-25T01:04:53&#43;08:00'/>
 <meta name="twitter:title" content="linux socket programming(一): 什麼是 socket & 創建一個新的 socket">
 <meta name="twitter:description" content="socket programming socket 本質上是一種 IPC (Inter-Process Communication) 的技術，用於兩個或多個 process 進行資料交換或者通訊。\n在網路領域，socket 著重的不是同一台主機間 process 的通訊，而是不同主機執行的 process 互相交換資料的通訊。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -269,20 +315,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 2 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -294,7 +326,7 @@
     <section class="article-content">
     
     
-    <h1 id="socket-programming">socket programming
+    <h1 id="socket-programming"><a href="#socket-programming" class="header-anchor"></a>socket programming
 </h1><p><code>socket</code> 本質上是一種 <strong>IPC</strong> (<code>Inter-Process Communication</code>) 的技術，用於兩個或多個 <code>process</code> 進行資料交換或者通訊。</p>
 <p>在網路領域，<code>socket</code> 著重的不是同一台主機間 <code>process</code> 的通訊，而是不同主機執行的 <code>process</code> 互相交換資料的通訊。</p>
 <p>我們在寫 <code>socket programming</code> 的時候會使用 <code>os</code> 提供的 <code>API</code>，來避免重複造輪子，今天的筆記會簡單介紹一下 <code>linux</code> 提供的 <code>socket API</code>，並用兩個簡單的範例介紹如何用 <code>tcp</code> 跟 <code>udp</code> 協定透過 <code>socket</code> 傳輸資料。</p>
@@ -323,7 +355,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/socket.h&gt;</span><span class="cp">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><h2 id="socket">socket
+</div><h2 id="socket"><a href="#socket" class="header-anchor"></a>socket
 </h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -332,7 +364,7 @@
 <pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">socket</span><span class="p">(</span><span class="kt">int</span> <span class="n">domain</span><span class="p">,</span> <span class="kt">int</span> <span class="n">type</span><span class="p">,</span> <span class="kt">int</span> <span class="n">protocol</span><span class="p">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h4 id="domain"><em>domain</em>
+</div><h4 id="domain"><a href="#domain" class="header-anchor"></a><em>domain</em>
 </h4><p>定義要建立哪一種類型的 <code>socket</code>，常用的有以下幾種類型</p>
 <ul>
 <li><strong>AF_UNIX</strong>, <strong>AF_LOCAL</strong>: 用於本機間 <code>process</code> 的溝通</li>
@@ -345,22 +377,22 @@
 </ul>
 <p>詳細的選項可以參考 <code>socket</code> 的 <a class="link" href="https://man7.org/linux/man-pages/man2/socket.2.html"  target="_blank" rel="noopener"
     >man page</a></p>
-<h4 id="type"><em>type</em>
+<h4 id="type"><a href="#type" class="header-anchor"></a><em>type</em>
 </h4><p><code>socket</code> 傳輸資料的手段(<code>communication semantics</code>)</p>
 <ul>
 <li><strong>SOCK_STREAM</strong>: 對應到 <code>tcp</code> 協定</li>
 <li><strong>SOCK_DGRAM</strong>: 對應到 <code>udp</code> 協定</li>
 </ul>
-<h4 id="protocol"><em>protocol</em>
+<h4 id="protocol"><a href="#protocol" class="header-anchor"></a><em>protocol</em>
 </h4><p>設定通訊協定的號碼，通常在寫的時候會填入 <code>0</code>，<code>kernel</code> 會根據上面的兩個參數自動選擇合適的協定。</p>
 <ul>
 <li><a class="link" href="https://man7.org/linux/man-pages/man5/protocols.5.html#top_of_page"  target="_blank" rel="noopener"
     >protocol man page</a></li>
 </ul>
 <p><code>/etc/protocols</code> 可以看到 <code>linux</code> 底下支援的協定</p>
-<h4 id="return-value"><em>Return Value</em>
+<h4 id="return-value"><a href="#return-value" class="header-anchor"></a><em>Return Value</em>
 </h4><p>成功建立 <code>socket</code> 之後，此函式會返回該 <code>socket</code> 的<strong>檔案描述符</strong>(<code>socket file descriptor</code>)，在之後的操作可以透過這個回傳值來操作我們建立的 <code>socket</code>。 如果建立失敗則會回傳 <code>-1(INVALID_SOCKET)</code></p>
-<h3 id="檔案描述符是什麼">檔案描述符是什麼?
+<h3 id="檔案描述符是什麼"><a href="#%e6%aa%94%e6%a1%88%e6%8f%8f%e8%bf%b0%e7%ac%a6%e6%98%af%e4%bb%80%e9%ba%bc" class="header-anchor"></a>檔案描述符是什麼?
 </h3><p>參考資料</p>
 <ul>
 <li><a class="link" href="https://en.wikipedia.org/wiki/Everything_is_a_file"  target="_blank" rel="noopener"
@@ -370,7 +402,7 @@
 <li><a class="link" href="https://www.cnblogs.com/chorm590/p/12745824.html"  target="_blank" rel="noopener"
     >Linux 下 socket 通訊所用的 sockfd 怎麼來的</a></li>
 </ul>
-<h3 id="建立-socket-example">建立 socket example
+<h3 id="建立-socket-example"><a href="#%e5%bb%ba%e7%ab%8b-socket-example" class="header-anchor"></a>建立 socket example
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
@@ -432,18 +464,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -717,7 +737,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

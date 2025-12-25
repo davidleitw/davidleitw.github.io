@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Timer on davidLei</title>
-        <link>https://davidleitw.github.io/tags/timer/</link>
+        <link>http://localhost:44973/tags/timer/</link>
         <description>Recent content in Timer on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Fri, 24 Dec 2021 01:04:53 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/timer/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 24 Dec 2021 01:04:53 +0800</lastBuildDate><atom:link href="http://localhost:44973/tags/timer/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>golang 定時器(一) Time, Ticker 基本用法整理</title>
-        <link>https://davidleitw.github.io/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/</link>
+        <link>http://localhost:44973/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/</link>
         <pubDate>Fri, 24 Dec 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/</guid>
+        <guid>http://localhost:44973/p/golang-%E5%AE%9A%E6%99%82%E5%99%A8%E4%B8%80-time-ticker-%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95%E6%95%B4%E7%90%86/</guid>
         <description>&lt;p&gt;在後端中常常會有需要定時的場景出現，像是如果處理 &lt;code&gt;request&lt;/code&gt; 超過一定時間就觸發 &lt;code&gt;timeout&lt;/code&gt;，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 &lt;code&gt;golang&lt;/code&gt; 內建的定時器功能，以及可能會遇到的坑。&lt;/p&gt;
 &lt;p&gt;所有有關定時器的功能都在 &lt;code&gt;time&lt;/code&gt; 內，使用前必須先&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -23,7 +23,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-go&#34; data-lang=&#34;go&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kn&#34;&gt;import&lt;/span&gt;&lt;span class=&#34;w&#34;&gt; &lt;/span&gt;&lt;span class=&#34;s&#34;&gt;&amp;#34;time&amp;#34;&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;單次定時事件---timer&#34;&gt;單次定時事件 - Timer
+&lt;/div&gt;&lt;h3 id=&#34;單次定時事件---timer&#34;&gt;&lt;a href=&#34;#%e5%96%ae%e6%ac%a1%e5%ae%9a%e6%99%82%e4%ba%8b%e4%bb%b6---timer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;單次定時事件 - Timer
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -102,7 +102,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;newtimer&#34;&gt;NewTimer
+&lt;h3 id=&#34;newtimer&#34;&gt;&lt;a href=&#34;#newtimer&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;NewTimer
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -140,7 +140,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;&lt;code&gt;NewTimer&lt;/code&gt; 的 &lt;code&gt;d&lt;/code&gt; 參數代 &lt;code&gt;Timer&lt;/code&gt; 需要等待多長時間，&lt;code&gt;Timer.C&lt;/code&gt; 是一個帶有 &lt;code&gt;buffer&lt;/code&gt; 的 &lt;code&gt;channel&lt;/code&gt;，在上面的範例中，&lt;code&gt;&amp;lt;-timer.C&lt;/code&gt; 那行會把程式阻塞直到 &lt;code&gt;Timer&lt;/code&gt; 往 &lt;code&gt;Timer.C&lt;/code&gt; 裡面傳送時間(當時倒數完的結果)，阻塞解除後才可以繼續往下執行，達到延遲執行，或者定時觸發的目的。&lt;/p&gt;
-&lt;h3 id=&#34;循環執行的定時任務---ticker&#34;&gt;循環執行的定時任務 - Ticker
+&lt;h3 id=&#34;循環執行的定時任務---ticker&#34;&gt;&lt;a href=&#34;#%e5%be%aa%e7%92%b0%e5%9f%b7%e8%a1%8c%e7%9a%84%e5%ae%9a%e6%99%82%e4%bb%bb%e5%8b%99---ticker&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;循環執行的定時任務 - Ticker
 &lt;/h3&gt;&lt;p&gt;對於有持續執行的定時任務，可以使用 &lt;code&gt;time.Sleep&lt;/code&gt; 或者 &lt;code&gt;time.Ticker&lt;/code&gt; 兩種方式來實現。&lt;/p&gt;
 &lt;p&gt;用 &lt;code&gt;time.Sleep&lt;/code&gt; 方式實現&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -269,7 +269,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;利用 &lt;code&gt;defer&lt;/code&gt; 的機制讓退出時自動呼叫 &lt;code&gt;Stop&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;ticker-的一些注意事項&#34;&gt;Ticker 的一些注意事項
+&lt;h3 id=&#34;ticker-的一些注意事項&#34;&gt;&lt;a href=&#34;#ticker-%e7%9a%84%e4%b8%80%e4%ba%9b%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a0%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Ticker 的一些注意事項
 &lt;/h3&gt;&lt;p&gt;以下是 &lt;code&gt;NewTicker&lt;/code&gt; 與 &lt;code&gt;Stop&lt;/code&gt; 的具體實現，位置在 &lt;code&gt;src/time/tick.go&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -496,9 +496,9 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;這次我們利用 &lt;code&gt;defer&lt;/code&gt; 的機制，在 &lt;code&gt;goroutine&lt;/code&gt; 內部呼叫 &lt;code&gt;Stop&lt;/code&gt; 的方式，可以看到這種寫法在相較用 &lt;code&gt;for range&lt;/code&gt; 來說，彈性高出很多，而且在調用 &lt;code&gt;Tocker.Stop&lt;/code&gt; 時並不會 &lt;code&gt;close&lt;/code&gt; 該 &lt;code&gt;channel&lt;/code&gt;，用 &lt;code&gt;for range&lt;/code&gt; 的寫法會造成一個無限迴圈卡在那裡，&lt;code&gt;golang&lt;/code&gt; 中只要沒有 &lt;code&gt;goroutine&lt;/code&gt; 持有該 &lt;code&gt;channel&lt;/code&gt;，到最後那個 &lt;code&gt;channel&lt;/code&gt; 就會被 &lt;code&gt;gc&lt;/code&gt;，這就是為什麼不推薦使用 &lt;code&gt;for range&lt;/code&gt; 的緣故，一般來說使用 &lt;code&gt;for range&lt;/code&gt; 的寫法都要配合 &lt;code&gt;close&lt;/code&gt;，但是在 &lt;code&gt;Timer&lt;/code&gt; 的情況，無法主動關閉內部的 &lt;code&gt;channel&lt;/code&gt;，只好退出 &lt;code&gt;goroutine&lt;/code&gt; 讓 &lt;code&gt;gc&lt;/code&gt; 回收。&lt;/p&gt;
-&lt;h3 id=&#34;timer-vs-ticker&#34;&gt;Timer vs Ticker
+&lt;h3 id=&#34;timer-vs-ticker&#34;&gt;&lt;a href=&#34;#timer-vs-ticker&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Timer vs Ticker
 &lt;/h3&gt;&lt;p&gt;以用法來說，&lt;code&gt;Timer&lt;/code&gt; 就是在 &lt;code&gt;timeout&lt;/code&gt; 之後觸發一次，&lt;code&gt;Ticker&lt;/code&gt; 則是週期性的觸發定時事件，因為 &lt;code&gt;Ticker&lt;/code&gt; 是週期性的，所以如果沒有顯式的呼叫 &lt;code&gt;Stop&lt;/code&gt; 就會發生上面提到的 &lt;code&gt;Resource leak&lt;/code&gt; 問題，之後會再寫一兩篇文章從 &lt;code&gt;source code&lt;/code&gt; 切入，還有 &lt;code&gt;Timer reset&lt;/code&gt; 的問題也值得探討。&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/yjp19871013/article/details/82048944&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Golang 如何正確的停止 Ticker&lt;/a&gt;&lt;/li&gt;

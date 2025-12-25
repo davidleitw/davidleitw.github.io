@@ -6,13 +6,15 @@
 
 <link rel='canonical' href='https://davidleitw.github.io/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Docker 網路模型與 Linux namespace, bridge 機制探討">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="Docker 網路模型與 Linux namespace, bridge 機制探討">
 <meta property='og:description' content="在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。\n">
 <meta property='og:url' content='https://davidleitw.github.io/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='docker' /><meta property='article:tag' content='container' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='network' /><meta property='article:published_time' content='2022-05-04T00:01:01&#43;08:00'/><meta property='article:modified_time' content='2022-05-04T00:01:01&#43;08:00'/>
 <meta name="twitter:title" content="Docker 網路模型與 Linux namespace, bridge 機制探討">
 <meta name="twitter:description" content="在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -279,20 +325,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 7 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -305,7 +337,7 @@
     
     
     <p>在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。</p>
-<h2 id="network-namespace">Network Namespace
+<h2 id="network-namespace"><a href="#network-namespace" class="header-anchor"></a>Network Namespace
 </h2><p>在 command line 操作 network namespace 通常會使用 <code>ip netns</code> 來操作，先引用 <code>ip-netns</code> 的 <a class="link" href="https://man7.org/linux/man-pages/man8/ip-netns.8.html"  target="_blank" rel="noopener"
     >man page</a> 來介紹一下 network namespace 的定義</p>
 <blockquote>
@@ -332,7 +364,7 @@
 	
 	
 ></p>
-<h3 id="建立新的-network-namespace">建立新的 network namespace
+<h3 id="建立新的-network-namespace"><a href="#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-network-namespace" class="header-anchor"></a>建立新的 network namespace
 </h3><p>建立一個新的 network namespace 可以使用 <code>sudo ip netns add</code> 加上想要的 namespace 名稱，建立之後用 <code>ip netns ls</code> 就可以看到多了一個剛剛建立的 network namespace。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -354,7 +386,7 @@
 	
 ></p>
 <p>在本地端我們常常會使用 <code>ifconfig</code> 或者 <code>ip addr</code> 來檢查一些網路的配置情況，所以 <code>ip netns</code> 工具為了讓我們更方便的操作，提供了 <code>ip netns exec</code> 的子命令讓我們可以在對應的 network namespace 執行命令，我們下面的幾個範例都會使用剛剛建立的 <code>ns0</code> 來操作，先來看看在 <code>ns0</code> 中執行 <code>ifconfig</code> 或者 <code>ip addr</code> 的情況。</p>
-<h3 id="執行-cmd-在特定的-network-namespace">執行 cmd 在特定的 network namespace
+<h3 id="執行-cmd-在特定的-network-namespace"><a href="#%e5%9f%b7%e8%a1%8c-cmd-%e5%9c%a8%e7%89%b9%e5%ae%9a%e7%9a%84-network-namespace" class="header-anchor"></a>執行 cmd 在特定的 network namespace
 </h3><p><strong>ip netns exec &lt;network namespace name&gt; + cmd</strong></p>
 <p><img src="https://i.imgur.com/QSffLmE.png"
 	
@@ -372,7 +404,7 @@
 <li><a class="link" href="https://askubuntu.com/questions/247625/what-is-the-loopback-device-and-how-do-i-use-it"  target="_blank" rel="noopener"
     >What is the loopback device and how do I use it?</a></li>
 </ul>
-<h2 id="veth---virtual-ethernet-device">veth - Virtual Ethernet Device
+<h2 id="veth---virtual-ethernet-device"><a href="#veth---virtual-ethernet-device" class="header-anchor"></a>veth - Virtual Ethernet Device
 </h2><p>Linux 中有 <a class="link" href="https://man7.org/linux/man-pages/man4/veth.4.html"  target="_blank" rel="noopener"
     >veth - Virtual Ethernet Device</a> 的概念， <code>veth</code> 可以拿來建立不同虛擬網路裝置之間的橋樑，讓不同虛擬裝置之間可以連線，像是不同的 network namespace，又或者是 docker container 之間的連線, ovs 內的應用等等，都有使用到 <code>veth</code> 的概念。</p>
 <p><code>veth</code> 都是成對出現的，所以很多文章也把它稱為 <code>veth-pair</code>，在後續的實驗中我們也可以觀察到 Docker 彼此之間的 <code>veth-pair</code>。</p>
@@ -391,7 +423,7 @@
 </span></span><span class="line"><span class="cl">ns0
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="建立新的-veth-pair">建立新的 veth Pair
+</div><h3 id="建立新的-veth-pair"><a href="#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-veth-pair" class="header-anchor"></a>建立新的 veth Pair
 </h3><p>上面有提到 <code>veth</code> 都是成對出現的，所以在建立的時候也要同時建立兩端，這邊我們將兩端分別取名 <code>vth0</code> 以及 <code>vth1</code> 代表等等要接在 <code>ns0</code> 與 <code>ns1</code> 上面。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -412,7 +444,7 @@
 	
 	
 ></p>
-<h3 id="將-veth-連結到-network-namespace">將 veth 連結到 network namespace
+<h3 id="將-veth-連結到-network-namespace"><a href="#%e5%b0%87-veth-%e9%80%a3%e7%b5%90%e5%88%b0-network-namespace" class="header-anchor"></a>將 veth 連結到 network namespace
 </h3><p>建立好了兩端的 <code>veth</code> 之後我們就需要把它接到對應的 network namespace</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -442,7 +474,7 @@
 	
 	
 ></p>
-<h3 id="啟動-veth-並且分配一個私有的-ip">啟動 veth 並且分配一個私有的 ip
+<h3 id="啟動-veth-並且分配一個私有的-ip"><a href="#%e5%95%9f%e5%8b%95-veth-%e4%b8%a6%e4%b8%94%e5%88%86%e9%85%8d%e4%b8%80%e5%80%8b%e7%a7%81%e6%9c%89%e7%9a%84-ip" class="header-anchor"></a>啟動 veth 並且分配一個私有的 ip
 </h3><p>光是把 <code>vth0</code>, <code>vth1</code> 連結到 <code>ns0</code>, <code>ns1</code> 還不夠，為了後續 ping 的實驗我們必須在 <code>ns0</code>, <code>ns1</code> 中啟動 <code>veth</code> 並且分配一個私有的 ip 位置。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -485,7 +517,7 @@
 	
 	
 ></p>
-<h2 id="用-bridge-串連多個不同的-namespace">用 bridge 串連多個不同的 namespace
+<h2 id="用-bridge-串連多個不同的-namespace"><a href="#%e7%94%a8-bridge-%e4%b8%b2%e9%80%a3%e5%a4%9a%e5%80%8b%e4%b8%8d%e5%90%8c%e7%9a%84-namespace" class="header-anchor"></a>用 bridge 串連多個不同的 namespace
 </h2><p>上面的情境是兩個 network namespace 想要互相連結，但真實世界的網路拓樸通常都是多個不同的 device 要互相連結，這時候如果再用 <code>veth</code> 一個一個設置就不切實際，在一般的網路環境我們會想到用 switch 一類的裝置處理，在 Linux 中也可以透過 <code>bridge</code> 的概念，用類似虛擬 switch 的方式解決多個不同 network namespace 互連的場景。</p>
 <p>從頭開始，目標是建立 <code>ns0</code>, <code>ns1</code>, <code>ns2</code> 三個 network namespace 並且讓他們可以透過 <code>bridge</code>互相連結。</p>
 <p>最後目標的網路拓樸如下圖</p>
@@ -498,7 +530,7 @@
 	
 ></p>
 <p>注意，這次我們有做一點調整，把 <code>veth</code> 連結到 network namespace 之後統一改名成 <code>eth0</code></p>
-<h3 id="建立-bridge-device">建立 bridge device
+<h3 id="建立-bridge-device"><a href="#%e5%bb%ba%e7%ab%8b-bridge-device" class="header-anchor"></a>建立 bridge device
 </h3><p>先建立一個 <code>bridge device</code> 並且取名為 <code>br0</code></p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -635,7 +667,7 @@
 	
 	
 ></p>
-<h2 id="docker-network-drivers">Docker network drivers
+<h2 id="docker-network-drivers"><a href="#docker-network-drivers" class="header-anchor"></a>Docker network drivers
 </h2><p>再來介紹完基礎的 network namespace, veth, bridge 之後我們再來看看 Docker 的網路模型。</p>
 <p>Docker 在設計的時候就提供了很多種不同的 Network drivers 可以替換，不同 Network drivers 代表著不同的網路模型，使用 <code>docker</code> 指令建立容器時，可以透過 <code>--network</code> 參數選擇想要的網路模型。</p>
 <p>大致上可以分為這幾種</p>
@@ -683,7 +715,7 @@
 	
 	
 ></p>
-<h3 id="建立一個新的-container">建立一個新的 container
+<h3 id="建立一個新的-container"><a href="#%e5%bb%ba%e7%ab%8b%e4%b8%80%e5%80%8b%e6%96%b0%e7%9a%84-container" class="header-anchor"></a>建立一個新的 container
 </h3><p>先建立一個 container 來試試預設的網路功能</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -749,7 +781,7 @@
 	
 ></p>
 <p>可以注意到 <code>Containers</code> 的地方多了剛剛建立的 <code>nginx_test1</code> 的資料，代表說 <code>nginx_test1</code> 是透過 <code>bridge</code> 跟外部建立連線的，這也是為什麼剛剛可以訪問 <code>nginx_test1</code> 的原因。</p>
-<h3 id="兩個-containers-透過預設的-bridge-互連">兩個 containers 透過預設的 bridge 互連
+<h3 id="兩個-containers-透過預設的-bridge-互連"><a href="#%e5%85%a9%e5%80%8b-containers-%e9%80%8f%e9%81%8e%e9%a0%90%e8%a8%ad%e7%9a%84-bridge-%e4%ba%92%e9%80%a3" class="header-anchor"></a>兩個 containers 透過預設的 bridge 互連
 </h3><p>接著來觀察在預設的網路環境， container 之間是否也可以藉由 <code>bridge</code> 互連，先用 <code>alpine</code> 的 image 建立兩個 container</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -862,7 +894,7 @@
 	
 	
 ></p>
-<h1 id="reference">reference
+<h1 id="reference"><a href="#reference" class="header-anchor"></a>reference
 </h1><ul>
 <li><a class="link" href="https://hackmd.io/@0xff07/network/https%3A%2F%2Fhackmd.io%2F%400xff07%2FSJzOwViYF"  target="_blank" rel="noopener"
     >計算機網路 - Network Namespace</a></li>
@@ -896,18 +928,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 

@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。\n用中文有點難表達，直接看圖吧。\n">
 <title>leetcode 116. Populating Next Right Pointers in Each Node [Medium]</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/leetcode-116.-populating-next-right-pointers-in-each-node-medium/'>
+<link rel='canonical' href='http://localhost:44973/p/leetcode-116.-populating-next-right-pointers-in-each-node-medium/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="leetcode 116. Populating Next Right Pointers in Each Node [Medium]">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="leetcode 116. Populating Next Right Pointers in Each Node [Medium]">
 <meta property='og:description' content="題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。\n用中文有點難表達，直接看圖吧。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/leetcode-116.-populating-next-right-pointers-in-each-node-medium/'>
+<meta property='og:url' content='http://localhost:44973/p/leetcode-116.-populating-next-right-pointers-in-each-node-medium/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='leetcode' /><meta property='article:published_time' content='2021-12-29T01:04:53&#43;08:00'/><meta property='article:modified_time' content='2021-12-29T01:04:53&#43;08:00'/>
 <meta name="twitter:title" content="leetcode 116. Populating Next Right Pointers in Each Node [Medium]">
 <meta name="twitter:description" content="題目敘述 給定一個 perfect binary tree，定義 next 指標，root-&gt;next 為空，每個節點的 left child 的 next 為 right child。每個節點 right child 的 next 為該節點 next 的 left child。\n用中文有點難表達，直接看圖吧。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -262,20 +308,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 1 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -287,7 +319,7 @@
     <section class="article-content">
     
     
-    <h2 id="題目敘述">題目敘述
+    <h2 id="題目敘述"><a href="#%e9%a1%8c%e7%9b%ae%e6%95%98%e8%bf%b0" class="header-anchor"></a>題目敘述
 </h2><p>給定一個 <code>perfect binary tree</code>，定義 <code>next</code> 指標，<code>root-&gt;next</code> 為空，每個節點的 <code>left child</code> 的 <code>next</code> 為 <code>right child</code>。每個節點 <code>right child</code> 的 <code>next</code> 為該節點 <code>next</code> 的 <code>left child</code>。</p>
 <p><del>用中文有點難表達，直接看圖吧。</del></p>
 <p><img src="https://assets.leetcode.com/uploads/2019/02/14/116_sample.png"
@@ -298,9 +330,9 @@
 	
 	
 ></p>
-<h2 id="解題流程">解題流程
+<h2 id="解題流程"><a href="#%e8%a7%a3%e9%a1%8c%e6%b5%81%e7%a8%8b" class="header-anchor"></a>解題流程
 </h2><p>這題跟很多 <code>tree</code> 的題目一樣，可以用 <code>BFS</code> 或者 <code>DFS</code> 兩種方式去實現。</p>
-<h3 id="bfs">BFS
+<h3 id="bfs"><a href="#bfs" class="header-anchor"></a>BFS
 </h3><p>用 <code>BFS</code> 的解法，就是在每個 <code>level</code> 找到最左邊的 <code>Node</code> 當作開頭，往右開始每個節點都用 <code>next</code> 指標連結。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -368,7 +400,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">};</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="dfs">DFS
+</div><h3 id="dfs"><a href="#dfs" class="header-anchor"></a>DFS
 </h3><p><code>DFS</code> 的方式是走訪每個節點，如果該節點有 <code>left child</code>，就把 <code>left child-&gt;next</code> 指向 <code>right child</code>。如果有 <code>right child</code> 就指向 <code>next child-&gt;left</code>，詳情可以參考程式碼，因為題目的條件式 <code>perfect binary tree</code>，所以如果 <code>left child</code> 存在就不需要再確認 <code>right child</code> 是不是 <code>nullptr</code>  了。</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -439,18 +471,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -724,7 +744,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

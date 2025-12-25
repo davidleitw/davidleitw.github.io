@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Concurrency on davidLei</title>
-        <link>https://davidleitw.github.io/tags/concurrency/</link>
+        <link>http://localhost:44973/tags/concurrency/</link>
         <description>Recent content in Concurrency on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Fri, 01 Apr 2022 00:01:01 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/concurrency/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 01 Apr 2022 00:01:01 +0800</lastBuildDate><atom:link href="http://localhost:44973/tags/concurrency/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>從執行順序來探討 Race condition, go 語言的 happens-before 規則</title>
-        <link>https://davidleitw.github.io/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/</link>
+        <link>http://localhost:44973/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/</link>
         <pubDate>Fri, 01 Apr 2022 00:01:01 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/</guid>
-        <description>&lt;h2 id=&#34;同步處理synchronization&#34;&gt;同步處理(Synchronization)
+        <guid>http://localhost:44973/p/%E5%BE%9E%E5%9F%B7%E8%A1%8C%E9%A0%86%E5%BA%8F%E4%BE%86%E6%8E%A2%E8%A8%8E-race-condition-go-%E8%AA%9E%E8%A8%80%E7%9A%84-happens-before-%E8%A6%8F%E5%89%87/</guid>
+        <description>&lt;h2 id=&#34;同步處理synchronization&#34;&gt;&lt;a href=&#34;#%e5%90%8c%e6%ad%a5%e8%99%95%e7%90%86synchronization&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;同步處理(Synchronization)
 &lt;/h2&gt;&lt;p&gt;確保多個執行單元同時存取某些資源的時候，執行結果不會因為執行單元的時間先後導致發生不可預期的錯誤。&lt;/p&gt;
 &lt;p&gt;Linux kernel 提供了很多協助處理 Synchronization 問題的機制，如果不在 Concurrency 的架構內使用適當的同步技術，就可能會引發 Race condition 的問題。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/D6Yurh7.png&#34;
@@ -26,7 +26,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;可以參考 &lt;a class=&#34;link&#34; href=&#34;https://web.fe.up.pt/~pfs/aulas/so2021/at/19conc.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Concurrency in the Kernel&lt;/a&gt; 來快速了解 kernel 內對於 Concurrency 提供了什麼樣的工具。&lt;/p&gt;
-&lt;h2 id=&#34;race-condition&#34;&gt;Race condition
+&lt;h2 id=&#34;race-condition&#34;&gt;&lt;a href=&#34;#race-condition&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Race condition
 &lt;/h2&gt;&lt;p&gt;在一組執行單元(process/thread)以 shared memory 的方式進行資料共享或者溝通時，因為沒有對於共享變數提供互斥存取(mutual exclusive access)的處理，可能會導致執行單元之間因為&lt;strong&gt;交錯執行&lt;/strong&gt;，導致最後的結果不如預期。&lt;/p&gt;
 &lt;p&gt;底下用一個簡單的例子來說明 race condition 造成執行結果不如預期的情況。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -129,14 +129,14 @@
 &lt;li&gt;最後輪到 &lt;code&gt;thread1&lt;/code&gt;，把計算好的 &lt;code&gt;temp1&lt;/code&gt; assign 給 &lt;code&gt;count&lt;/code&gt;，&lt;code&gt;count = temp1 = 1&lt;/code&gt;，最後結果 &lt;strong&gt;count = 1&lt;/strong&gt;，並不符合我們的預期，因為交錯執行導致出現 &lt;strong&gt;race condition&lt;/strong&gt;。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;以 2 條 thread 為例就知道為什麼一開始的範例，跑 20000 條 thread 結果可能會每次都不一樣，因為在同時執行時，沒有處理好同步問題，導致不同 thread 之間可能&lt;strong&gt;交互執行&lt;/strong&gt;，最後得到錯的結果。&lt;/p&gt;
-&lt;h2 id=&#34;執行順序&#34;&gt;執行順序
+&lt;h2 id=&#34;執行順序&#34;&gt;&lt;a href=&#34;#%e5%9f%b7%e8%a1%8c%e9%a0%86%e5%ba%8f&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;執行順序
 &lt;/h2&gt;&lt;p&gt;上面提到了一個簡單的 race condition 例子，在多執行緒環境下，缺乏適度的同步機制，會造成很多無法預期的結果，其實簡單來看，我們的目的就是不要讓 thread 之間交互執行，所以我們應該要關注&lt;strong&gt;執行順序&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;就是因為&lt;strong&gt;執行順序&lt;/strong&gt;沒有按照當初設想，才會出現一些無法預期的結果，在 jserv 老師的 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2Fconcurrency-ordering&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;並行程式設計: 執行順序&lt;/a&gt; 講座中介紹了幾個程式語言描述&lt;strong&gt;執行順序&lt;/strong&gt;的名詞，下面就簡單的做了一下筆記，最後會介紹一下 go 語言 &lt;code&gt;happens-before&lt;/code&gt; 的原則。&lt;/p&gt;
-&lt;h2 id=&#34;evaluation&#34;&gt;Evaluation
+&lt;h2 id=&#34;evaluation&#34;&gt;&lt;a href=&#34;#evaluation&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Evaluation
 &lt;/h2&gt;&lt;p&gt;Evaluation 可以想成 value computations 與 side effect 的組合，用上面 &lt;code&gt;func&lt;/code&gt; 的例子，value computations 就是把 &lt;code&gt;count+1&lt;/code&gt; 計算出來的動作，side effect 就是把計算出來的值 assign 給 &lt;code&gt;count&lt;/code&gt; 的步驟。&lt;/p&gt;
 &lt;p&gt;side effect 有&lt;strong&gt;改變物件/變數狀態&lt;/strong&gt;的語意，你 assign 某個值給變數的同時，如果有另外一個 thread 在呼叫 &lt;code&gt;func&lt;/code&gt; 或者訪問被改變的變數，就有可能導致讀到錯誤(不符預期)的值。&lt;/p&gt;
-&lt;h3 id=&#34;evaluation-orders&#34;&gt;Evaluation orders
+&lt;h3 id=&#34;evaluation-orders&#34;&gt;&lt;a href=&#34;#evaluation-orders&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Evaluation orders
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -149,7 +149,7 @@
 &lt;p&gt;有些語言像是 c++ 沒有強制規定運算元的執行先後順序，而是交給編譯器處理，這時候編譯器可能會選擇&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/%E6%8C%87%E4%BB%A4%E8%B0%83%E5%BA%A6&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;指令調度(Instruction scheduling)&lt;/a&gt;來優化執行效率，可能會先呼叫 &lt;code&gt;f3()&lt;/code&gt; 再去求 &lt;code&gt;f1() + f2()&lt;/code&gt;，這種改變順序的行為有時候就會導致 side effect 的發生(可能彼此共有一些變數，使呼叫順序改變結果)。&lt;/p&gt;
 &lt;p&gt;Evaluation orders 在每個語言的規範都不相同，真的想深入了解一門語言，應該要花點時間去研究一下那個語言的規範，避免踩到坑。&lt;/p&gt;
-&lt;h2 id=&#34;sequenced-before&#34;&gt;sequenced-before
+&lt;h2 id=&#34;sequenced-before&#34;&gt;&lt;a href=&#34;#sequenced-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;sequenced-before
 &lt;/h2&gt;&lt;p&gt;sequenced-before 用來描述&lt;strong&gt;同一個執行緒&lt;/strong&gt;下兩個 Evaluation 的先後順序。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;A is sequenced-before B: 代表 A 的 evaluation 會先於 B。&lt;/li&gt;
@@ -189,7 +189,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;因為左邊的運算元 &lt;code&gt;a&lt;/code&gt; 的 evaluation 會先於右邊的 &lt;code&gt;b&lt;/code&gt;，所以在寫 &lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt; 或者 &lt;code&gt;||&lt;/code&gt; 的時候可以將比較需要優先檢查的條件放在前面。&lt;/p&gt;
-&lt;h2 id=&#34;happens-before&#34;&gt;Happens-before
+&lt;h2 id=&#34;happens-before&#34;&gt;&lt;a href=&#34;#happens-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Happens-before
 &lt;/h2&gt;&lt;p&gt;因為 &lt;a class=&#34;link&#34; href=&#34;https://go.dev/ref/mem&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;go 語言的官方文件&lt;/a&gt; 在介紹 Happens-before 的時候有牽扯到一些 go 語言獨有的特性(goroutine)，所以我們先跟 jserv 老師的講座一樣，從 &lt;a class=&#34;link&#34; href=&#34;https://docs.oracle.com/javase/specs/jls/se7/html/jls-17.html#jls-17.4.5&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Java 的官方文件&lt;/a&gt; 來簡單介紹一下這個名詞。&lt;/p&gt;
@@ -258,7 +258,7 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;轉換出來，先把 B 放到 eax，先做 B = 1，接著把 eax + 1 的結果放到 A。&lt;/p&gt;
 &lt;p&gt;由上面的範例就可以知道為什麼 happens-before 強調的是 &lt;strong&gt;visible&lt;/strong&gt;，在 &lt;code&gt;-O2&lt;/code&gt; 的優化下，B = 1 這行事實上比 A = B + 1 更早完成，但是就結果來說是沒有錯的，所以寫程式只要在意邏輯的順序，但實際的執行順序可以會因為編譯器的調整而不同。&lt;/p&gt;
-&lt;h2 id=&#34;synchronized-with&#34;&gt;Synchronized-With
+&lt;h2 id=&#34;synchronized-with&#34;&gt;&lt;a href=&#34;#synchronized-with&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Synchronized-With
 &lt;/h2&gt;&lt;p&gt;synchronized-with 用來描述&lt;strong&gt;不同執行緒&lt;/strong&gt; 下兩個 Evaluation 的先後順序。&lt;/p&gt;
 &lt;p&gt;A, B 兩個操作是在不同執行緒， A synchronized-with B 代表 A 對記憶體的操作對於 B 是 &lt;strong&gt;visible&lt;/strong&gt; 的。&lt;/p&gt;
 &lt;ul&gt;
@@ -277,9 +277,9 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;可以看到 synchronizes-with 底下有很多不同的方式可以使用，大部份的語言也都有支援很多套定義多執行緒 happens-before 關係的語法。&lt;/p&gt;
-&lt;h2 id=&#34;golang-happens-before&#34;&gt;golang happens before
+&lt;h2 id=&#34;golang-happens-before&#34;&gt;&lt;a href=&#34;#golang-happens-before&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;golang happens before
 &lt;/h2&gt;&lt;p&gt;待補&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://go.dev/ref/mem&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;The Go Memory Model&lt;/a&gt;&lt;/li&gt;
@@ -292,15 +292,15 @@
         </item>
         <item>
         <title>Concurrency vs Parallelism 淺談兩者區別以及名詞介紹</title>
-        <link>https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</link>
+        <link>http://localhost:44973/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</link>
         <pubDate>Wed, 23 Mar 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <guid>http://localhost:44973/p/concurrency-vs-parallelism-%E6%B7%BA%E8%AB%87%E5%85%A9%E8%80%85%E5%8D%80%E5%88%A5%E4%BB%A5%E5%8F%8A%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;最近在複習 jserv 老師的並行與多執行緒程式設計，一開始介紹了兩個常常被混淆的名詞，Concurrency 與 Parallelism，每次感覺懂了，過一陣子要我清楚的說明又有點講不太清楚，所以來寫一篇筆記紀錄一下。&lt;/p&gt;
 &lt;p&gt;裡面有些說法跟圖片是參考 &lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@sysprog/concurrency/https%3A%2F%2Fhackmd.io%2F%40sysprog%2FS1AMIFt0D&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;jserv 老師的講座&lt;/a&gt;，裡面內容非常精彩，有機會的話一定要挑戰看看!&lt;/p&gt;
-&lt;h2 id=&#34;concurrency並行-vs-parallelism平行&#34;&gt;Concurrency(並行) vs Parallelism(平行)
+&lt;h2 id=&#34;concurrency並行-vs-parallelism平行&#34;&gt;&lt;a href=&#34;#concurrency%e4%b8%a6%e8%a1%8c-vs-parallelism%e5%b9%b3%e8%a1%8c&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Concurrency(並行) vs Parallelism(平行)
 &lt;/h2&gt;&lt;p&gt;常被混淆的原因不只是因為兩個單字的中文翻譯很像，而且兩者在觀念上也有重疊的部份，所以一開始很難去分清楚這兩者的差異。&lt;/p&gt;
 &lt;p&gt;Concurrency 通常用來描述程式的架構，將程式的功能拆成多個不同且獨立運行的模組或稱為工作(Task)，Parallelism 則是強調&lt;strong&gt;同時&lt;/strong&gt;執行多個程式，底下會詳細舉例說明兩者的差異。&lt;/p&gt;
 &lt;p&gt;Concurrency 把程式功能拆分的小的 Task 後，如果&lt;strong&gt;同時&lt;/strong&gt;運作，就可以說 Concurrency 有用到 Parallelism，所以不一定要用 Parallelism 才能達到 Concurrency 的目的。&lt;/p&gt;
@@ -323,7 +323,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;所以講到 Concurrency 偏向討論在程式架構上，把一個任務拆成多個可獨立執行的子任務，Parallelism 則討論規劃怎麼分配資源的議題，讓多個子任務可以同時執行。&lt;/p&gt;
-&lt;h3 id=&#34;單一-cpu-的-concurrency&#34;&gt;單一 cpu 的 Concurrency
+&lt;h3 id=&#34;單一-cpu-的-concurrency&#34;&gt;&lt;a href=&#34;#%e5%96%ae%e4%b8%80-cpu-%e7%9a%84-concurrency&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;單一 cpu 的 Concurrency
 &lt;/h3&gt;&lt;p&gt;在以前的年代，或者一些資源受限的環境下，可能運算資源只有單個 cpu，這時候如果有多位使用者想同時使用這台電腦就必須要營造出 Concurrency 的感覺，讓每個使用者都覺得自己使用了這個電腦的全部資源。&lt;/p&gt;
 &lt;p&gt;底下的 jserv 老師上課給的範例&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/4nZ9RVx.png&#34;
@@ -366,17 +366,17 @@
 &gt;&lt;/p&gt;
 &lt;p&gt;在設定上，多重影分身中每個分身都是有實體的存在，如果每個分身&lt;strong&gt;同時&lt;/strong&gt;進行著某個任務的話，我們就可以說符合 Parallelism 的概念。&lt;/p&gt;
 &lt;p&gt;今天如果鳴人在寫作業，總共有10題，他叫了九個分身，大家一起完成作業，所以一個大的任務(作業)拆成10個子任務(每一個小題)，而且十個人同時去完，這樣就同時符合 Concurrency 跟 Parallelism 的定義了。&lt;/p&gt;
-&lt;h2 id=&#34;process-and-thread&#34;&gt;Process and Thread
+&lt;h2 id=&#34;process-and-thread&#34;&gt;&lt;a href=&#34;#process-and-thread&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Process and Thread
 &lt;/h2&gt;&lt;p&gt;在恐龍書的課本上，對於 process 與 thread 有不同的定義，但在 Linux kernel 中兩者並沒有明確的區分，在程式中都用 &lt;code&gt;task_struct&lt;/code&gt; 來表示一個 process 或者 thread，兩者的區別只有呼叫 system call 時傳入不同的參數，但是本質上都是用 &lt;code&gt;task_struct&lt;/code&gt; 表示一個執行單元。&lt;/p&gt;
-&lt;h2 id=&#34;工作切換-context-switch&#34;&gt;工作切換 (context switch)
+&lt;h2 id=&#34;工作切換-context-switch&#34;&gt;&lt;a href=&#34;#%e5%b7%a5%e4%bd%9c%e5%88%87%e6%8f%9b-context-switch&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;工作切換 (context switch)
 &lt;/h2&gt;&lt;p&gt;context switch 是指 os 想要把目前執行中的 process 暫停，並且切換到下一個要執行的任務，這個動作就被稱為 context switch。&lt;/p&gt;
 &lt;p&gt;一般情況下被暫停的任務之後在某個時間點還是會被繼續執行，所以在進行 context switch 時必須要紀錄舊的 process 的相關資料，像是舊的 process 下個要執行指令的 address，或者被停止時暫存器的相關資料等等。&lt;/p&gt;
 &lt;p&gt;在後續 context switch 到舊的 process 繼續執行時，整個環境必須要回到舊的 process 被停止時的狀態，context switch 的實現很大一部份決定了整個系統 response 的速度，如果 context switch 做的不好，使用者可能會感受到很明顯的延遲。&lt;/p&gt;
-&lt;h2 id=&#34;排程器-scheduler&#34;&gt;排程器 (scheduler)
+&lt;h2 id=&#34;排程器-scheduler&#34;&gt;&lt;a href=&#34;#%e6%8e%92%e7%a8%8b%e5%99%a8-scheduler&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;排程器 (scheduler)
 &lt;/h2&gt;&lt;p&gt;排程器 (scheduler) 的功能是決定 CPU 下一個要執行的任務，並且執行 context switch 指向新的任務下一個要執行的指令位置。&lt;/p&gt;
 &lt;p&gt;排程的演算法也是一個很多人在研究的議題，要如何恰當的分配硬體資源，還要考慮一些工作可能有比較高的 priority，怎麼優先去安排高 priority 的任務等等。&lt;/p&gt;
 &lt;p&gt;每一個任務可能都被分配一定的時間去執行，那段執行的時間被稱為 time slice，time slice 也不一定是固定時間，根據排程演算法的不同，有些演算法會動態的決定一個任務分配到的 time slice。&lt;/p&gt;
-&lt;h2 id=&#34;preemptive-vs-non-preemptive&#34;&gt;Preemptive vs Non-preemptive
+&lt;h2 id=&#34;preemptive-vs-non-preemptive&#34;&gt;&lt;a href=&#34;#preemptive-vs-non-preemptive&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Preemptive vs Non-preemptive
 &lt;/h2&gt;&lt;p&gt;搶佔式(preemptive) 與非搶佔式(non-preemptive) 的差別在於在執行中的工作(process)是否為自願(voluntary)交出 cpu 使用權，又或者被迫放棄 cpu 使用權。&lt;/p&gt;
 &lt;p&gt;non-preemptive 的優點在於可預估程式的完成時間(不會突然被中斷)，context switch 的次數也相對較少，但相對的每個 process 的 waiting time 就會上升。&lt;/p&gt;
 &lt;p&gt;preemptive 系統中 process 可能會在執行的途中被插隊，&lt;strong&gt;被迫放棄&lt;/strong&gt; cpu 週期給另外的 process，被插隊有很多種不同的原因，像是 Time-out, Interrupt 發生，高優先權的 process 插隊等等。&lt;/p&gt;

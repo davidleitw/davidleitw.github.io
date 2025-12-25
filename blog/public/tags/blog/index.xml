@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Blog on davidLei</title>
-        <link>https://davidleitw.github.io/tags/blog/</link>
+        <link>http://localhost:44973/tags/blog/</link>
         <description>Recent content in Blog on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Fri, 13 Aug 2021 23:01:13 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/blog/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 13 Aug 2021 23:01:13 +0800</lastBuildDate><atom:link href="http://localhost:44973/tags/blog/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>使用 Hugo 主題 LoveIt 架設 blog 資源紀錄</title>
-        <link>https://davidleitw.github.io/p/%E4%BD%BF%E7%94%A8-hugo-%E4%B8%BB%E9%A1%8C-loveit-%E6%9E%B6%E8%A8%AD-blog-%E8%B3%87%E6%BA%90%E7%B4%80%E9%8C%84/</link>
+        <link>http://localhost:44973/p/%E4%BD%BF%E7%94%A8-hugo-%E4%B8%BB%E9%A1%8C-loveit-%E6%9E%B6%E8%A8%AD-blog-%E8%B3%87%E6%BA%90%E7%B4%80%E9%8C%84/</link>
         <pubDate>Fri, 13 Aug 2021 23:01:13 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/%E4%BD%BF%E7%94%A8-hugo-%E4%B8%BB%E9%A1%8C-loveit-%E6%9E%B6%E8%A8%AD-blog-%E8%B3%87%E6%BA%90%E7%B4%80%E9%8C%84/</guid>
+        <guid>http://localhost:44973/p/%E4%BD%BF%E7%94%A8-hugo-%E4%B8%BB%E9%A1%8C-loveit-%E6%9E%B6%E8%A8%AD-blog-%E8%B3%87%E6%BA%90%E7%B4%80%E9%8C%84/</guid>
         <description>&lt;p&gt;這次新架的 blog 使用了 &lt;a class=&#34;link&#34; href=&#34;https://github.com/dillonzq/LoveIt&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;LoveIt&lt;/a&gt; 這個主題&lt;/p&gt;
 &lt;p&gt;詳細的架設參數設定都是參考其&lt;a class=&#34;link&#34; href=&#34;https://hugoloveit.com/zh-cn/posts/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -45,7 +45,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;git push
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;/div&gt;&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.timtnlee.me/post/development/spa-on-github-page&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;使用 GitHub Pages 展示你的 Single Page Application&lt;/a&gt;&lt;/li&gt;

@@ -6,13 +6,15 @@
 
 <link rel='canonical' href='https://davidleitw.github.io/p/linux-socket-programming%E4%B8%89-socket-programming-%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%BD%89%E6%8F%9B%E5%87%BD%E6%95%B8/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="linux socket programming(三): socket programming 中常用的位置轉換函數">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="linux socket programming(三): socket programming 中常用的位置轉換函數">
 <meta property='og:description' content="一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62\n以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。\n">
 <meta property='og:url' content='https://davidleitw.github.io/p/linux-socket-programming%E4%B8%89-socket-programming-%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%BD%89%E6%8F%9B%E5%87%BD%E6%95%B8/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='network' /><meta property='article:tag' content='socket' /><meta property='article:tag' content='c' /><meta property='article:published_time' content='2021-11-12T01:04:53&#43;08:00'/><meta property='article:modified_time' content='2021-11-12T01:04:53&#43;08:00'/>
 <meta name="twitter:title" content="linux socket programming(三): socket programming 中常用的位置轉換函數">
 <meta name="twitter:description" content="一般我們在表示 ip 位置時都會寫成人類比較容易讀的形式，像是125.102.25.62\n以 ipv4 來說，address 是由4個 byte，32個 bit所組成，在實務上我們常常需要做字串與實際數值(uint32_t)的轉換，linux 函式庫提供了一系列輔助位置轉換的 function。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -263,20 +309,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 2 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -331,7 +363,7 @@
 <pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;arpa/inet.h&gt;</span><span class="cp">
 </span></span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="inet_addr">inet_addr
+</div><h3 id="inet_addr"><a href="#inet_addr" class="header-anchor"></a>inet_addr
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -347,7 +379,7 @@
 </blockquote>
 <p><a class="link" href="https://github.com/davidleitw/socket/blob/master/address/inet_addr_ex.c"  target="_blank" rel="noopener"
     >範例程式: inet_addr_ex.c</a></p>
-<h3 id="inet_aton">inet_aton
+<h3 id="inet_aton"><a href="#inet_aton" class="header-anchor"></a>inet_aton
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -360,7 +392,7 @@
 <p><strong>回傳</strong>: 轉換成功，會回傳一個非零的值，失敗則會回傳 <code>0</code></p>
 <p><a class="link" href="https://github.com/davidleitw/socket/blob/master/address/inet_aton_ex.c"  target="_blank" rel="noopener"
     >範例程式: inet_aton_ex.c</a></p>
-<h3 id="inet_ntoa">inet_ntoa
+<h3 id="inet_ntoa"><a href="#inet_ntoa" class="header-anchor"></a>inet_ntoa
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -377,7 +409,7 @@
 <p><a class="link" href="https://blog.hubert.tw/2009/04/18/%E5%BE%9E-inet_ntoa-%E7%9C%8B-thread-safe-%E7%9A%84-api/"  target="_blank" rel="noopener"
     >可怕的坑</a></p>
 </blockquote>
-<h3 id="inet_pton--inet_ntop">inet_pton &amp; inet_ntop
+<h3 id="inet_pton--inet_ntop"><a href="#inet_pton--inet_ntop" class="header-anchor"></a>inet_pton &amp; inet_ntop
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -453,18 +485,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 

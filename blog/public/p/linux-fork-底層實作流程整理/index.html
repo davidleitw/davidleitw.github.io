@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 本文章環境基於 Linux v4.14.259\n因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。\n">
 <title>Linux fork() 底層實作流程整理</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/'>
+<link rel='canonical' href='http://localhost:44973/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Linux fork() 底層實作流程整理">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="Linux fork() 底層實作流程整理">
 <meta property='og:description' content=" 本文章環境基於 Linux v4.14.259\n因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/'>
+<meta property='og:url' content='http://localhost:44973/p/linux-fork-%E5%BA%95%E5%B1%A4%E5%AF%A6%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%95%B4%E7%90%86/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux_kernel' /><meta property='article:tag' content='system_call' /><meta property='article:tag' content='fork' /><meta property='article:published_time' content='2022-01-05T00:12:53&#43;08:00'/><meta property='article:modified_time' content='2022-01-05T00:12:53&#43;08:00'/>
 <meta name="twitter:title" content="Linux fork() 底層實作流程整理">
 <meta name="twitter:description" content=" 本文章環境基於 Linux v4.14.259\n因為作業需要在 task_struct 中加入 counter 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 linux 中一個 process 建立的時候在哪裡初始化，從 fork() 開始慢慢 trace 下去。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -264,20 +310,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 9 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -306,7 +338,7 @@
 <p><code>_do_fork()</code> 更改為 <code>kernel_clone()</code> 的原因可以參考 <a class="link" href="https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/"  target="_blank" rel="noopener"
     >fork: introduce kernel_clone()</a></p>
 <p>在深入看 <code>source code</code> 之前最重要的就是先把 <code>man page</code> 看過一次，看完 <code>man page</code> 會對要研究的 <code>system call</code> 有初步的了解，接著再往下看 <code>source code</code> 才不會沒有概念的死讀程式碼。</p>
-<h2 id="fork---create-a-child-process"><a class="link" href="https://man7.org/linux/man-pages/man2/fork.2.html"  target="_blank" rel="noopener"
+<h2 id="fork---create-a-child-process"><a href="#fork---create-a-child-process" class="header-anchor"></a><a class="link" href="https://man7.org/linux/man-pages/man2/fork.2.html"  target="_blank" rel="noopener"
     >fork - create a child process</a>
 </h2><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -341,7 +373,7 @@
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>fork</code> 在 <code>kernel/fork.c</code> 的定義，可以看到它使用了 <code>SIGCHLD</code> 的 <code>flag</code>，這代表如果 <code>child process</code> 終止會發送 <code>SIGCHLD</code> 通知 <code>parent process</code>.</p>
-<h3 id="_do_fork">_do_fork
+<h3 id="_do_fork"><a href="#_do_fork" class="header-anchor"></a>_do_fork
 </h3><p>第一段有簡單提到，不論是使用 <code>fork</code> 或者 <code>clone</code> 等方式，到最後都會呼叫 <code>_do_fork()</code> 來建立一個新的 <code>task struct</code>，<code>_do_fork()</code> 在 <code>kernel v4.14.259</code> 中定義在 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L2063"  target="_blank" rel="noopener"
     >kernel/fork.c line.2063</a>，定義如下</p>
 <div class="highlight"><div class="chroma">
@@ -513,7 +545,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>一開始的段落是有關於 <code>ptrace</code> 的邏輯處理，<code>trace</code> 變數代表 <code>child process</code> 是否可以被追蹤，如果可以，則 <code>trace</code> 代表這個 <code>child process</code> 是由哪個 <code>system call</code> 創立的(<code>vfork</code>, <code>clone</code>, <code>fork</code>)，重點在於後面的 <code>copy_process</code>，其實講的直觀一點，<code>copy_process</code> 做的事情就是回傳一個新的 <code>task_struct</code>，但是在回傳新的 <code>task_struct</code> 的時候，該 <code>task_struct</code> 是還沒有開啟的狀態，我們先繼續往 <code>copy_process</code> 去 <code>trace</code>。</p>
-<h3 id="_do_fork---copy_process">_do_fork() -&gt; copy_process
+<h3 id="_do_fork---copy_process"><a href="#_do_fork---copy_process" class="header-anchor"></a>_do_fork() -&gt; copy_process
 </h3><p><code>copy_process</code> 同樣定義在 <a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/fork.c#L1575"  target="_blank" rel="noopener"
     ><code>/kerenl/fork.c</code></a>內，底下是它的實現</p>
 <div class="highlight"><div class="chroma">
@@ -656,7 +688,7 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>一開始都是一些有關於 <code>clone_flags</code> 的處理，之後會呼叫 <code>dup_task_struct(current, node);</code>，<code>dup_task_struct</code> 是真正建立 <code>task_struct</code> 的地方，<code>parent process</code> 會初始化 <code>child process</code> 之後回傳指標 <code>p</code>。</p>
-<h3 id="_do_fork---copy_process---dup_task_struct">_do_fork() -&gt; copy_process -&gt; dup_task_struct
+<h3 id="_do_fork---copy_process---dup_task_struct"><a href="#_do_fork---copy_process---dup_task_struct" class="header-anchor"></a>_do_fork() -&gt; copy_process -&gt; dup_task_struct
 </h3><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
@@ -1349,7 +1381,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="_do_fork---wake_up_new_taskp">_do_fork() -&gt; wake_up_new_task(p)
+</div><h3 id="_do_fork---wake_up_new_taskp"><a href="#_do_fork---wake_up_new_taskp" class="header-anchor"></a>_do_fork() -&gt; wake_up_new_task(p)
 </h3><p><code>wake_up_new_task</code> 的作用是把新創立的 <code>task_struct</code> 加入排程的 <code>runqueue</code> 當中，實現<a class="link" href="https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L2459"  target="_blank" rel="noopener"
     >如下</a>:</p>
 <div class="highlight"><div class="chroma">
@@ -1472,7 +1504,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><h3 id="reference">reference
+</div><h3 id="reference"><a href="#reference" class="header-anchor"></a>reference
 </h3><ul>
 <li><a class="link" href="https://www.cnblogs.com/linhaostudy/p/9644736.html#autoid-1-4-0"  target="_blank" rel="noopener"
     >_do_fork, do_fork 詳解</a></li>
@@ -1508,18 +1540,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -1767,7 +1787,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

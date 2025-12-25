@@ -21,29 +21,30 @@ params:
     featuredImageField: image
     rssFullContent: true
     description: "一個紀錄心情，技術，人生的網站"
+    favicon: /favicon.ico
 
     footer:
         since: 2019
-        customText:
 
     dateFormat:
         published: 2006-01-02
         lastUpdated: 2006-01-02 15:04 MST
 
     sidebar:
-        subtitle: "紀錄學習心得，日常點滴的地方"
+        compact: false
+        subtitle: "Learn. Build. Share."
         avatar:
             enabled: true
-            local: false
-            src: https://avatars.githubusercontent.com/u/42119758?v=4
+            local: true
+            src: img/avatar.png
 
     article:
+        headingAnchor: true
         math: true
         toc: true
-        readingTime: true
+        readingTime: false
         license:
-            enabled: true
-            default: CC BY-NC 4.0
+            enabled: false
 
     comments:
         enabled: true
@@ -62,13 +63,7 @@ params:
     widgets:
         homepage:
             - type: search
-            - type: archives
-              params:
-                  limit: 5
             - type: categories
-              params:
-                  limit: 10
-            - type: tag-cloud
               params:
                   limit: 10
         page:

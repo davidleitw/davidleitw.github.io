@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Scheduler on davidLei</title>
-        <link>https://davidleitw.github.io/tags/scheduler/</link>
+        <link>http://localhost:44973/tags/scheduler/</link>
         <description>Recent content in Scheduler on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Fri, 07 Jan 2022 03:12:53 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/scheduler/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Fri, 07 Jan 2022 03:12:53 +0800</lastBuildDate><atom:link href="http://localhost:44973/tags/scheduler/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Linux schedule 原始碼解讀</title>
-        <link>https://davidleitw.github.io/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/</link>
+        <link>http://localhost:44973/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/</link>
         <pubDate>Fri, 07 Jan 2022 03:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/</guid>
+        <guid>http://localhost:44973/p/linux-schedule-%E5%8E%9F%E5%A7%8B%E7%A2%BC%E8%A7%A3%E8%AE%80/</guid>
         <description>&lt;blockquote&gt;
 &lt;p&gt;本文章環境基於 Linux v4.14.259&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;第一次 &lt;code&gt;trace&lt;/code&gt; 整個排程的流程，&lt;code&gt;kernel&lt;/code&gt; 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 &lt;code&gt;function&lt;/code&gt; 的作用都沒辦法很好的說明，希望之後可以多閱讀 &lt;code&gt;source code&lt;/code&gt;，把相關的知識慢慢補齊，拼湊成完整的知識。&lt;/p&gt;
-&lt;h2 id=&#34;schedule&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;schedule&#34;&gt;&lt;a href=&#34;#schedule&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;schedule&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;要 &lt;code&gt;trace&lt;/code&gt; 排程器要先找到 &lt;code&gt;schedule&lt;/code&gt; 的入口，定義在 &lt;code&gt;kernel/sched/core.c&lt;/code&gt;，函式定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -60,7 +60,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nf&#34;&gt;EXPORT_SYMBOL&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;schedule&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;sched_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;/div&gt;&lt;h3 id=&#34;sched_&#34;&gt;&lt;a href=&#34;#sched_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3412&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;sched_submit_work&lt;/a&gt;
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -93,7 +93,7 @@
 &lt;/div&gt;&lt;p&gt;在 &lt;code&gt;sched_submit_work&lt;/code&gt; 中先檢查 &lt;code&gt;tsk-&amp;gt;state&lt;/code&gt; 是否為 0(&lt;code&gt;runnable&lt;/code&gt;)，如果是就直接返回。
 &lt;code&gt;tsk_is_pi_blocked&lt;/code&gt; 檢查 &lt;code&gt;tsk&lt;/code&gt; 的 &lt;code&gt;deadlock&lt;/code&gt; 檢測器是否為空。&lt;/p&gt;
 &lt;p&gt;注意到 &lt;code&gt;schedule&lt;/code&gt; 的 &lt;code&gt;while&lt;/code&gt; 迴圈中的 &lt;code&gt;__schedule(false)&lt;/code&gt;，&lt;code&gt;__schedule&lt;/code&gt; 是真正排程執行的地方，所以繼續往下 &lt;code&gt;trace&lt;/code&gt;&lt;/p&gt;
-&lt;h2 id=&#34;_&#34;&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h2 id=&#34;_&#34;&gt;&lt;a href=&#34;#_&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;_schedule&lt;/a&gt;
 &lt;/h2&gt;&lt;p&gt;在 &lt;code&gt;__schedule()&lt;/code&gt; 定義上方有一段註解說明&lt;strong&gt;排程時機&lt;/strong&gt;，主要是說明 &lt;code&gt;task_struct&lt;/code&gt; 在什麼情況會被排程，底下會大概敘述一下排程器在什麼情況下會考慮排程。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -574,7 +574,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;get-the-number-of-context-switches&#34;&gt;get the number of context switches
+&lt;/div&gt;&lt;h2 id=&#34;get-the-number-of-context-switches&#34;&gt;&lt;a href=&#34;#get-the-number-of-context-switches&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;get the number of context switches
 &lt;/h2&gt;&lt;p&gt;回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 &lt;code&gt;counter&lt;/code&gt; 來計算被排程的次數，只要把 &lt;code&gt;task_struct&lt;/code&gt; 中的 &lt;code&gt;tsk-&amp;gt;nivcsw + tsk-&amp;gt;nvcse&lt;/code&gt; 就可以得到這個 &lt;code&gt;task_struct&lt;/code&gt; 被 &lt;code&gt;context switch&lt;/code&gt; 的次數了，甚至可以用 &lt;code&gt;nr_switches&lt;/code&gt; 這個變數來直接獲得答案。&lt;/p&gt;
 &lt;p&gt;在驗證自己程式的正確性時，我們會參考 &lt;code&gt;/proc/{pid}/sched&lt;/code&gt; 中的 &lt;code&gt;nr_switches&lt;/code&gt;，實際找到 &lt;a class=&#34;link&#34; href=&#34;https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;proc_sched_show_task&lt;/a&gt; 就會發現 &lt;code&gt;nr_switches&lt;/code&gt; 也是用 &lt;code&gt;nivcsw + nvcse&lt;/code&gt; 來實現。&lt;/p&gt;
@@ -611,7 +611,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;所以題目一的實現如下:&lt;/p&gt;
-&lt;h3 id=&#34;kernel-space&#34;&gt;kernel space
+&lt;h3 id=&#34;kernel-space&#34;&gt;&lt;a href=&#34;#kernel-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;kernel space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -657,7 +657,7 @@
 &lt;/div&gt;&lt;p&gt;利用 &lt;code&gt;SYSCALL_DEFINE1&lt;/code&gt; 的 &lt;code&gt;macro&lt;/code&gt; 來展開我們定義的 &lt;code&gt;get_number_of_context_switches&lt;/code&gt;，利用 &lt;code&gt;task_struct&lt;/code&gt; 的 &lt;code&gt;nvcse, nivcsw&lt;/code&gt; 來獲得 &lt;code&gt;number of context switches&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;之所以要用 &lt;code&gt;SYSCALL_DEFINE1&lt;/code&gt; 來定義 &lt;code&gt;system call&lt;/code&gt; 是因為之前有個 &lt;a class=&#34;link&#34; href=&#34;https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;CVE-2009-0029&lt;/a&gt;，攻擊者可以藉由 &lt;code&gt;32 跟 64 bits&lt;/code&gt; 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 &lt;code&gt;SYSCALL_DEFINE&lt;/code&gt; 來定義會比較安全。&lt;/p&gt;
-&lt;h3 id=&#34;user-space&#34;&gt;user space
+&lt;h3 id=&#34;user-space&#34;&gt;&lt;a href=&#34;#user-space&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -715,7 +715,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;refernece&#34;&gt;refernece
+&lt;h3 id=&#34;refernece&#34;&gt;&lt;a href=&#34;#refernece&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;refernece
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;http://www.wowotech.net/process_management/447.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;CFS调度器（1）-基本原理&lt;/a&gt;&lt;/li&gt;

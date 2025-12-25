@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-tw" dir="ltr">
-    <head><meta charset='utf-8'>
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=44973&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="前言 最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，這篇 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。\n">
 <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
 
-<link rel='canonical' href='https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/'>
+<link rel='canonical' href='http://localhost:44973/p/bypassing-the-load-balancer-without-regrets-socc-20/'>
 
-<link rel="stylesheet" href="/scss/style.min.833d6eed45de56f48306bf57268d5b8cdfc8a60e8e7bdc99810464fcd033f7c6.css"><meta property='og:title' content="Bypassing the Load Balancer Without Regrets - SoCC ’20">
+<link rel="stylesheet" href="/scss/style.min.3aff20547a2add54ab704500b4adb37343ae667930088584e2c52db92ac82950.css"><meta property='og:title' content="Bypassing the Load Balancer Without Regrets - SoCC ’20">
 <meta property='og:description' content="前言 最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，這篇 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。\n">
-<meta property='og:url' content='https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/'>
+<meta property='og:url' content='http://localhost:44973/p/bypassing-the-load-balancer-without-regrets-socc-20/'>
 <meta property='og:site_name' content='davidLei'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='eBPF' /><meta property='article:tag' content='linux' /><meta property='article:tag' content='linux_kernel' /><meta property='article:tag' content='network' /><meta property='article:tag' content='XDP' /><meta property='article:tag' content='paper' /><meta property='article:published_time' content='2022-12-19T22:13:53&#43;08:00'/><meta property='article:modified_time' content='2022-12-19T22:13:53&#43;08:00'/>
 <meta name="twitter:title" content="Bypassing the Load Balancer Without Regrets - SoCC ’20">
 <meta name="twitter:description" content="前言 最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，這篇 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
     </head>
     <body class="
     article-page
@@ -52,7 +54,13 @@
             <figure class="site-avatar">
                 <a href="/">
                 
-                    <img src="https://avatars.githubusercontent.com/u/42119758?v=4" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_db436d519aec9354.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
                 
                 </a>
                 
@@ -62,7 +70,7 @@
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">davidLei</a></h1>
-            <h2 class="site-description">紀錄學習心得，日常點滴的地方</h2>
+            <h2 class="site-description">Learn. Build. Share.</h2>
         </div>
     </header><ol class="menu-social">
             
@@ -110,6 +118,44 @@
             
         </ol><ol class="menu" id="main-menu">
         
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>關於我</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
         
         
         <li >
@@ -263,20 +309,6 @@
         
 
         
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <polyline points="12 7 12 12 15 15" />
-</svg>
-
-
-
-                <time class="article-time--reading">
-                    閱讀時間: 4 分鐘
-                </time>
-            </div>
-        
     </footer>
     
 
@@ -288,12 +320,12 @@
     <section class="article-content">
     
     
-    <h2 id="前言">前言
+    <h2 id="前言"><a href="#%e5%89%8d%e8%a8%80" class="header-anchor"></a>前言
 </h2><p>最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，<a class="link" href="https://marioskogias.github.io/docs/crab.pdf"  target="_blank" rel="noopener"
     >這篇</a> 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。</p>
 <p>這篇論文的作者也用了 P4, eBPF 等技術實現了他們的論文，如果有興趣的也可以研究看看實現的 <a class="link" href="https://github.com/epfl-dcsl/crab"  target="_blank" rel="noopener"
     >code</a></p>
-<h2 id="常見-lb-技術分類">常見 LB 技術分類
+<h2 id="常見-lb-技術分類"><a href="#%e5%b8%b8%e8%a6%8b-lb-%e6%8a%80%e8%a1%93%e5%88%86%e9%a1%9e" class="header-anchor"></a>常見 LB 技術分類
 </h2><p>這篇論文在前面的幾個段落介紹了常見了 Load Belance 技術，然後規劃了一些簡單的實驗來分析各種不同技術的優劣，文中用以下五個標準/指標來分類不同種類的 LB 技術，如下圖所示</p>
 <p><img src="https://i.imgur.com/STj3dNc.png"
 	
@@ -319,12 +351,12 @@
 </blockquote>
 <p>簡單來說，負載平衡技術在雲端環境下會面臨的挑戰在於 LB 或者後端 Server 的數量會根據請求的流量動態調整，或者是以容器為單位的調度，這種時候像是 WRR, P2C 這類的演算法就毫無用武之地，因為 Server 的數目跟狀態隨時都在變更，無法根據當時的狀態找出較好的調度方案。</p>
 <p>實驗部份就不過多敘述了，接著來看這篇論文提出的 LB 方案想要滿足什麼條件，用什麼方式達成</p>
-<h2 id="crab-design">CRAB design
+<h2 id="crab-design"><a href="#crab-design" class="header-anchor"></a>CRAB design
 </h2><p>這篇論文提出的新 LB 技術取名為 <strong>C</strong>onnection <strong>R</strong>edirect Lo<strong>A</strong>d <strong>B</strong>alancer(<strong>CRAB</strong>)，作者用這段話總結實作的理念</p>
 <blockquote>
 <p>Implementing a centralized, stateful load balancing policy at a connection granularity requires the load balancer’s involvement only during connection setup, following which the client and server can communicate directly.</p>
 </blockquote>
-<h3 id="支援-dsr-模式的-lb-運作流程">支援 DSR 模式的 LB 運作流程
+<h3 id="支援-dsr-模式的-lb-運作流程"><a href="#%e6%94%af%e6%8f%b4-dsr-%e6%a8%a1%e5%bc%8f%e7%9a%84-lb-%e9%81%8b%e4%bd%9c%e6%b5%81%e7%a8%8b" class="header-anchor"></a>支援 DSR 模式的 LB 運作流程
 </h3><p><img src="https://i.imgur.com/imKOVJL.png"
 	
 	
@@ -359,7 +391,7 @@
 	
 	
 ></p>
-<h2 id="結論">結論
+<h2 id="結論"><a href="#%e7%b5%90%e8%ab%96" class="header-anchor"></a>結論
 </h2><p>這套解決方案的確直觀的降低了 Load Balancer 的壓力，LB 只要專心處理建立連線的 SYN 封包，也能夠搭配自己的負載平衡策略，但缺點可能是如果要妥善利用這個機制需要 Client 也支援 CR，否則不支援的情況會退回原先的 stateless 的 load balance 機制。</p>
 <p>最後筆者比較在意的地方是把 DIP 暴露給 Client 有一定的風險，我認為這種架構比較適合內部的 LB，論文第一段也有提到適合場景是 Internel load balancer。</p>
 
@@ -385,18 +417,6 @@
     </section>
 
 
-    
-    <section class="article-copyright">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <path stroke="none" d="M0 0h24v24H0z"/>
-  <circle cx="12" cy="12" r="9" />
-  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
-</svg>
-
-
-
-        <span>CC BY-NC 4.0</span>
-    </section>
     </footer>
 
 
@@ -670,7 +690,7 @@
                 src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
                 
                 >
-            </script><script type="text/javascript" src="/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js" defer></script>
+            </script><script type="text/javascript" src="/ts/main.9d9ec100f0139808512b69b07eb2dd6e66ad251b611d5a98e989bc35f31f6584.js" defer></script>
 <script>
     (function () {
         const customFont = document.createElement('link');

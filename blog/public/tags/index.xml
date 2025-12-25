@@ -2,249 +2,249 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Tags on davidLei</title>
-        <link>https://davidleitw.github.io/tags/</link>
+        <link>http://localhost:44973/tags/</link>
         <description>Recent content in Tags on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Mon, 06 Feb 2023 21:13:53 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 06 Feb 2023 21:13:53 +0800</lastBuildDate><atom:link href="http://localhost:44973/tags/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Docker</title>
-        <link>https://davidleitw.github.io/tags/docker/</link>
+        <link>http://localhost:44973/tags/docker/</link>
         <pubDate>Mon, 06 Feb 2023 21:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/docker/</guid>
+        <guid>http://localhost:44973/tags/docker/</guid>
         <description></description>
         </item>
         <item>
         <title>Go</title>
-        <link>https://davidleitw.github.io/tags/go/</link>
+        <link>http://localhost:44973/tags/go/</link>
         <pubDate>Mon, 06 Feb 2023 21:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/go/</guid>
+        <guid>http://localhost:44973/tags/go/</guid>
         <description></description>
         </item>
         <item>
         <title>EBPF</title>
-        <link>https://davidleitw.github.io/tags/ebpf/</link>
+        <link>http://localhost:44973/tags/ebpf/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/ebpf/</guid>
+        <guid>http://localhost:44973/tags/ebpf/</guid>
         <description></description>
         </item>
         <item>
         <title>Linux</title>
-        <link>https://davidleitw.github.io/tags/linux/</link>
+        <link>http://localhost:44973/tags/linux/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/linux/</guid>
+        <guid>http://localhost:44973/tags/linux/</guid>
         <description></description>
         </item>
         <item>
         <title>Linux_kernel</title>
-        <link>https://davidleitw.github.io/tags/linux_kernel/</link>
+        <link>http://localhost:44973/tags/linux_kernel/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/linux_kernel/</guid>
+        <guid>http://localhost:44973/tags/linux_kernel/</guid>
         <description></description>
         </item>
         <item>
         <title>Network</title>
-        <link>https://davidleitw.github.io/tags/network/</link>
+        <link>http://localhost:44973/tags/network/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/network/</guid>
+        <guid>http://localhost:44973/tags/network/</guid>
         <description></description>
         </item>
         <item>
         <title>Paper</title>
-        <link>https://davidleitw.github.io/tags/paper/</link>
+        <link>http://localhost:44973/tags/paper/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/paper/</guid>
+        <guid>http://localhost:44973/tags/paper/</guid>
         <description></description>
         </item>
         <item>
         <title>XDP</title>
-        <link>https://davidleitw.github.io/tags/xdp/</link>
+        <link>http://localhost:44973/tags/xdp/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/xdp/</guid>
+        <guid>http://localhost:44973/tags/xdp/</guid>
         <description></description>
         </item>
         <item>
         <title>Shell</title>
-        <link>https://davidleitw.github.io/tags/shell/</link>
+        <link>http://localhost:44973/tags/shell/</link>
         <pubDate>Mon, 24 Oct 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/shell/</guid>
+        <guid>http://localhost:44973/tags/shell/</guid>
         <description></description>
         </item>
         <item>
         <title>C</title>
-        <link>https://davidleitw.github.io/tags/c/</link>
+        <link>http://localhost:44973/tags/c/</link>
         <pubDate>Tue, 28 Jun 2022 04:16:48 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/c/</guid>
+        <guid>http://localhost:44973/tags/c/</guid>
         <description></description>
         </item>
         <item>
         <title>File_descriptor</title>
-        <link>https://davidleitw.github.io/tags/file_descriptor/</link>
+        <link>http://localhost:44973/tags/file_descriptor/</link>
         <pubDate>Tue, 28 Jun 2022 04:16:48 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/file_descriptor/</guid>
+        <guid>http://localhost:44973/tags/file_descriptor/</guid>
         <description></description>
         </item>
         <item>
         <title>Kernel</title>
-        <link>https://davidleitw.github.io/tags/kernel/</link>
+        <link>http://localhost:44973/tags/kernel/</link>
         <pubDate>Tue, 28 Jun 2022 04:16:48 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/kernel/</guid>
+        <guid>http://localhost:44973/tags/kernel/</guid>
         <description></description>
         </item>
         <item>
         <title>Container</title>
-        <link>https://davidleitw.github.io/tags/container/</link>
+        <link>http://localhost:44973/tags/container/</link>
         <pubDate>Wed, 04 May 2022 00:01:01 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/container/</guid>
+        <guid>http://localhost:44973/tags/container/</guid>
         <description></description>
         </item>
         <item>
         <title>Concurrency</title>
-        <link>https://davidleitw.github.io/tags/concurrency/</link>
+        <link>http://localhost:44973/tags/concurrency/</link>
         <pubDate>Fri, 01 Apr 2022 00:01:01 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/concurrency/</guid>
+        <guid>http://localhost:44973/tags/concurrency/</guid>
         <description></description>
         </item>
         <item>
         <title>Parallelism</title>
-        <link>https://davidleitw.github.io/tags/parallelism/</link>
+        <link>http://localhost:44973/tags/parallelism/</link>
         <pubDate>Fri, 01 Apr 2022 00:01:01 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/parallelism/</guid>
+        <guid>http://localhost:44973/tags/parallelism/</guid>
         <description></description>
         </item>
         <item>
         <title>Database</title>
-        <link>https://davidleitw.github.io/tags/database/</link>
+        <link>http://localhost:44973/tags/database/</link>
         <pubDate>Mon, 21 Mar 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/database/</guid>
+        <guid>http://localhost:44973/tags/database/</guid>
         <description></description>
         </item>
         <item>
         <title>ER_Model</title>
-        <link>https://davidleitw.github.io/tags/er_model/</link>
+        <link>http://localhost:44973/tags/er_model/</link>
         <pubDate>Mon, 21 Mar 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/er_model/</guid>
+        <guid>http://localhost:44973/tags/er_model/</guid>
         <description></description>
         </item>
         <item>
         <title>Leetcode</title>
-        <link>https://davidleitw.github.io/tags/leetcode/</link>
+        <link>http://localhost:44973/tags/leetcode/</link>
         <pubDate>Tue, 11 Jan 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/leetcode/</guid>
+        <guid>http://localhost:44973/tags/leetcode/</guid>
         <description></description>
         </item>
         <item>
         <title>System_call</title>
-        <link>https://davidleitw.github.io/tags/system_call/</link>
+        <link>http://localhost:44973/tags/system_call/</link>
         <pubDate>Sat, 08 Jan 2022 03:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/system_call/</guid>
+        <guid>http://localhost:44973/tags/system_call/</guid>
         <description></description>
         </item>
         <item>
         <title>Wait_queue</title>
-        <link>https://davidleitw.github.io/tags/wait_queue/</link>
+        <link>http://localhost:44973/tags/wait_queue/</link>
         <pubDate>Sat, 08 Jan 2022 03:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/wait_queue/</guid>
+        <guid>http://localhost:44973/tags/wait_queue/</guid>
         <description></description>
         </item>
         <item>
         <title>Scheduler</title>
-        <link>https://davidleitw.github.io/tags/scheduler/</link>
+        <link>http://localhost:44973/tags/scheduler/</link>
         <pubDate>Fri, 07 Jan 2022 03:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/scheduler/</guid>
+        <guid>http://localhost:44973/tags/scheduler/</guid>
         <description></description>
         </item>
         <item>
         <title>Fork</title>
-        <link>https://davidleitw.github.io/tags/fork/</link>
+        <link>http://localhost:44973/tags/fork/</link>
         <pubDate>Wed, 05 Jan 2022 00:12:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/fork/</guid>
+        <guid>http://localhost:44973/tags/fork/</guid>
         <description></description>
         </item>
         <item>
         <title>Vagrant</title>
-        <link>https://davidleitw.github.io/tags/vagrant/</link>
+        <link>http://localhost:44973/tags/vagrant/</link>
         <pubDate>Tue, 28 Dec 2021 01:05:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/vagrant/</guid>
+        <guid>http://localhost:44973/tags/vagrant/</guid>
         <description></description>
         </item>
         <item>
         <title>Timer</title>
-        <link>https://davidleitw.github.io/tags/timer/</link>
+        <link>http://localhost:44973/tags/timer/</link>
         <pubDate>Fri, 24 Dec 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/timer/</guid>
+        <guid>http://localhost:44973/tags/timer/</guid>
         <description></description>
         </item>
         <item>
         <title>Socket</title>
-        <link>https://davidleitw.github.io/tags/socket/</link>
+        <link>http://localhost:44973/tags/socket/</link>
         <pubDate>Fri, 12 Nov 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/socket/</guid>
+        <guid>http://localhost:44973/tags/socket/</guid>
         <description></description>
         </item>
         <item>
         <title>Github</title>
-        <link>https://davidleitw.github.io/tags/github/</link>
+        <link>http://localhost:44973/tags/github/</link>
         <pubDate>Sat, 21 Aug 2021 19:13:21 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/github/</guid>
+        <guid>http://localhost:44973/tags/github/</guid>
         <description></description>
         </item>
         <item>
         <title>Vscode</title>
-        <link>https://davidleitw.github.io/tags/vscode/</link>
+        <link>http://localhost:44973/tags/vscode/</link>
         <pubDate>Sat, 21 Aug 2021 19:13:21 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/vscode/</guid>
+        <guid>http://localhost:44973/tags/vscode/</guid>
         <description></description>
         </item>
         <item>
         <title>Blog</title>
-        <link>https://davidleitw.github.io/tags/blog/</link>
+        <link>http://localhost:44973/tags/blog/</link>
         <pubDate>Fri, 13 Aug 2021 23:01:13 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/blog/</guid>
+        <guid>http://localhost:44973/tags/blog/</guid>
         <description></description>
         </item>
         <item>
         <title>Distributed</title>
-        <link>https://davidleitw.github.io/tags/distributed/</link>
+        <link>http://localhost:44973/tags/distributed/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/distributed/</guid>
+        <guid>http://localhost:44973/tags/distributed/</guid>
         <description></description>
         </item>
         <item>
         <title>SDN</title>
-        <link>https://davidleitw.github.io/tags/sdn/</link>
+        <link>http://localhost:44973/tags/sdn/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/tags/sdn/</guid>
+        <guid>http://localhost:44973/tags/sdn/</guid>
         <description></description>
         </item>
         

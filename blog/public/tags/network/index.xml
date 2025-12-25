@@ -2,23 +2,23 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
         <title>Network on davidLei</title>
-        <link>https://davidleitw.github.io/tags/network/</link>
+        <link>http://localhost:44973/tags/network/</link>
         <description>Recent content in Network on davidLei</description>
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-tw</language>
         <copyright>davidlei</copyright>
-        <lastBuildDate>Mon, 19 Dec 2022 22:13:53 +0800</lastBuildDate><atom:link href="https://davidleitw.github.io/tags/network/index.xml" rel="self" type="application/rss+xml" /><item>
+        <lastBuildDate>Mon, 19 Dec 2022 22:13:53 +0800</lastBuildDate><atom:link href="http://localhost:44973/tags/network/index.xml" rel="self" type="application/rss+xml" /><item>
         <title>Bypassing the Load Balancer Without Regrets - SoCC ’20</title>
-        <link>https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/</link>
+        <link>http://localhost:44973/p/bypassing-the-load-balancer-without-regrets-socc-20/</link>
         <pubDate>Mon, 19 Dec 2022 22:13:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/bypassing-the-load-balancer-without-regrets-socc-20/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <guid>http://localhost:44973/p/bypassing-the-load-balancer-without-regrets-socc-20/</guid>
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;最近為了找論文題目看了不少論文，剛好趁這個機會寫點文章當作讀這些 paper 的學習筆記，&lt;a class=&#34;link&#34; href=&#34;https://marioskogias.github.io/docs/crab.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這篇&lt;/a&gt; 主要提出一個新的 Load balance 的機制，希望可以消除 LB 在 data path 花費的時間，讓 LB 專注於處理連線請求，決定 connection 去往哪台 server 之後就讓 Client 與 server 之間直接連線，細節就看底下的簡介或者論文內文吧，我覺得這篇 paper 在概念講解的地方畫了幾張不錯的示意圖，如果想要解釋 L4 的 load balancer 怎麼運作的，這是一篇滿推薦的論文。&lt;/p&gt;
 &lt;p&gt;這篇論文的作者也用了 P4, eBPF 等技術實現了他們的論文，如果有興趣的也可以研究看看實現的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/epfl-dcsl/crab&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;code&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;常見 LB 技術分類
+&lt;h2 id=&#34;常見-lb-技術分類&#34;&gt;&lt;a href=&#34;#%e5%b8%b8%e8%a6%8b-lb-%e6%8a%80%e8%a1%93%e5%88%86%e9%a1%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;常見 LB 技術分類
 &lt;/h2&gt;&lt;p&gt;這篇論文在前面的幾個段落介紹了常見了 Load Belance 技術，然後規劃了一些簡單的實驗來分析各種不同技術的優劣，文中用以下五個標準/指標來分類不同種類的 LB 技術，如下圖所示&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/STj3dNc.png&#34;
 	
@@ -44,12 +44,12 @@
 &lt;/blockquote&gt;
 &lt;p&gt;簡單來說，負載平衡技術在雲端環境下會面臨的挑戰在於 LB 或者後端 Server 的數量會根據請求的流量動態調整，或者是以容器為單位的調度，這種時候像是 WRR, P2C 這類的演算法就毫無用武之地，因為 Server 的數目跟狀態隨時都在變更，無法根據當時的狀態找出較好的調度方案。&lt;/p&gt;
 &lt;p&gt;實驗部份就不過多敘述了，接著來看這篇論文提出的 LB 方案想要滿足什麼條件，用什麼方式達成&lt;/p&gt;
-&lt;h2 id=&#34;crab-design&#34;&gt;CRAB design
+&lt;h2 id=&#34;crab-design&#34;&gt;&lt;a href=&#34;#crab-design&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;CRAB design
 &lt;/h2&gt;&lt;p&gt;這篇論文提出的新 LB 技術取名為 &lt;strong&gt;C&lt;/strong&gt;onnection &lt;strong&gt;R&lt;/strong&gt;edirect Lo&lt;strong&gt;A&lt;/strong&gt;d &lt;strong&gt;B&lt;/strong&gt;alancer(&lt;strong&gt;CRAB&lt;/strong&gt;)，作者用這段話總結實作的理念&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Implementing a centralized, stateful load balancing policy at a connection granularity requires the load balancer’s involvement only during connection setup, following which the client and server can communicate directly.&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;支援 DSR 模式的 LB 運作流程
+&lt;h3 id=&#34;支援-dsr-模式的-lb-運作流程&#34;&gt;&lt;a href=&#34;#%e6%94%af%e6%8f%b4-dsr-%e6%a8%a1%e5%bc%8f%e7%9a%84-lb-%e9%81%8b%e4%bd%9c%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;支援 DSR 模式的 LB 運作流程
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/imKOVJL.png&#34;
 	
 	
@@ -84,18 +84,18 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;結論&#34;&gt;結論
+&lt;h2 id=&#34;結論&#34;&gt;&lt;a href=&#34;#%e7%b5%90%e8%ab%96&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;結論
 &lt;/h2&gt;&lt;p&gt;這套解決方案的確直觀的降低了 Load Balancer 的壓力，LB 只要專心處理建立連線的 SYN 封包，也能夠搭配自己的負載平衡策略，但缺點可能是如果要妥善利用這個機制需要 Client 也支援 CR，否則不支援的情況會退回原先的 stateless 的 load balance 機制。&lt;/p&gt;
 &lt;p&gt;最後筆者比較在意的地方是把 DIP 暴露給 Client 有一定的風險，我認為這種架構比較適合內部的 LB，論文第一段也有提到適合場景是 Internel load balancer。&lt;/p&gt;
 </description>
         </item>
         <item>
         <title>搭建最小化的 xdp 實驗環境</title>
-        <link>https://davidleitw.github.io/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</link>
+        <link>http://localhost:44973/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</link>
         <pubDate>Mon, 12 Dec 2022 21:00:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <guid>http://localhost:44973/p/%E6%90%AD%E5%BB%BA%E6%9C%80%E5%B0%8F%E5%8C%96%E7%9A%84-xdp-%E5%AF%A6%E9%A9%97%E7%92%B0%E5%A2%83/</guid>
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;一般來說學習 xdp 都會參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt;，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。&lt;/p&gt;
 &lt;p&gt;但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:&lt;/p&gt;
@@ -117,8 +117,8 @@
 &lt;p&gt;實際上可能會因為 &lt;code&gt;go.mod&lt;/code&gt; 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。&lt;/p&gt;
 &lt;p&gt;底下我們會根據 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 編寫一個簡單的 xdp 程式，然後編譯成 &lt;code&gt;.o&lt;/code&gt; 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。&lt;/p&gt;
-&lt;h2 id=&#34;&#34;&gt;
-&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;編寫 xdp 範例
+&lt;h2 id=&#34;&#34;&gt;&lt;a href=&#34;#&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;
+&lt;/h2&gt;&lt;h2 id=&#34;編寫-xdp-範例&#34;&gt;&lt;a href=&#34;#%e7%b7%a8%e5%af%ab-xdp-%e7%af%84%e4%be%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;編寫 xdp 範例
 &lt;/h2&gt;&lt;p&gt;這邊我們參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;xdp-tutorial&lt;/a&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/xdp-project/xdp-tutorial/tree/master/packet01-parsing#assignment-3-parsing-the-icmpv6-header-and-reacting-to-it&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;packet01-parsing&lt;/a&gt; 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。&lt;/p&gt;
@@ -267,7 +267,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    rm &lt;span class=&#34;k&#34;&gt;$(&lt;/span&gt;TARGET&lt;span class=&#34;k&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;user space 編寫
+&lt;/div&gt;&lt;h2 id=&#34;user-space-編寫&#34;&gt;&lt;a href=&#34;#user-space-%e7%b7%a8%e5%af%ab&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;user space 編寫
 &lt;/h2&gt;&lt;p&gt;user space 我們使用 go 語言來負責載入編譯好的 &lt;code&gt;elf&lt;/code&gt; 檔案，除此之外還需要提供 api 讓我們能在 user space 操作 eBPF map。&lt;/p&gt;
 &lt;p&gt;go 語言有非常多 eBPF library 可供選擇，最主流的選擇不外乎是 Cilium 與 Cloudflare 維護的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/cilium/ebpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;ebpf-go&lt;/a&gt;，IO Visor 提供的 &lt;a class=&#34;link&#34; href=&#34;https://github.com/iovisor/gobpf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -412,7 +412,7 @@
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;詳細的程式請參考 &lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;GitHub&lt;/a&gt;，實際跑一次程式才知道具體運作的流程。&lt;/p&gt;
-&lt;h2 id=&#34;實測&#34;&gt;實測
+&lt;h2 id=&#34;實測&#34;&gt;&lt;a href=&#34;#%e5%af%a6%e6%b8%ac&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;實測
 &lt;/h2&gt;&lt;p&gt;首先需要編譯 xdp 程式&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -465,7 +465,7 @@
 &lt;p&gt;可以看到，偶數的 icmp packet 都被捨棄了，所以剛好會有 50 % 的封包收到回應，效果的確符合預期。&lt;/p&gt;
 &lt;p&gt;完整程式碼可以看&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/minimalXdpTemplate&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;這邊&lt;/a&gt;，實際跑一次能學習的更有效率!&lt;/p&gt;
-&lt;h3 id=&#34;reference&#34;&gt;reference
+&lt;h3 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://networkop.co.uk/post/2021-03-ebpf-intro/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Getting Started with eBPF and Go&lt;/a&gt;&lt;/li&gt;
@@ -474,12 +474,12 @@
         </item>
         <item>
         <title>Docker 網路模型與 Linux namespace, bridge 機制探討</title>
-        <link>https://davidleitw.github.io/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/</link>
+        <link>http://localhost:44973/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/</link>
         <pubDate>Wed, 04 May 2022 00:01:01 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/</guid>
+        <guid>http://localhost:44973/p/docker-%E7%B6%B2%E8%B7%AF%E6%A8%A1%E5%9E%8B%E8%88%87-linux-namespace-bridge-%E6%A9%9F%E5%88%B6%E6%8E%A2%E8%A8%8E/</guid>
         <description>&lt;p&gt;在 Container 中最重要的一個特性就是資源的隔離，在 Linux 中透過 namespace 提供不同資源的隔離機制，這篇文章會特別探討其中出現最頻繁的 network 的隔離機制，並且透過簡單的實驗來觀察 Docker 的網路模型是怎麼透過 namespace 實現的。&lt;/p&gt;
-&lt;h2 id=&#34;network-namespace&#34;&gt;Network Namespace
+&lt;h2 id=&#34;network-namespace&#34;&gt;&lt;a href=&#34;#network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Network Namespace
 &lt;/h2&gt;&lt;p&gt;在 command line 操作 network namespace 通常會使用 &lt;code&gt;ip netns&lt;/code&gt; 來操作，先引用 &lt;code&gt;ip-netns&lt;/code&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man8/ip-netns.8.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;man page&lt;/a&gt; 來介紹一下 network namespace 的定義&lt;/p&gt;
 &lt;blockquote&gt;
@@ -506,7 +506,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立新的-network-namespace&#34;&gt;建立新的 network namespace
+&lt;h3 id=&#34;建立新的-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立新的 network namespace
 &lt;/h3&gt;&lt;p&gt;建立一個新的 network namespace 可以使用 &lt;code&gt;sudo ip netns add&lt;/code&gt; 加上想要的 namespace 名稱，建立之後用 &lt;code&gt;ip netns ls&lt;/code&gt; 就可以看到多了一個剛剛建立的 network namespace。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -528,7 +528,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;在本地端我們常常會使用 &lt;code&gt;ifconfig&lt;/code&gt; 或者 &lt;code&gt;ip addr&lt;/code&gt; 來檢查一些網路的配置情況，所以 &lt;code&gt;ip netns&lt;/code&gt; 工具為了讓我們更方便的操作，提供了 &lt;code&gt;ip netns exec&lt;/code&gt; 的子命令讓我們可以在對應的 network namespace 執行命令，我們下面的幾個範例都會使用剛剛建立的 &lt;code&gt;ns0&lt;/code&gt; 來操作，先來看看在 &lt;code&gt;ns0&lt;/code&gt; 中執行 &lt;code&gt;ifconfig&lt;/code&gt; 或者 &lt;code&gt;ip addr&lt;/code&gt; 的情況。&lt;/p&gt;
-&lt;h3 id=&#34;執行-cmd-在特定的-network-namespace&#34;&gt;執行 cmd 在特定的 network namespace
+&lt;h3 id=&#34;執行-cmd-在特定的-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%9f%b7%e8%a1%8c-cmd-%e5%9c%a8%e7%89%b9%e5%ae%9a%e7%9a%84-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;執行 cmd 在特定的 network namespace
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;ip netns exec &amp;lt;network namespace name&amp;gt; + cmd&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/QSffLmE.png&#34;
 	
@@ -546,7 +546,7 @@
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://askubuntu.com/questions/247625/what-is-the-loopback-device-and-how-do-i-use-it&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;What is the loopback device and how do I use it?&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;veth---virtual-ethernet-device&#34;&gt;veth - Virtual Ethernet Device
+&lt;h2 id=&#34;veth---virtual-ethernet-device&#34;&gt;&lt;a href=&#34;#veth---virtual-ethernet-device&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;veth - Virtual Ethernet Device
 &lt;/h2&gt;&lt;p&gt;Linux 中有 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man4/veth.4.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;veth - Virtual Ethernet Device&lt;/a&gt; 的概念， &lt;code&gt;veth&lt;/code&gt; 可以拿來建立不同虛擬網路裝置之間的橋樑，讓不同虛擬裝置之間可以連線，像是不同的 network namespace，又或者是 docker container 之間的連線, ovs 內的應用等等，都有使用到 &lt;code&gt;veth&lt;/code&gt; 的概念。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;veth&lt;/code&gt; 都是成對出現的，所以很多文章也把它稱為 &lt;code&gt;veth-pair&lt;/code&gt;，在後續的實驗中我們也可以觀察到 Docker 彼此之間的 &lt;code&gt;veth-pair&lt;/code&gt;。&lt;/p&gt;
@@ -565,7 +565,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;ns0
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;建立新的-veth-pair&#34;&gt;建立新的 veth Pair
+&lt;/div&gt;&lt;h3 id=&#34;建立新的-veth-pair&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e6%96%b0%e7%9a%84-veth-pair&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立新的 veth Pair
 &lt;/h3&gt;&lt;p&gt;上面有提到 &lt;code&gt;veth&lt;/code&gt; 都是成對出現的，所以在建立的時候也要同時建立兩端，這邊我們將兩端分別取名 &lt;code&gt;vth0&lt;/code&gt; 以及 &lt;code&gt;vth1&lt;/code&gt; 代表等等要接在 &lt;code&gt;ns0&lt;/code&gt; 與 &lt;code&gt;ns1&lt;/code&gt; 上面。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -586,7 +586,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;將-veth-連結到-network-namespace&#34;&gt;將 veth 連結到 network namespace
+&lt;h3 id=&#34;將-veth-連結到-network-namespace&#34;&gt;&lt;a href=&#34;#%e5%b0%87-veth-%e9%80%a3%e7%b5%90%e5%88%b0-network-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;將 veth 連結到 network namespace
 &lt;/h3&gt;&lt;p&gt;建立好了兩端的 &lt;code&gt;veth&lt;/code&gt; 之後我們就需要把它接到對應的 network namespace&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -616,7 +616,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;啟動-veth-並且分配一個私有的-ip&#34;&gt;啟動 veth 並且分配一個私有的 ip
+&lt;h3 id=&#34;啟動-veth-並且分配一個私有的-ip&#34;&gt;&lt;a href=&#34;#%e5%95%9f%e5%8b%95-veth-%e4%b8%a6%e4%b8%94%e5%88%86%e9%85%8d%e4%b8%80%e5%80%8b%e7%a7%81%e6%9c%89%e7%9a%84-ip&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;啟動 veth 並且分配一個私有的 ip
 &lt;/h3&gt;&lt;p&gt;光是把 &lt;code&gt;vth0&lt;/code&gt;, &lt;code&gt;vth1&lt;/code&gt; 連結到 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt; 還不夠，為了後續 ping 的實驗我們必須在 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt; 中啟動 &lt;code&gt;veth&lt;/code&gt; 並且分配一個私有的 ip 位置。&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -659,7 +659,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;用-bridge-串連多個不同的-namespace&#34;&gt;用 bridge 串連多個不同的 namespace
+&lt;h2 id=&#34;用-bridge-串連多個不同的-namespace&#34;&gt;&lt;a href=&#34;#%e7%94%a8-bridge-%e4%b8%b2%e9%80%a3%e5%a4%9a%e5%80%8b%e4%b8%8d%e5%90%8c%e7%9a%84-namespace&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;用 bridge 串連多個不同的 namespace
 &lt;/h2&gt;&lt;p&gt;上面的情境是兩個 network namespace 想要互相連結，但真實世界的網路拓樸通常都是多個不同的 device 要互相連結，這時候如果再用 &lt;code&gt;veth&lt;/code&gt; 一個一個設置就不切實際，在一般的網路環境我們會想到用 switch 一類的裝置處理，在 Linux 中也可以透過 &lt;code&gt;bridge&lt;/code&gt; 的概念，用類似虛擬 switch 的方式解決多個不同 network namespace 互連的場景。&lt;/p&gt;
 &lt;p&gt;從頭開始，目標是建立 &lt;code&gt;ns0&lt;/code&gt;, &lt;code&gt;ns1&lt;/code&gt;, &lt;code&gt;ns2&lt;/code&gt; 三個 network namespace 並且讓他們可以透過 &lt;code&gt;bridge&lt;/code&gt;互相連結。&lt;/p&gt;
 &lt;p&gt;最後目標的網路拓樸如下圖&lt;/p&gt;
@@ -672,7 +672,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;注意，這次我們有做一點調整，把 &lt;code&gt;veth&lt;/code&gt; 連結到 network namespace 之後統一改名成 &lt;code&gt;eth0&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立-bridge-device&#34;&gt;建立 bridge device
+&lt;h3 id=&#34;建立-bridge-device&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b-bridge-device&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立 bridge device
 &lt;/h3&gt;&lt;p&gt;先建立一個 &lt;code&gt;bridge device&lt;/code&gt; 並且取名為 &lt;code&gt;br0&lt;/code&gt;&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -809,7 +809,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h2 id=&#34;docker-network-drivers&#34;&gt;Docker network drivers
+&lt;h2 id=&#34;docker-network-drivers&#34;&gt;&lt;a href=&#34;#docker-network-drivers&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Docker network drivers
 &lt;/h2&gt;&lt;p&gt;再來介紹完基礎的 network namespace, veth, bridge 之後我們再來看看 Docker 的網路模型。&lt;/p&gt;
 &lt;p&gt;Docker 在設計的時候就提供了很多種不同的 Network drivers 可以替換，不同 Network drivers 代表著不同的網路模型，使用 &lt;code&gt;docker&lt;/code&gt; 指令建立容器時，可以透過 &lt;code&gt;--network&lt;/code&gt; 參數選擇想要的網路模型。&lt;/p&gt;
 &lt;p&gt;大致上可以分為這幾種&lt;/p&gt;
@@ -857,7 +857,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;建立一個新的-container&#34;&gt;建立一個新的 container
+&lt;h3 id=&#34;建立一個新的-container&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b%e4%b8%80%e5%80%8b%e6%96%b0%e7%9a%84-container&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立一個新的 container
 &lt;/h3&gt;&lt;p&gt;先建立一個 container 來試試預設的網路功能&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -923,7 +923,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;可以注意到 &lt;code&gt;Containers&lt;/code&gt; 的地方多了剛剛建立的 &lt;code&gt;nginx_test1&lt;/code&gt; 的資料，代表說 &lt;code&gt;nginx_test1&lt;/code&gt; 是透過 &lt;code&gt;bridge&lt;/code&gt; 跟外部建立連線的，這也是為什麼剛剛可以訪問 &lt;code&gt;nginx_test1&lt;/code&gt; 的原因。&lt;/p&gt;
-&lt;h3 id=&#34;兩個-containers-透過預設的-bridge-互連&#34;&gt;兩個 containers 透過預設的 bridge 互連
+&lt;h3 id=&#34;兩個-containers-透過預設的-bridge-互連&#34;&gt;&lt;a href=&#34;#%e5%85%a9%e5%80%8b-containers-%e9%80%8f%e9%81%8e%e9%a0%90%e8%a8%ad%e7%9a%84-bridge-%e4%ba%92%e9%80%a3&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;兩個 containers 透過預設的 bridge 互連
 &lt;/h3&gt;&lt;p&gt;接著來觀察在預設的網路環境， container 之間是否也可以藉由 &lt;code&gt;bridge&lt;/code&gt; 互連，先用 &lt;code&gt;alpine&lt;/code&gt; 的 image 建立兩個 container&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
@@ -1036,7 +1036,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h1 id=&#34;reference&#34;&gt;reference
+&lt;h1 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;reference
 &lt;/h1&gt;&lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://hackmd.io/@0xff07/network/https%3A%2F%2Fhackmd.io%2F%400xff07%2FSJzOwViYF&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;計算機網路 - Network Namespace&lt;/a&gt;&lt;/li&gt;
@@ -1055,10 +1055,10 @@
         </item>
         <item>
         <title>linux socket programming(三): socket programming 中常用的位置轉換函數</title>
-        <link>https://davidleitw.github.io/p/linux-socket-programming%E4%B8%89-socket-programming-%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%BD%89%E6%8F%9B%E5%87%BD%E6%95%B8/</link>
+        <link>http://localhost:44973/p/linux-socket-programming%E4%B8%89-socket-programming-%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%BD%89%E6%8F%9B%E5%87%BD%E6%95%B8/</link>
         <pubDate>Fri, 12 Nov 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/linux-socket-programming%E4%B8%89-socket-programming-%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%BD%89%E6%8F%9B%E5%87%BD%E6%95%B8/</guid>
+        <guid>http://localhost:44973/p/linux-socket-programming%E4%B8%89-socket-programming-%E4%B8%AD%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BD%8D%E7%BD%AE%E8%BD%89%E6%8F%9B%E5%87%BD%E6%95%B8/</guid>
         <description>&lt;p&gt;一般我們在表示 &lt;code&gt;ip&lt;/code&gt; 位置時都會寫成人類比較容易讀的形式，像是&lt;code&gt;125.102.25.62&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;以 &lt;code&gt;ipv4&lt;/code&gt; 來說，&lt;code&gt;address&lt;/code&gt; 是由4個 &lt;code&gt;byte&lt;/code&gt;，32個 &lt;code&gt;bit&lt;/code&gt;所組成，在實務上我們常常需要做字串與實際數值(&lt;code&gt;uint32_t&lt;/code&gt;)的轉換，&lt;code&gt;linux&lt;/code&gt; 函式庫提供了一系列輔助位置轉換的 &lt;code&gt;function&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;一般來說，&lt;code&gt;address&lt;/code&gt; 的實際數值都會用 &lt;code&gt;in_addr&lt;/code&gt; 或者 &lt;code&gt;in_addr_t&lt;/code&gt; 來表示
@@ -1102,7 +1102,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;arpa/inet.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h3 id=&#34;inet_addr&#34;&gt;inet_addr
+&lt;/div&gt;&lt;h3 id=&#34;inet_addr&#34;&gt;&lt;a href=&#34;#inet_addr&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_addr
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1118,7 +1118,7 @@
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/socket/blob/master/address/inet_addr_ex.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;範例程式: inet_addr_ex.c&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;inet_aton&#34;&gt;inet_aton
+&lt;h3 id=&#34;inet_aton&#34;&gt;&lt;a href=&#34;#inet_aton&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_aton
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1131,7 +1131,7 @@
 &lt;p&gt;&lt;strong&gt;回傳&lt;/strong&gt;: 轉換成功，會回傳一個非零的值，失敗則會回傳 &lt;code&gt;0&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/socket/blob/master/address/inet_aton_ex.c&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;範例程式: inet_aton_ex.c&lt;/a&gt;&lt;/p&gt;
-&lt;h3 id=&#34;inet_ntoa&#34;&gt;inet_ntoa
+&lt;h3 id=&#34;inet_ntoa&#34;&gt;&lt;a href=&#34;#inet_ntoa&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_ntoa
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1148,7 +1148,7 @@
 &lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://blog.hubert.tw/2009/04/18/%E5%BE%9E-inet_ntoa-%E7%9C%8B-thread-safe-%E7%9A%84-api/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;可怕的坑&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;inet_pton--inet_ntop&#34;&gt;inet_pton &amp;amp; inet_ntop
+&lt;h3 id=&#34;inet_pton--inet_ntop&#34;&gt;&lt;a href=&#34;#inet_pton--inet_ntop&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;inet_pton &amp;amp; inet_ntop
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1209,11 +1209,11 @@
         </item>
         <item>
         <title>linux socket programming(二): socket 中用來存放地址的 sockaddr</title>
-        <link>https://davidleitw.github.io/p/linux-socket-programming%E4%BA%8C-socket-%E4%B8%AD%E7%94%A8%E4%BE%86%E5%AD%98%E6%94%BE%E5%9C%B0%E5%9D%80%E7%9A%84-sockaddr/</link>
+        <link>http://localhost:44973/p/linux-socket-programming%E4%BA%8C-socket-%E4%B8%AD%E7%94%A8%E4%BE%86%E5%AD%98%E6%94%BE%E5%9C%B0%E5%9D%80%E7%9A%84-sockaddr/</link>
         <pubDate>Tue, 26 Oct 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/linux-socket-programming%E4%BA%8C-socket-%E4%B8%AD%E7%94%A8%E4%BE%86%E5%AD%98%E6%94%BE%E5%9C%B0%E5%9D%80%E7%9A%84-sockaddr/</guid>
-        <description>&lt;h2 id=&#34;sockaddr&#34;&gt;sockaddr
+        <guid>http://localhost:44973/p/linux-socket-programming%E4%BA%8C-socket-%E4%B8%AD%E7%94%A8%E4%BE%86%E5%AD%98%E6%94%BE%E5%9C%B0%E5%9D%80%E7%9A%84-sockaddr/</guid>
+        <description>&lt;h2 id=&#34;sockaddr&#34;&gt;&lt;a href=&#34;#sockaddr&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;sockaddr
 &lt;/h2&gt;&lt;p&gt;&lt;code&gt;sockaddr&lt;/code&gt; 是 &lt;code&gt;socket&lt;/code&gt; 的通用地址結構，就如同一開始提到的，&lt;code&gt;socket&lt;/code&gt; 除了在網路領域之外，也可以在很多不同的地方用來通訊。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;sockaddr&lt;/code&gt; 結構，定義如下&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1346,11 +1346,11 @@
         </item>
         <item>
         <title>linux socket programming(一): 什麼是 socket &amp; 創建一個新的 socket</title>
-        <link>https://davidleitw.github.io/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/</link>
+        <link>http://localhost:44973/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/</link>
         <pubDate>Mon, 25 Oct 2021 01:04:53 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/</guid>
-        <description>&lt;h1 id=&#34;socket-programming&#34;&gt;socket programming
+        <guid>http://localhost:44973/p/linux-socket-programming%E4%B8%80-%E4%BB%80%E9%BA%BC%E6%98%AF-socket-%E5%89%B5%E5%BB%BA%E4%B8%80%E5%80%8B%E6%96%B0%E7%9A%84-socket/</guid>
+        <description>&lt;h1 id=&#34;socket-programming&#34;&gt;&lt;a href=&#34;#socket-programming&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;socket programming
 &lt;/h1&gt;&lt;p&gt;&lt;code&gt;socket&lt;/code&gt; 本質上是一種 &lt;strong&gt;IPC&lt;/strong&gt; (&lt;code&gt;Inter-Process Communication&lt;/code&gt;) 的技術，用於兩個或多個 &lt;code&gt;process&lt;/code&gt; 進行資料交換或者通訊。&lt;/p&gt;
 &lt;p&gt;在網路領域，&lt;code&gt;socket&lt;/code&gt; 著重的不是同一台主機間 &lt;code&gt;process&lt;/code&gt; 的通訊，而是不同主機執行的 &lt;code&gt;process&lt;/code&gt; 互相交換資料的通訊。&lt;/p&gt;
 &lt;p&gt;我們在寫 &lt;code&gt;socket programming&lt;/code&gt; 的時候會使用 &lt;code&gt;os&lt;/code&gt; 提供的 &lt;code&gt;API&lt;/code&gt;，來避免重複造輪子，今天的筆記會簡單介紹一下 &lt;code&gt;linux&lt;/code&gt; 提供的 &lt;code&gt;socket API&lt;/code&gt;，並用兩個簡單的範例介紹如何用 &lt;code&gt;tcp&lt;/code&gt; 跟 &lt;code&gt;udp&lt;/code&gt; 協定透過 &lt;code&gt;socket&lt;/code&gt; 傳輸資料。&lt;/p&gt;
@@ -1379,7 +1379,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;cp&#34;&gt;#include&lt;/span&gt; &lt;span class=&#34;cpf&#34;&gt;&amp;lt;sys/socket.h&amp;gt;&lt;/span&gt;&lt;span class=&#34;cp&#34;&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h2 id=&#34;socket&#34;&gt;socket
+&lt;/div&gt;&lt;h2 id=&#34;socket&#34;&gt;&lt;a href=&#34;#socket&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;socket
 &lt;/h2&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
@@ -1388,7 +1388,7 @@
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;nf&#34;&gt;socket&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;domain&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;protocol&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
-&lt;/div&gt;&lt;h4 id=&#34;domain&#34;&gt;&lt;em&gt;domain&lt;/em&gt;
+&lt;/div&gt;&lt;h4 id=&#34;domain&#34;&gt;&lt;a href=&#34;#domain&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;domain&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;定義要建立哪一種類型的 &lt;code&gt;socket&lt;/code&gt;，常用的有以下幾種類型&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;AF_UNIX&lt;/strong&gt;, &lt;strong&gt;AF_LOCAL&lt;/strong&gt;: 用於本機間 &lt;code&gt;process&lt;/code&gt; 的溝通&lt;/li&gt;
@@ -1401,22 +1401,22 @@
 &lt;/ul&gt;
 &lt;p&gt;詳細的選項可以參考 &lt;code&gt;socket&lt;/code&gt; 的 &lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man2/socket.2.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;man page&lt;/a&gt;&lt;/p&gt;
-&lt;h4 id=&#34;type&#34;&gt;&lt;em&gt;type&lt;/em&gt;
+&lt;h4 id=&#34;type&#34;&gt;&lt;a href=&#34;#type&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;type&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;&lt;code&gt;socket&lt;/code&gt; 傳輸資料的手段(&lt;code&gt;communication semantics&lt;/code&gt;)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;SOCK_STREAM&lt;/strong&gt;: 對應到 &lt;code&gt;tcp&lt;/code&gt; 協定&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;SOCK_DGRAM&lt;/strong&gt;: 對應到 &lt;code&gt;udp&lt;/code&gt; 協定&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h4 id=&#34;protocol&#34;&gt;&lt;em&gt;protocol&lt;/em&gt;
+&lt;h4 id=&#34;protocol&#34;&gt;&lt;a href=&#34;#protocol&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;protocol&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;設定通訊協定的號碼，通常在寫的時候會填入 &lt;code&gt;0&lt;/code&gt;，&lt;code&gt;kernel&lt;/code&gt; 會根據上面的兩個參數自動選擇合適的協定。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://man7.org/linux/man-pages/man5/protocols.5.html#top_of_page&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;protocol man page&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;&lt;code&gt;/etc/protocols&lt;/code&gt; 可以看到 &lt;code&gt;linux&lt;/code&gt; 底下支援的協定&lt;/p&gt;
-&lt;h4 id=&#34;return-value&#34;&gt;&lt;em&gt;Return Value&lt;/em&gt;
+&lt;h4 id=&#34;return-value&#34;&gt;&lt;a href=&#34;#return-value&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;&lt;em&gt;Return Value&lt;/em&gt;
 &lt;/h4&gt;&lt;p&gt;成功建立 &lt;code&gt;socket&lt;/code&gt; 之後，此函式會返回該 &lt;code&gt;socket&lt;/code&gt; 的&lt;strong&gt;檔案描述符&lt;/strong&gt;(&lt;code&gt;socket file descriptor&lt;/code&gt;)，在之後的操作可以透過這個回傳值來操作我們建立的 &lt;code&gt;socket&lt;/code&gt;。 如果建立失敗則會回傳 &lt;code&gt;-1(INVALID_SOCKET)&lt;/code&gt;&lt;/p&gt;
-&lt;h3 id=&#34;檔案描述符是什麼&#34;&gt;檔案描述符是什麼?
+&lt;h3 id=&#34;檔案描述符是什麼&#34;&gt;&lt;a href=&#34;#%e6%aa%94%e6%a1%88%e6%8f%8f%e8%bf%b0%e7%ac%a6%e6%98%af%e4%bb%80%e9%ba%bc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;檔案描述符是什麼?
 &lt;/h3&gt;&lt;p&gt;參考資料&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://en.wikipedia.org/wiki/Everything_is_a_file&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -1426,7 +1426,7 @@
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.cnblogs.com/chorm590/p/12745824.html&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;Linux 下 socket 通訊所用的 sockfd 怎麼來的&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;建立-socket-example&#34;&gt;建立 socket example
+&lt;h3 id=&#34;建立-socket-example&#34;&gt;&lt;a href=&#34;#%e5%bb%ba%e7%ab%8b-socket-example&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;建立 socket example
 &lt;/h3&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt; 1
@@ -1473,18 +1473,18 @@
         </item>
         <item>
         <title>SDN 學習筆記(一): SDN 的發展歷史以及基本名詞介紹</title>
-        <link>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</link>
+        <link>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
+        <guid>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%B8%80-sdn-%E7%9A%84%E7%99%BC%E5%B1%95%E6%AD%B7%E5%8F%B2%E4%BB%A5%E5%8F%8A%E5%9F%BA%E6%9C%AC%E5%90%8D%E8%A9%9E%E4%BB%8B%E7%B4%B9/</guid>
         <description>&lt;p&gt;此專案用來整理一些學習 SDN 的相關知識以及參考資料。
 由於剛開始學習沒多久，所以會著重於個人學習的&lt;strong&gt;順序&lt;/strong&gt;，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。&lt;/p&gt;
 &lt;p&gt;當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點&lt;/p&gt;
-&lt;h2 id=&#34;預備知識&#34;&gt;預備知識
+&lt;h2 id=&#34;預備知識&#34;&gt;&lt;a href=&#34;#%e9%a0%90%e5%82%99%e7%9f%a5%e8%ad%98&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;預備知識
 &lt;/h2&gt;&lt;p&gt;在學習 SDN 之前我準備先複習了一輪 &lt;a class=&#34;link&#34; href=&#34;https://www.ucg.ac.me/skladiste/blog_44233/objava_64433/fajlovi/Computer%20Networking%20_%20A%20Top%20Down%20Approach,%207th,%20converted.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;computer networking a top-down approach 7th&lt;/a&gt;，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。&lt;/p&gt;
 &lt;p&gt;之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。&lt;/p&gt;
-&lt;h2 id=&#34;什麼是-sdn-以及-sdn-的發展歷史&#34;&gt;什麼是 SDN 以及 SDN 的發展歷史
+&lt;h2 id=&#34;什麼是-sdn-以及-sdn-的發展歷史&#34;&gt;&lt;a href=&#34;#%e4%bb%80%e9%ba%bc%e6%98%af-sdn-%e4%bb%a5%e5%8f%8a-sdn-%e7%9a%84%e7%99%bc%e5%b1%95%e6%ad%b7%e5%8f%b2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;什麼是 SDN 以及 SDN 的發展歷史
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;p&gt;參考文章&lt;/p&gt;
 &lt;ul&gt;
@@ -1511,7 +1511,7 @@
 	
 &gt;&lt;/p&gt;
 &lt;p&gt;SDN 並非一種技術，而是一種設計的理念，只要符合&lt;strong&gt;控制面以及轉接面的分離&lt;/strong&gt;，以及開放的&lt;strong&gt;可程式化&lt;/strong&gt;設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著&lt;strong&gt;集中控制&lt;/strong&gt;的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。&lt;/p&gt;
-&lt;h2 id=&#34;常用名詞解釋&#34;&gt;常用名詞解釋
+&lt;h2 id=&#34;常用名詞解釋&#34;&gt;&lt;a href=&#34;#%e5%b8%b8%e7%94%a8%e5%90%8d%e8%a9%9e%e8%a7%a3%e9%87%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;常用名詞解釋
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://sites.google.com/a/cnsrl.cycu.edu.tw/da-shu-bi-ji/_/rsrc/1565708281052/sdn/sdn_architecture.png&#34;
 	
 	
@@ -1520,7 +1520,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;network-device-網路設備&#34;&gt;Network Device 網路設備
+&lt;h3 id=&#34;network-device-網路設備&#34;&gt;&lt;a href=&#34;#network-device-%e7%b6%b2%e8%b7%af%e8%a8%ad%e5%82%99&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Network Device 網路設備
 &lt;/h3&gt;&lt;p&gt;網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。&lt;/p&gt;
 &lt;p&gt;有時候網路設備也被稱為 &lt;strong&gt;Data Plane&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;支援 OpenFlow 的 switch 會有以下功能&lt;/p&gt;
@@ -1529,26 +1529,26 @@
 &lt;li&gt;對於接收到的封包進行轉送到 Controller 的動作(Packet-In)。&lt;/li&gt;
 &lt;li&gt;對於接收到來自 Controller 的封包轉送到指定的連接埠(Packet-Out)。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;南向界面southbound-interface-control-data-plane-interface&#34;&gt;南向界面(Southbound Interface/ Control Data Plane Interface)
+&lt;h3 id=&#34;南向界面southbound-interface-control-data-plane-interface&#34;&gt;&lt;a href=&#34;#%e5%8d%97%e5%90%91%e7%95%8c%e9%9d%a2southbound-interface-control-data-plane-interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;南向界面(Southbound Interface/ Control Data Plane Interface)
 &lt;/h3&gt;&lt;p&gt;南向界面是指 Data Plane 以及 Controller 之間的界面，在 SDN 架構中，希望南向界面是標準化的，這樣才可以讓軟體可以不受硬體的限制，在任何設備上都能執行，不過現在還只是理想。&lt;/p&gt;
 &lt;p&gt;目前主流的南向界面標準是 OpenFlow 協定，雖然還有其他各種南向界面，不過還是 OpenFlow 為大宗。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;因為我也還是新手的緣故，所以也是從 OpenFlow 開始學習 SDN 的，此篇心得文也會著重在 OpenFlow 協定上。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h3 id=&#34;控制器controller&#34;&gt;控制器(Controller)
+&lt;h3 id=&#34;控制器controller&#34;&gt;&lt;a href=&#34;#%e6%8e%a7%e5%88%b6%e5%99%a8controller&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;控制器(Controller)
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Controller&lt;/strong&gt; 是 SDN 的核心，北向有應用程式提供業務邏輯經由 Controller 將轉送的規則藉由 Southbound Interface 傳給網路設備，屬於 SDN 架構中最重要的部份。&lt;/p&gt;
 &lt;p&gt;目前 Controller 百家爭鳴，有很多開源的 controller (例如 Ryu, FloodLight, NOX/POX)等等，也有很多公司開發的商用版本，本篇心得文會使用 Ryu 去做一些 OpenFlow 相關的實驗。&lt;/p&gt;
-&lt;h3 id=&#34;北向界面northbound-interface&#34;&gt;北向界面(Northbound Interface)
+&lt;h3 id=&#34;北向界面northbound-interface&#34;&gt;&lt;a href=&#34;#%e5%8c%97%e5%90%91%e7%95%8c%e9%9d%a2northbound-interface&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;北向界面(Northbound Interface)
 &lt;/h3&gt;&lt;p&gt;北向界面是指應用程式以及 Controller 之間溝通的界面，目前還沒有一個統一的標準，通常會因為狀況不同而採用不同的方案。&lt;/p&gt;
-&lt;h3 id=&#34;applicationservices&#34;&gt;Application(Services)
+&lt;h3 id=&#34;applicationservices&#34;&gt;&lt;a href=&#34;#applicationservices&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Application(Services)
 &lt;/h3&gt;&lt;p&gt;這裡的 Application 是指幾乎所有網路的應用，包含load balancing, security, monitoring 等等.. 應用程式的業務邏輯就透過 Controller 傳送規則給網路設備，讓設備彈性的執行我們要的功能。&lt;/p&gt;
-&lt;h2 id=&#34;openflow-協定&#34;&gt;OpenFlow 協定
+&lt;h2 id=&#34;openflow-協定&#34;&gt;&lt;a href=&#34;#openflow-%e5%8d%94%e5%ae%9a&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow 協定
 &lt;/h2&gt;&lt;p&gt;OpenFlow 為最有代表性的南向界面，被視為第一個 SDN 的標準之一。它最初在 SDN 環境中定義了通信協定，使 SDN 控制器能夠與物理和虛擬的交換機和路由器等網路裝置的轉發平面直接進行互動，從而更好地適應不斷變化的業務需求。&lt;/p&gt;
-&lt;h3 id=&#34;概述維基百科&#34;&gt;概述(&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/OpenFlow&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+&lt;h3 id=&#34;概述維基百科&#34;&gt;&lt;a href=&#34;#%e6%a6%82%e8%bf%b0%e7%b6%ad%e5%9f%ba%e7%99%be%e7%a7%91&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;概述(&lt;a class=&#34;link&#34; href=&#34;https://zh.wikipedia.org/wiki/OpenFlow&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;維基百科&lt;/a&gt;)
 &lt;/h3&gt;&lt;p&gt;OpenFlow 能夠啟動遠端的控制器，經由網路交換器，決定網路封包要由何種路徑通過網路交換機。這個協定的發明者，將它當成軟體定義網路（Software-defined networking）的啟動器。&lt;/p&gt;
 &lt;p&gt;OpenFlow 允許從遠端控制網路交換器的封包轉送表，透過新增、修改與移除封包控制規則與行動，來改變封包轉送的路徑。比起用存取控制列表 (ACLs) 和路由協定，允許更複雜的流量管理。同時，OpenFlow 允許不同供應商用一個簡單，開源的協定去遠端管理交換機（通常提供專有的介面和描述語言)。&lt;/p&gt;
-&lt;h3 id=&#34;協定內容&#34;&gt;協定內容
+&lt;h3 id=&#34;協定內容&#34;&gt;&lt;a href=&#34;#%e5%8d%94%e5%ae%9a%e5%85%a7%e5%ae%b9&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;協定內容
 &lt;/h3&gt;&lt;p&gt;因為 OpenFlow 算是一個很有指標性的 SDN 協定，所以對於要學習 SDN 的人來說，他的 specification 也非常值得一看，我們會就 &lt;strong&gt;OpenFlow&lt;/strong&gt; 獨立一個章節來談論。請點以下連結:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw/learn_SDN/blob/master/OpenFlow.md&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
@@ -1572,20 +1572,20 @@
         </item>
         <item>
         <title>SDN 學習筆記(二): OpenFlow 1.0 介紹</title>
-        <link>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</link>
+        <link>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</link>
         <pubDate>Fri, 13 Aug 2021 21:34:43 +0800</pubDate>
         
-        <guid>https://davidleitw.github.io/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</guid>
-        <description>&lt;h2 id=&#34;前言&#34;&gt;前言
+        <guid>http://localhost:44973/p/sdn-%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98%E4%BA%8C-openflow-1.0-%E4%BB%8B%E7%B4%B9/</guid>
+        <description>&lt;h2 id=&#34;前言&#34;&gt;&lt;a href=&#34;#%e5%89%8d%e8%a8%80&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;前言
 &lt;/h2&gt;&lt;p&gt;想要深入了解一個協定的內容，看規格書是最快的，因為剛開始學習 SDN 相關的知識，所以目前正在讀OpenFlow1.0相關的內容，這篇文章會先主要介紹&lt;strong&gt;OpenFlow 1.0的架構&lt;/strong&gt;，以及一些 spec 的整理.&lt;/p&gt;
 &lt;p&gt;之後也會整理一些 OpenFlow 1.3版本的內容，並且簡單描述跟 OpenFlow 1.0的差異。&lt;/p&gt;
-&lt;h3 id=&#34;為什麼會著重在10與13兩個版本呢&#34;&gt;為什麼會著重在1.0與1.3兩個版本呢？
+&lt;h3 id=&#34;為什麼會著重在10與13兩個版本呢&#34;&gt;&lt;a href=&#34;#%e7%82%ba%e4%bb%80%e9%ba%bc%e6%9c%83%e8%91%97%e9%87%8d%e5%9c%a810%e8%88%8713%e5%85%a9%e5%80%8b%e7%89%88%e6%9c%ac%e5%91%a2&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;為什麼會著重在1.0與1.3兩個版本呢？
 &lt;/h3&gt;&lt;blockquote&gt;
 &lt;p&gt;1.0版本與之後的版本不兼容，所以1.0要最先介紹。 &lt;strong&gt;1.0以及1.3版本被選為長期支持的穩定版本&lt;/strong&gt; 1.3為目前的主流版本，&lt;strong&gt;多數支持OpenFlow的硬體是支援OpenFlow1.3&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;參考資料: &lt;a class=&#34;link&#34; href=&#34;https://blog.csdn.net/qq_29229567/article/details/88797395&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;OpenFlow 協定演進&lt;/a&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;h2 id=&#34;openflow-10-架構&#34;&gt;OpenFlow 1.0 架構
+&lt;h2 id=&#34;openflow-10-架構&#34;&gt;&lt;a href=&#34;#openflow-10-%e6%9e%b6%e6%a7%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow 1.0 架構
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://imgur.com/AioLuDj.jpg&#34;
 	
 	
@@ -1596,7 +1596,7 @@
 &gt;
 &lt;strong&gt;OpenFlow 1.0 spec 架構圖&lt;/strong&gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;flow-table&#34;&gt;Flow Table
+&lt;h2 id=&#34;flow-table&#34;&gt;&lt;a href=&#34;#flow-table&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Flow Table
 &lt;/h2&gt;&lt;p&gt;&lt;img src=&#34;https://imgur.com/YazXiG6.jpg&#34;
 	
 	
@@ -1616,7 +1616,7 @@
 &lt;li&gt;&lt;code&gt;Counters&lt;/code&gt;&lt;/li&gt;
 &lt;li&gt;&lt;code&gt;Actions&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;header-fields&#34;&gt;Header Fields
+&lt;h3 id=&#34;header-fields&#34;&gt;&lt;a href=&#34;#header-fields&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Header Fields
 &lt;/h3&gt;&lt;p&gt;&lt;strong&gt;OpenFlow 1.0&lt;/strong&gt; 協定中共有12種可供匹配的條件， IP部份只支援IPv4。&lt;/p&gt;
 &lt;p&gt;分別如下，僅列出條列，細節說明請參考 &lt;strong&gt;OpenFlow 1.0 spec&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
@@ -1660,7 +1660,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;counters&#34;&gt;Counters
+&lt;h3 id=&#34;counters&#34;&gt;&lt;a href=&#34;#counters&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Counters
 &lt;/h3&gt;&lt;p&gt;&lt;code&gt;Counter&lt;/code&gt; 會針對每張 &lt;code&gt;Flow Table&lt;/code&gt;, 每條 &lt;code&gt;Flow entry&lt;/code&gt;, 每個 switch 上的 port 以及每個佇列分別紀錄一些相關資訊。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/exsmUoB.png&#34;
 	
@@ -1670,7 +1670,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h3 id=&#34;actions&#34;&gt;Actions
+&lt;h3 id=&#34;actions&#34;&gt;&lt;a href=&#34;#actions&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Actions
 &lt;/h3&gt;&lt;p&gt;每一個 &lt;code&gt;Flow entry&lt;/code&gt; 都伴隨著0或者多個 &lt;code&gt;actions&lt;/code&gt;， &lt;code&gt;actions&lt;/code&gt;代表今天封包匹配某個 &lt;code&gt;Header fields&lt;/code&gt; 的條件成功之後會執行的動作。&lt;/p&gt;
 &lt;p&gt;假設匹配成功之後發現沒有設置 &lt;code&gt;actions&lt;/code&gt;， 此時 &lt;code&gt;Switch&lt;/code&gt; 就會把&lt;strong&gt;封包丟棄(dropped)&lt;/strong&gt;，匹配成功之後執行 actions list 必定會按照原本的順序&lt;strong&gt;依序執行&lt;/strong&gt;。&lt;/p&gt;
 &lt;blockquote&gt;
@@ -1680,7 +1680,7 @@
 &lt;/ul&gt;
 &lt;/blockquote&gt;
 &lt;p&gt;&lt;code&gt;Switch&lt;/code&gt; 並不需要支援所有在 spec 裡面提及的 &lt;code&gt;action&lt;/code&gt;， 只有標注 &lt;strong&gt;Required Action&lt;/strong&gt; 的才是一定要支援的，標注 &lt;strong&gt;Optional Action&lt;/strong&gt; 的則是選用。&lt;/p&gt;
-&lt;h4 id=&#34;required-action-forward轉發封包&#34;&gt;Required Action: Forward(轉發封包)
+&lt;h4 id=&#34;required-action-forward轉發封包&#34;&gt;&lt;a href=&#34;#required-action-forward%e8%bd%89%e7%99%bc%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Required Action: Forward(轉發封包)
 &lt;/h4&gt;&lt;p&gt;轉發除了要支援基本的 Switch port 之外， 也要支援以下的 &lt;strong&gt;virtual port&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/tgv3Nbj.png&#34;
 	
@@ -1699,11 +1699,11 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;required-action-drop丟棄封包&#34;&gt;Required Action: Drop(丟棄封包)
+&lt;h4 id=&#34;required-action-drop丟棄封包&#34;&gt;&lt;a href=&#34;#required-action-drop%e4%b8%9f%e6%a3%84%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Required Action: Drop(丟棄封包)
 &lt;/h4&gt;&lt;p&gt;除了可以設定 Drop action 之外， 假設今天有 &lt;code&gt;Flow entry&lt;/code&gt; 沒有設定 &lt;code&gt;action&lt;/code&gt;，switch 也會預設把封包丟棄。&lt;/p&gt;
-&lt;h4 id=&#34;optional-action-enqueue&#34;&gt;Optional Action: Enqueue
+&lt;h4 id=&#34;optional-action-enqueue&#34;&gt;&lt;a href=&#34;#optional-action-enqueue&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Optional Action: Enqueue
 &lt;/h4&gt;&lt;p&gt;Enqueue 可以將封包轉發至某個特定 port 的 queue 中，便於支援&lt;code&gt;QoS&lt;/code&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;optional-action-modify-field修改封包&#34;&gt;Optional Action: Modify-Field(修改封包)
+&lt;h4 id=&#34;optional-action-modify-field修改封包&#34;&gt;&lt;a href=&#34;#optional-action-modify-field%e4%bf%ae%e6%94%b9%e5%b0%81%e5%8c%85&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Optional Action: Modify-Field(修改封包)
 &lt;/h4&gt;&lt;p&gt;基本上最有彈性的 &lt;strong&gt;Modify-Field&lt;/strong&gt; 雖然是標注為 &lt;strong&gt;Optional Action&lt;/strong&gt;，但是 spec 有提到此功能可以大大提昇 OpenFlow 的實用性，基本上所有支援 OpenFlow 的 &lt;code&gt;Switch&lt;/code&gt; 都會支援。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://i.imgur.com/8L2cErK.png&#34;
 	
@@ -1714,8 +1714,8 @@
 	
 &gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;h2 id=&#34;matching&#34;&gt;Matching
-&lt;/h2&gt;&lt;h3 id=&#34;packet-flow-in-an-openflow-switch-封包處理流程&#34;&gt;Packet flow in an OpenFlow switch: 封包處理流程
+&lt;h2 id=&#34;matching&#34;&gt;&lt;a href=&#34;#matching&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Matching
+&lt;/h2&gt;&lt;h3 id=&#34;packet-flow-in-an-openflow-switch-封包處理流程&#34;&gt;&lt;a href=&#34;#packet-flow-in-an-openflow-switch-%e5%b0%81%e5%8c%85%e8%99%95%e7%90%86%e6%b5%81%e7%a8%8b&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Packet flow in an OpenFlow switch: 封包處理流程
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/QD4VWvh.png&#34;
 	
 	
@@ -1737,7 +1737,7 @@
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;解析封包獲得-header-field-用以檢索符合的-flow-entry&#34;&gt;解析封包獲得 Header field 用以檢索符合的 Flow entry
+&lt;h3 id=&#34;解析封包獲得-header-field-用以檢索符合的-flow-entry&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%9e%90%e5%b0%81%e5%8c%85%e7%8d%b2%e5%be%97-header-field-%e7%94%a8%e4%bb%a5%e6%aa%a2%e7%b4%a2%e7%ac%a6%e5%90%88%e7%9a%84-flow-entry&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解析封包獲得 Header field 用以檢索符合的 Flow entry
 &lt;/h3&gt;&lt;p&gt;&lt;img src=&#34;https://i.imgur.com/wJHVTOf.png&#34;
 	
 	
@@ -1746,7 +1746,7 @@
 	
 	
 &gt;&lt;/p&gt;
-&lt;h4 id=&#34;解析步驟可以簡單劃分成底下四點&#34;&gt;解析步驟可以簡單劃分成底下四點
+&lt;h4 id=&#34;解析步驟可以簡單劃分成底下四點&#34;&gt;&lt;a href=&#34;#%e8%a7%a3%e6%9e%90%e6%ad%a5%e9%a9%9f%e5%8f%af%e4%bb%a5%e7%b0%a1%e5%96%ae%e5%8a%83%e5%88%86%e6%88%90%e5%ba%95%e4%b8%8b%e5%9b%9b%e9%bb%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;解析步驟可以簡單劃分成底下四點
 &lt;/h4&gt;&lt;ul&gt;
 &lt;li&gt;初始化 &lt;code&gt;Headers&lt;/code&gt;
 &lt;ul&gt;
@@ -1777,9 +1777,9 @@
 &lt;li&gt;根據 IPv4 封包來確定是TCP/UDP/ICMP協定&lt;/li&gt;
 &lt;li&gt;寫入TCP/UDP/ICMP協定資料&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;secure-channel&#34;&gt;Secure Channel
+&lt;h2 id=&#34;secure-channel&#34;&gt;&lt;a href=&#34;#secure-channel&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Secure Channel
 &lt;/h2&gt;&lt;p&gt;作為連結 &lt;code&gt;Switch&lt;/code&gt; 與 &lt;code&gt;Controller&lt;/code&gt; 的橋樑。&lt;/p&gt;
-&lt;h2 id=&#34;openflow-protocol-message&#34;&gt;OpenFlow Protocol Message
+&lt;h2 id=&#34;openflow-protocol-message&#34;&gt;&lt;a href=&#34;#openflow-protocol-message&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;OpenFlow Protocol Message
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;p&gt;記得,OpenFlow 是定義 Controller 與 Switch 溝通的通訊協定&lt;/p&gt;
 &lt;/blockquote&gt;
@@ -1789,7 +1789,7 @@
 &lt;li&gt;&lt;strong&gt;Asynchronous&lt;/strong&gt;: 此類消息通常由 &lt;code&gt;Switch&lt;/code&gt; 主動發出&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;Symmetric&lt;/strong&gt;: 此類消息 &lt;code&gt;Controller&lt;/code&gt; 以及 &lt;code&gt;Switch&lt;/code&gt; 都可以發出&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;controller-to-switch&#34;&gt;Controller-to-Switch
+&lt;h3 id=&#34;controller-to-switch&#34;&gt;&lt;a href=&#34;#controller-to-switch&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Controller-to-Switch
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Features&lt;/strong&gt;&lt;/p&gt;
@@ -1816,7 +1816,7 @@
 &lt;p&gt;&lt;code&gt;OFPT_BARRIER_REQUEST&lt;/code&gt;、&lt;code&gt;OFPT_BARRIER_REPLY&lt;/code&gt;。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;asynchronous&#34;&gt;Asynchronous
+&lt;h3 id=&#34;asynchronous&#34;&gt;&lt;a href=&#34;#asynchronous&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Asynchronous
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Packet-in&lt;/strong&gt;&lt;/p&gt;
@@ -1846,7 +1846,7 @@
 &lt;p&gt;&lt;code&gt;Switch&lt;/code&gt; 回傳錯誤訊息。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h3 id=&#34;symmetric&#34;&gt;Symmetric
+&lt;h3 id=&#34;symmetric&#34;&gt;&lt;a href=&#34;#symmetric&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Symmetric
 &lt;/h3&gt;&lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;Hello&lt;/strong&gt;&lt;/p&gt;
@@ -1861,14 +1861,14 @@
 &lt;p&gt;自定義訊息&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id=&#34;結語&#34;&gt;結語
+&lt;h2 id=&#34;結語&#34;&gt;&lt;a href=&#34;#%e7%b5%90%e8%aa%9e&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;結語
 &lt;/h2&gt;&lt;p&gt;在 &lt;code&gt;OpenFlow&lt;/code&gt; 規格書中通常分成前半部份的&lt;strong&gt;規範&lt;/strong&gt;以及後半部份的&lt;strong&gt;協議實作&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;規範&lt;/strong&gt;通常是講解觀念部份，後半部的&lt;strong&gt;協議&lt;/strong&gt;通常探討實現規範的細節，本文章只有大概介紹一下規範讓讀者可以快速的了解 &lt;code&gt;OpenFlow&lt;/code&gt; 的概要。&lt;/p&gt;
 &lt;p&gt;目前主流的 &lt;code&gt;OpenFlow&lt;/code&gt; 版本為 &lt;code&gt;OpenFlow 1.3&lt;/code&gt; ，相較於 &lt;code&gt;OpenFlow 1.0&lt;/code&gt; 增加了很多方便的新功能， 所以大概看過 &lt;code&gt;OpenFlow 1.0&lt;/code&gt; 之後建議將閱讀重心放在1.3版本。&lt;/p&gt;
 &lt;p&gt;關於 &lt;code&gt;OpenFlow 1.3&lt;/code&gt; 我在網路上找資料的時候有找到中文的全文翻譯，很推薦搭配著原文的規格書一起看， 連結在此: &lt;a class=&#34;link&#34; href=&#34;https://www.jianshu.com/p/acfeae1771b3&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
     &gt;OpenFlow 1.3&lt;/a&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;後續的實作都會採用1.3版本為主&lt;/strong&gt;， 建議先大概看一輪上述的1.3文檔再繼續接下來的練習。&lt;/p&gt;
-&lt;h2 id=&#34;reference&#34;&gt;Reference
+&lt;h2 id=&#34;reference&#34;&gt;&lt;a href=&#34;#reference&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Reference
 &lt;/h2&gt;&lt;blockquote&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
