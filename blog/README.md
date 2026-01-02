@@ -253,5 +253,40 @@ image: cover.jpg
 
 - [ ] 完成 About 頁面內容
 - [ ] 設定 Favicon (`static/favicon.ico`)
-- [ ] 設定 Giscus 評論（到 https://giscus.app 獲取設定）
 - [ ] 為分類添加縮圖（可選）
+- [ ] 設定 Giscus 評論
+
+---
+
+## Giscus 評論設定
+
+目前評論功能已關閉。啟用步驟：
+
+### 1. 啟用 Discussions
+GitHub repo → Settings → General → Features → 勾選 **Discussions**
+
+### 2. 安裝 Giscus App
+前往 https://github.com/apps/giscus → Install → 選擇此 repo
+
+### 3. 取得配置
+前往 https://giscus.app
+- 輸入 `davidleitw/davidleitw.github.io`
+- 選擇 Category: `Announcements`
+- 複製 `data-repo-id` 和 `data-category-id`
+
+### 4. 更新 hugo.yaml
+```yaml
+comments:
+    enabled: true
+    provider: giscus
+    giscus:
+        repo: davidleitw/davidleitw.github.io
+        repoID: "填入 data-repo-id"
+        category: Announcements
+        categoryID: "填入 data-category-id"
+        mapping: pathname
+        lightTheme: light
+        darkTheme: dark
+        reactionsEnabled: 1
+        emitMetadata: 0
+```

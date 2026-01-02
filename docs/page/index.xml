@@ -37,7 +37,18 @@
         <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
         
         <guid>https://davidleitw.github.io/about/</guid>
-        <description>&lt;!-- 內容待補充 --&gt;
+        <description>&lt;h2 id=&#34;hey-im-davidlei&#34;&gt;&lt;a href=&#34;#hey-im-davidlei&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Hey, I&amp;rsquo;m davidlei
+&lt;/h2&gt;&lt;p&gt;這裡是我的個人筆記，記錄一些學習過程中的想法和踩過的坑。&lt;/p&gt;
+&lt;p&gt;最近在重新整理這個 Blog，主要是想逼自己養成寫東西的習慣。以前常常學完一個東西，過沒多久就忘得差不多了，覺得有點可惜，所以想說透過寫筆記的方式，讓自己真的把東西消化一遍。&lt;/p&gt;
+&lt;p&gt;目前對 AI Agent 很感興趣，在研究架構設計、記憶系統、tool use 這些東西，之後會慢慢把筆記整理上來。&lt;/p&gt;
+&lt;p&gt;有什麼想法歡迎找我聊聊～&lt;/p&gt;
+&lt;hr&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/davidleitw&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;GitHub&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://www.linkedin.com/in/wei-cheng-lei-2604121b6/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;LinkedIn&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
         </item>
         

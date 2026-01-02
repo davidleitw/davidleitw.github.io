@@ -47,7 +47,7 @@ params:
             enabled: false
 
     comments:
-        enabled: true
+        enabled: false
         provider: giscus
         giscus:
             repo: davidleitw/davidleitw.github.io
