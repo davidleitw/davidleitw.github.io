@@ -7,27 +7,28 @@ tags:
     - system_call
     - fork
 categories: ["linux_kernel"]
+description: "從 fork() system call 出發，追蹤 Linux kernel v4.14 中 _do_fork() 的實作流程，理解 process 建立時 task_struct 的初始化細節。"
 ---
 
 > 本文章環境基於 Linux v4.14.259
 
-因為作業需要在 `task_struct` 中加入 `counter` 並且觀察排程器的行為，所以在這邊寫一份筆記來紀錄一下在 `linux` 中一個 `process` 建立的時候在哪裡初始化，從 `fork()` 開始慢慢 `trace` 下去。
+因為作業需要在 `task_struct` 中加入 `counter` 並觀察 scheduler 的行為，趁這個機會寫一份筆記，記錄在 Linux 中一個 process 建立時的初始化流程，從 `fork()` 開始慢慢往下 trace。
 
-在 `Linux` 中並沒有明確區分 `process` 跟 `thread`, `task_struct` 可以根據創立條件的不同代表 `process` 或者 `thread`。
+在 Linux 中並沒有明確區分 process 跟 thread，`task_struct` 會根據建立條件的不同，代表 process 或 thread。
 
 從實作的角度看可以有以下幾種 `system call` 建立新的 `task_struct`:
 - 建立 **user process**: `fork`, `vfork`, `clone`
 - 建立 **kernel thread**: `kernel_thread`, `kthread_create`
 
 
-以上這些 `API` 最後都會呼叫 `/kernel/fork.c` 中的 [`_do_fork`](https://elixir.free-electrons.com/linux/v4.14.54/source/kernel/fork.c#L2019) 來進行 `create task_struct` 的操作，只是會根據給的參數不同，來決定建立出來的 `task_struct` 的性質，以上幾個 `system call` 的差別也可以參考 [The difference between fork(), vfork(), exec() and clone()](https://stackoverflow.com/questions/4856255/the-difference-between-fork-vfork-exec-and-clone)
+以上這些 API 最終都會呼叫 `/kernel/fork.c` 中的 [`_do_fork`](https://elixir.free-electrons.com/linux/v4.14.54/source/kernel/fork.c#L2019) 來建立 `task_struct`，只是根據傳入參數的不同，決定建立出來的 `task_struct` 的性質。這幾個 system call 的差異也可以參考 [The difference between fork(), vfork(), exec() and clone()](https://stackoverflow.com/questions/4856255/the-difference-between-fork-vfork-exec-and-clone)。
 
 
-但是如果看最新幾版的 `kernel source code` 會發現怎麼樣都沒辦法找到 `_do_fork` 這個 `function` 了，仔細找了一下原因，發現在 `linux v5.10` 之後因為命名規則的不同，把 `_do_fork()` 改名為 `kernel_clone()`，不過實作並沒有大幅度的更改，所以以下在研究 `source code` 的時候還是會以 `v4.14.259` 為準。
+不過，如果去看最新幾版的 kernel source code，會發現找不到 `_do_fork` 這個 function 了。仔細查了一下原因，發現在 Linux v5.10 之後因為命名規則調整，把 `_do_fork()` 改名為 `kernel_clone()`，但實作上並沒有大幅更動。因此以下研究 source code 的部分仍以 `v4.14.259` 為準。
 
-`_do_fork()` 更改為 `kernel_clone()` 的原因可以參考 [fork: introduce kernel_clone()](https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/)
+`_do_fork()` 改名為 `kernel_clone()` 的原因可以參考 [fork: introduce kernel_clone()](https://patchwork.kernel.org/project/linux-kselftest/patch/20200818173411.404104-2-christian.brauner@ubuntu.com/)。
 
-在深入看 `source code` 之前最重要的就是先把 `man page` 看過一次，看完 `man page` 會對要研究的 `system call` 有初步的了解，接著再往下看 `source code` 才不會沒有概念的死讀程式碼。
+深入看 source code 之前，最重要的是先把 man page 讀過一遍。看完 man page 會對要研究的 system call 有基本的概念，之後再看 source code 才不會毫無頭緒地死讀程式碼。
 
 ## [fork - create a child process](https://man7.org/linux/man-pages/man2/fork.2.html)
 
@@ -63,7 +64,7 @@ long _do_fork(unsigned long clone_flags,
 ```
 
 
-因為在 `linux` 中 `process` 跟 `thread` 沒有明確的區分，都是以 `task_struct` 的形式存在，所以 `task_struct` 的性質就要在呼叫 `system call` 的時候藉由傳入的 `clone flags` 來決定性質。
+因為 Linux 中的 process 與 thread 沒有明確的區分，都以 `task_struct` 的形式存在，所以 `task_struct` 的性質是在呼叫 system call 時透過傳入的 `clone flags` 來決定的。
 
 `clone flags` 定義在 [/include/uapi/linux/sched.h](https://elixir.bootlin.com/linux/v4.14.259/source/include/uapi/linux/sched.h#L5)中，定義如下
 
@@ -99,9 +100,9 @@ long _do_fork(unsigned long clone_flags,
 ```
 
 
-透過組合不同的 `clone flag` 可以決定 `task_struct` 的一些特性，詳細解說每個 `clone flag` 有什麼用途可以參考  [clone(2)](https://man7.org/linux/man-pages/man2/clone.2.html)，之後有機會再針對 `clone` 整理一篇文章。
+透過組合不同的 `clone flag` 可以決定 `task_struct` 的特性。詳細的 flag 說明可以參考 [clone(2)](https://man7.org/linux/man-pages/man2/clone.2.html)，之後有機會再針對 `clone` 整理一篇文章。
 
-接下來繼續看 `_do_fork` 的實現
+接下來繼續看 `_do_fork` 的實作：
 
 ```c
 long _do_fork(unsigned long clone_flags,
@@ -145,7 +146,7 @@ long _do_fork(unsigned long clone_flags,
 ```
 
 
-一開始的段落是有關於 `ptrace` 的邏輯處理，`trace` 變數代表 `child process` 是否可以被追蹤，如果可以，則 `trace` 代表這個 `child process` 是由哪個 `system call` 創立的(`vfork`, `clone`, `fork`)，重點在於後面的 `copy_process`，其實講的直觀一點，`copy_process` 做的事情就是回傳一個新的 `task_struct`，但是在回傳新的 `task_struct` 的時候，該 `task_struct` 是還沒有開啟的狀態，我們先繼續往 `copy_process` 去 `trace`。
+一開始的段落是關於 `ptrace` 的邏輯處理，`trace` 變數代表 child process 是否可以被追蹤；如果可以，`trace` 的值會記錄這個 child process 是由哪個 system call 建立的（`vfork`、`clone` 或 `fork`）。重點在於後面的 `copy_process`——直觀地說，`copy_process` 的工作就是回傳一個新的 `task_struct`，但此時回傳的 `task_struct` 還處於未啟動的狀態。我們繼續往 `copy_process` 裡面 trace。
 
 ### _do_fork() -> copy_process
 
@@ -171,7 +172,7 @@ static __latent_entropy struct task_struct *copy_process(
 								int node)
 ```
 
-由於 `copy_process` 牽扯到 `linux` 中非常多子系統，所以這邊就簡單的討論一下整個執行 `copy_process` 的流程，關於錯誤處理相關的程式碼則是會快速帶過。
+由於 `copy_process` 牽涉到 Linux 中非常多的子系統，這裡只簡單討論整體的執行流程，錯誤處理相關的程式碼則快速帶過。
 
 ```c
 // kernel/fork.c/copy_process 內部
@@ -222,7 +223,7 @@ if (clone_flags & CLONE_THREAD) {
 }
 ```
 
-一開始都是一些有關於 `clone_flags` 的處理，之後會呼叫 `dup_task_struct(current, node);`，`dup_task_struct` 是真正建立 `task_struct` 的地方，`parent process` 會初始化 `child process` 之後回傳指標 `p`。
+一開始都是 `clone_flags` 相關的檢查，之後會呼叫 `dup_task_struct(current, node)`。`dup_task_struct` 才是真正建立 `task_struct` 的地方，parent process 會在這裡初始化 child process，並回傳指向新 `task_struct` 的指標 `p`。
 
 ### _do_fork() -> copy_process -> dup_task_struct
 
@@ -329,7 +330,7 @@ free_tsk:
 }
 ```
 
-接著從 `copy_process` 呼叫 `dup_task_struct` 之後繼續往下看，因為篇幅問題所以只把重要的標記出來
+接著從 `copy_process` 呼叫 `dup_task_struct` 之後繼續往下看，因為篇幅關係只標記出重要的部分：
 
 ```c
 // kernel/fork.c/copy_process 內
@@ -383,7 +384,7 @@ copy_io(clone_flags, p);
 copy_thread(clone_flags, args->stack, args->stack_size, p, args->tls);
 ```
 
-上面的段落帶過了 `copy_process` 的資源分配流程，可以看到幾乎每個 `copy_` 開頭的 `function` 都必須要把 `clone_flags` 傳入，藉由傳入不同的 `clone_flags`，最後 `fork/clone` 出來的 `process` 會有不同的性質。接下來繼續往下看到發配 `pid` 的段落
+上面的片段簡單帶過了 `copy_process` 的資源分配流程。可以看到幾乎每個 `copy_` 開頭的 function 都會把 `clone_flags` 傳入，透過不同的 `clone_flags`，最終 `fork`/`clone` 出來的 process 就會有不同的性質。接下來繼續往下，看分配 `pid` 的段落：
 
 ```c
 // kernel/fork.c/copy_process 內
@@ -424,7 +425,7 @@ if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
 }
 ```
 
-到這邊為止新的 `process` 基本的屬性大致上都配置完成了，接下來初始化 `p` 的 `pid` 結構，這部份因為沒有仔細研究過所以不是很熟，只要知道很可能會有多個 `process` 使用同一個 `pid`，一定要有個 `struct pid` 負責管理，要達到的目的只有兩點:
+到這邊為止，新 process 的基本屬性大致都配置完成了。接下來是初始化 `p` 的 `pid` 結構。這部分因為沒有深入研究過所以比較不熟悉，大致上只需要知道可能會有多個 process 共用同一個 `pid`，因此需要一個 `struct pid` 負責管理。要達成的目的主要有兩點：
 
 - 從 `task_struct` 中快速找到對應的 `struct pid`
 - 從 `struct pid` 能夠走訪所有使用該 `pid` 的 `task_struct`
@@ -433,7 +434,7 @@ if (clone_flags & (CLONE_PARENT|CLONE_THREAD)) {
 
 [來源](https://blog.csdn.net/weijitao/article/details/79918013)
 
-這種設計可以讓一個 `process` 屬於多個不同的 `namespace`, 同一個 `process` 可以在不同的 `namespace` 有不同的局部 `pid`，多個 `task_struct` 可以共用一個 `pid`，關於 `copy_process` 中有關於 `pid struct` 初始化的程式如下:
+這種設計讓一個 process 可以屬於多個不同的 namespace，同一個 process 在不同 namespace 中可以有不同的局部 pid，多個 `task_struct` 也可以共用一個 pid。關於 `copy_process` 中 pid struct 的初始化程式如下：
 
 ```c
 // kernel/fork.c/copy_process 內
@@ -493,7 +494,7 @@ return p;
 
 之後會找時間好好研究再來整理成文章(~~又在挖坑~~)
 
-接下來又回到 `_do_fork()` 的部份，上面已經大概介紹了 `copy_process` 從 `parent process` 建立一個新的 `task_struct` 的流程，最後回傳了新的 `task_struct`。
+接下來回到 `_do_fork()` 的部分。上面已經大致介紹了 `copy_process` 從 parent process 建立一個新的 `task_struct` 的流程，最後回傳了新建立的 `task_struct`。
 
 ```c
 // kernel/fork.c/do_fork

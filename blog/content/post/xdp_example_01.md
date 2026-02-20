@@ -9,33 +9,32 @@ tags:
     - network
     - XDP
 categories: ["eBPF"]
+description: "從零搭建最小化的 XDP 開發環境，整理 BPF 程式的編譯流程，並以 Go 語言實作將 byte code 載入 kernel 的完整步驟。"
 ---
 
 ## 前言
 
-一般來說學習 xdp 都會參考 [xdp-tutorial](https://github.com/xdp-project/xdp-tutorial)，這個教學非常完整，雖然有一些範例可能需要額外查一些資源才能完成，但依舊被很多文章譽為學習 xdp 的最佳資源。
+一般來說學習 XDP 都會參考 [xdp-tutorial](https://github.com/xdp-project/xdp-tutorial)，這個教學非常完整，雖然有些範例可能需要額外查閱資料才能完成，但仍被許多文章譽為學習 XDP 的最佳起點。
 
-但是這個專案包裝了一些 testenv 的腳本方便學習的人不用自己架設環境，或者煩惱編譯的問題，在學習過程中的確很方便，不過如果想要自己建立新的 xdp 專案可能就需要理解編譯過程具體用了哪些工具，依賴的部份要怎麼引入，本篇文章想要搭建一個最簡化的實驗環境滿足以下幾點要求:
+不過這個專案封裝了一些 testenv 腳本，讓學習者不需要自己搭建環境或煩惱編譯問題，學習過程中的確很方便。但如果想從零建立一個新的 XDP 專案，就需要真正理解編譯過程用到哪些工具、依賴的 header 要如何引入。本篇文章想要搭建一個最精簡的實驗環境，滿足以下幾點要求：
 
 - `/bpf` 底下存放 xdp 程式碼
 - `Makefile` 只包含 `make all`, `make clean` 兩個最簡單的功能，剩下根據需求再自行添加
 - `main.go` 負責把編譯好的 `byte code` 載入 kernel，並且能對 `map` 進行操作
 
-我認為只要符合以上幾點就能最小化的建立實驗環境，會用 go 語言是因為這樣可以不用處理 c++ 一些要編譯的前置作業。
+我認為只要符合以上幾點，就能建立一個最小化的實驗環境。選擇用 Go 語言是因為可以省去 C++ 編譯環境的前置作業。
 
-理想上我們最後的目錄會長這樣，符合我們希望的最小化專案需求
+理想的最終目錄結構如下，符合我們希望的最小化專案需求：
 
 ![](https://i.imgur.com/4PBV8lj.png)
 
-實際上可能會因為 `go.mod` 這些額外的配置多一些檔案，或者放一些編譯時需要的 header，不過本文會盡可能的讓目錄保持整潔，讓學習 xdp 的人不會被眼花撩亂的配置檔案搞的不知所措。
+實際上可能會因為 `go.mod` 等配置文件多出幾個檔案，或者需要存放編譯用的 header，但本文會盡量保持目錄整潔，讓學習 XDP 的人不會被眼花撩亂的配置文件搞得不知所措。
 
-底下我們會根據 [xdp-tutorial](https://github.com/xdp-project/xdp-tutorial) 編寫一個簡單的 xdp 程式，然後編譯成 `.o` 檔之後由 user space 的程式(由 go 語言編寫) 來負責載入 xdp Program。
-
-##
+下面我們會參考 [xdp-tutorial](https://github.com/xdp-project/xdp-tutorial) 編寫一個簡單的 XDP 程式，編譯成 `.o` 檔後，由用 Go 語言編寫的 user space 程式負責將其載入 kernel。
 
 ## 編寫 xdp 範例
 
-這邊我們參考 [xdp-tutorial](https://github.com/xdp-project/xdp-tutorial) 的 [packet01-parsing](https://github.com/xdp-project/xdp-tutorial/tree/master/packet01-parsing#assignment-3-parsing-the-icmpv6-header-and-reacting-to-it) 中出現的一個例子，接收 ICMP 封包，並把 sequence number 為偶數的封包丟棄，不需要改動封包內容，算是一個很基本的範例。
+這裡參考 [xdp-tutorial](https://github.com/xdp-project/xdp-tutorial) 中 [packet01-parsing](https://github.com/xdp-project/xdp-tutorial/tree/master/packet01-parsing#assignment-3-parsing-the-icmpv6-header-and-reacting-to-it) 出現的一個範例：接收 ICMP 封包，並將 sequence number 為偶數的封包丟棄，不需要修改封包內容，是個很基本的入門範例。
 
 ```c
 #include <linux/if_ether.h>
@@ -93,7 +92,7 @@ int xdp_main(struct xdp_md *ctx)
 char _license[] SEC("license") = "GPLv2";
 ```
 
-在寫 eBPF 程式的時候會用到很多 bpf helper functions，因為我們的範例沒有使用 `libbpf`，所以我們需要建立一個資料夾存放那些編譯時所需的[標頭檔](https://github.com/davidleitw/minimalXdpTemplate/tree/master/includes)，這樣才能順利編譯，通常這些常用的 helper functions 或者符號表都是固定的，可以看到很多基於 eBPF 的專案底下都會有 `headers/` 或者 `includes/` 來存放這些檔案。
+在寫 eBPF 程式時會用到許多 bpf helper functions，由於範例沒有使用 `libbpf`，所以需要建立一個資料夾存放編譯所需的[標頭檔](https://github.com/davidleitw/minimalXdpTemplate/tree/master/includes)，才能順利編譯。這些常用的 helper functions 或符號表通常是固定不變的，可以看到許多基於 eBPF 的專案都有 `headers/` 或 `includes/` 目錄來存放這些文件。
 
 
 接著寫一個 `Makefile` 腳本負責編譯 `xdp_main.c` 程式
@@ -115,18 +114,17 @@ clean:
 
 ## user space 編寫
 
-user space 我們使用 go 語言來負責載入編譯好的 `elf` 檔案，除此之外還需要提供 api 讓我們能在 user space 操作 eBPF map。
+user space 部分使用 Go 語言負責載入編譯好的 ELF 檔案，同時也需要提供 API 讓我們能在 user space 操作 eBPF map。
 
-go 語言有非常多 eBPF library 可供選擇，最主流的選擇不外乎是 Cilium 與 Cloudflare 維護的 [ebpf-go](https://github.com/cilium/ebpf)，IO Visor 提供的 [gobpf](https://github.com/iovisor/gobpf)，最後就是 Dropbox 開源的 [goebpf](https://github.com/dropbox/goebpf)。
+Go 語言有非常多 eBPF library 可供選擇，最主流的有：Cilium 與 Cloudflare 維護的 [ebpf-go](https://github.com/cilium/ebpf)、IO Visor 提供的 [gobpf](https://github.com/iovisor/gobpf)，以及 Dropbox 開源的 [goebpf](https://github.com/dropbox/goebpf)。
 
-其中 IO Visor 維護的 [gobpf](https://github.com/iovisor/gobpf) 屬於 BCC 框架的體系，比較偏向 trace 方面，但筆者沒有使用經驗，如果有錯請指正。
+其中 IO Visor 維護的 [gobpf](https://github.com/iovisor/gobpf) 屬於 BCC 框架體系，比較偏向 trace 方向，但筆者沒有使用經驗，若有描述不正確的地方歡迎指正。
 
-[ebpf-go](https://github.com/cilium/ebpf) 應該是最多人使用的一套函式庫了，因為 Cilium 本身也大量使用了這個庫，所以整體的可靠度是有目共睹的。
+[ebpf-go](https://github.com/cilium/ebpf) 應該是使用者最多的一套函式庫，Cilium 本身也大量使用這個庫，整體可靠度有目共睹。
 
+本文選擇 Dropbox 維護的 [goebpf](https://github.com/dropbox/goebpf)，主要有兩個考量：第一，[goebpf](https://github.com/dropbox/goebpf) 提供了一套非常簡潔的 API，涵蓋載入 eBPF program 到 kernel、操作 eBPF map 等功能，用起來與原生的 [libbpf](https://github.com/libbpf/libbpf) 很像。這種簡潔的 API 讓學習者可以專注在 eBPF 本身，不需要另外花心力研究函式庫的用法；第二，環境架設也很簡單，只要把編譯好的 ELF 檔案路徑傳入，就能幫你載入或移除 eBPF program。
 
-本文選擇 Dropbox 維護的 [goebpf](https://github.com/dropbox/goebpf) 作為開發 user space 的函式庫，有幾個考量，一個是 [goebpf](https://github.com/dropbox/goebpf) 本身提供了一套非常簡潔的 API，像是載入 eBPF Program 到 Kernel，對於 eBPF map 的操作等等，用起來很像是原生的 [libbpf](https://github.com/libbpf/libbpf)，這種簡潔的 API 可以讓學習的人專注於 eBPF 本身，不用花費額外的力氣去學習 API 的使用方式，第二個考量就是環境架設也很簡潔，不需要額外設置什麼環境，只要將編譯好的 elf 檔案路徑餵進去，就能協助你載入或者移除 eBPF Program。
-
-API 設計的簡潔也能體現在範例上，基本上光是看範例就能對用法略知一二，這種開發體驗我覺得可以評為 **直觀**，以下提供範例參考
+API 設計的簡潔也體現在範例上，光看範例就能大致了解用法，這種開發體驗個人覺得可以用**直觀**來形容。以下提供範例參考：
 
 ```go
 package main
@@ -193,7 +191,7 @@ func printXdpProgramInfo(bpfProgram goebpf.System) {
 
 ```
 
-詳細的程式請參考 [GitHub](https://github.com/davidleitw/minimalXdpTemplate)，實際跑一次程式才知道具體運作的流程。
+詳細的程式碼請參考 [GitHub](https://github.com/davidleitw/minimalXdpTemplate)，實際跑一次才能真正理解整個運作流程。
 
 
 ## 實測
@@ -220,13 +218,13 @@ $ sudo go run main.go
 
 ![](https://i.imgur.com/FRGnK9Y.png)
 
-按下 `CTRL+C` 後會自動幫你 detach 剛剛載入的 xdp_main.o，因為範例只是簡單的 attach 到 `lo` 上，所以用簡單的 `ping 127.0.0.1` 即可測試效果。
+按下 `CTRL+C` 後會自動 detach 剛剛載入的 `xdp_main.o`。因為範例只是 attach 到 `lo`（loopback）上，用 `ping 127.0.0.1` 就能測試效果。
 
 ![](https://i.imgur.com/Up4bJRc.png)
 
-可以看到，偶數的 icmp packet 都被捨棄了，所以剛好會有 50 % 的封包收到回應，效果的確符合預期。
+可以看到，sequence number 為偶數的 ICMP 封包都被丟棄了，剛好有 50% 的封包收到回應，效果完全符合預期。
 
-完整程式碼可以看[這邊](https://github.com/davidleitw/minimalXdpTemplate)，實際跑一次能學習的更有效率!
+完整程式碼可以看[這邊](https://github.com/davidleitw/minimalXdpTemplate)，實際跑一次學習效果會更好！
 
 ### reference
 

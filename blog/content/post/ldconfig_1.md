@@ -6,17 +6,16 @@ tags:
     - linux
     - shell
 categories: ["shell"]
+description: "介紹如何使用 ldconfig 搜尋動態函式庫（.so）是否已安裝及其路徑，快速解決編譯時 'cannot open shared object file' 的問題。"
 ---
 
-在編譯過程中可能會用到一些動態庫(`.so`) 來編譯，時常會遇到找不到需要的 `.so` 檔案
+編譯過程中常常需要用到動態函式庫（`.so`），也常常會遇到這個錯誤：
 
-> error while loading shared libraries...   cannot open shared object file: No such file or directory
+> error while loading shared libraries... cannot open shared object file: No such file or directory
 
-像是上面的這個錯誤訊息就是常常會看見的老朋友XD，這時我們就可以使用 `ldconfig` 來搜索是否有安裝過指定的 `.so`
+這個時候可以用 `ldconfig` 搜尋系統是否已安裝指定的 `.so`。
 
-一般來說 Linux 底下的 `.so` 都存放在 `/lib`, `/usr/lib` 底下，`ldconfig` 指令會在預設的路徑底下查找
-
-詳細的用法可以參考 [ldconfig](https://man7.org/linux/man-pages/man8/ldconfig.8.html)，一般如果只是要根據關鍵字查找，只要配合 `-p` 即可，像是我如果想在本地找到 `ngtcp2` 相關的 `.so` 我就可以輸入
+Linux 下的 `.so` 通常存放在 `/lib` 或 `/usr/lib`，`ldconfig` 預設也會在這些路徑下查找。詳細的用法可以參考 [ldconfig man page](https://man7.org/linux/man-pages/man8/ldconfig.8.html)。如果只是要根據關鍵字搜尋，搭配 `-p` 參數就夠了，例如想找 `ngtcp2` 相關的 `.so`：
 
 ```bash
 $ ldconfig -p | grep ngtcp2

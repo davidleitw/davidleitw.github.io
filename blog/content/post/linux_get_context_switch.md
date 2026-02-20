@@ -7,15 +7,16 @@ tags:
     - system_call
     - scheduler
 categories: ["linux_kernel"]
+description: "追蹤 Linux kernel v4.14 排程器 schedule() 的原始碼，梳理從 preempt_disable 到 __schedule 的完整 context switch 執行流程。"
 ---
 
 > 本文章環境基於 Linux v4.14.259
 
-第一次 `trace` 整個排程的流程，`kernel` 真的是個大坑，有很多概念都還不熟，只能整理大概的流程，具體很多 `function` 的作用都沒辦法很好的說明，希望之後可以多閱讀 `source code`，把相關的知識慢慢補齊，拼湊成完整的知識。
+第一次完整 trace 排程的流程，kernel 真的是個大坑，很多概念都還不熟，只能整理出大致的脈絡。許多 function 的作用目前還無法說得很透徹，希望之後能持續閱讀 source code，慢慢把相關知識補齊，拼湊成完整的理解。
 
 ## [schedule](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3424)
 
-要 `trace` 排程器要先找到 `schedule` 的入口，定義在 `kernel/sched/core.c`，函式定義如下
+要 trace 排程器，首先找到 `schedule` 的入口，定義在 `kernel/sched/core.c`：
 
 ```c
 asmlinkage __visible void __sched schedule(void)
@@ -55,14 +56,13 @@ static inline void sched_submit_work(struct task_struct *tsk)
 }
 ```
 
-在 `sched_submit_work` 中先檢查 `tsk->state` 是否為 0(`runnable`)，如果是就直接返回。
-`tsk_is_pi_blocked` 檢查 `tsk` 的 `deadlock` 檢測器是否為空。
+`sched_submit_work` 首先檢查 `tsk->state` 是否為 0（runnable），如果是就直接返回。`tsk_is_pi_blocked` 則是檢查 `tsk` 的 deadlock 偵測器是否為空。
 
-注意到 `schedule` 的 `while` 迴圈中的 `__schedule(false)`，`__schedule` 是真正排程執行的地方，所以繼續往下 `trace`
+`schedule` 的 while 迴圈中呼叫了 `__schedule(false)`，它才是真正執行排程的地方，繼續往下 trace。
 
 ## [_schedule](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3299)
 
-在 `__schedule()` 定義上方有一段註解說明**排程時機**，主要是說明 `task_struct` 在什麼情況會被排程，底下會大概敘述一下排程器在什麼情況下會考慮排程。
+`__schedule()` 定義上方有一段很有價值的註解，說明了 task 被排程的各種時機，大致可以分成以下幾種情境：
 
 
 ```c
@@ -106,17 +106,15 @@ static inline void sched_submit_work(struct task_struct *tsk)
  * WARNING: must be called with preemption disabled!
  */
 ```
-在這段註解中大致說明了幾個排程的場景跟時機
-
-- 自願切換(`Voluntary`)
-    - `sleep`，定時任務場景
-    - `mutex`, `semaphore` `waitqueue` 等
-    - 在呼叫 [do_exit](https://elixir.bootlin.com/linux/latest/source/kernel/exit.c#L727) 時，主動釋放資源，並且最後會調用一次`主排程器`。
-- 強制切換(`Involuntary`), 也被稱為搶佔(`Preemption`)
-    - `TIF_NEED_RESCHED`, `TIF` 開頭代表是 `thread information flags`，詳細有哪些 `flag` 可以參考 [arch/x86/include/asm/thread_info.h](https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/thread_info.h#L80)，`kernel` 透過這個 `flag` 來判斷這個 `task_struct` 是否要被**搶佔(`Preemption`)**
-        - 具體 `TIF_NEED_RESCHED` 的細節可以參考[這篇文章](http://linuxperf.com/?p=211)
-        - 當 `TIF_NEED_RESCHED` 被設置後並不是馬上被排程，而是會在最近的**排程點**被排程
-- `wake_up` 只是把 `task` 加入 `runqueue` 中，之後根據 `preempts` 的設置會有不同的處理方式。
+- 自願切換（Voluntary）
+    - sleep、定時任務等場景
+    - mutex、semaphore、waitqueue 等阻塞操作
+    - 呼叫 [do_exit](https://elixir.bootlin.com/linux/latest/source/kernel/exit.c#L727) 時，主動釋放資源，最後會呼叫一次主排程器
+- 強制切換（Involuntary），也稱為搶佔（Preemption）
+    - `TIF_NEED_RESCHED`：`TIF` 開頭代表 thread information flags，kernel 透過這個 flag 判斷 task 是否應該被搶佔。詳細的 flag 清單可以參考 [arch/x86/include/asm/thread_info.h](https://elixir.bootlin.com/linux/latest/source/arch/x86/include/asm/thread_info.h#L80)
+        - `TIF_NEED_RESCHED` 的細節可以參考[這篇文章](http://linuxperf.com/?p=211)
+        - 被設置後不會立即排程，而是在最近的**排程點**才觸發
+- `wake_up` 只是把 task 加入 runqueue，後續根據 preempt 的設置走不同路徑
 
 ```c
 static void __sched notrace __schedule(bool preempt)
@@ -218,7 +216,7 @@ static void __sched notrace __schedule(bool preempt)
 ```
 
 
-`task_struct` 中 `nivcsw` 變數來計算搶佔的排程次數，`nvcsw` 代表非搶佔排程。
+`task_struct` 中 `nivcsw` 記錄被搶佔的排程次數，`nvcsw` 則記錄主動放棄 CPU 的次數（非搶佔排程）。
 
 
 ```c
@@ -261,7 +259,7 @@ if (!preempt && prev->state) {
 }
 ```
 
-接下來則是呼叫排程器選擇下一個優先度最高的 `task` 排進 `runqueue`。
+接下來是呼叫排程器，選出下一個優先度最高的 task：
 
 ```c
 // 選擇一個優先度最高的 task 放入 runqueue 中
@@ -270,9 +268,9 @@ next = pick_next_task(rq, prev, &rf);
 clear_tsk_need_resched(prev);
 ```
 
-自從 `Linux v2.6.23` 開始，`Linux` 引入了 `scheduling class` 的概念，大大提昇的排程器的擴展性，用戶可以依照自己的需求實現 `interface` 直接放入 `kernel` 中進行排程， 同樣在 `Linux v2.6.23` 之後 `Completely Fair Scheduler(CFS)` 取代原先的 `O(1) scheduler` 成為系統預設的排程器，在 `pick_next_task` 中就會實際根據排程器選擇出一個優先度最高的 `task`，但因為篇幅問題，之後有機會再深入研究排程器的實現。
- 
-處理完 `prev`，也選擇了 `next`，接著就是要進行 `context switch` 的部份。
+自 Linux v2.6.23 起，kernel 引入了 scheduling class 的概念，大幅提升排程器的擴展性，讓使用者可以實作自己的 interface 並直接插入 kernel。同版本中，Completely Fair Scheduler（CFS）也取代了原先的 O(1) scheduler，成為系統預設的排程器。`pick_next_task` 會根據排程器選出優先度最高的 task，但這部分細節較多，之後再另開文章深入研究。
+
+處理完 `prev` 並選定 `next` 之後，接下來就是實際執行 context switch 的部分。
 
 ```c
 // 如果 prev 不是 next (也有機率 prev 放入 runqueue 中之後又被挑選到)
@@ -313,9 +311,9 @@ if (likely(prev != next)) {
 
 ## get the number of context switches
 
-回到作業題目(一)的需求，其實可以發現沒有必要再自己加上一個 `counter` 來計算被排程的次數，只要把 `task_struct` 中的 `tsk->nivcsw + tsk->nvcse` 就可以得到這個 `task_struct` 被 `context switch` 的次數了，甚至可以用 `nr_switches` 這個變數來直接獲得答案。
+回到作業題目（一）的需求。Trace 完這段之後可以發現，其實不需要額外加 counter——直接把 `task_struct` 中的 `tsk->nivcsw + tsk->nvcsw` 相加，就能得到這個 task 被 context switch 的總次數。
 
-在驗證自己程式的正確性時，我們會參考 `/proc/{pid}/sched` 中的 `nr_switches`，實際找到 [proc_sched_show_task](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924) 就會發現 `nr_switches` 也是用 `nivcsw + nvcse` 來實現。
+驗證時我們會參考 `/proc/{pid}/sched` 中的 `nr_switches`，找到 [proc_sched_show_task](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L924) 的實作，可以確認 `nr_switches` 確實是用 `nivcsw + nvcsw` 計算的。
 
 ```c
 void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
@@ -358,9 +356,9 @@ SYSCALL_DEFINE1(get_number_of_context_switches, unsigned int*, cnt) {
 }
 ```
 
-利用 `SYSCALL_DEFINE1` 的 `macro` 來展開我們定義的 `get_number_of_context_switches`，利用 `task_struct` 的 `nvcse, nivcsw` 來獲得 `number of context switches`。
+這裡使用 `SYSCALL_DEFINE1` macro 展開 `get_number_of_context_switches`，直接讀取 `task_struct` 的 `nvcsw` 與 `nivcsw` 相加，得到 context switch 的總次數。
 
-之所以要用 `SYSCALL_DEFINE1` 來定義 `system call` 是因為之前有個 [CVE-2009-0029](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029)，攻擊者可以藉由 `32 跟 64 bits` 回傳的一些漏洞，設法存取非法的地址，為了避免人為疏失，所以保險的方式還是用 `SYSCALL_DEFINE` 來定義會比較安全。
+之所以用 `SYSCALL_DEFINE1` 而不是直接定義函式，是因為過去有個 [CVE-2009-0029](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0029)，攻擊者可以利用 32/64 bit 的型別差異存取非法地址。使用 `SYSCALL_DEFINE` 系列 macro 可以避免這類人為疏失，是比較安全的做法。
 
 ### user space
 
@@ -388,12 +386,12 @@ int main() {
 }
 ```
 
-用 `getchar()` 卡住最後面方便觀察，但是為導致 `cnt` 與觀察 `proc/{pid}/sched` 的結果差1，如下圖所示:
+最後的 `getchar()` 是用來卡住程式，方便觀察結果。不過這會導致 `cnt` 的數值與 `/proc/{pid}/sched` 觀察到的結果差 1，如下圖所示：
 
 ![](https://i.imgur.com/LY8Nujr.png)
 
 
-### refernece
+### reference
 - [CFS调度器（1）-基本原理](http://www.wowotech.net/process_management/447.html)
 - [一篇文章让你了解Linux进程调度器](https://zhuanlan.zhihu.com/p/112203100)
 - [深入理解Linux内核之主调度器（上)](https://zhuanlan.zhihu.com/p/395606426)

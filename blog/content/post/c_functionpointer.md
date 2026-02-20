@@ -6,56 +6,44 @@ draft: false
 tags: 
     - c
 categories: ["c"]
-description: function pointer 
+description: "整理 C 語言 Function Pointer 的宣告語法、作為參數傳遞的用法，以及在回呼函數（callback）等實際場景的應用範例。"
 ---
 
 
-這最近在看 `jserv` 大神的 linux 核心設計講座，因為之前比較少寫 c，所以對於 `function pointer` 只有一點概念但沒有真正寫過，所以趁這個機會寫個筆記來紀錄一下用法。
+最近在讀 jserv 老師的 Linux 核心設計講座，由於之前比較少寫 C，對 function pointer 只有模糊的概念，從來沒有認真用過，趁這個機會寫個筆記好好整理一下。
 
-之後在學習的過程中如果遇到 `function pointer` 的應用也會一併整理在這篇文章中。
+之後在學習過程中遇到 function pointer 的應用，也會一併補充到這篇文章中。
 
 ## function pointer
 
-`function pointer` 顧名思義就是指向某個 `function` 的 `pointer`，有了 `function pointer` 我們就可以實現把 `function` 當作參數，傳進一個 `function` 之中，或者更加彈性的設計我們的程式，減少多餘的 `if/else`, `switch case`。
+function pointer 顧名思義就是指向某個 function 的 pointer。有了 function pointer，就可以把 function 當作參數傳入另一個 function，讓程式設計更有彈性，也可以減少大量的 `if/else` 或 `switch case`。
 
-我們先從一個簡單的 `function pointer` 宣告開始講起
+先從一個簡單的 function pointer 宣告開始：
 
 ```c
 int (*myFunc)(int, int);
 ```
 
-上面就是一個基本的 `function pointer` 宣告
+這是一個基本的 function pointer 宣告，`myFunc` 是一個指標，指向一個 function：
 
-一個 `function pointer` 變數名稱為 `myFunc`，可以這麼解讀
+- 該 function 接受兩個 `int` 參數
+- 該 function 回傳 `int`
 
-- `myFunc` 是一個指標指向一個 `function`
-    - 該 `function` 有兩個 `int` 的 parameters
-    - 該 `function` 會回傳 `int`
-
-
-假設今天我有個 `function` 宣告成以下這種形式
+假設有個 function 宣告成以下形式：
 
 ```c
 void parseFunc(float f1, int i1, char c1);
 ```
 
-我們要怎麼宣告一個 `pointer` 去指向這個 `function` 呢？
+對應的 function pointer 宣告如下：
 
 ```c
 void (*myFunc)(float, int, char);
 ```
 
-解讀成
+解讀：`myFunc` 是一個指標，指向一個接受 `float`、`int`、`char` 三個參數並回傳 `void` 的 function。
 
-- `myFunc` 是一個指標指向一個 `function`
-    - 該 `function` 有三個 parameters，分別要傳入
-        - _`float`_
-        - _`int`_
-        - _`char`_
-    - 該 `function` 會回傳 _`void`_
-
-
-所以我們可以來驗證看看這個 `function pointer` 是否能真的呼叫 `parseFunc` 這個 `function`
+來驗證看看這個 function pointer 是否真的能呼叫 `parseFunc`：
 ```c
 #include <stdio.h>
 
@@ -76,25 +64,23 @@ int main() {
 
 ### 注意
 
-上面在宣告 `function pointer` 的時候
+宣告 function pointer 時需要注意，`*myFunc` 必須用括號包起來：
 ```c
 void (*myFunc)(float, int, char)
 ```
-會注意到 `*myFunc` 會用括號包起來，這是不能省略的喔，省略的話就不是 `function pointer` 的宣告方法了。
-
-省略的話會變成
+這個括號不能省略，省略之後就不是 function pointer 的宣告了，而是：
 
 ```c
 void *myFunc(float, int, char);
 ```
 
-這樣子 `myFunc` 就不是 `function pointer` 了，而是單純宣告一個 `function`
+這樣 `myFunc` 就不是 function pointer，而是單純宣告了一個回傳 `void*` 的 function。
 
 ### Jserv 上課的範例
 
-簡單的例子看完就可以來看看 `Jserv` 在 [你所不知道的C語言：指標篇](https://hackmd.io/@sysprog/c-pointer) 開頭所舉出來的範例
+看完基礎的例子，來試試 jserv 在 [你所不知道的C語言：指標篇](https://hackmd.io/@sysprog/c-pointer) 開頭舉出的範例：
 
-試試看能不能自己寫出該宣告怎麼解釋
+試著自己解釋這個宣告的意思：
 
 ```c
 void **(*d) (int &, char **(*)(char *, char **));
@@ -111,12 +97,12 @@ void **(*d) (int &, char **(*)(char *, char **));
 
 ## 應用舉例
 
-今天如果我想寫一個 `calculate` 的 `function` 該 function 有三個參數
-- a
-- b
-- 加減乘除
+假設要寫一個 `calculate` function，它接受三個參數：
+- `a`
+- `b`
+- 要執行的運算（加減乘除）
 
-傳入 a, b 之後再傳入要計算的動作，我們可以利用 `function pointer` 來取代 `switch/case`, 並增加可讀性
+傳入 `a`、`b` 之後再傳入計算方式，就可以用 function pointer 取代 `switch/case`，大幅提升可讀性：
 
 我們可以宣告成
 ```c
@@ -128,13 +114,9 @@ int div(int a, int b) { return a / b; }
 int calculate(int a, int b, int (*cal)(int, int));
 ```
 
-用這樣的宣告形式，就可以把我們實現好的加減乘除 `function` 當作參數傳入 `calculate` 當中
+這樣就可以把實現好的加減乘除 function 當作參數傳入 `calculate`。
 
-但是又有人會說 `calculate` 的第三個參數宣告還是有點複雜，有沒有辦法可以再讓可讀性增加呢？ 
-
-這時候我們會習慣用 `typedef` 的關鍵字把常用的 `function pointer` 宣告取一個比較簡短的名稱
-
-導入 `typedef` 之後我們可以寫成以下的形式
+不過 `calculate` 第三個參數的宣告還是有點囉嗦，可讀性還有改善空間。這時候可以用 `typedef` 幫常用的 function pointer 宣告取一個簡短的名稱：
 
 ```c
 typedef int (*calc)(int, int);
@@ -150,9 +132,9 @@ int calculate(int a, int b, calc method)
 }
 ```
 
-這樣子我們在看 `calculate` 宣告的時候就會清楚的知道第三個參數要把指定的 `method` 傳進去。
+這樣在看 `calculate` 的宣告時，一眼就能知道第三個參數是要傳入指定的運算方法。
 
-完整的程式碼我放在 [GitHub](https://github.com/davidleitw/c-pointer-review)，可以把 code 載下來自己 run 一次，順便改改看寫法，觀察其中的不同。
+完整的程式碼放在 [GitHub](https://github.com/davidleitw/c-pointer-review)，把 code 載下來自己跑一次，順便改改看寫法，觀察其中的差異。
 
 ## reference
 - [你所不知道的C語言：指標篇](https://hackmd.io/@sysprog/c-pointer)

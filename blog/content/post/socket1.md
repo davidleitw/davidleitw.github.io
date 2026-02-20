@@ -8,15 +8,16 @@ tags:
     - socket
     - c
 categories: ["socket"]
+description: "介紹 socket 作為 IPC 機制的基本概念，以及如何在 Linux 中呼叫 socket() system call 建立一個新的通訊端點。"
 ---
 
 # socket programming
 
-`socket` 本質上是一種 **IPC** (`Inter-Process Communication`) 的技術，用於兩個或多個 `process` 進行資料交換或者通訊。
+socket 本質上是一種 **IPC**（Inter-Process Communication）技術，用於兩個或多個 process 之間進行資料交換。
 
-在網路領域，`socket` 著重的不是同一台主機間 `process` 的通訊，而是不同主機執行的 `process` 互相交換資料的通訊。
+在網路領域，socket 著重的是不同主機上的 process 之間如何互相傳遞資料，而不只是同一台機器上的 IPC。
 
-我們在寫 `socket programming` 的時候會使用 `os` 提供的 `API`，來避免重複造輪子，今天的筆記會簡單介紹一下 `linux` 提供的 `socket API`，並用兩個簡單的範例介紹如何用 `tcp` 跟 `udp` 協定透過 `socket` 傳輸資料。
+這篇筆記會簡單介紹 Linux 提供的 socket API，並用兩個範例說明如何分別透過 TCP 和 UDP 協定傳輸資料。
 
 ![](https://i.imgur.com/gXp0tLh.png)
 
@@ -26,7 +27,7 @@ categories: ["socket"]
 - ***gcc version***: `gcc (Ubuntu 9.3.0-17ubuntu1~20.04) 9.3.0`
 - ***GNU Make***: `4.2.1`
 
-在寫 `socket` 相關的程式的時候，需要先
+寫 socket 相關的程式時，需要先引入：
 
 ```c
 #include <arpa/inet.h>  // sockaddr 相關
@@ -39,36 +40,35 @@ categories: ["socket"]
 int socket(int domain, int type, int protocol)
 ```
 
-#### *domain*
-定義要建立哪一種類型的 `socket`，常用的有以下幾種類型
-- **AF_UNIX**, **AF_LOCAL**: 用於本機間 `process` 的溝通   
-- **AF_INET**, **AF_INET6**
-    - **AF_INET**: IPv4 協定
-    - **AF_INET6**: IPv6 協定
+#### domain
 
-詳細的選項可以參考 `socket` 的 [man page](https://man7.org/linux/man-pages/man2/socket.2.html)
+定義要建立哪種類型的 socket，常用的有：
+- **AF_UNIX**, **AF_LOCAL**：用於同一台主機上 process 之間的溝通
+- **AF_INET**：IPv4 協定
+- **AF_INET6**：IPv6 協定
 
-#### *type*
-`socket` 傳輸資料的手段(`communication semantics`)
+詳細選項可以參考 [socket man page](https://man7.org/linux/man-pages/man2/socket.2.html)。
 
-- **SOCK_STREAM**: 對應到 `tcp` 協定
-- **SOCK_DGRAM**: 對應到 `udp` 協定
+#### type
 
-#### *protocol*
-設定通訊協定的號碼，通常在寫的時候會填入 `0`，`kernel` 會根據上面的兩個參數自動選擇合適的協定。
+socket 傳輸資料的方式（communication semantics）：
 
-- [protocol man page](https://man7.org/linux/man-pages/man5/protocols.5.html#top_of_page)
+- **SOCK_STREAM**：對應 TCP 協定
+- **SOCK_DGRAM**：對應 UDP 協定
 
-`/etc/protocols` 可以看到 `linux` 底下支援的協定
+#### protocol
 
-#### *Return Value*
+通訊協定的號碼，通常填 `0`，kernel 會根據前兩個參數自動選擇合適的協定。
 
-成功建立 `socket` 之後，此函式會返回該 `socket` 的**檔案描述符**(`socket file descriptor`)，在之後的操作可以透過這個回傳值來操作我們建立的 `socket`。 如果建立失敗則會回傳 `-1(INVALID_SOCKET)`
+`/etc/protocols` 中可以看到 Linux 支援的所有協定，詳細說明請參考 [protocol man page](https://man7.org/linux/man-pages/man5/protocols.5.html#top_of_page)。
 
-### 檔案描述符是什麼?
+#### Return Value
 
+建立成功後會回傳該 socket 的**檔案描述符**（socket file descriptor），後續所有操作都透過這個值進行。若建立失敗則回傳 `-1`（INVALID_SOCKET）。
 
-參考資料
+### 檔案描述符是什麼？
+
+參考資料：
 - [Everything is a file](https://en.wikipedia.org/wiki/Everything_is_a_file)
 - [Linux 的 file descriptor 筆記 FD 真的好重要](https://kkc.github.io/2020/08/22/file-descriptor/)
 - [Linux 下 socket 通訊所用的 sockfd 怎麼來的](https://www.cnblogs.com/chorm590/p/12745824.html)
@@ -95,4 +95,4 @@ int main() {
 }
 ```
 
-在 [github](https://github.com/davidleitw/socket) 參考完整專案
+完整專案請參考 [GitHub](https://github.com/davidleitw/socket)。

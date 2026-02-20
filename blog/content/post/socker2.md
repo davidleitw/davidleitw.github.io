@@ -8,13 +8,14 @@ tags:
     - socket
     - c
 categories: ["socket"]
+description: "介紹 socket programming 中用來存放地址的通用結構 sockaddr，以及 sockaddr_in 等不同 address family 的差異與使用方式。"
 ---
 
 ## sockaddr
 
-`sockaddr` 是 `socket` 的通用地址結構，就如同一開始提到的，`socket` 除了在網路領域之外，也可以在很多不同的地方用來通訊。
+`sockaddr` 是 socket 的通用地址結構。如同上一篇提到的，socket 不只用在網路領域，也可以用在很多不同的通訊場景。
 
-`sockaddr` 結構，定義如下
+`sockaddr` 的定義如下：
 
 ```c
 typedef unsigned short int sa_family_t;
@@ -34,9 +35,9 @@ struct sockaddr {
 };
 ```
 
-後來的更新中，為了讓龐大的程式碼可讀性上升，新增了 `sockaddr_in` 的結構用來存取網路相關的應用， `in` 指的是 `internet`，`sockaddr_in` 專門用來存 `IPv4` 的相關地址。
+後來為了提升大型程式碼的可讀性，新增了 `sockaddr_in` 這個專門用於網路場景的結構。`in` 代表 internet，`sockaddr_in` 專門用來存放 IPv4 地址。
 
-`IPv6` 則是使用 `sockaddr_in6` 結構，在本文章主要會著重在 `IPv4` 相關的範例。
+IPv6 則使用 `sockaddr_in6`，本文主要著重在 IPv4 相關的範例。
 
 ```c
 typedef uint32_t in_addr_t; // 4 byte
@@ -65,11 +66,11 @@ struct sockaddr_in {
 };
 ```
 
-這邊觀看原始碼會覺得奇怪，為什麼還需要使用 `sin_zero` 來做填充的動作。
+看到這裡可能會覺得奇怪：為什麼需要 `sin_zero` 做填充？
 
-原因是很多 `socket` 的 `api`，參數都需要填入 `sockaddr`，`sockaddr_in` 則是後來加入的 `struct`。 今天如果我們 `address` 的資料是用 `sockaddr_in` 來儲存，並且想調用相關的函式時，我們就需要強制轉型。 
+原因是 `sockaddr_in` 是後來才加入的結構，而大多數 socket API 的參數型別都是 `sockaddr`。如果 address 資料是用 `sockaddr_in` 儲存，呼叫這些 API 時就需要強制轉型。
 
-假設今天用 `socket` 的場景不是網路，也會有對應的結構來存地址，在呼叫 `socket` 通用的 `api` 時，就可以使用強制轉型的方式，讓不同的結構呼叫同一個函式。
+同樣地，如果使用 socket 的場景不是網路，也會有對應的結構存放地址（例如 `sockaddr_un` 對應 Unix domain socket）。這些不同的結構在呼叫通用 API 時，都透過強制轉型成 `sockaddr` 來實現統一介面。
 
 實際範例: [unix](https://man7.org/linux/man-pages/man7/unix.7.html)
 

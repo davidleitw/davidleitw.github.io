@@ -5,36 +5,34 @@ draft: false
 tags: 
     - go
 categories: ["go"]
-description: cobra default function
+description: "記錄在使用 Cobra 開發 CLI 工具時，如何在沒有傳入任何參數的情況下自動顯示 help message，而不需要手動輸入 --help。"
 ---
 
 ## 問題描述
 
-最近在使用 [cobra](https://github.com/spf13/cobra) 編寫一個簡單的 `command line` 應用程式，過程中遇到一個之前都沒有想過的問題，把解決方式紀錄在這邊
+最近用 [cobra](https://github.com/spf13/cobra) 寫一個簡單的 command line 工具，過程中遇到一個之前沒想過的問題，記錄在這裡。
 
-一般來說用 `cobra` 寫的程式要顯示詳細的使用教學都要使用 `--help` 參數，如圖
+一般來說，用 cobra 寫的程式要顯示使用說明，都需要加上 `--help` 參數，如圖：
 
 ![](https://i.imgur.com/yK1XeVy.png)
 
-但是我又想到 [golangci-lint](https://github.com/golangci/golangci-lint) 這個工具同樣也是用 [cobra](https://github.com/spf13/cobra) 來寫 `command line` 的應用，卻可以在沒有添加參數的時候跳出 `--help` 的說明
-
-像是這樣 
+不過我注意到 [golangci-lint](https://github.com/golangci/golangci-lint) 同樣是用 cobra 寫的，卻可以在不加任何參數的情況下自動顯示說明：
 
 ![](https://i.imgur.com/LQ2TyVx.png)
 
-所以我特別找了一些資料，發現其實解決的方法滿簡單的
+找了一下資料，發現解法其實很簡單。
 
 ## 解決方法
 
-一般的教學文章在介紹 [cobra](https://github.com/spf13/cobra) 的時候都會訂一個 `rootCmd` 一類的物件，作為你的 `command line` 應用一開始的 `root`，之後的指令就會用
+一般介紹 cobra 的教學文章都會先建立一個 `rootCmd`，作為整個 CLI 應用的入口，其他子指令再用
 
 ```go
 rootCmd.AddCommand(功能名稱)
 ```
 
-的方式添加進去
+的方式掛上去。
 
-所以解決方式很簡單，只要在 `rootCmd` 定義的地方判斷如果其 `args` 的長度為零，就呼叫預設的 `Help` function 即可。
+解法很直覺：在 `rootCmd` 的 `Run` 函式裡判斷 `args` 長度是否為零，如果是就呼叫預設的 `Help` function：
 
 ```go
 var rootCmd = &cobra.Command{
@@ -49,8 +47,8 @@ var rootCmd = &cobra.Command{
 }
 ```
 
-接著再編譯看看
+重新編譯後：
 
 ![](https://i.imgur.com/4a3XBnv.png)
 
-可以看到應用程式在沒有加任何參數的情況下也會顯示 `--help` 的結果了。
+可以看到，在沒有加任何參數的情況下也會自動顯示 help 內容了。

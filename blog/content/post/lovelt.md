@@ -7,21 +7,22 @@ tags:
     - blog
 categories:
     - 日常紀錄
+description: "記錄使用 Hugo LoveIt 主題架設靜態部落格的過程，整理主題設定的參考資源與各項配置注意事項。"
 ---
 
-這次新架的 blog 使用了 [LoveIt](https://github.com/dillonzq/LoveIt) 這個主題
+這個 blog 使用了 [LoveIt](https://github.com/dillonzq/LoveIt) 主題。
 
-詳細的架設參數設定都是參考其[官方部落格](https://hugoloveit.com/zh-cn/posts/)，寫的算是滿詳細的，值得參考。
+詳細的設定參數都是參考其[官方部落格](https://hugoloveit.com/zh-cn/posts/)，寫得相當詳細，很值得參考。
 
-至於跟 github page 連動的部份，這方面很多文章都有不同的解決方案，我在這篇分享一下我的解決方法。
+至於與 GitHub Pages 連動的部分，網路上有很多不同的解法，這裡分享我自己用的方式。
 
-因為 github page 只認得 docs 或者 public 兩個資料夾存放靜態檔案，所以我們勢必要把 hugo 生成的靜態檔案放到專案根目錄的 `/docs` 或者 `/public` 之中，底下是我 github page 專案的架構
+由於 GitHub Pages 只認得 `docs` 或 `public` 這兩個資料夾來存放靜態檔案，因此需要把 Hugo 生成的靜態檔案放到專案根目錄的 `/docs` 或 `/public` 下。以下是我的專案架構：
 
 ![](https://i.imgur.com/D4zg5E6.png)
 
-其中 `blog` 是主要 hugo 生成的目錄，`docs` 是給 github page 辨識靜態檔案的目錄。
+其中 `blog` 是 Hugo 的主要工作目錄，`docs` 則是讓 GitHub Pages 讀取靜態檔案的目錄。
 
-在 `/blog` 添加完新的文章之後，用指定目錄的方式，讓靜態檔案生成到 `/docs` 底下，讓 github page 讀取
+在 `/blog` 新增文章後，用指定目錄的方式讓靜態檔案生成到 `/docs`，再推上 GitHub：
 
 ```bash
 hugo -d ../docs

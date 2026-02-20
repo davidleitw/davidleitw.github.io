@@ -7,13 +7,14 @@ tags:
     - linux
     - shell
 categories: ["shell"]
-description: linuxshellvar2
+description: "整理 Linux shell 進階變數操作，介紹 read 讀取使用者輸入、declare 宣告變數型別、array 陣列的使用方式與實際範例。"
 ---
 
-很多範例都是參考鳥哥的教材，再自己實際操作一次，文末有附上連結。
+很多範例都參考自鳥哥的教材，再自己實際操作一遍，文末有附上連結。
 
 ## read
-讀取從鍵盤輸入的變數，常常會出現在 `shell script` 之中
+
+`read` 用來讀取從鍵盤輸入的變數，常見於 shell script 中：
 
 ```shell
 $ read [-pt] 變數名稱
@@ -25,8 +26,9 @@ $
 
 ![](https://i.imgur.com/ESVYEHs.png)
 
-## declare 
-可以宣告變數的類型，我們上面提到有關變數的操作很多都只是單純的字串，但有些場合我們需要整數或者陣列時就要使用這個指令去指定變數的類型
+## declare
+
+`declare` 用來宣告變數的類型。上一篇提到的變數操作大多只是字串，但某些場合需要整數或陣列時，就必須用這個指令明確指定型別：
 
 ```shell
 $ declare [-aixr] 變數名稱
@@ -41,17 +43,17 @@ $
 
 ![](https://i.imgur.com/f9Dy2zj.png)
 
-接著試著把 `num` 轉成全域變數，並且用 `export` 指令觀察一下:
+接著試著把 `num` 轉成全域變數，並用 `export` 指令觀察結果：
 
 ![](https://i.imgur.com/wthrxEi.png)
 
-列出指定變數的資料型態
+列出指定變數的資料型態：
 
 ![](https://i.imgur.com/Q7PFV45.png)
 
 ## array
 
-以 `arr[index]=content` 的形式來指定 array Index 所代表的值。 
+以 `arr[index]=content` 的形式指定 array 各個 index 所代表的值。
 
 ![](https://i.imgur.com/ZMIa41Y.png)
 

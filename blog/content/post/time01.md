@@ -6,11 +6,12 @@ tags:
     - go
     - timer
 categories: ["go"]
+description: "整理 Go 語言定時器的基本用法，介紹 time.Timer 的一次性觸發與 time.Ticker 的週期性觸發，以及常見的使用注意事項。"
 ---
 
-在後端中常常會有需要定時的場景出現，像是如果處理 `request` 超過一定時間就觸發 `timeout`，或者利用定時的功能推送請求等等，這篇文章將會簡單介紹一些 `golang` 內建的定時器功能，以及可能會遇到的坑。
+後端開發中常常需要定時功能，例如處理 request 超過一定時間就觸發 timeout，或是週期性地推送請求等。這篇文章簡單介紹 Go 內建的定時器功能，以及一些常見的坑。
 
-所有有關定時器的功能都在 `time` 內，使用前必須先
+所有定時器相關功能都在 `time` 套件中，使用前需要先：
 ```go
 import "time"
 ```
@@ -29,7 +30,7 @@ type Timer struct {
 }
 ```
 
-在 `golang` 中 `Timer` 可以用來表示一個單一事件，可以用 `NewTimer` 或者 `AfterFunc` 兩個 `function` 去建立一個新的 `Timer`，簡單的使用範例如下
+在 Go 中，`Timer` 用來表示一個單次事件，可以用 `NewTimer` 或 `AfterFunc` 建立，簡單的使用範例如下：
 
 ```go
 package main
@@ -52,7 +53,7 @@ func main() {
 }
 ```
 
-執行結果如下
+執行結果：
 ![](https://i.imgur.com/NREJhL9.png)
 
 ### NewTimer
@@ -74,10 +75,11 @@ func NewTimer(d Duration) *Timer {
 }
 ```
 
-`NewTimer` 的 `d` 參數代 `Timer` 需要等待多長時間，`Timer.C` 是一個帶有 `buffer` 的 `channel`，在上面的範例中，`<-timer.C` 那行會把程式阻塞直到 `Timer` 往 `Timer.C` 裡面傳送時間(當時倒數完的結果)，阻塞解除後才可以繼續往下執行，達到延遲執行，或者定時觸發的目的。
+`NewTimer` 的 `d` 參數代表 Timer 需要等待的時間。`Timer.C` 是一個帶 buffer 的 channel，`<-timer.C` 那行會阻塞程式，直到 Timer 計時到期並將當前時間寫入 `Timer.C`，阻塞解除後才繼續往下執行，達到延遲或定時觸發的效果。
 
 ### 循環執行的定時任務 - Ticker
-對於有持續執行的定時任務，可以使用 `time.Sleep` 或者 `time.Ticker` 兩種方式來實現。
+
+需要週期性執行的定時任務，可以用 `time.Sleep` 或 `time.Ticker` 兩種方式實現。
 
 用 `time.Sleep` 方式實現
 ```go
@@ -128,9 +130,9 @@ finish:
 }
 ```
 
-如果是定時任務的需求，還是建議使用 `time.Ticker` 去實現，雖然沒有仔細去比較過兩種方式的時間誤差，不過 `time.Ticker` 利用 `channel` 的方式可以帶來比較高的彈性，用 `select` 可以設置超時條件，或者設定 `default` 的執行方式。
+如果是週期性的定時任務，建議使用 `time.Ticker`。雖然沒有仔細比較過兩種方式的時間誤差，但 `time.Ticker` 透過 channel 的方式彈性較高，可以搭配 `select` 設置超時條件或 default 處理邏輯。
 
-請一定要記得在使用完畢之後呼叫 `Stop`，不然會造成 `memory leak` 的問題，假設定時任務跑在背景的 `goroutine` 上一定要記得在結束前呼叫 `Stop()`，可以養成下例的好習慣:
+使用完畢後**一定要記得呼叫 `Stop()`**，否則會造成 memory leak。如果定時任務跑在背景 goroutine 中，建議養成以下習慣：
 
 ```go
 go func() {
@@ -145,11 +147,11 @@ go func() {
     }
 }()
 ```
-利用 `defer` 的機制讓退出時自動呼叫 `Stop`
+利用 `defer` 確保退出時自動呼叫 `Stop`。
 
-### Ticker 的一些注意事項
+### Ticker 的注意事項
 
-以下是 `NewTicker` 與 `Stop` 的具體實現，位置在 `src/time/tick.go`
+以下是 `NewTicker` 與 `Stop` 的具體實作，位在 `src/time/tick.go`：
 ```go
 // NewTicker returns a new Ticker containing a channel that will send
 // the current time on the channel after each tick. The period of the
@@ -186,9 +188,9 @@ func (t *Ticker) Stop() {
 }
 ```
 
-有時候一些問題一定要看文檔才會注意到，在 `Stop` 的註解中有講到 `Stop does not close the channel, to prevent a concurrent goroutine reading from the channel from seeing an erroneous "tick".`
+有些細節不看文件是不會注意到的。`Stop` 的註解中明確說明：`Stop does not close the channel, to prevent a concurrent goroutine reading from the channel from seeing an erroneous "tick".`
 
-這句話代表什麼呢? 下面用一個簡單的範例來說明，如果今天的場景是
+這句話是什麼意思？下面用一個範例說明：
 
 ```go
 package main 
@@ -217,13 +219,13 @@ func main() {
 }
 ```
 
-實際運作情況:
+實際執行結果：
 
 ![](https://i.imgur.com/vfpu568.png)
 
-單從程式看 `fmt.Println("Ticker Stop! Channel must be closed.")` 這行會發生在 `ticker.C` 關閉後，實際執行結果並沒有執行到這行，意味著其實 `Ticker` 內部的 `Channel` 是沒有關閉的，如果今天程式不斷的使用這種寫法，最終會導致主機嚴重的 `memory leak` 發生。
+從程式碼看，`fmt.Println("Ticker Stop! Channel must be closed.")` 應該在 `ticker.C` 關閉後執行，但實際上這行根本沒有被執行到——這代表 Ticker 內部的 channel 並沒有被關閉。如果程式持續這樣用，最終會導致嚴重的 memory leak。
 
-如果沒有看過實際的 `source code`，就不會發現其實在註解的時候已經有明確說明了，`Stop` 並不會關閉 `channel`，預防讀取 `channel` 發生錯誤，所以在 `Ticker` 的使用上，比較推薦下方這種寫法，可以有效的執行超時之後下方的程式碼，實現起來也比較優雅。
+不看 source code 或文件的話很容易踩這個坑。`Stop` 不關閉 channel 是刻意的設計，為了防止並發讀取時看到錯誤的 tick。因此推薦改用下面這種寫法，能確保在停止後順利執行後續程式，實現起來也更優雅：
 
 ```go
 package main
@@ -263,14 +265,15 @@ func main() {
 }
 ```
 
-實際運行結果如下
+執行結果：
 
 ![](https://i.imgur.com/pksM1Vl.png)
 
-這次我們利用 `defer` 的機制，在 `goroutine` 內部呼叫 `Stop` 的方式，可以看到這種寫法在相較用 `for range` 來說，彈性高出很多，而且在調用 `Tocker.Stop` 時並不會 `close` 該 `channel`，用 `for range` 的寫法會造成一個無限迴圈卡在那裡，`golang` 中只要沒有 `goroutine` 持有該 `channel`，到最後那個 `channel` 就會被 `gc`，這就是為什麼不推薦使用 `for range` 的緣故，一般來說使用 `for range` 的寫法都要配合 `close`，但是在 `Timer` 的情況，無法主動關閉內部的 `channel`，只好退出 `goroutine` 讓 `gc` 回收。
+透過在 goroutine 內部用 `defer` 呼叫 `Stop`，可以看到這種寫法比 `for range` 彈性高出很多。由於 `Ticker.Stop` 不會關閉 channel，用 `for range` 讀取的 goroutine 就會一直卡在那裡形成無限迴圈。在 Go 中，只要沒有 goroutine 持有某個 channel，它最終會被 GC 回收——這也是為什麼退出 goroutine 是這種情況下唯一的出路。一般情況下，`for range` 要搭配 `close` 使用，但 Ticker 無法主動關閉內部 channel，因此不建議用這種寫法。
 
 ### Timer vs Ticker
-以用法來說，`Timer` 就是在 `timeout` 之後觸發一次，`Ticker` 則是週期性的觸發定時事件，因為 `Ticker` 是週期性的，所以如果沒有顯式的呼叫 `Stop` 就會發生上面提到的 `Resource leak` 問題，之後會再寫一兩篇文章從 `source code` 切入，還有 `Timer reset` 的問題也值得探討。
+
+用法上，`Timer` 在到期後只觸發一次；`Ticker` 則週期性地觸發定時事件。正因為 Ticker 是持續運作的，如果沒有明確呼叫 `Stop`，就會發生上述的 resource leak 問題。之後會再寫幾篇從 source code 切入的文章，也打算探討 `Timer.Reset` 的細節。
 
 ### reference
 - [Golang 如何正確的停止 Ticker](https://blog.csdn.net/yjp19871013/article/details/82048944)

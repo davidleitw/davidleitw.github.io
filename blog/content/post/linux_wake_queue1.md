@@ -7,19 +7,20 @@ tags:
     - system_call
     - wait_queue
 categories: ["linux_kernel"]
+description: "解讀 Linux kernel v4.14 中 waitqueue 的資料結構與實作原理，了解 kernel 如何管理等待資源的 task。"
 ---
 
 > 本文章環境基於 Linux v4.14.259
 
 ## 概述
 
-`waitqueue` 如同其名，是 `kernel` 中管理一些在**等待資源**的 `task` 的資料結構，在 `task` 還沒辦法獲得資源時，會先將其放入 `waitqueue` 等待特定條件或者資源準備就緒才會把該 `task` 喚醒。
+waitqueue 如同其名，是 kernel 中用來管理**等待資源**的 task 的資料結構。當 task 還無法取得資源時，會先被放入 waitqueue 中等待，直到特定條件達成或資源就緒，才會被喚醒。
 
-`waitqueue` 有定義兩種資料結構
-- `wait_queue_head`: `waitqueue` 的 `head`
-- `wait_queue_entry`: 來表示每個在 `waitqueue` 的元素
+waitqueue 定義了兩種資料結構：
+- `wait_queue_head`：waitqueue 的 head
+- `wait_queue_entry`：代表 waitqueue 中的每個元素
 
-`waitqueue` 所有的實現都是基於 `kernel` 內建的 `double circular linked list` 來實現，所以本身的設計非常簡潔。 以下為 `waitqueue` 基本的 `data struct` 定義，位在 `/include/linux/wait.h`
+waitqueue 的所有實作都基於 kernel 內建的 double circular linked list，因此設計上相當簡潔。以下是 waitqueue 基本的 data struct 定義，位在 `/include/linux/wait.h`：
 
 ![](https://i.imgur.com/jMSsGuq.png)
 
@@ -36,7 +37,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 
 ### 初始化 `waitqueue`
 
-要建立新的 `waitqueue`，必須要先初始化 `wait_queue_head_t` 結構，透過 [init_waitqueue_head](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L63)，定義如下
+要建立新的 waitqueue，必須先初始化 `wait_queue_head_t` 結構，透過 [init_waitqueue_head](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L63) 來完成，定義如下：
 
 ```c
 #define init_waitqueue_head(wq_head)						\
@@ -47,7 +48,7 @@ typedef struct wait_queue_head wait_queue_head_t;
 	} while (0)
 ```
 
-`init_waitqueue_head` 這個 `macro` 展開後會呼叫 [__init_waitqueue_head](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L16)
+`init_waitqueue_head` 這個 macro 展開後會呼叫 [__init_waitqueue_head](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L16)：
 
 ```c
 void __init_waitqueue_head(struct wait_queue_head *wq_head, const char *name, struct lock_class_key *key)
@@ -58,7 +59,7 @@ void __init_waitqueue_head(struct wait_queue_head *wq_head, const char *name, st
 }
 ```
 
-但是看了一下好像也可以使用 [DECLARE_WAIT_QUEUE_HEAD](https://elixir.bootlin.com/linux/v5.15.13/source/include/linux/wait.h#L61) 來初始化的樣子，實現如下:
+另外也可以使用 [DECLARE_WAIT_QUEUE_HEAD](https://elixir.bootlin.com/linux/v5.15.13/source/include/linux/wait.h#L61) 來初始化，實現如下：
 
 ```c
 #define __WAITQUEUE_INITIALIZER(name, tsk) {					\
@@ -70,13 +71,13 @@ void __init_waitqueue_head(struct wait_queue_head *wq_head, const char *name, st
 	struct wait_queue_entry name = __WAITQUEUE_INITIALIZER(name, tsk)
 ```
 
-我的理解是如果使用 `DECLARE_WAITQUEUE` 的話可以直接當成宣告，像是以下的寫法，如果我想宣告一個 `wait_queue_head_t` 變數名稱為 `wq_head`，可以直接寫成
+我的理解是使用 `DECLARE_WAITQUEUE` 可以直接當成宣告使用，例如想宣告一個名為 `wq_head` 的 `wait_queue_head_t`，可以直接寫：
 
 ```c
 DECLARE_WAITQUEUE(wq_head);
 ```
 
-至於 `init_waitqueue_head` 的話可能需要自己先宣告好變數，才能調用，像是以下的寫法
+而 `init_waitqueue_head` 則需要先自己宣告變數，再呼叫它來初始化：
 
 ```c
 struct wait_queue_head_t wq_head;
@@ -98,11 +99,11 @@ struct wait_queue_entry {
 };
 ```
 
-一般來說喚醒函數是由排程器實現，所以如果沒有特殊需求，預設的喚醒函數是 [kernel/sched/core.c 中的 try_to_wake_up](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989)，`try_to_wake_up` 在後續會有詳細的介紹。
+喚醒函數通常由 scheduler 實作，沒有特殊需求的話，預設的喚醒函數是 [kernel/sched/core.c 中的 try_to_wake_up](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1989)，後面會有更詳細的介紹。
 
 ### 新增 wait_queue_entry
 
-`task_struct` 會封裝在 `wait_queue_entry` 的 `private` 成員內，所以在新增等待事件之前，需要先把 `task_struct` 包裝成 `wait_queue_entry` 的形式，可以通過 `DECLARE_WAITQUEUE` 這個 `macro` 來包裝，在建立的過程會把喚醒函數設為 `default_wake_function`，對於喚醒函數後面會有更詳細的說明。
+`task_struct` 會被封裝在 `wait_queue_entry` 的 `private` 成員中，所以在新增等待事件之前，需要先用 `DECLARE_WAITQUEUE` 這個 macro 將 `task_struct` 包裝成 `wait_queue_entry` 的形式。建立過程中會把喚醒函數設為 `default_wake_function`，後面會有更詳細的說明。
 
 ### [DECLARE_WAITQUEUE](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L51)
 
@@ -116,7 +117,7 @@ struct wait_queue_entry {
 	struct wait_queue_entry name = __WAITQUEUE_INITIALIZER(name, tsk)
 ```
 
-把 `task` 封裝成 `wait_queue_entry` 之後還需要添加到 `waitqueue` 當中，可以透過 `add_wait_queue` 來實現，定義如下:
+將 task 封裝成 `wait_queue_entry` 之後，還需要把它加入 waitqueue，透過 `add_wait_queue` 來完成，定義如下：
 
 ### [add_wait_queue](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L25)
 
@@ -133,7 +134,7 @@ void add_wait_queue(struct wait_queue_head *wq_head, struct wait_queue_entry *wq
 EXPORT_SYMBOL(add_wait_queue);
 ```
 
-真正操作 `linked list` 是在 [__add_wait_queue](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L154) 當中，`__add_wait_queue` 會使用 `kernel` 操作 `linked list` 的 `api` 來添加 `wait_queue_entry` 到 `wait_queue` 當中。
+真正操作 linked list 的是 [__add_wait_queue](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L154)，它使用 kernel 的 linked list API 將 `wait_queue_entry` 加入 `wait_queue`。
 
 ```c
 static inline void __add_wait_queue(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry)
@@ -142,7 +143,7 @@ static inline void __add_wait_queue(struct wait_queue_head *wq_head, struct wait
 }
 ```
 
-移除 `wait_queue_entry` 則是會呼叫 `remove_wait_queue`，具體實現如下:
+移除 `wait_queue_entry` 則是呼叫 `remove_wait_queue`，具體實現如下：
 
 ### [remove_wait_queue](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L47)
 
@@ -184,7 +185,7 @@ do {										\
 } while (0)
 ```
 
-如果要讓一個 `task` 睡眠直到某個條件達成，會使用 `wait_event` 這個 `macro`，因為 `macro` 的關係，可以做到直接把 `condition` 傳進去的這種靈活度，繼續往下看 `__wait_event(wq_head, condition)` 的展開，`__wait_event()` 同樣也是一個 `macro`。
+要讓一個 task 睡眠直到某個條件達成，可以使用 `wait_event` 這個 macro。因為是 macro，所以可以直接把 `condition` 表達式傳入，靈活度很高。繼續往下看 `__wait_event(wq_head, condition)` 的展開，它同樣也是一個 macro：
 
 ```c
 #define __wait_event(wq_head, condition)					\
@@ -192,15 +193,15 @@ do {										\
 			    schedule())
 ```
 
-值得注意的是展開後發現呼叫 `___wait_event()` 時傳入了 **TASK_UNINTERRUPTIBLE**，所以說 `wait_event` 中的事件等待是無法中斷的。
+值得注意的是，展開後呼叫 `___wait_event()` 時傳入了 **TASK_UNINTERRUPTIBLE**，因此 `wait_event` 中的等待是不可中斷的。
 
-在 `include/linux/wait.h` 中也定義了各種不同的 `wait` 事件，像是:
+`include/linux/wait.h` 中也定義了各種不同的 wait 事件：
 
 - [wait_event_timeout](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L382): 帶有超時時間的等待，不可中斷。
 - [wait_event_interruptible](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L466): 可中斷的等待。
 - [wait_event_interruptible_timeout](https://elixir.bootlin.com/linux/v4.14.259/source/include/linux/wait.h#L500): 可中斷又帶有超時的等待。
 
-接著來仔細看一下展開到最後的 `___wait_event` 內部實作
+接著仔細看展開到最後的 `___wait_event` 內部實作：
 
 ```c
 /*
@@ -242,7 +243,7 @@ __out:	__ret;									\
 
 ```
 
-`prepare_to_wait_event` 是會檢查 `wait` 事件是不是有放到 `waitqueue` 中避免無法喚醒，本文章是閱讀 `Linux v4.14.259` 版本，但是看到後面的版本對於 `prepare_to_wait_event` 好像有稍微修改，有興趣可以去研究一下修改了什麼地方。
+`prepare_to_wait_event` 的作用是確認 wait 事件是否已放入 waitqueue，避免無法被喚醒。本文以 Linux v4.14.259 為主，但後面版本的 `prepare_to_wait_event` 好像有些調整，有興趣的可以去研究一下改了什麼。
 
 ### [prepare_to_wait_event](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/wait.c#L273)
 
@@ -284,11 +285,11 @@ long prepare_to_wait_event(struct wait_queue_head *wq_head, struct wait_queue_en
 EXPORT_SYMBOL(prepare_to_wait_event);
 ```
 
-所以總結 `wait_event` 就是可以讓 `task` 進入睡眠狀態直到 `condition` 為 `true`，在過程中狀態為 **TASK_UNINTERRUPTIBLE**。
+總結來說，`wait_event` 的作用是讓 task 進入睡眠，直到 `condition` 為 `true`，整個過程中 task 的狀態為 **TASK_UNINTERRUPTIBLE**。
 
 ## 喚醒函數
 
-在前面介紹 `DECLARE_WAITQUEUE` 的時候有講到一個 `task` 包裝成 `wait_queue_entry` 時會一併設置喚醒函數為 `default_wake_function`，用於喚醒一個正在睡眠的 `task`。
+前面介紹 `DECLARE_WAITQUEUE` 時有提到，task 被包裝成 `wait_queue_entry` 時，喚醒函數會被設置為 `default_wake_function`，用於喚醒正在睡眠的 task。
 
 ### [default_wake_function](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L3622)
 
@@ -301,7 +302,7 @@ int default_wake_function(wait_queue_entry_t *curr, unsigned mode, int wake_flag
 EXPORT_SYMBOL(default_wake_function);
 ```
 
-看完定義之後會發現 `default_wake_function` 會呼叫 `try_to_wake_up`，繼續往下 `trace`
+看完定義後可以發現 `default_wake_function` 會呼叫 `try_to_wake_up`，繼續往下 trace：
 
 ### [try_to_wake_up](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1972)
 
@@ -440,7 +441,7 @@ out:
 }
 ```
 
-這段程式碼中我們聚焦在 `ttwu_queue`, `ttwu_stat` 中，中間有很大一段在處理 `SMP` 的機制，不是本文探討的重點，先介紹一下 `ttmu`，在 `kernel/sched/core.c` 中有很多 `ttmu` 開頭的 `function`，到這邊才理解到其實是 `try to wake up` 的縮寫。
+這段程式碼中，我們的重點在 `ttwu_queue` 與 `ttwu_stat`，中間那一大段是處理 SMP 機制的，不是本文的重點。順帶一提，`kernel/sched/core.c` 中有很多 `ttwu` 開頭的 function，看到這裡才意識到原來是 "try to wake up" 的縮寫。
 
 ### [ttwu_queue](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1862)
 
@@ -465,13 +466,13 @@ static void ttwu_queue(struct task_struct *p, int cpu, int wake_flags)
 }
 ```
 
-在 `try_to_wake_up` 中會調用 `select_task_rq` 來為要喚醒的 `task` 選擇一個 `runqueue`，並且回傳該 `runqueue` 對應的 `cpu` 編號。 `ttwu_queue` 會判斷這個 `runqueue` 的 `cpu` 編號是否與正在執行 `try_to_wake_up` 的 `cpu` 編號相同，會根據不同情況走不同的路徑喚醒 `task`，因為具體的機制太複雜了，本篇會先介紹單處理器下的處理方式，繼續往下看 `ttwu_do_activate` 的實現。
+在 `try_to_wake_up` 中會呼叫 `select_task_rq`，為要喚醒的 task 選擇一個 runqueue，並回傳該 runqueue 對應的 CPU 編號。`ttwu_queue` 會判斷這個 CPU 編號是否與當前執行 `try_to_wake_up` 的 CPU 相同，並根據情況走不同的喚醒路徑。由於具體的 SMP 機制較複雜，本篇先聚焦在單處理器的情況，繼續往下看 `ttwu_do_activate` 的實作。
 
 > [reference](http://oliveryang.net/2016/03/linux-scheduler-2/#22-wakeup-preemption)
 
 ### [ttwu_do_activate](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/core.c#L1714)
 
-為了節省空間，底下的 `code` 把 `ttwu_do_activate` 呼叫的 `function` 實現也放在一起。
+為了節省篇幅，下面把 `ttwu_do_activate` 及其呼叫的函數實作放在一起。
 
 ```c
 static void
@@ -541,12 +542,12 @@ static void ttwu_do_wakeup(struct rq *rq, struct task_struct *p, int wake_flags,
 }
 ```
 
-`try_to_wake_up` 可以理解成最後會將 `task` 的 `state` 由 `TASK_INTERRUPTIBLE || TASK_UNIMTERRUPTIBLE` 改成 `TASK_RUNNING`，並將其加入 `rq` 中等待排程器選擇。
+整體來說，`try_to_wake_up` 最終會將 task 的狀態從 `TASK_INTERRUPTIBLE` 或 `TASK_UNINTERRUPTIBLE` 改為 `TASK_RUNNING`，並將其放入 runqueue 等待 scheduler 排程。
 
 
 ## get the number of entering a wait queue
 
-~~扯遠了~~，回到這次作業題目(二)的需求，要寫一個 `system call` 來獲得 `task_struct` 進入 `wait queue` 的次數，先在 `task_struct` 中加入 `wq_cnt` 變數
+~~扯遠了~~，回到作業題目（二）的需求。這一題要實作一個 system call，用來取得某個 task 進入 wait queue 的次數。首先在 `task_struct` 中加入 `wq_cnt` 變數：
 
 ```c
     // include/linux/sched.h 中加入 wq_cnt
@@ -576,10 +577,9 @@ static void ttwu_do_wakeup(struct rq *rq, struct task_struct *p, int wake_flags,
 p->wq_cnt = 0;
 ```
 
-進入 `wait queue` 中一定會 `wake up`，因為 `wait` 的事件有很多不同的種類，所以我們換個想法把 `wq_cnt` 加在 `try_to_wake_up` 這個 `function` 內，無論是用哪種方式進入睡眠，最後都會呼叫 `try_to_wake_up` 來喚醒 `task`。
+由於 wait 事件有很多種類，與其在各種 wait 路徑分別計數，不如反過來在 `try_to_wake_up` 中遞增計數器——無論 task 以哪種方式進入睡眠，最終都會由 `try_to_wake_up` 喚醒。
 
-
-插入點如下所示
+插入點如下所示：
 
 ```c
 // kernel/sched/core.c
@@ -743,7 +743,7 @@ ttwu_stat(struct task_struct *p, int cpu, int wake_flags)
 
 在 `schedstat_inc` 的部份會更新 `nr_wakeups` 的值，這個值也被用來驗證我們的答案對不對。
 
-值得注意的是我一開始編譯完之後使用 `cat /proc/{pid}/sched` 發現漏了很多資料沒有顯示，後來去 `trace` 一下 `proc` 的顯示，定義在 [proc_sched_show_task](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L955) 中
+值得一提的是，我一開始編譯完後執行 `cat /proc/{pid}/sched`，發現許多資料都沒有顯示。後來 trace 了一下 proc 的顯示邏輯，定義在 [proc_sched_show_task](https://elixir.bootlin.com/linux/v4.14.259/source/kernel/sched/debug.c#L955) 中：
 
 ```c
 void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
@@ -832,9 +832,9 @@ void proc_sched_show_task(struct task_struct *p, struct pid_namespace *ns,
 }
 ```
 
-可以看到比較進階的資訊都要 `schedstat_enabled()` 才能看，不知道為什麼我第一次編譯的時候可能不小心調整到，導致這個 `config` 為 0。
+可以看到，比較進階的統計資訊都需要 `schedstat_enabled()` 才會顯示。我第一次編譯時可能不小心調整了相關 config，導致這個選項被關掉了。
 
-要修正這個問題可以不用重新編譯 `kernel`，直接用
+好消息是不用重新編譯 kernel，直接用下面這個指令就能開啟：
 
 ```shell
 sudo sysctl kernel.sched_schedstats=1

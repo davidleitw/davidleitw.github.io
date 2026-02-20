@@ -7,19 +7,18 @@ tags:
     - network
     - SDN
 categories: ["SDN"]
-description: SDN 學習筆記第一篇
+description: "從 SDN 的發展歷史出發，介紹 Software Defined Networking 的基本架構與 control plane、data plane 分離的核心設計理念。"
 ---
 
-此專案用來整理一些學習 SDN 的相關知識以及參考資料。
-由於剛開始學習沒多久，所以會著重於個人學習的**順序**，希望在寫心得的同時也可以幫助到一些想要研究 SDN 的朋友。
+這個系列用來整理學習 SDN 的相關知識與參考資料。由於剛開始學，會著重於個人學習的**順序**，希望在整理的過程中也能幫助到同樣在研究 SDN 的朋友。
 
-當然，由於我也是剛開始學習，所以整理的心得如果有誤也請各位前輩們指點
+如果有描述不正確的地方，也歡迎各位前輩指點。
 
 ## 預備知識
 
-在學習 SDN 之前我準備先複習了一輪 [computer networking a top-down approach 7th](https://www.ucg.ac.me/skladiste/blog_44233/objava_64433/fajlovi/Computer%20Networking%20_%20A%20Top%20Down%20Approach,%207th,%20converted.pdf)，之前大學學過的很多部份已經有點忘記了，所以先把傳統的網路概論複習一輪，之後進入SDN的學習時，才會比較清楚知道為什麼要提出SDN的概念，SDN具體來說是要解決哪些傳統架構無法解決的問題。
+學習 SDN 之前，我先重新複習了一輪 [Computer Networking: A Top-Down Approach 7th](https://www.ucg.ac.me/skladiste/blog_44233/objava_64433/fajlovi/Computer%20Networking%20_%20A%20Top%20Down%20Approach,%207th,%20converted.pdf)。大學學過的很多東西有點忘了，先把傳統網路概論複習一遍，之後才能比較清楚地理解 SDN 為什麼會被提出、它具體解決了哪些傳統架構無法解決的問題。
 
-之後會陸續整理一點網路的基礎理論心得，讓之後SDN的一些概念比較好解釋。
+之後會陸續整理一些網路基礎理論的筆記，讓後面的 SDN 概念更好解釋。
 
 ## 什麼是 SDN 以及 SDN 的發展歷史
 
@@ -27,17 +26,17 @@ description: SDN 學習筆記第一篇
 > - [SDN 簡介](https://feisky.gitbooks.io/sdn/content/sdn/)
 > - [SDN 發展趨勢](https://hackmd.io/@cnsrl/SJur_2twL)
 
-傳統網路的一些特點:
-- 每個節點是由設備單獨控制，屬於分散式架構。
-- 控制面以及轉接面放在同一個設備上。
-- 管理員無法直接的操作封包轉送行為，僅能控制設備的通訊協定，再藉由通訊協定的規則去操作設備。
-- 通訊協定對於設備的影響是固定的，無法控制非自己協定內的規則。
+傳統網路的幾個特點：
+- 每個節點由設備單獨控制，屬於分散式架構
+- 控制面與轉接面放在同一台設備上
+- 管理員無法直接操作封包轉送行為，只能設定通訊協定，再透過協定的規則間接影響設備
+- 通訊協定對設備的影響是固定的，無法突破協定本身的規則
 
-SDN 想要採取集中式控制，要求轉接面跟控制面分離，實際上由遠端的 controller 計算以及分送每一個路由器的轉送表，管理員可以直接操作設備轉接封包的行為。
+SDN 的目標是採取集中式控制，要求轉接面與控制面分離，由遠端的 controller 計算並下發每個路由器的轉送表，讓管理員可以直接操作設備轉封包的行為。
 
 ![](https://i.imgur.com/uF2pcH0.png)
 
-SDN 並非一種技術，而是一種設計的理念，只要符合**控制面以及轉接面的分離**，以及開放的**可程式化**設計界面，就可以稱為 SDN 架構。通常 SDN 也伴隨著**集中控制**的特性，藉由在 controller 獲得的網路全局資料(並非傳統只能獲得局部資料)，根據其業務邏輯進行調整及優化。
+SDN 並非一種具體技術，而是一種設計理念：只要符合**控制面與轉接面分離**，並提供開放的**可程式化**介面，就可以稱為 SDN 架構。SDN 通常也伴隨著**集中控制**的特性——controller 可以取得整個網路的全局視角（而非傳統架構只能看到局部資料），再根據業務邏輯進行調整與優化。
 
 
 ## 常用名詞解釋
@@ -46,55 +45,60 @@ SDN 並非一種技術，而是一種設計的理念，只要符合**控制面�
 
 
 ### Network Device 網路設備
-網路設備不僅限於實體的設備(例如 switch ,路由器等等)，也有可能是虛擬的 switch (例如 OVS)，封包在網路設備之前被處理以及轉送。網路設備藉由 Southbound Interface 接收 controller 發過來的指令配置轉送的規則，也可以透過 Southbound Interface 來將一些資料回傳給 controller。
 
-有時候網路設備也被稱為 **Data Plane**。
+網路設備不限於實體設備（例如 switch、路由器），也可能是虛擬 switch（例如 OVS）。封包在網路設備上被處理與轉送，設備透過 Southbound Interface 接收 controller 下發的轉送規則，也可以將資料回傳給 controller。
 
-支援 OpenFlow 的 switch 會有以下功能
-- 對於接收到的封包進行修改或針對指定的 port 進行轉送。
-- 對於接收到的封包進行轉送到 Controller 的動作(Packet-In)。
-- 對於接收到來自 Controller 的封包轉送到指定的連接埠(Packet-Out)。
+網路設備有時也被稱為 **Data Plane**。
 
-### 南向界面(Southbound Interface/ Control Data Plane Interface)
-南向界面是指 Data Plane 以及 Controller 之間的界面，在 SDN 架構中，希望南向界面是標準化的，這樣才可以讓軟體可以不受硬體的限制，在任何設備上都能執行，不過現在還只是理想。
+支援 OpenFlow 的 switch 具備以下功能：
+- 對接收到的封包進行修改或轉送到指定 port
+- 將封包轉送給 controller（Packet-In）
+- 接收來自 controller 的封包並轉送到指定連接埠（Packet-Out）
 
-目前主流的南向界面標準是 OpenFlow 協定，雖然還有其他各種南向界面，不過還是 OpenFlow 為大宗。
+### 南向界面（Southbound Interface / Control Data Plane Interface）
 
-> 因為我也還是新手的緣故，所以也是從 OpenFlow 開始學習 SDN 的，此篇心得文也會著重在 OpenFlow 協定上。
+南向界面是 Data Plane 與 Controller 之間的介面。SDN 架構理想上希望南向界面是標準化的，讓軟體不受硬體限制，能在任何設備上執行，不過目前仍是理想多過現實。
 
-### 控制器(Controller)
-**Controller** 是 SDN 的核心，北向有應用程式提供業務邏輯經由 Controller 將轉送的規則藉由 Southbound Interface 傳給網路設備，屬於 SDN 架構中最重要的部份。
+目前主流的南向界面標準是 OpenFlow 協定，雖然也有其他南向界面，但 OpenFlow 仍是大宗。
 
-目前 Controller 百家爭鳴，有很多開源的 controller (例如 Ryu, FloodLight, NOX/POX)等等，也有很多公司開發的商用版本，本篇心得文會使用 Ryu 去做一些 OpenFlow 相關的實驗。
+> 因為也是新手，所以從 OpenFlow 開始學 SDN，本系列也會著重在 OpenFlow 協定上。
 
-### 北向界面(Northbound Interface)
-北向界面是指應用程式以及 Controller 之間溝通的界面，目前還沒有一個統一的標準，通常會因為狀況不同而採用不同的方案。
+### 控制器（Controller）
 
-### Application(Services)
-這裡的 Application 是指幾乎所有網路的應用，包含load balancing, security, monitoring 等等.. 應用程式的業務邏輯就透過 Controller 傳送規則給網路設備，讓設備彈性的執行我們要的功能。
+**Controller** 是 SDN 的核心，應用程式將業務邏輯傳給 Controller，再由 Controller 透過 Southbound Interface 將轉送規則下發給網路設備，是整個 SDN 架構最重要的部分。
+
+目前 controller 的選擇很多，有不少開源版本（例如 Ryu、FloodLight、NOX/POX），也有商用版本。本系列會用 Ryu 做一些 OpenFlow 相關的實驗。
+
+### 北向界面（Northbound Interface）
+
+北向界面是應用程式與 Controller 之間的介面，目前尚無統一標準，通常根據使用情境採用不同的方案。
+
+### Application（Services）
+
+這裡的 Application 幾乎涵蓋所有網路應用，包括 load balancing、security、monitoring 等。應用程式的業務邏輯透過 Controller 傳送規則給網路設備，讓設備彈性地執行我們想要的功能。
 
 
 ## OpenFlow 協定
-OpenFlow 為最有代表性的南向界面，被視為第一個 SDN 的標準之一。它最初在 SDN 環境中定義了通信協定，使 SDN 控制器能夠與物理和虛擬的交換機和路由器等網路裝置的轉發平面直接進行互動，從而更好地適應不斷變化的業務需求。
 
-### 概述([維基百科](https://zh.wikipedia.org/wiki/OpenFlow))
+OpenFlow 是最具代表性的南向界面，也被視為第一個 SDN 標準之一。它定義了 SDN controller 與實體或虛擬網路設備的轉發平面溝通的協定，讓 controller 能直接操控設備的轉送行為，更靈活地應對業務需求的變化。
 
-OpenFlow 能夠啟動遠端的控制器，經由網路交換器，決定網路封包要由何種路徑通過網路交換機。這個協定的發明者，將它當成軟體定義網路（Software-defined networking）的啟動器。
+### 概述（[維基百科](https://zh.wikipedia.org/wiki/OpenFlow)）
 
-OpenFlow 允許從遠端控制網路交換器的封包轉送表，透過新增、修改與移除封包控制規則與行動，來改變封包轉送的路徑。比起用存取控制列表 (ACLs) 和路由協定，允許更複雜的流量管理。同時，OpenFlow 允許不同供應商用一個簡單，開源的協定去遠端管理交換機（通常提供專有的介面和描述語言)。
+OpenFlow 讓遠端 controller 能透過網路交換器決定封包的轉送路徑。它的發明者將其定位為 SDN 的啟動器。
+
+OpenFlow 允許從遠端控制交換器的封包轉送表，透過新增、修改和移除封包控制規則，改變轉送路徑。相較於 ACL 或路由協定，它支援更靈活的流量管理。同時，OpenFlow 讓不同廠商的設備可以用一套簡單的開源協定進行遠端管理（這些設備傳統上各自提供專有的介面和描述語言）。
 
 ### 協定內容
 
-因為 OpenFlow 算是一個很有指標性的 SDN 協定，所以對於要學習 SDN 的人來說，他的 specification 也非常值得一看，我們會就 **OpenFlow** 獨立一個章節來談論。請點以下連結:
+OpenFlow 是 SDN 學習中的重要指標性協定，它的 specification 非常值得一讀。後續會單獨開一個章節來介紹，請點以下連結：
 
-- [OpenFlow協定](https://github.com/davidleitw/learn_SDN/blob/master/OpenFlow.md)
+- [OpenFlow 協定](https://github.com/davidleitw/learn_SDN/blob/master/OpenFlow.md)
 
---- 
+---
 
 > 參考資料
 > - [OpenFlow 1.0 spec](https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.0.0.pdf)
 > - [OpenFlow: Enabling Innovation in Campus Networks](https://www.researchgate.net/publication/220195143_OpenFlow_Enabling_innovation_in_campus_networks)
 > - [協定心得](https://www.cnblogs.com/ssyfj/tag/SDN/)
 
-下一篇文章會從 OpenFlow 1.0 開始講起，後續再補充 OpenFlow 1.3 新增了哪些東西。
-目前最常使用的就是 OpenFlow 1.3 的版本，在商業上的應用最廣泛(支援 OpenFlow 的 Switch很多都是支援 OpenFlow 1.3版本) 
+下一篇文章會從 OpenFlow 1.0 開始介紹，後續再補充 OpenFlow 1.3 新增的內容。目前商業上應用最廣的是 OpenFlow 1.3，許多支援 OpenFlow 的 switch 都是以這個版本為主。

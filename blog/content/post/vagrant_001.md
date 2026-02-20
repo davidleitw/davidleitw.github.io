@@ -7,6 +7,7 @@ tags:
     - kernel
     - linux
 categories: ["vagrant"]
+description: "介紹如何用 vagrant 快速建立虛擬機並執行自己編譯的 Linux kernel，適合需要反覆修改核心並測試的開發場景。"
 ---
 
 ## vagrant
@@ -14,9 +15,9 @@ categories: ["vagrant"]
 ![](https://i.imgur.com/9aODHGc.png)
 
 
-`vagrant` 是一款建立及管理虛擬機的工具，利用 `vagrant` 可以快速在本機端架設實驗環境，並且可以把自己習慣的環境包裝後在任何有安裝 `vagrant` 的電腦執行，達到 `IaC(Infrastructure as Code)` 的特性，使用 `vagrant` 可以大幅降低環境的架設時間，趁這個機會順便學習一下基本的用法。
+`vagrant` 是一款用來建立與管理虛擬機的工具。透過 `vagrant` 可以快速在本機搭建實驗環境，並將自己習慣的環境打包，在任何安裝了 `vagrant` 的電腦上執行，達到 `IaC（Infrastructure as Code）`的效果。使用 `vagrant` 可以大幅節省環境建置的時間，趁這個機會順便學習一下基本用法。
 
-這學期在修 `linux` 的課程會有添加 `system call` 或者改 `kernel` 的需求，所以這篇文章紀錄一下如何使用 `vagrant` 來執行自己編譯好的 `kernel`，以及一些 `vagrant` 的基本用法，用虛擬機做實驗也降低了把自己的環境搞壞的風險。
+這學期修 Linux 課程，會有新增 system call 或修改 kernel 的需求，所以這篇文章記錄如何用 `vagrant` 執行自己編譯好的 kernel，以及一些 `vagrant` 的基本操作。用虛擬機做實驗也能有效降低把本機環境搞壞的風險。
 
 ## install
 
@@ -29,7 +30,7 @@ $ sudo apt-get update && sudo apt-get install vagrant
 $ vagrant plugin install vagrant-vbguest
 ```
 
-`vagrant` 只是一個管理虛擬機的工具，底層可以選擇 `VirtualBox`, `VMware`, `AWS`.. 等不同的虛擬機環境，在 `linux` 的主機中最方便安裝的就是 `VirtualBox`，所以在正式使用之前要記得先安裝 `VirtualBox`。
+`vagrant` 本身只是虛擬機的管理工具，底層可以選擇 `VirtualBox`、`VMware`、`AWS` 等不同的虛擬化環境。在 Linux 主機上最方便安裝的是 `VirtualBox`，記得在正式使用前先安裝好。
 
 ```bash
 $ sudo apt install virtualbox
@@ -38,7 +39,7 @@ $ sudo apt upgrade virtualbox
 
 ## 建立基本的環境
 
-虛擬機的底我們選擇使用 `ubuntu 16.04` 版本，可以看 `Vagrant Cloud` 中 `ubuntu` 官方提供的 `Vagrant box` 選擇自己想要的版本, [ubuntu/boxes](https://app.vagrantup.com/ubuntu)。
+虛擬機的基底選用 `ubuntu 16.04`，可以到 `Vagrant Cloud` 查看 Ubuntu 官方提供的 Vagrant box，選擇想要的版本：[ubuntu/boxes](https://app.vagrantup.com/ubuntu)。
 
 ```bash
 $ mkdir project
@@ -59,9 +60,9 @@ $ vagrant status
 
 ### Vagrantfile
 
-在執行 `vagrant init` 的指令時，會在該目錄底下創立一個 `Vagrantfile`，可以把這個文件當作虛擬機的配置檔案，有點像是 `Dockerfile`，如果想深入了解 `Vagrantfile` 的寫法還有詳細配置，可以參考 [官方文檔](https://www.vagrantup.com/docs/vagrantfile)
+執行 `vagrant init` 時，會在目錄底下建立一個 `Vagrantfile`，可以把它當作虛擬機的配置文件，概念上有點像 `Dockerfile`。想深入了解 `Vagrantfile` 的寫法與詳細配置，可以參考[官方文件](https://www.vagrantup.com/docs/vagrantfile)。
 
-第一次使用 `vagrant` 時它會從雲端把指定的 `image`下載進本機，會花比較長的時間，下載好之後可以使用 `vagrant ssh` 來進入開啟的虛擬機中。
+第一次使用 `vagrant` 時，它會從雲端下載指定的 image 到本機，需要花一些時間。下載完成後，可以使用 `vagrant ssh` 進入虛擬機。
 
 ```bash
 $ vagrant ssh
@@ -79,10 +80,10 @@ $ vagrant halt
 
 ![](https://i.imgur.com/TTkSq9Y.png)
 
-刪除虛擬機則是使用 `vagrant destory`
+刪除虛擬機則是使用 `vagrant destroy`
 
 ```bash
-$ vagrant destory
+$ vagrant destroy
 ```
 
 重新啟動虛擬機可以使用 `vagrant reload`
@@ -93,7 +94,7 @@ $ vagrant reload
 
 ### 資料共享的特性
 
-`vagrant` 還有一個方便的特性，在虛擬機中如果把檔案放到 `/vagrant` 內，就可以跟外部放置 `Vagrantfile` 的目錄做資料共享。舉例來說我們在虛擬機建立一個 `Hello.txt` 放到 `/vagrant` 目錄底下，離開虛擬機存取到該檔案。
+`vagrant` 還有一個很實用的特性：虛擬機中的 `/vagrant` 目錄與外部放置 `Vagrantfile` 的目錄是共享的。舉例來說，在虛擬機中把 `Hello.txt` 放到 `/vagrant` 目錄底下，離開虛擬機後就可以直接在外部目錄存取這個檔案。
 
 ```bash
 host@ubuntu: ~$ vagrant ssh
@@ -106,9 +107,9 @@ host@ubuntu: ~$
 
 ![](https://i.imgur.com/Wy0DaaQ.png)
 
-接下來我們就會利用這個特性在 `Host` 編譯好 `kernel` 然後再進去虛擬機啟動編譯好的 `kernel`。
+接下來就會利用這個共享特性，在 Host 端編譯好 kernel，再進入虛擬機啟動編譯好的 kernel。
 
-在正式開始前先建立一個存檔點，利用 `vagrant snapshot` 指令把目前的環境紀錄下來，把這個存檔點的名稱設為 `clean-env`
+在正式開始之前，先用 `vagrant snapshot` 建立一個存檔點，把目前的乾淨環境記錄下來，命名為 `clean-env`：
 
 ```bash
 host@ubuntu: ~$ vagrant halt
@@ -120,7 +121,7 @@ host@ubuntu: ~$ vagrant snapshot list
 
 ### 安裝編譯 kernel 所需要的套件
 
-接下來安裝一些編譯 `kernel` 時依賴的套件，並且用 `snapshot` 紀錄一下目前的環境，把名稱設為 `installed-tool-env`
+接著安裝編譯 kernel 所需的套件，並用 `snapshot` 記錄當前環境，命名為 `installed-tool-env`：
 
 ```bash
 host@ubuntu: ~$ vagrant ssh
@@ -133,7 +134,7 @@ host@ubuntu: ~$ vagrant snapshot list
 host@ubuntu: ~$ vagrant up
 ```
 
-上一個段落有提到放置 `Vagrantfile` 的目錄與虛擬機中 `/vargrant` 目錄是共用的，所以我們可以把 `kenrel source code` 下載到本機的目錄中編譯好再用虛擬機開啟編譯好的 `kernel`。
+前面提到 `Vagrantfile` 所在目錄與虛擬機中 `/vagrant` 目錄是共用的，所以可以把 kernel source code 下載到本機目錄並編譯，再進入虛擬機使用編譯好的 kernel。
 
 下載 `source code`，下載的版本是 `4.14.259`
 
@@ -144,11 +145,11 @@ host@ubuntu: ~$ rm linux-4.14.259.tar.xz
 host@ubuntu: ~$ cd linux-4.14.259
 ```
 
-下載好的 `linux-4.14.259` 資料夾因為共用機制 ，這個資料夾也會存在於虛擬機的 `/vagrant/linux-4.14.259`  路徑下。
+下載好的 `linux-4.14.259` 資料夾，因為目錄共用機制，在虛擬機中也可以透過 `/vagrant/linux-4.14.259` 路徑存取。
 
 ![](https://i.imgur.com/3S4FK8m.png)
 
-至於 `config` 的部份，我們直接複製虛擬機 `4.4` 版本的 `config` 到 `/vagrant/linux-4.14.259`，建立 `obj/x86-64` 來存放編譯好的 `deb` 檔案，編譯部份我們跳回本機，並用 `-j8` 來加速編譯流程。
+至於 config 的部分，直接將虛擬機 `4.4` 版本的 config 複製到 `/vagrant/linux-4.14.259`，建立 `obj/x86-64` 目錄存放編譯產出的 `.deb` 檔案。編譯的部分回到本機執行，並使用 `-j8` 加速編譯流程：
 
 ```bash
 host@ubuntu: ~$ vagrant ssh
@@ -162,7 +163,7 @@ host@ubuntu: ~$ cd linux-4.14.259
 host@ubuntu: ~$ make O=obj/x86-64 -j8 && make O=obj/x86-64 bindeb-pkg -j8
 ```
 
-等待完成之後進入虛擬機，利用編譯好的 `.deb` 檔案更改 `kernel` 版本，最後重新啟動虛擬機。
+編譯完成後進入虛擬機，使用編譯好的 `.deb` 檔案安裝新的 kernel，最後重新啟動虛擬機：
 
 ```bash
 host@ubuntu: ~$ vagrant ssh
