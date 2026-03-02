@@ -15,28 +15,18 @@ const { frontmatter } = Astro.props;
   <Header />
   <Breadcrumb />
   <main id="main-content" class="app-layout">
-    <!-- Hero con aurora interactiva -->
+    <!-- Hero with interactive aurora -->
     <div class="about-hero" data-about-hero>
       <div class="aurora-orb aurora-orb-1"></div>
       <div class="aurora-orb aurora-orb-2"></div>
       <div class="aurora-orb aurora-orb-3"></div>
       <div class="aurora-mouse" data-about-mouse></div>
       <div class="hero-content">
-        <div class="avatar-ring">
-          <div class="avatar-glow"></div>
-          <div class="avatar-inner">
-            <span class="avatar-emoji">👨‍💻</span>
-          </div>
-        </div>
         <h1 class="hero-title">
-          <span class="greeting">¡Hola! Soy</span>
+          <span class="greeting">Hey, I'm</span>
           <span class="name-glow">{SITE.author}</span>
         </h1>
-        <div class="hero-badges">
-          <span class="badge" data-badge>🚀 Developer</span>
-          <span class="badge" data-badge>📚 Estudiante</span>
-          <span class="badge" data-badge>🎮 Gamer</span>
-        </div>
+        <p class="hero-desc">{SITE.desc}</p>
       </div>
     </div>
 
@@ -54,7 +44,6 @@ const { frontmatter } = Astro.props;
   let aboutCleanup: AbortController | null = null;
 
   document.addEventListener("astro:page-load", () => {
-    // Cleanup previous listeners
     if (aboutCleanup) aboutCleanup.abort();
     aboutCleanup = new AbortController();
     const { signal } = aboutCleanup;
@@ -88,24 +77,6 @@ const { frontmatter } = Astro.props;
         { signal }
       );
     }
-
-    // Badge hover ripple
-    const badges = document.querySelectorAll("[data-badge]");
-    badges.forEach(badge => {
-      badge.addEventListener(
-        "mousemove",
-        e => {
-          requestAnimationFrame(() => {
-            const rect = (badge as HTMLElement).getBoundingClientRect();
-            const x = (e as MouseEvent).clientX - rect.left;
-            const y = (e as MouseEvent).clientY - rect.top;
-            (badge as HTMLElement).style.setProperty("--bx", `${x}px`);
-            (badge as HTMLElement).style.setProperty("--by", `${y}px`);
-          });
-        },
-        { signal }
-      );
-    });
   });
 </script>
 
@@ -228,75 +199,7 @@ const { frontmatter } = Astro.props;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 1.25rem;
-  }
-
-  /* Avatar */
-  .avatar-ring {
-    position: relative;
-    width: 110px;
-    height: 110px;
-    border-radius: 50%;
-    padding: 3px;
-    background: conic-gradient(
-      from 0deg,
-      var(--color-accent),
-      var(--color-border),
-      var(--color-accent),
-      var(--color-border),
-      var(--color-accent)
-    );
-    animation: ring-spin 6s linear infinite;
-  }
-
-  @keyframes ring-spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  .avatar-glow {
-    position: absolute;
-    inset: -12px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 30%, transparent),
-      transparent 70%
-    );
-    animation: pulse-glow 3s ease-in-out infinite;
-    pointer-events: none;
-  }
-
-  @keyframes pulse-glow {
-    0%,
-    100% {
-      opacity: 0.3;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.7;
-      transform: scale(1.15);
-    }
-  }
-
-  .avatar-inner {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: var(--color-background);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: ring-spin 6s linear infinite reverse;
-  }
-
-  .avatar-emoji {
-    font-size: 2.8rem;
-    line-height: 1;
+    gap: 1rem;
   }
 
   .hero-title {
@@ -334,68 +237,12 @@ const { frontmatter } = Astro.props;
     }
   }
 
-  /* Badges with mouse-reactive glow */
-  .hero-badges {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .badge {
-    position: relative;
-    overflow: hidden;
-    padding: 0.45rem 1.1rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+  .hero-desc {
+    max-width: 28rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
     color: var(--color-foreground);
-    background: color-mix(
-      in srgb,
-      var(--color-foreground) 4%,
-      var(--color-background)
-    );
-    border: 1px solid color-mix(in srgb, var(--color-accent) 15%, transparent);
-    backdrop-filter: blur(12px);
-    transition:
-      transform 0.3s ease,
-      border-color 0.3s ease,
-      box-shadow 0.3s ease;
-    cursor: default;
-  }
-
-  .badge::before {
-    content: "";
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 35%, transparent),
-      transparent 70%
-    );
-    filter: blur(15px);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    transform: translate(
-      calc(var(--bx, 50%) - 40px),
-      calc(var(--by, 50%) - 40px)
-    );
-  }
-
-  .badge:hover {
-    transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
-    box-shadow:
-      0 6px 20px color-mix(in srgb, var(--color-accent) 15%, transparent),
-      inset 0 1px 0 color-mix(in srgb, var(--color-accent) 8%, transparent);
-  }
-
-  .badge:hover::before {
-    opacity: 1;
+    opacity: 0.55;
   }
 
   /* Content styling */

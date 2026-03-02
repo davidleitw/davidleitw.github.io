@@ -1,8 +1,8 @@
 ---
 /**
- * IntroAudio — Reproductor de audio de marca/intro del blog.
- * Activable desde SITE.introAudio.enabled en config.ts.
- * Estética terminal/cyberpunk coherente con el resto de la UI.
+ * IntroAudio — Blog brand/intro audio player.
+ * Enabled via SITE.introAudio.enabled in config.ts.
+ * Terminal/cyberpunk aesthetic consistent with the rest of the UI.
  */
 interface Props {
   src: string;
@@ -16,20 +16,20 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
 <div
   id="intro-audio-player"
   class="intro-audio-wrap"
-  aria-label="Reproductor de audio intro"
+  aria-label="Intro audio player"
 >
-  <!-- Indicador de tipo terminal -->
+  <!-- Terminal-style indicator -->
   <span class="intro-audio-prefix" aria-hidden="true">$</span>
   <span class="intro-audio-cmd" aria-hidden="true">play</span>
 
-  <!-- Botón play/pause -->
+  <!-- Play/pause button -->
   <button
     id="intro-audio-btn"
     class="intro-audio-btn"
-    aria-label="Reproducir audio de introducción"
+    aria-label="Play intro audio"
     type="button"
   >
-    <!-- Ícono play -->
+    <!-- Play icon -->
     <svg
       id="intro-icon-play"
       class="intro-icon"
@@ -41,7 +41,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
         d="M3 2.5a.5.5 0 0 1 .765-.424l10 5.5a.5.5 0 0 1 0 .848l-10 5.5A.5.5 0 0 1 3 13.5v-11z"
       ></path>
     </svg>
-    <!-- Ícono pause -->
+    <!-- Pause icon -->
     <svg
       id="intro-icon-pause"
       class="intro-icon hidden"
@@ -55,7 +55,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     </svg>
   </button>
 
-  <!-- Barras de onda (animadas durante reproducción) -->
+  <!-- Waveform bars (animated during playback) -->
   <div class="intro-waveform" id="intro-waveform" aria-hidden="true">
     {
       Array.from({ length: 8 }).map((_, i) => (
@@ -67,7 +67,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     }
   </div>
 
-  <!-- Barra de progreso -->
+  <!-- Progress bar -->
   <div
     class="intro-progress-track"
     id="intro-progress-track"
@@ -75,12 +75,12 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     aria-valuenow={0}
     aria-valuemin={0}
     aria-valuemax={duration}
-    aria-label="Progreso del audio"
+    aria-label="Audio progress"
   >
     <div class="intro-progress-bar" id="intro-progress-bar"></div>
   </div>
 
-  <!-- Tiempo -->
+  <!-- Time -->
   <span class="intro-time" id="intro-time" aria-live="off">
     <span id="intro-current">0:00</span><span class="opacity-30"> /</span><span
       class="opacity-30"
@@ -89,13 +89,13 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     >
   </span>
 
-  <!-- Etiqueta del archivo -->
-  <span class="intro-label" aria-label={`Archivo: ${label}`}>{label}</span>
+  <!-- File label -->
+  <span class="intro-label" aria-label={`File: ${label}`}>{label}</span>
 
-  <!-- Elemento audio nativo (oculto) -->
+  <!-- Native audio element (hidden) -->
   <audio id="intro-audio-el" preload="metadata" aria-hidden="true">
     <source src={src} type="audio/mpeg" />
-    Tu navegador no soporta el elemento audio.
+    Your browser does not support the audio element.
   </audio>
 </div>
 
@@ -123,7 +123,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     background: color-mix(in oklab, var(--accent) 6%, transparent);
   }
 
-  /* estado playing aplicado por JS */
+  /* playing state applied by JS */
   .intro-audio-wrap.playing {
     border-color: color-mix(in oklab, var(--accent) 55%, transparent);
     background: color-mix(in oklab, var(--accent) 6%, transparent);
@@ -143,7 +143,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     letter-spacing: 0.03em;
   }
 
-  /* ── Botón play/pause ── */
+  /* ── Play/pause button ── */
   .intro-audio-btn {
     display: inline-flex;
     align-items: center;
@@ -183,7 +183,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     display: none !important;
   }
 
-  /* ── Barras de onda ── */
+  /* ── Waveform bars ── */
   .intro-waveform {
     display: flex;
     align-items: center;
@@ -201,7 +201,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     transition: opacity 0.3s;
   }
 
-  /* animación activa */
+  /* active animation */
   .playing .intro-wave-bar {
     opacity: 0.8;
     animation: wave-bounce 0.6s ease-in-out infinite alternate;
@@ -217,7 +217,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     }
   }
 
-  /* ── Barra de progreso ── */
+  /* ── Progress bar ── */
   .intro-progress-track {
     position: relative;
     height: 3px;
@@ -250,7 +250,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     transition: width 0.25s linear;
   }
 
-  /* ── Tiempo ── */
+  /* ── Time ── */
   .intro-time {
     font-variant-numeric: tabular-nums;
     font-size: 0.68rem;
@@ -260,7 +260,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     flex-shrink: 0;
   }
 
-  /* ── Etiqueta ── */
+  /* ── Label ── */
   .intro-label {
     font-size: 0.65rem;
     letter-spacing: 0.08em;
@@ -314,15 +314,15 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
       btn.setAttribute(
         "aria-label",
         playing
-          ? "Pausar audio de introducción"
-          : "Reproducir audio de introducción"
+          ? "Pause intro audio"
+          : "Play intro audio"
       );
     };
 
     btn.addEventListener("click", () => {
       if (audio.paused) {
         audio.play().catch(() => {
-          /* autoplay bloqueado, ignorar */
+          /* autoplay blocked, ignore */
         });
       } else {
         audio.pause();
@@ -348,7 +348,7 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
       if (track) track.setAttribute("aria-valuenow", String(Math.floor(now)));
     });
 
-    // Clic en la barra de progreso para saltar
+    // Click on progress bar to seek
     track?.addEventListener("click", (e: MouseEvent) => {
       const rect = track.getBoundingClientRect();
       const ratio = (e.clientX - rect.left) / rect.width;
@@ -359,6 +359,6 @@ const { src, label = "INTRO.MP3", duration = 30 } = Astro.props;
     });
   }
 
-  // Compatible con View Transitions de Astro
+  // Compatible with Astro View Transitions
   document.addEventListener("astro:page-load", initIntroAudio);
 </script>

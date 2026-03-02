@@ -4,7 +4,7 @@ export const SITE = {
   profile: "https://github.com/davidleitw",
   desc: "一個紀錄心情，技術，人生的網站",
   title: "davidLei",
-  ogImage: "devosfera-og.webp", // ubicado en la carpeta public
+  ogImage: "devosfera-og.webp",
   lightAndDarkMode: true,
   postPerIndex: 6,
   postPerPage: 8,
@@ -22,9 +22,9 @@ export const SITE = {
   lang: "en", // html lang code. Set this empty and default will be "en"
   timezone: "Asia/Taipei", // Default global timezone (IANA format) https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
   introAudio: {
-    enabled: true, // mostrar/ocultar el reproductor en el hero
-    src: "/audio/intro-web.mp3", // ruta al archivo (relativa a /public)
-    label: "INTRO.MP3", // etiqueta display en el reproductor
-    duration: 30, // duración en segundos (para la barra de progreso fija)
+    enabled: false,
+    src: "",
+    label: "",
+    duration: 0,
   },
 } as const;
