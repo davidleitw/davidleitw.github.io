@@ -1,7 +1,7 @@
 ---
 title: "Stop Letting AI Review Its Own Code — Why I Built xreview"
 description: "When the same model writes and reviews code, how strict can it really be? xreview uses codex for cross-model verification to solve the self-review blind spot."
-pubDatetime: 2026-03-13T00:00:00.000Z
+pubDatetime: 2026-03-12T16:00:00.000Z
 tags:
   - ai
   - claude-code

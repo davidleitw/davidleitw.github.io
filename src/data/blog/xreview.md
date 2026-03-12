@@ -1,7 +1,7 @@
 ---
 title: "讓 AI 不再自己改自己看 — 我為什麼做了 xreview"
 description: "一個模型寫的 code，再用同一個模型 review，它會對自己多嚴格？xreview 用 codex 做交叉驗證，解決 self review 放水問題。"
-pubDatetime: 2026-03-13T00:00:00.000Z
+pubDatetime: 2026-03-12T16:00:00.000Z
 tags:
   - ai
   - claude-code
