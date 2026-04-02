@@ -29,17 +29,17 @@ So my thinking was straightforward: if reviewing your own work isn't reliable, g
 
 ## What xreview Does
 
-xreview is a Claude Code plugin that delegates code review to codex (OpenAI), while Claude Code handles verification and applies fixes.
+xreview is a coding agent plugin that delegates code review to codex (OpenAI), while your coding agent handles verification and applies fixes. It currently supports both Claude Code and Codex CLI as host agents.
 
-The workflow is a three-party loop. codex independently reads your code, looking for bugs, security vulnerabilities, and logic issues. When Claude Code receives the findings, it doesn't just accept them blindly — it reads the actual source code line by line to confirm whether each issue truly exists, and actively challenges suspicious findings. All verified issues are then presented to you at once, each with a proposed fix, and you choose which ones to apply.
+The workflow is a three-party loop. codex independently reads your code, looking for bugs, security vulnerabilities, and logic issues. When your agent receives the findings, it doesn't just accept them blindly — it reads the actual source code line by line to confirm whether each issue truly exists, and actively challenges suspicious findings. All verified issues are then presented to you at once, each with a proposed fix, and you choose which ones to apply.
 
-After fixes are applied, codex runs another verification round. If something isn't resolved, the cycle continues — up to five rounds. When it's done, a markdown report is generated automatically.
+After fixes are applied, codex runs another verification round. If something isn't resolved, the cycle continues — up to five rounds.
 
 ## Why the Verification Layer Matters
 
 The earliest version had no verification layer — codex findings were passed directly to you. After a few runs, I found the false positive rate was too high. It would see `fmt.Sprintf` and flag SQL injection, even though that code might never touch user input. You'd spend all your time filtering noise, making the whole thing less efficient than not using it at all.
 
-So I added Claude Code as a filter in the middle. It actually reads the lines of code codex flagged and judges whether the issue genuinely exists. When something looks questionable, it pushes back on codex: "You say there's a race condition here, but I've checked the lock scope — these two goroutines never hold this lock simultaneously. Are you sure?"
+So I added the agent as a filter in the middle. It actually reads the lines of code codex flagged and judges whether the issue genuinely exists. When something looks questionable, it pushes back on codex: "You say there's a race condition here, but I've checked the lock scope — these two goroutines never hold this lock simultaneously. Are you sure?"
 
 codex might stand its ground, or it might retract. Either way, what reaches you has been cross-verified, not an unfiltered laundry list.
 
@@ -73,36 +73,43 @@ The zero false positive rate is also worth highlighting. The problem with many s
 
 ## Technical Details
 
-xreview is a Go CLI that sits between Claude Code and codex. A single binary, no extra runtime needed.
+xreview is a Go CLI that sits between your coding agent and codex. A single binary, no extra runtime needed.
 
 ```
-Claude Code (host)          xreview (CLI)           codex (reviewer)
+Host Agent                  xreview (CLI)           codex (reviewer)
+(Claude Code / Codex CLI)
      |                          |                        |
      |-- skill trigger -------->|                        |
      |                          |-- codex exec --------->|
      |                          |<-- findings (JSON) ----|
      |<-- findings (XML) ------|                        |
      |                          |                        |
-     |  [Claude Code verifies]  |                        |
+     |  [agent verifies]        |                        |
      |  [challenges suspect] -->|-- codex resume ------->|
      |                          |<-- re-evaluation ------|
      |                          |                        |
      |  [present Fix Plan]      |                        |
      |  [you decide what to fix]|                        |
-     |  [Claude Code applies]   |                        |
+     |  [agent applies fixes]   |                        |
      |                          |                        |
      |-- request verify ------->|-- codex resume ------->|
      |                          |<-- verify result ------|
      |<-- verify (XML) --------|                        |
 ```
 
-Session state is stored in `.xreview/sessions/`, so codex can resume previous sessions and verification rounds don't have to start from scratch.
+Session state is stored in `/tmp/xreview/sessions/`, so codex can resume previous sessions and verification rounds don't have to start from scratch.
 
-To install, two commands in Claude Code:
+To install in Claude Code, two commands:
 
 ```bash
 /plugin marketplace add davidleitw/xreview
 /plugin install xreview@xreview-marketplace
+```
+
+For Codex CLI, just paste this into your session:
+
+```
+Fetch and follow instructions from https://raw.githubusercontent.com/davidleitw/xreview/master/.codex/INSTALL.md
 ```
 
 Prerequisites: codex CLI installed and OpenAI API key configured.
@@ -117,9 +124,9 @@ CodeRabbit, Copilot Code Review, and similar SaaS products are more feature-comp
 
 As for skill-based review within the Claude Code ecosystem (like Superpowers' code-reviewer), it's fundamentally still Claude reviewing Claude's own code. Compared to just asking Claude Code to "review this," there's more structured process, but the model hasn't changed, so the core self-review problem remains.
 
-Honestly, xreview does something very narrow. It doesn't handle CI/CD, PR workflows, or team collaboration. It does one thing: gets a different model to review your code, then uses Claude Code to filter the noise. If that's exactly what you need, it works well.
+Honestly, xreview does something very narrow. It doesn't handle CI/CD, PR workflows, or team collaboration. It does one thing: gets a different model to review your code, then uses your agent to filter the noise. If that's exactly what you need, it works well.
 
-What's next on the roadmap is language-specific review context. Currently xreview reviews all languages the same way, but different languages have different pitfall zones — Go's error handling conventions, Rust's ownership model, C++'s lifetime management. The plan is to have xreview include a language-specific review guide when calling codex. The core flow stays the same; it's just an extra prompt segment.
+One improvement that made a real difference since launch is language-specific review context. Different languages have different pitfall zones — Go's error handling conventions, C++'s lifetime management — and reviewing them all the same way isn't precise enough. xreview now supports a `--language` flag that includes language-specific review guidelines when calling codex. Go and C++ are supported today, with Rust, TypeScript, and Python on the way.
 
 If you also find self-review unreliable, give it a try: [github.com/davidleitw/xreview](https://github.com/davidleitw/xreview)
 
