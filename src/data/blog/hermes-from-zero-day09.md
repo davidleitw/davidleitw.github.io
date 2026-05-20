@@ -73,7 +73,7 @@ agent:main:discord:guild:GUILD_X:channel:CHAN_Y:user:USER_Z
 
 為什麼好?因為**沒有中央 session 路由表**。沒有一張「Slack channel 123 的 user 456 對應到 session ID xyz」的 hash map 要維護、要 lock、要過期。**只有一個從「來源資訊」到「key string」的純函式**。任何時候要找 session,你重算一次 key 就好。任何時候要新增一個平台,你只要決定該平台的命名規則丟進這個函式裡。
 
-「thread 共享 vs 每人隔離」這個區分,編碼了真實的 UX 直覺:一個論壇主題是大家共享的對話;兩個人各自私訊 bot 不該被混在一起。這不是技術選擇,**是 product 選擇被寫進函式**。
+「thread 共享 vs 每人隔離」這個區分,編碼了真實的 UX 直覺:一個論壇主題是大家共享的對話;兩個人各自私訊 bot 不該被混在一起。**這是 product 選擇被寫進函式**。
 
 > **Note**:WhatsApp 有個特殊處理——同一個人在 WhatsApp 上有可能用 LID(Linked ID)或 phone JID 出現,session key 函式裡會 canonicalize,讓「同一個人類」對應到同一個 key。`whatsapp_identity.py` 專門處理這件事。這種「平台髒東西不要外洩」的精神,就是反腐層的實踐。
 
@@ -103,11 +103,11 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 
 **堆疊安全**。排隊訊息排空時是「生出一個全新 task」而不是遞迴呼叫——原始碼註解有寫:遞迴版本曾經在約 2000 層的時候把 C 堆疊耗盡、SIGSEGV。
 
-這就是真正困難的並行工程。代價是巨大的複雜度——光是 `_process_message_background` 這個函式就大約 490 行,正確,但幾乎無法維護。每個 tricky 分支邊上都引了 GitHub issue 編號——讀就會發現,這些設計不是憑空想出來的,**每個修法都是某個半夜炸過一次換來的**。
+這就是並行工程的難處。代價是巨大的複雜度——光是 `_process_message_background` 這個函式就大約 490 行,正確,但幾乎無法維護。每個 tricky 分支邊上都引了 GitHub issue 編號——讀就會發現,這些設計不是憑空想出來的,**每個修法都是某個半夜炸過一次換來的**。
 
 ## 五、OpenAI 相容 API:暗線 A 第三次,而且這次是「對外」也偽裝
 
-到這裡 adapter 都是「外部 channel → agent」。但 gateway 還有一個我覺得最有趣的設計:`gateway/platforms/api_server.py` 裡的 `APIServerAdapter`。
+到這裡 adapter 都是「外部 channel → agent」。但 gateway 還有一個我覺得很有趣的設計:`gateway/platforms/api_server.py` 裡的 `APIServerAdapter`。
 
 它跑一個 `aiohttp` server,**但它繼承 `BasePlatformAdapter`**——HTTP API 被建模成「又一個平台 adapter」。它對外開放三個端點:
 
@@ -115,11 +115,11 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 - **`/v1/responses`**:有狀態的 OpenAI Responses API 形狀,用 `previous_response_id` 串接。
 - **`/v1/runs`**:非同步執行提交,立刻回 `run_id`(HTTP 202),搭配 `/events` 的 SSE 串流、`/approval` 解 HITL 閘門、`/stop` 中斷。
 
-**這代表什麼?這代表你可以把 Hermes 偽裝成 OpenAI 模型**——只要把 base URL 指到你的 Hermes server,任何支援 OpenAI API 的 client(Cursor、Claude Desktop、Open WebUI、LiteLLM、任何照著 OpenAI SDK 寫的東西)都可以直接接上去用。對 client 來說,它就是在跟 GPT-4 講話;實際上後面是一整個 agent loop、會 call tool、會去 MCP、會吃技能。
+**你可以把 Hermes 偽裝成 OpenAI 模型**——只要把 base URL 指到你的 Hermes server,任何支援 OpenAI API 的 client(Cursor、Claude Desktop、Open WebUI、LiteLLM、任何照著 OpenAI SDK 寫的東西)都可以直接接上去用。對 client 來說,它就是在跟 GPT-4 講話;實際上後面是一整個 agent loop、會 call tool、會去 MCP、會吃技能。
 
-重點來了:這是暗線 A「一個核心,多種驅動」的**第三次大型登場**,而且這次是反過來的——前兩次都是「核心去適應外部」,這次是**核心對外也偽裝成另一個系統**。
+這是暗線 A「一個核心,多種驅動」的**第三次大型登場**,而且這次反過來——前兩次都是「核心去適應外部」,這次是**核心對外也偽裝成另一個系統**。
 
-讓我把這條暗線到目前為止的軌跡攤開:
+這條暗線到目前為止的軌跡:
 
 | Day | 抽象方向 | 一句話 |
 |---|---|---|
@@ -127,7 +127,7 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 | Day 8 | agent ↔ tool / sub-agent | agent 不在乎工具是本地 function、是 MCP server、還是另一個 agent |
 | **Day 9** | channel → agent / agent → OpenAI 形狀 | agent 不在乎訊息從哪個 channel 來,client 也不在乎背後是不是 OpenAI |
 
-**三個方向、同一個架構選擇**——窄契約、預設降級、確定性無狀態的入口函式。整個 Hermes 反覆在用同一個 pattern。讀到這你應該有感覺:這不是巧合,是有人決定整個系統都用這個方式組裝。
+**三個方向、同一個架構選擇**——窄契約、預設降級、確定性無狀態的入口函式。整個 Hermes 反覆在用同一個 pattern。這不是巧合,是有人決定整個系統都用這個方式組裝。
 
 > **Note**:`APIServerAdapter` 把 HTTP API 當成 platform adapter,意味著它**免費繼承**了 session 管理、toolset 解析、provider fallback、streaming 消費者——沒有平行的執行期。`_derive_chat_session_id()` 把(system prompt + 第一則 user 訊息)雜湊起來,給無狀態的 OpenAI client 一個「黏著的 session」——你連續呼叫兩次同樣 system prompt + 同一段開頭,自動續上同一個 session。
 
@@ -135,11 +135,11 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 
 ## 六、`run.py` 855KB——架構漂亮、實作卻是巨石
 
-寫到這裡你可能覺得 gateway 設計得很好——對,設計詞彙是好的。adapter 抽象、能力降級、registry、確定性 session key、每 session 的並行模型——**全是對的點子**。
+gateway 的設計詞彙是好的。adapter 抽象、能力降級、registry、確定性 session key、每 session 的並行模型——**全是對的點子**。
 
 但這裡有個坑:`gateway/run.py` 是 **18,188 行、855KB 的單一檔案**。
 
-對,855KB。一個 .py 檔。我第一次 `ls -lh` 看到的時候以為是工具壞了。
+855KB。一個 .py 檔。我第一次 `ls -lh` 看到的時候以為是工具壞了。
 
 裡面有個叫 `GatewayRunner` 的 god object,**class body 量到約 200 個方法**(`awk` 從 `class GatewayRunner` 開始抓 `def`),擁有 adapter 生命週期、數十個 slash 指令、6 個以上的背景 watcher、語音、Telegram 討論串管理、kanban、目標續接、agent 快取、重啟、關機排空。光是 `_run_agent` 一個方法就大約 2,500 行。
 
@@ -147,7 +147,7 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 
 值得補一句:**這 16 步是給「內建 path」用的**——文件還提供了一條官方推薦的 plugin path,完全不用動 core code(zero changes to core Hermes)。換句話說,16 步的痛是你「選擇硬接進 core」才會付,不是加平台這件事本身必然這麼貴。
 
-讓我們停一下感受一下。**這是一個被升格成「文件化流程」的程式碼壞味道**。「想加新平台?好的,先把這 16 步做完,還有那個 `if/elif` 鏈記得也加,然後在五個其他檔案裡 grep 看看有沒有漏。」這不是文件,這是控訴狀。
+**這是一個被升格成「文件化流程」的程式碼壞味道**。「想加新平台?好的,先把這 16 步做完,還有那個 `if/elif` 鏈記得也加,然後在五個其他檔案裡 grep 看看有沒有漏。」這不是文件,這是控訴狀。
 
 這也是這篇要鋪的批判:**架構跟實作拉開差距的活範例**。架構上,gateway 是漂亮的 adapter pattern;實作上,入口檔案是一個塞了約 150 個方法的 god object。每一個 hard-won 的修法(自癒鎖、TOCTOU 關閉、stack-safe drain)都附了 issue 編號——知識是有的,但被擠在一個 18K 行的檔案裡,沒有模組邊界。
 
@@ -161,7 +161,7 @@ Gateway 是 Hermes 的「對外殼層」。核心 agent 一個,外殼把每個 c
 
 **但** `run.py` 855KB,設計詞彙跟程式碼組織完全不在同一個量級。架構是健全的,程式碼沒跟上。
 
-讀到這你應該有個問題:既然 gateway 把「對外通道」抽象掉了,那 Hermes 怎麼讓使用者「**加新東西**」而不用碰 core?技能?外掛?MCP?到底哪個用在哪、什麼時候該用哪個?明天我們釐清這三套(其實四套)互相重疊的擴充機制。
+那還有個問題:既然 gateway 把「對外通道」抽象掉了,那 Hermes 怎麼讓使用者「**加新東西**」而不用碰 core?技能?外掛?MCP?到底哪個用在哪、什麼時候該用哪個?明天我們釐清這三套(其實四套)互相重疊的擴充機制。
 
 ---
 

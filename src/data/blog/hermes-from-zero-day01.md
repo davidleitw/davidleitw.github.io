@@ -31,7 +31,7 @@ print(resp.choices[0].message.content)
 
 更慘的是換個 provider 試試看。從 OpenAI 換到 Claude,幾乎所有東西要重寫:message format 不一樣(`system` 是獨立欄位不是 message)、function calling 的 schema 結構不一樣、tool result 要 nest 在 user message 的 content block 裡而不是 `tool` role、連 streaming 的 SSE event 名稱都不一樣。光是為了讓「同一段話」能在兩家模型上都跑起來,就是一道工程關卡——還沒做任何「真的功能」。
 
-我覺得 chat completion 跟 agent 之間,差的就是這一整層你以為很簡單、實際上有一整本書那麼厚的東西。**chat completion 不是 agent**;從 chatbot 到 agent,看似只差一個 while loop,實際上隔了一個世界。
+我覺得 chat completion 跟 agent 之間,差的就是這一整層你以為很簡單、實際上有一整本書那麼厚的東西。從 chatbot 到 agent,看似只差一個 while loop,實際上隔了一個世界。
 
 於是我去拆了 `NousResearch/hermes-agent`——一個 production 級的開源 agent framework——我想搞清楚一個「真的能用」的 agent 到底有什麼。
 
@@ -65,7 +65,7 @@ print(resp.choices[0].message.content)
 
 開源 personal AI assistant 領域可選的不少。另一個常被一起討論的是 **[OpenClaw](https://github.com/openclaw/openclaw)**(MIT、Peter Steinberger 維護的開源專案)——Node + TypeScript 路線,目標是「你已經在用的訊息平台都能用同一個助理」:WhatsApp、Telegram、Slack、Discord、Google Chat、iMessage 都接,OAuth 主要綁 Anthropic Pro/Max + OpenAI ChatGPT/Codex。Gateway 是 control plane,product 是 assistant 本身。
 
-把這兩個一起看蠻有意思:都做 personal assistant 場景,但選了完全不同的技術路線——OpenClaw 走 Node、賣點是「channel coverage 跟 wizard onboarding」,Hermes 走 Python、賣點是「framework 抽象厚 + plugin 生態」。哪個對你更合適看你的需求。但這系列不是來推銷誰、也不是來比好壞,是用 Hermes 的 source 當教材,讓你看見一個 production agent framework 在解決什麼樣的問題。
+把這兩個一起看蠻有意思:都做 personal assistant 場景,但選了完全不同的技術路線——OpenClaw 走 Node、賣點是「channel coverage 跟 wizard onboarding」,Hermes 走 Python、賣點是「framework 抽象厚 + plugin 生態」。哪個對你更合適看你的需求。這系列用 Hermes 的 source 當教材,讓你看見一個 production agent framework 在解決什麼樣的問題,不是來推銷誰、也不是來比好壞。
 
 我挑 Hermes 拆,因為它在三個地方下的工夫值得學:
 
@@ -77,11 +77,11 @@ print(resp.choices[0].message.content)
 
 ## 這 15 天會有三條暗線
 
-我寫這個系列的時候,腦中一直有三條主線在跑。你讀的時候如果能感受到這三條線在不同篇章重複浮出來,那就抓到精髓了。
+我寫這個系列的時候,腦中一直有三條主線在跑。你讀的時候如果能感受到這三條線在不同篇章重複浮出來,那大概就抓到了。
 
-**第一條:「一個核心,多種驅動」。** Hermes 最重要的設計決定,就是把 `AIAgent` 寫成一個跟「誰來呼叫它」完全無關的核心。CLI 是一個 adapter、gateway 是一個 adapter、MCP server 是一個 adapter(MCP = Model Context Protocol,Anthropic 推的「讓外部工具能被任何 agent 接上」的標準協定,Day 08 細講)、ACP 是一個 adapter(Hermes 接的是 Zed Industries 的 Agent **Client** Protocol,讓編輯器這類 client 能驅動 agent——這縮寫地雷比較多,Day 08 拆給你看)、batch runner 是一個 adapter、cron 是一個 adapter——同一顆心臟,六種身體。Day 02 我會第一次埋下種子,Day 05 你會在 provider 抽象看到它,Day 08(MCP)、Day 09(gateway)、Day 12(三套介面)會一次比一次明顯。
+**第一條:「一個核心,多種驅動」。** Hermes 一個我覺得比較關鍵的設計決定,就是把 `AIAgent` 寫成一個跟「誰來呼叫它」完全無關的核心。CLI 是一個 adapter、gateway 是一個 adapter、MCP server 是一個 adapter(MCP = Model Context Protocol,Anthropic 推的「讓外部工具能被任何 agent 接上」的標準協定,Day 08 細講)、ACP 是一個 adapter(Hermes 接的是 Zed Industries 的 Agent **Client** Protocol,讓編輯器這類 client 能驅動 agent——這縮寫地雷比較多,Day 08 拆給你看)、batch runner 是一個 adapter、cron 是一個 adapter——同一顆心臟,六種身體。Day 02 我會第一次埋下種子,Day 05 你會在 provider 抽象看到它,Day 08(MCP)、Day 09(gateway)、Day 12(三套介面)會一次比一次明顯。
 
-**第二條:「prompt cache 是鐵律,不是優化」。** 這個你可能完全沒想過。Anthropic 跟 OpenAI 都提供 prompt caching——你重複送一樣的開頭可以打折——但 Hermes 把這件事從「省錢小技巧」升級成「整個 API 設計的不變式」:**system prompt 在 session 中途絕對不准變**。為什麼?因為一變,快取就失效,成本直接拉高,延遲也飆上去。(Anthropic 的 cache breakpoint 上限是 4 個——你只有 4 個機會說「這之前的東西請幫我快取」,所以怎麼擺、擺在哪,直接決定整個 session 的成本曲線。)這條鐵律塑造了一堆你乍看不直覺的設計選擇:壓縮為什麼是唯一被允許的中途變動?slash command 為什麼塞 user message 而不是改系統提示?記憶為什麼不能直接 append 到 system prompt?Day 03 主角登場,然後 Day 04、Day 06、Day 10 會反覆呼應。
+**第二條:「prompt cache 是鐵律」。** 這個你可能完全沒想過。Anthropic 跟 OpenAI 都提供 prompt caching——你重複送一樣的開頭可以打折——但 Hermes 把這件事從「省錢小技巧」升級成「整個 API 設計的不變式」:**system prompt 在 session 中途絕對不准變**。為什麼?因為一變,快取就失效,成本直接拉高,延遲也飆上去。(Anthropic 的 cache breakpoint 上限是 4 個——你只有 4 個機會說「這之前的東西請幫我快取」,所以怎麼擺、擺在哪,直接決定整個 session 的成本曲線。)這條鐵律塑造了一堆你乍看不直覺的設計選擇:壓縮為什麼是唯一被允許的中途變動?slash command 為什麼塞 user message 而不是改系統提示?記憶為什麼不能直接 append 到 system prompt?Day 03 主角登場,然後 Day 04、Day 06、Day 10 會反覆呼應。
 
 比喻一下:prompt cache 像便利商店的熟客折扣,你每次拿一樣的會員卡才有折,中途把卡換掉就重新算原價。Hermes 整套設計就是「不准你中途換卡」。
 

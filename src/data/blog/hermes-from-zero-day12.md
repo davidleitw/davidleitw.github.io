@@ -37,7 +37,7 @@ Hermes 的 CLI、TUI、Web 三套介面,**全部對著同一個 JSON-RPC server 
 
 ### 為什麼是 JSON-RPC,不是 REST?
 
-這個選擇我覺得值得停下來想一下。一般做 web service,直覺都是 REST——`GET /sessions`、`POST /messages`、回 JSON 完事。但 agent loop 不適合 REST,有三個原因:
+一般做 web service,直覺都是 REST——`GET /sessions`、`POST /messages`、回 JSON 完事。但 agent loop 不適合 REST,有三個原因:
 
 1. **連線是長的**。一次 agent 對話可能跑五分鐘,中間吐 50 個 token chunk、3 個 tool call、2 個 subagent。REST 一個 request 對一個 response,這種型態根本套不上。
 2. **方向是雙向的**。server 會主動推 event 給 client(「我剛叫了一個 tool」「subagent 回來了」),client 也會反問 server(「使用者剛剛按 ctrl-c,你要中斷嗎」)。REST 預設是 client 拉、server 推不出來。
@@ -76,9 +76,9 @@ PTY 解決這件事。你開一個 PTY,subprocess 接到 PTY 的 slave 端,subpr
 
 來看 Hermes 的 Web 聊天頁怎麼做的。如果是你,你會怎麼做?
 
-直覺:寫一套 React UI,把 CLI 的訊息格式 mapping 到 DOM 上,訊息泡泡、tool call 卡片、streaming 動畫,通通重寫一次。我自己第一次寫 Web 版就是這樣——重寫到一半我就發現我在做「重新實作 CLI 已經有的東西」,只是換個渲染器。
+直覺:寫一套 React UI,把 CLI 的訊息格式 mapping 到 DOM 上,訊息泡泡、tool call 卡片、streaming 動畫,通通重寫一次。這樣做到一半就會發現是在「重新實作 CLI 已經有的東西」,只是換個渲染器。
 
-Hermes 的做法讓我笑出來:**Web 的聊天頁面,根本不是原生 web UI**。它是 `@xterm/xterm`(瀏覽器裡的終端機模擬器,用 WebGL 畫)——透過 WebSocket 連到伺服器端的一個 PTY,**那個 PTY 裡跑的是貨真價實的 `node ui-tui/dist/entry.js`,也就是 TUI 本人**。
+Hermes 的做法是:**Web 的聊天頁面,根本不是原生 web UI**。它是 `@xterm/xterm`(瀏覽器裡的終端機模擬器,用 WebGL 畫)——透過 WebSocket 連到伺服器端的一個 PTY,**那個 PTY 裡跑的是貨真價實的 `node ui-tui/dist/entry.js`,也就是 TUI 本人**。
 
 你在瀏覽器裡看到的「網頁聊天」,實際上是:
 1. 鍵盤輸入 → WebSocket → 伺服器 PTY master → PTY slave → TUI 程式。
@@ -90,7 +90,7 @@ Hermes 的做法讓我笑出來:**Web 的聊天頁面,根本不是原生 web UI*
 - 好處:零聊天邏輯重複。TUI 修一個 bug,Web 自動好。TUI 加一個 slash 指令,Web 自動有。皮膚、Markdown 渲染、模型選擇器——全部免費。
 - 壞處:這個「web app」其實是個終端機模擬器。沒有原生 DOM accessibility,訊息不會在小螢幕上 reflow,複製貼上要靠 OSC52(一種 ANSI escape sequence,讓終端機程式跟系統剪貼簿互動;為了防 exfiltration,OSC52 read 還故意被關掉)。
 
-我覺得這是一個非常 hacky 但非常聰明的決定。它跟「正確的 web UI 該長什麼樣」的直覺完全反過來——**不要把 UI port 到網頁,要把一個 terminal port 到網頁**。
+這個決定 hacky,但聰明。它跟「正確的 web UI 該長什麼樣」的直覺完全反過來——**不要把 UI port 到網頁,要把一個 terminal port 到網頁**。
 
 (儀表板分頁就老實做,FastAPI + REST + 同一套 JSON-RPC over WebSocket。聊天才用 PTY 這招。)
 
@@ -106,7 +106,7 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 
 ### 為什麼是 SQLite,不是 Postgres?
 
-這也值得停下來想。一般你看到「跨進程共享狀態」會直覺反應「用 Postgres 啊」。但 SQLite 在這個場景剛好兩件事都打中:
+一般你看到「跨進程共享狀態」會直覺反應「用 Postgres 啊」。但 SQLite 在這個場景剛好兩件事都打中:
 
 1. **Crash safety**。SQLite 開 WAL 模式(write-ahead logging),每次寫都先 append 到 WAL,fsync 過再 commit。即使 CLI 被使用者強制 kill,DB 不會壞。對一個會跑五分鐘 agent loop 的東西來說,這個保證很關鍵。
 2. **多進程共享,零維運**。SQLite 的 WAL + file-level lock 就支援多進程同時讀寫,不用裝 server、不用設密碼、不用備份外部服務。`~/.hermes/state.db` 就是一個檔案,扔了就重來。
@@ -128,8 +128,6 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 
 ## 五、收成一條暗線:「一個核心,多種驅動」走到這裡
 
-我必須停下來把這件事講白。
-
 從 Day 5 開始我就在埋一條主線——**Hermes 的核心(`AIAgent`)是 protocol-agnostic 的,後面可以接任何東西**。每一篇都長出來一點:
 
 - **Day 5** 換 LLM:同一個 `AIAgent`,後面可以接 OpenAI、Claude、DeepSeek、Copilot,靠 provider 抽象。
@@ -139,15 +137,13 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 
 **這是一個核心,四種驅動**。LLM 換得了、協定方向換得了、外部 channel 換得了、使用者介面換得了。中間那顆 `AIAgent` 沒動。
 
-我覺得這個架構選擇是 Hermes 最值得偷的東西。它不是某一段很炫的程式碼,是一個「**business logic 跟 transport/UI/protocol 嚴格分離**」的紀律。寫 agent 一開始很容易把這四件事黏在一起——你的 streaming 邏輯混進 print 語句,你的 session state 混進 CLI argv parsing,你的 prompt 組裝混進 WebSocket 訊息格式。Hermes 從 v0.2 開始就在拉這個分離,拉了十幾個版本拉到現在這樣。
+我覺得這個架構選擇值得偷。它不是某一段很炫的程式碼,是一個「**business logic 跟 transport/UI/protocol 嚴格分離**」的紀律。寫 agent 一開始很容易把這四件事黏在一起——你的 streaming 邏輯混進 print 語句,你的 session state 混進 CLI argv parsing,你的 prompt 組裝混進 WebSocket 訊息格式。Hermes 從 v0.2 開始就在拉這個分離,拉了十幾個版本拉到現在這樣。
 
 值不值得?看你的 agent 會不會長大。如果你只想做一個 demo,REST + 一份 codebase 就夠了。但如果你想做的東西「以後要在 terminal、瀏覽器、cron、Slack、IDE 都能用」,那這個分離就是你的本錢。
 
 ---
 
 ## 六、兩個層級的狀態:hot vs long-term
-
-還有一個細節我覺得很多人會混淆,先講清楚。
 
 `hermes_state.py`(SessionDB)存的是「**hot session state**」——這個對話的 messages、目前用的 model、剛剛開了哪個 tool。**每一輪都寫**,寫滿了 append-only 一直長下去。
 
@@ -157,13 +153,13 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 - 把長期記憶寫進每一輪,DB 馬上爆炸(而且大部分是重複資訊)。
 - 把 hot session state 當長期記憶讀,你的 system prompt 每次都不一樣,prompt cache 直接報廢(回去看 Day 3)。
 
-簡單的記法:**SessionDB 是 transactional 的(機械式記錄一切),memory 是 curated 的(整理過的精華)**。一個像會議的逐字稿,一個像會議結束後的紀要。兩個都要,但角色不同。
+記法:**SessionDB 是 transactional 的(機械式記錄一切),memory 是 curated 的(整理過的精華)**。一個像會議的逐字稿,一個像會議結束後的紀要。兩個都要,但角色不同。
 
 ---
 
 ## 七、然後,我要鋪一個梗
 
-到這裡我已經把 Hermes 介面層講漂亮了。一個 JSON-RPC server,三套 adapter,一顆 SQLite 收狀態,PTY 把 TUI 重用到 Web——這架構乾淨得像教科書。
+到這裡我已經把 Hermes 介面層講漂亮了。一個 JSON-RPC server,三套 adapter,一顆 SQLite 收狀態,PTY 把 TUI 重用到 Web——這架構乾淨。
 
 然後我去 `wc -c` 了一下 `cli.py`。
 
@@ -195,7 +191,7 @@ Hermes 的架構**選擇**是漂亮的——一個核心,多種驅動。但 Herm
 
 第三,SessionDB 用 SQLite 當「唯一狀態真相」,CLI、Web、cron 全部讀寫同一張表,所以三套介面之間天然共享 session;搭配 long-term memory,hot state 跟 curated knowledge 各管各的。
 
-收成的暗線 A:**一個核心、四種驅動**——provider、protocol direction、channel、UI 都換得了,中間 `AIAgent` 沒動。同時鋪好暗線 C 的爆點:架構漂亮,實作肥大。
+收成的暗線 A:**一個核心、四種驅動**——provider、protocol direction、channel、UI 都換得了,中間 `AIAgent` 沒動。同時鋪暗線 C:架構漂亮,實作肥大。
 
 ---
 

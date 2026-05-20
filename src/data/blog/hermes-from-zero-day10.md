@@ -112,11 +112,11 @@ Day 8 拆過了。MCP server 跑在**另一個進程**裡,Hermes 透過 stdio(st
 
 ---
 
-## 三、漸進揭露 — skill 系統最聰明的設計
+## 三、漸進揭露 — skill 系統值得學的設計
 
 技能 body 動輒幾千 token,你應該會冒出一個問題:**那如果有 89 個技能,全塞進 context 不就爆了?**
 
-對,所以 skill 系統的關鍵設計是**漸進揭露(progressive disclosure)**——這個詞源自 UI/UX 領域(Nielsen Norman Group 1980s 的經典定義:把次要 / 進階資訊延後揭露,降低初始認知負擔)。Anthropic 在 docs 與 engineering blog 把這個概念遷移到 agent context 管理,套到 context window 上突然就活了起來。
+對,所以 skill 系統的關鍵設計是**漸進揭露(progressive disclosure)**——這個詞源自 UI/UX 領域(Nielsen Norman Group 1980s 的經典定義:把次要 / 進階資訊延後揭露,降低初始認知負擔)。Anthropic 在 docs 與 engineering blog 把這個概念遷移到 agent context 管理,套到 context window 上。
 
 **Anthropic 官方分三層**(用「Level」,不是「Tier」):
 
@@ -128,7 +128,7 @@ Level 3:scripts / 補充 .md / 資源檔        ── 透過 bash 執行/讀取
 
 官方工程部落格的類比很傳神:「像一本有條理的手冊——先是**目錄**,然後是某幾個具體**章節**,最後才是詳細的**附錄**。」
 
-**Level 1 才是這套設計的心臟**。每個技能的 `description` 永遠都在,字元上限 1024(典型約 100 tokens,寫滿 1024 字元時上界約 250–300 tokens)——它的工作是當「路由訊號」,讓模型知道「**喔,有這個技能存在,而且它是處理 X 場景的**」。當使用者的 prompt 真的觸發到某個技能(例如使用者打 `/godmode`,或是模型自己判斷「該叫 systematic-debugging 出來」),才把 Level 2 的完整 body 載入。
+**Level 1 是這套設計的關鍵**。每個技能的 `description` 永遠都在,字元上限 1024(典型約 100 tokens,寫滿 1024 字元時上界約 250–300 tokens)——它的工作是當「路由訊號」,讓模型知道「**喔,有這個技能存在,而且它是處理 X 場景的**」。當使用者的 prompt 真的觸發到某個技能(例如使用者打 `/godmode`,或是模型自己判斷「該叫 systematic-debugging 出來」),才把 Level 2 的完整 body 載入。
 
 這就讓「一個技能在被呼叫之前只花約 100 token」變成可能。Anthropic 官方建議:body 超過 5k tokens / 500 行,就拆到補充 `.md`。
 
@@ -136,11 +136,11 @@ Level 3:scripts / 補充 .md / 資源檔        ── 透過 bash 執行/讀取
 
 打個比方:這就像 IDE 的 LSP(Language Server Protocol,編輯器跟語言伺服器之間的標準協定,管補完、跳轉、診斷)——你的編輯器不會把整個 stdlib 的 source 都載進來,只在你打 `os.` 然後按 Tab 的那一刻才去拉 `os` module 的補完資訊。其他時候那 100 萬行的標準函式庫只是一個「我知道你存在」的索引條目。Skill 系統做的事一模一樣,只是把 IDE 換成 LLM、把 stdlib 換成你的 89 個技能。
 
-這套設計還有個沒人講但其實很重要的副作用:**它讓「技能爆炸」變成不是問題**。你 repo 裡塞 500 個技能跟塞 5 個,平常的 context 開銷幾乎一樣——多出來那 495 個就是 495 條 ~100 token 的 metadata,加總大概也才幾萬 token,對 200k context window 來說根本沒感覺。真的塞爆是不可能的,被選中的最多就那兩三個。
+這套設計還有個比較少人講的副作用:**它讓「技能爆炸」變成不是問題**。你 repo 裡塞 500 個技能跟塞 5 個,平常的 context 開銷幾乎一樣——多出來那 495 個就是 495 條 ~100 token 的 metadata,加總大概也才幾萬 token,對 200k context window 來說根本沒感覺。真的塞爆是不可能的,被選中的最多就那兩三個。
 
 ### 暗線 B 第四次出現:skill index 進 system prompt 的 stable 區段,動態 body 走別處
 
-但這裡有個你一定要記住的事——這是我們從 Day 3 開始追的那條主線(我們的暗線 B)第四次冒出來。
+但這裡有件事要提一下——這是我們從 Day 3 開始追的那條主線(我們的暗線 B)第四次冒出來。
 
 回顧一下:
 
@@ -161,7 +161,7 @@ Level 3:scripts / 補充 .md / 資源檔        ── 透過 bash 執行/讀取
 
 注意因果方向:**不是「因為 cache 鐵律,所以 skill 一律走 user message」**——而是「**stable 區段必須穩定**,所以(a) 永遠存在的 index 放進 stable 區段一次到位,(b) 動態變動的 body 走別的訊息類型」。Prompt cache 友善是 stable 區段穩定設計的**副效益**,不是 skill 注入機制的因。
 
-但結論一樣震撼:這條鐵律是怎麼默默塑造整個架構的——從 Day 3 講的 prompt cache 鐵律,一路到 Day 4 的壓縮、Day 6 的記憶、再到今天的 skill 注入分流。它不是個優化選項,它是個**結構性的約束**,所有的擴充機制都必須圍著它設計。
+但結論一樣:這條鐵律默默塑造了整個架構——從 Day 3 講的 prompt cache 鐵律,一路到 Day 4 的壓縮、Day 6 的記憶、再到今天的 skill 注入分流。它是個**結構性的約束**,所有的擴充機制都必須圍著它設計。
 
 ---
 
@@ -183,7 +183,7 @@ Level 3:scripts / 補充 .md / 資源檔        ── 透過 bash 執行/讀取
 
 更糟的是,連「技能 = 知識,plugin = 程式碼」這個你以為的直覺分界都站不住腳——`optional-skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py` 是一個**裝在 skill 裡的 3,136 行 Python 程式**。技能也能捆綁可執行程式碼。所以「誰是知識、誰是程式碼」這個判準根本不成立。
 
-真正的差異是**信任邊界跟生命週期**:
+差異在**信任邊界跟生命週期**:
 
 - Skill ── prompt 注入、模型在任務中途自己決定要不要用、零啟動成本。
 - Plugin ── 真正的 Python 在啟動時接進 host(因為一個 chat adapter 要握 Pub/Sub 長連線、一個 provider 要改寫 wire 格式,這些**真的需要程式碼在 host 程序裡**)。

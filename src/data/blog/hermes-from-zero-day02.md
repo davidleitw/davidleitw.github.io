@@ -119,7 +119,7 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 ### 走一遍 context_overflow recovery 的真實時序
 
-抽象說「外層管進展、內層管重試」聽起來簡單,把場景跑成一段偽碼才看得到設計的味道。情境:第 8 圈,model 想送 streaming,但 input 已經滿——
+抽象說「外層管進展、內層管重試」聽起來簡單,把場景跑成一段偽碼才看得清楚。情境:第 8 圈,model 想送 streaming,但 input 已經滿——
 
 ```python
 # ── 外層 while(conversation_loop.py:598)──────────────
@@ -166,7 +166,7 @@ while ...:
 2. **budget 退費**:同上邏輯。
 3. **retry +1**:但壓縮會吃 retry slot——擋住「壓了又壓還是塞不下」的無限壓縮迴圈。`conversation_loop.py:2902–2904` 的註解直接寫:「Count compression restarts toward the retry limit to prevent infinite loops when compression reduces messages but not enough to fit the context window」。
 
-**這就是兩個計數器分開的真正用途**——「進展」跟「重試」是兩個維度。compression 是「失敗的重試」(吃 retry),不是「成功的進展」(不吃 budget)。如果你只有一個計數器,沒辦法做這種非對稱退費:一次壓縮要嘛全燒、要嘛全免,沒中間值。
+**這就是兩個計數器分開的用途**——「進展」跟「重試」是兩個維度。compression 是「失敗的重試」(吃 retry),不是「成功的進展」(不吃 budget)。如果你只有一個計數器,沒辦法做這種非對稱退費:一次壓縮要嘛全燒、要嘛全免,沒中間值。
 
 **為什麼不能合併成一層?**
 
@@ -214,7 +214,7 @@ while ...:
 
 這就是用優雅降級取代粗暴截斷。naive 版本通常沒這個——預算撞牆就 raise 出去,使用者看到一個堆疊追蹤,以為 agent 壞了。其實 agent 是做完了,只是還沒講話。
 
-> **Note**:寫到這裡可以暫停一下。三個設計——退費、樹狀獨立、寬限呼叫——它們的共同點是什麼?都是在處理「計數器跟現實成本之間的失真」。一個全域 +1 的計數器太粗,真實世界裡每種呼叫的成本、每個 agent 的工作邊界、每個迴圈的結尾體驗,都不該被同一條規則粗暴打平。
+> **Note**:三個設計——退費、樹狀獨立、寬限呼叫——它們的共同點是什麼?都是在處理「計數器跟現實成本之間的失真」。一個全域 +1 的計數器太粗,真實世界裡每種呼叫的成本、每個 agent 的工作邊界、每個迴圈的結尾體驗,都不該被同一條規則粗暴打平。
 
 ---
 
@@ -238,7 +238,7 @@ Hermes 的解法不是去消滅這個 bug——很多時候你消滅不了(provi
 
 Hermes 教我的事是這樣:寫 agent 的時候,不要讓任何一條 return 或 break 是匿名的。每條路徑離開 loop 之前,都該先用一行 log 說「我是因為 `budget_exhausted` 才停的」「我是因為 `tool_result_without_response` 才停的」。這條紀律比任何高大上的觀測平台都有用。
 
-> **Note**:Observability 本身不新——LangSmith、AutoGen、各家 framework 都做。Hermes 的紀律不在於「有 observability」,而在於**把「為什麼結束」提升為一等公民欄位**:不是事後從 log 推測,而是每條 return 之前就帶上一個 enum 標籤(原始碼裡叫 `_turn_exit_reason`)。這條紀律本身比變數叫什麼更有感——**值得直接搬到你自己的 agent**。
+> **Note**:Observability 本身不新——LangSmith、AutoGen、各家 framework 都做。Hermes 的紀律不在於「有 observability」,而在於**把「為什麼結束」提升為一等公民欄位**:不是事後從 log 推測,而是每條 return 之前就帶上一個 enum 標籤(原始碼裡叫 `_turn_exit_reason`)。這條紀律本身比變數叫什麼更有感——**可以直接搬到你自己的 agent**。
 
 這個設計你今天讀完馬上能搬去自己的 code,而且馬上會回本。
 
@@ -262,7 +262,7 @@ agent 的最小心臟,概念上就一個迴圈:呼叫模型 → 執行動作 →
 
 但這個 loop 跑著跑著,你會撞到一個非常具體的牆——錢。
 
-明天我們講 Hermes 為什麼把 system prompt 鎖死、不准你在 session 中途動它半個字。那不是它在裝高冷,那是 Hermes 從成本與穩定性壓力中得出的設計選擇。
+明天我們講 Hermes 為什麼把 system prompt 鎖死、不准你在 session 中途動它半個字。這是從成本與穩定性壓力中得出的設計選擇。
 
 ---
 

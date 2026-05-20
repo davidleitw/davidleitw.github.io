@@ -1,6 +1,6 @@
 ---
 title: "Hermes From Zero:15 天讀懂一個 agent framework"
-description: "我把 NousResearch/hermes-agent 整個 repo 拆開來讀,挑出這個 agent framework 之所以長成現在這樣的關鍵架構決定,用 iThome 鐵人賽的口吻寫了 15 篇。"
+description: "我把 NousResearch/hermes-agent 整個 repo 拆開來讀,挑出這個 agent framework 之所以長成現在這樣的架構決定,用 iThome 鐵人賽的口吻寫了 15 篇。"
 pubDatetime: 2026-05-04T22:00:00+08:00
 tags:
   - hermes-from-zero
@@ -17,7 +17,7 @@ draft: false
 
 ## 這個系列在幹嘛
 
-我把 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) 整個 repo(3,400+ 個檔案)拆開來讀,挑出**這個 agent framework 之所以長成現在這樣的關鍵架構決定**,然後用 iThome 鐵人賽的口吻寫了 15 篇——一篇對應你接下來會撞到的一道牆。
+我把 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) 整個 repo(3,400+ 個檔案)拆開來讀,挑出**這個 agent framework 之所以長成現在這樣的架構決定**,然後用 iThome 鐵人賽的口吻寫了 15 篇——一篇對應你接下來會撞到的一道牆。
 
 不是 API 文件,不是怎麼安裝,不是「跟著做你也能寫一個 ChatGPT」。是:**「為什麼 Hermes 把 system prompt 鎖死不准你動?」、「為什麼一個 agent 的核心迴圈該是 protocol-agnostic 的(意思是核心邏輯不在乎呼叫它的是 CLI、HTTP、還是 cron——對外介面都是 adapter)?」、「為什麼這個 657KB 的 `cli.py` 是個警訊?」**
 
@@ -41,7 +41,7 @@ draft: false
 |---|---|---|
 | [01](/posts/hermes-from-zero-day01) | 我為什麼想拆一個 agent framework | 從 `chat.completions.create` 寫到一個「真正的 agent」中間到底差了什麼。 |
 | [02](/posts/hermes-from-zero-day02) | Agent 的「最小心臟」長什麼樣 | 核心迴圈、兩層巢狀、迭代預算,以及最該偷的設計:每個結束點都有名字。 |
-| [03](/posts/hermes-from-zero-day03) | 為什麼 system prompt 不准動 | 看懂 prompt cache 失效成本以後才會懂的事——它不是優化,是鐵律。 |
+| [03](/posts/hermes-from-zero-day03) | 為什麼 system prompt 不准動 | 看懂 prompt cache 失效成本以後才會懂的事——這是鐵律。 |
 | [04](/posts/hermes-from-zero-day04) | Context 不是無限大,所以要壓 | 三層壓縮、5-phase pipeline、為什麼壓縮是唯一被允許的中途變動。 |
 | [05](/posts/hermes-from-zero-day05) | 同一段程式碼怎麼接 OpenAI 又接 Claude | Adapter、registry、credential pool——Hermes 怎麼忍受 LLM 圈的各種脾氣。 |
 | [06](/posts/hermes-from-zero-day06) | Agent 怎麼「記住」昨天聊過什麼 | 記憶 provider、會「分叉自己去學習」的背景複查、Curator,合起來叫自我改進迴圈。 |
@@ -62,7 +62,7 @@ draft: false
 讀的時候留意,它們不只是「主題」,是**作者一邊讀 source 一邊撞到三次就確定「啊這條是貫穿的」的那種線**:
 
 ### 🅐 「一個核心,多種驅動」
-`AIAgent` 是 protocol-agnostic 的——它不在乎是誰在呼叫它。
+`AIAgent` 是 protocol-agnostic 的——核心邏輯跟呼叫端解耦。
 
 - Day 2 埋種子(核心迴圈是 protocol)
 - Day 5 第一次明顯(provider adapter)
@@ -70,7 +70,7 @@ draft: false
 - Day 9 第三次(gateway 對外開放成 OpenAI API)
 - Day 12 收成(CLI/Web/Cron 三套介面共享核心)
 
-這是 Hermes 最重要、最成功的架構決定。
+這是 Hermes 我覺得最值得偷的架構決定。
 
 ### 🅑 「prompt cache 是鐵律,不是事後優化」
 「system prompt 在 session 中途絕不能變」這條不變式,**塑造了整個 API 設計**。

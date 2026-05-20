@@ -17,7 +17,7 @@ draft: false
 
 代表 provider 抽象不是「換 SDK」這麼簡單。Anthropic 對 thinking 區塊要簽章、Gemini 的 schema 跟 OpenAI 不相容、Bedrock 走 AWS SigV4(AWS 自家那套用 HMAC 簽 HTTP 請求的認證機制,每個 request 都要在 client 側簽一次,不是丟個 bearer token 就好)、Azure 需要 identity refresh、本機 llama.cpp(把 LLaMA 系列模型編譯成 C++ 直接在本機 CPU/GPU 跑的開源 runtime)的 grammar pattern 又是另一套。每一條都是真實的相容性債——要嘛花幾千行 normalize 起來,要嘛讓使用者每換一家就重寫 agent。
 
-Hermes 選了前者。今天這篇拆 adapter / registry / credential pool / transports 這四層抽象——它們之所以厚,是因為下面那個世界本來就是亂的。
+Hermes 走了前者。今天這篇拆 adapter / registry / credential pool / transports 這四層抽象——它們之所以厚,是因為下面那個世界本來就是亂的。
 
 先看 tool call。OpenAI 給你的是 `choices[0].message.tool_calls`,每個工具呼叫是個 `function` 物件,裡面有 `name` 跟 `arguments`(字串型 JSON,順帶一提)。Anthropic 給你的是 `content` 陣列裡夾雜的 `tool_use` 區塊,`input` 直接就是 dict。要把兩家的回應壓進同一個資料結構,你就準備寫一堆 `if provider == "anthropic"`。
 
@@ -25,7 +25,7 @@ Hermes 選了前者。今天這篇拆 adapter / registry / credential pool / tra
 
 然後 Gemini。Gemini 的 function calling schema **不吃** `additionalProperties`,不吃 `$schema`,某些 integer 欄位上的 `enum` 也會被拒。你以為的 JSON Schema,在 Gemini 眼裡只是 OpenAPI 的一個子集。圖片?各家 base64 規範不同。認證?Anthropic 走 API key,Codex 走 OAuth(讓使用者授權之後拿一組會過期、可刷新的 token,不是長期金鑰),Bedrock 走 AWS IAM,Azure 走 Entra ID 換 JWT(微軟那套企業身份系統,登入後拿到一張短效的 JSON Web Token 才能呼叫 API)。Rate limit 回的錯誤碼一家一個樣,有的給 429,有的給 402,有的乾脆給你一段 free text 要你自己 parse。
 
-把這堆東西全部攤開,你會發現「換 SDK」根本只是入口。看到 hermes-agent 怎麼處理這件事的時候,我才覺得「原來這件事被認真做的話長這樣」。
+把這堆東西全部攤開,你會發現「換 SDK」根本只是入口。
 
 ---
 
@@ -52,7 +52,7 @@ agent/azure_identity_adapter.py
 
 **第二件:錯誤翻譯。** 這個常被低估。Anthropic 的 rate limit 是一種格式,OpenAI 是另一種,Gemini 又不一樣,llama.cpp 連 HTTP status 都可能對不上。Hermes 內部用一組 `FailoverReason`(枚舉)當共通語言——`rate_limit`、`billing`、`auth`、`context_overflow`……不管哪家 provider 出包,adapter 都得把它正規化成這幾個值之一,核心迴圈才有辦法統一決策。
 
-> **Note**:adapter pattern 學術定義是「把一個介面包裝成另一個介面」,但實務上 80% 的工作量根本不在「轉換」,而在「翻譯這家 provider 的脾氣」——它什麼時候鬧、鬧的時候訊息長什麼樣、復原條件是什麼。這才是 adapter 的全部工作量。
+> **Note**:adapter pattern 學術定義是「把一個介面包裝成另一個介面」,但實務上 80% 的工作量根本不在「轉換」,而在「翻譯這家 provider 的脾氣」——它什麼時候鬧、鬧的時候訊息長什麼樣、復原條件是什麼。
 
 Hermes 還有更極端的:`copilot_acp_client.py`(GitHub Copilot 的 Agent Client Protocol)整個是 JSON-RPC over stdio 子程序協定,根本沒有結構化的工具呼叫通道,Hermes 硬是從自由文字裡用正則把 `<tool_call>{...}</tool_call>` 剝出來,假裝它是個 ChatCompletion。**核心迴圈完全分不出它不是在跟 OpenAI 講話。** 這就是 duck typing(動態語言裡的「會嘎嘎叫的就是鴨子」——只看物件實際提供的方法,不看它的型別宣告)的暴力美學——只要長得像 ChatCompletion,我就把你當 ChatCompletion 用。
 
@@ -62,13 +62,13 @@ Hermes 還有更極端的:`copilot_acp_client.py`(GitHub Copilot 的 Agent Clien
 
 Hermes 用 registry 模式(中央註冊表的設計手法:模組啟動時自我登記名字 → 實作,使用者用名字查、不直接 import 實作)。adapter 在程式啟動時把自己註冊到一張表上,核心迴圈不知道「現在到底是誰在跑」,只知道「我要 provider 是 `anthropic` 的那個 client,給我」。
 
-**這就是這個系列三條暗線的第一條——「一個核心,多種驅動」——第一次明顯登場。**
+**這個系列三條暗線的第一條——「一個核心,多種驅動」——第一次明顯登場。**
 
 Day 2 我講核心迴圈的時候埋了個種子:`AIAgent` 是 protocol-agnostic 的,它不關心訊息怎麼來、怎麼出去。今天你看到的是這條設計選擇的第一個直接收益:**核心迴圈一行 provider-specific 的程式碼都沒寫**,你卻有 7、8 家 provider 能切。
 
 要把這件事內化的話,記住這個畫面:核心迴圈在跑 ReAct loop(Reason + Act 的縮寫,經典 agent 迴圈架構:模型先推理 → 呼叫工具 → 把結果讀進 context → 再推理,直到任務結束),它從 registry 拿到一個「看起來像 OpenAI client」的東西,呼叫 `.chat.completions.create(...)`,拿到一個「看起來像 ChatCompletion」的物件。它**真的不在乎**底下是 Anthropic 的 Messages API、是 Bedrock 的 Converse、還是一個 JSON-RPC 子程序。對齊規格是 adapter 的事,跑邏輯是核心的事。
 
-這個分工 Day 8 你會在 MCP(Anthropic 的 Model Context Protocol)看到一模一樣的——MCP 也是一個「不知道是誰在執行」的核心,加上一堆 adapter。Day 9 在 gateway 又一次——同一個 agent 接 Slack、接 Discord、接 cron,核心依然不知道。**「一個核心、多種驅動」這條線,從今天開始你會反覆看到。** 看到第三次的時候你會自己會心一笑。
+這個分工 Day 8 你會在 MCP(Anthropic 的 Model Context Protocol)看到一模一樣的——MCP 也是一個「不知道是誰在執行」的核心,加上一堆 adapter。Day 9 在 gateway 又一次——同一個 agent 接 Slack、接 Discord、接 cron,核心依然不知道。**「一個核心、多種驅動」這條線,從今天開始你會反覆看到。**
 
 > 比喻:adapter + registry 像國際機場的轉接頭區。核心迴圈是你那台只有 type-C 插頭的筆電,registry 是櫃台上一排轉接頭(英規、美規、歐規、日規),你只要告訴櫃台「我要日規」,接上去就用。筆電不需要重新出廠。
 
@@ -88,13 +88,13 @@ Hermes 把這件事抽出來叫 `credential_pool.py`,1,955 行。你乍看會覺
 Hermes 的答案:
 
 - 每把憑證一個 `PooledCredential` dataclass,記錄 `last_status`、`last_error_code`、`last_error_reset_at`、`request_count`。
-- **冷卻時間依錯誤原因決定**:`credential_pool.py` 只 case 401(認證打嗝)→ 5 分鐘、case 429(rate limit)→ 1 小時、其餘(含 402 billing)→ `EXHAUSTED_TTL_DEFAULT_SECONDS` 1 小時(跟 429 結果相同,但走的是 default 分支不是專屬分支)。如果 provider 自己回了一個 `reset_at`,那個值優先。**這個細節多數重試系統會漏掉**——把 401 跟 429 用同一條退避策略,你就會在認證短暫抽風的時候被罰坐一小時冷板凳。
+- **冷卻時間依錯誤原因決定**:`credential_pool.py` 只 case 401(認證打嗝)→ 5 分鐘、case 429(rate limit)→ 1 小時、其餘(含 402 billing)→ `EXHAUSTED_TTL_DEFAULT_SECONDS` 1 小時(跟 429 結果相同,但走的是 default 分支不是專屬分支)。如果 provider 自己回了一個 `reset_at`,那個值優先。多數重試系統會把 401 跟 429 用同一條退避策略,你就會在認證短暫抽風的時候被罰坐一小時冷板凳。
 - **選擇策略**可設定:`fill_first`(打到死再換)、`round_robin`(輪流)、`random`、`least_used`。
 - **soft lease**:`acquire_lease` / `release_lease` 讓並行的子代理(Day 11 會講)自動分散到不同憑證上,而不是全部擠同一把。
 
 最有意思的是 OAuth 那段。OAuth refresh token 是單次性的——你用一次,server 給你一個新的,舊的作廢。問題來了:CLI 跟 gateway 同時在跑,兩邊都在記憶體裡握著「上一次讀到的 refresh token」。CLI 先刷新,把 token 輪換成新的寫進 `auth.json`;這時候 gateway 拿著它記憶體裡那個**舊的**去刷新——直接死掉。
 
-Hermes 的處理方式我看到的當下覺得很漂亮:刷新之前,**先重讀 `auth.json`**(可能別的程序已經寫了更新的 token 進去),採納那個比較新的;刷新完寫回檔案,但是**標記 `set_active=False`**——token 輪換不該翻動使用者「現在選的 provider」這件事;遇到終局性的失敗(token 死透了)就**隔離**,把它從 `auth.json` 清掉,免得下個 session 又把屍體載回來。
+Hermes 的處理方式:刷新之前,**先重讀 `auth.json`**(可能別的程序已經寫了更新的 token 進去),採納那個比較新的;刷新完寫回檔案,但是**標記 `set_active=False`**——token 輪換不該翻動使用者「現在選的 provider」這件事;遇到終局性的失敗(token 死透了)就**隔離**,把它從 `auth.json` 清掉,免得下個 session 又把屍體載回來。
 
 這完全是分散式系統的思路:**讀-改-寫、衝突採納、失敗隔離**。只是這個「分散式系統」是同一台機器上跑著的幾個程序、共用一個檔案。
 
@@ -113,7 +113,7 @@ base.py    types.py
 
 那些被刻意排除的東西去哪了?留在 `AIAgent` 上。為什麼這樣切?因為**串流、重試、cache 這些跨 provider 通用的事,讓 adapter 各自重寫一遍是浪費**。你要的是讓 adapter 只專注在「我這家 API 的訊息長什麼樣」,而不是又要去處理斷線重連這種跟商業邏輯無關的雞毛蒜皮。
 
-`types.py` 裡的 `NormalizedResponse` 跟 `ToolCall` 是這層最強的部分。它只把「**真正跨 provider 的欄位**」攤平——`content`、`tool_calls`、`finish_reason`、`usage`。其他 provider-specific 的狀態被丟進一個叫 `provider_data` 的 dict。Codex 有它的 `call_id`,Gemini 有它的 `thought_signature`(**這個你下一輪必須原封不動丟回去,不然 API 回 400**——對,就是開頭提到的那個坑),這些都塞 `provider_data` 裡,不污染共通介面。
+`types.py` 裡的 `NormalizedResponse` 跟 `ToolCall` 是這層最乾淨的部分。它只把「**跨 provider 共通的欄位**」攤平——`content`、`tool_calls`、`finish_reason`、`usage`。其他 provider-specific 的狀態被丟進一個叫 `provider_data` 的 dict。Codex 有它的 `call_id`,Gemini 有它的 `thought_signature`(**這個你下一輪必須原封不動丟回去,不然 API 回 400**——對,就是開頭提到的那個坑),這些都塞 `provider_data` 裡,不污染共通介面。
 
 ## 五、那些「翻譯這家脾氣」的雞毛蒜皮
 
@@ -125,7 +125,7 @@ base.py    types.py
 
 **llama.cpp 的 grammar pattern。** 它的 grammar 約束格式跟其他家不相容,有個 `should_fallback` 判斷會在偵測到某些情境時走特殊路徑——本地推論的世界,規範常常是 LLM runtime 自己定的,跟 cloud API 不是同一套生態。
 
-寫完這節我想表達的是:**這些細節才是 adapter 的全部工作量**。名詞上是 adapter pattern,實際上是一堆「翻譯這家的脾氣」的特例處理。如果你以為照書上把 adapter pattern 套上去就能解決,你大概會在每家 provider 的脾氣裡反覆繞圈。
+這些細節才是 adapter 的全部工作量。名詞上是 adapter pattern,實際上是一堆「翻譯這家的脾氣」的特例處理。如果你以為照書上把 adapter pattern 套上去就能解決,你大概會在每家 provider 的脾氣裡反覆繞圈。
 
 ## 六、failover — 橫向切換,不是縱向重試
 
@@ -144,13 +144,13 @@ base.py    types.py
 
 合起來才是完整的「**讓 agent 不要因為單點問題卡死**」的故事。
 
-> 順帶一提一個有意思的判斷:Codex OAuth **被故意排除在自動 failover 鏈外**。原因是 OpenAI 用一個「會變動的模型白名單」擋著它,Hermes 寫死的後備路徑會自己爛掉——所以乾脆不自動選用。這種「承認不是每個 provider 都適合自動 fallback」的成熟度,我覺得很值得偷學。
+> 順帶一提:Codex OAuth **被故意排除在自動 failover 鏈外**。原因是 OpenAI 用一個「會變動的模型白名單」擋著它,Hermes 寫死的後備路徑會自己爛掉——所以乾脆不自動選用。這種「承認不是每個 provider 都適合自動 fallback」的判斷,我覺得值得偷學。
 
 ## 小結
 
 寫到這你應該能看出 Hermes 的策略:**核心迴圈一個,adapter 一排,credential pool + transports 撐底層**。OpenAI 跟 Claude 共存的代價,不在核心,而在 adapter 的 2,220 行 + credential pool 的 1,955 行 + auxiliary client 的 5,286 行。
 
-這也是我想留給你的一句話:**provider 抽象不是「把 SDK 換掉」,是「把每家 API 的脾氣全部承擔下來,讓核心迴圈相信全世界都是 OpenAI 形狀」。** 願意吃下這個代價,你就能換一行設定切 model;不願意吃,你就會在每次新增 provider 的時候,從頭再被同一批坑教訓一次。
+想留給你的一句話:**provider 抽象就是「把每家 API 的脾氣全部承擔下來,讓核心迴圈相信全世界都是 OpenAI 形狀」。** 願意吃下這個代價,你就能換一行設定切 model;不願意吃,你就會在每次新增 provider 的時候,從頭再被同一批坑教訓一次。
 
 ---
 
@@ -174,4 +174,4 @@ base.py    types.py
 | `agent/gemini_schema.py` | Gemini schema 方言的遞迴修復器 |
 | `agent/nous_rate_guard.py` | 跨 session 限流斷路器 |
 
-從 `agent/anthropic_adapter.py` 進去,先看 `convert_messages_to_anthropic` 怎麼把訊息翻譯成 Anthropic 形狀;normalize 的對應方向則住在 `agent/transports/anthropic.py` 的 `normalize_response`。再去 `credential_pool.py` 看 `PooledCredential` 跟 `_exhausted_ttl()`(401 vs 429 不同冷卻);最後去 `agent/transports/types.py` 看 `NormalizedResponse` 跟 `ToolCall`——那是這個子系統設計最乾淨的部分。
+從 `agent/anthropic_adapter.py` 進去,先看 `convert_messages_to_anthropic` 怎麼把訊息翻譯成 Anthropic 形狀;normalize 的對應方向則住在 `agent/transports/anthropic.py` 的 `normalize_response`。再去 `credential_pool.py` 看 `PooledCredential` 跟 `_exhausted_ttl()`(401 vs 429 不同冷卻);最後去 `agent/transports/types.py` 看 `NormalizedResponse` 跟 `ToolCall`——這個子系統設計比較乾淨的部分。
