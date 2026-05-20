@@ -33,6 +33,8 @@ Hermes 的 `delegate_task` 工具的做法剛好相反:**父 agent 呼叫 `deleg
 
 換句話說,委派把一段可能很吵、很長、很容易出錯的中間推理過程,**用一道防火牆隔開**,父 agent 那邊只看到「結果」。
 
+> **Note**:「context 防火牆」這個比喻是我自己取的——Anthropic 官方在「Building Effective Agents」用的詞是「**preserve context**」「**isolate context**」「**fresh conversation**」([連結](https://www.anthropic.com/research/building-effective-agents)),概念跟我說的「防火牆」一致,但官方沒用這個比喻。我覺得「防火牆」抓得更直覺——它強調的不只是「乾淨的 context」,而是「**有意識地建立邊界**,擋掉特定方向的污染」。
+
 > **Note**:這個模式有個學術名字叫 **orchestrator-worker pattern** —— 協調者把工作丟出去,工人各自獨立做,協調者只收摘要。Hermes 的 schema 文件甚至特別寫「父 agent 拿到的是子 agent 的自我報告,你要自己驗證任何外部副作用」—— 這等於明說:**我擋住了 context 污染,但我擋不住事實準確性,那是你的事。**
 
 這是今天最值得帶走的一點。如果你以後自己想做 multi-agent,先問自己一句:**「我這個 architecture 有沒有 context 防火牆?」** 沒有的話,你大概率會撞到我撞過的那個牆。
@@ -134,7 +136,21 @@ Hermes 的整個架構刻意把這條路堵死:**每個 agent 自己的 trajecto
 
 **「資料才是介面,對話不是介面。」** 這句話我覺得是 Kanban 設計裡最該記住的一點。多 agent 系統如果用「對話」當介面,你會碰到我撞過的牆;如果用「資料」當介面(任務 + 結構化結果),你才有機會擴展。
 
-## 七、主線 A 補充:父子代理用的還是同一段程式
+## 七、啊,原來業界把這套叫 Orchestrator-Workers
+
+寫到這裡我才回頭翻 Anthropic 那篇「Building Effective Agents」(2024/12),才發現我前面拆了半天的「委派 + Kanban」這套東西,人家早就有一個正式名字。
+
+那篇文章整理了 5 種 agent 設計模式,其中第 4 種叫 **Orchestrator-Workers**:「a central LLM dynamically breaks down tasks, delegates them to worker LLMs, and synthesizes their results」——一個中央 LLM 動態拆解任務、派發給 worker LLM、再彙總結果。
+
+這跟 Hermes 的委派 + Kanban 模式幾乎一對一:`delegate_task` 是 orchestrator 把工作切出去,Kanban swarm 的 planner→worker→synthesizer 流程是同一套東西的持久化版本。
+
+你讀其他 framework 的 multi-agent 文件時(LangGraph、AutoGen、CrewAI),會看到不同的命名——supervisor、planner、dispatcher、manager——但**底層都是同一個 pattern**。我前面用「委派 = context 防火牆」的比喻去拆它,是從**目的**(隔離 context)切入;業界用 Orchestrator-Workers 命名,是從**結構**(中央調度 + 平行 worker)切入。兩條路指的是同一棟建築。
+
+Hermes 的特色不在發明這個 pattern,而在**用 SQLite + CAS 把它做得「能跑在你筆電上」**——不依賴 Redis、Kafka、其他重型基建。同樣是 Orchestrator-Workers,Temporal / Airflow 那個方向是 enterprise scale,Hermes 這個方向是「你一個人在家就能跑五個 agent」。同樣的 pattern,不同 scale 的工程選擇。
+
+> **Note**:這也是為什麼前面我堅持「context 防火牆」這個比喻——Orchestrator-Workers 的命名是中性的、講結構的,但它沒解釋**為什麼**要這樣搭。「context 防火牆」回答了那個 why:你不是為了「中央調度」才委派,你是為了**擋住 context 污染**才委派。
+
+## 八、主線 A 補充:父子代理用的還是同一段程式
 
 最後補一下我們的第一條暗線——「**一個核心,多種驅動**」。
 

@@ -27,6 +27,13 @@ draft: false
 
 Anthropic(以及 OpenRouter 之類的相容閘道)會把你請求的「前綴」快取起來。下次你送一個請求,如果它的前綴跟之前那個**逐位元組(byte-for-byte)一模一樣**,那段前綴就只收大約 **10% 的價錢**。也就是說 cache hit 的 token 大約是全價的 1/10;反過來說 cache miss 的話,你那段在花原本的 10 倍。
 
+這不是我寫文章的修辭,Anthropic docs 自己就明文這樣寫:
+
+> "Exact matching: Cache hits require **100% identical** prompt segments, including all text and images up to and including the block marked with cache control."
+> "Marking a block with `cache_control` writes exactly one cache entry: **a hash of the prefix ending at that block**."
+
+換句話說,後端比的不是字串相似度、不是 embedding,是 **hash**。差一個 byte,hash 就完全不同,等於 cache miss——這就是為什麼後面 Hermes 為了 prefix 穩定要做到那麼偏執。
+
 > **Note**:這裡的「10%」是 Anthropic 官方公告的大致比例,實務上會因模型、TTL(5 分鐘 vs 1 小時)、快取建立成本而略有不同。重點抓「**hit 跟 miss 之間是一個量級的價差**」這個感覺就好,不用記死數字。
 
 我喜歡的比喻是這樣:prompt cache 像便利商店的熟客折扣,但折扣**認的不是你的臉**——它認的是「你拿出會員卡、刷條碼、按確認」這整套動作的**順序跟內容**一字不差。你今天比較開心,順序顛倒了一下,或者在中間多哈了一聲,折扣就沒了。
@@ -50,6 +57,13 @@ Anthropic(以及 OpenRouter 之類的相容閘道)會把你請求的「前綴」
 這聽起來很沒彈性,對吧?「**那如果中途使用者切到新模式怎麼辦?**」、「**如果 agent 學到新的記憶怎麼辦?**」——這些問題我們等等會處理。先記住這條鐵律:**session 中途,system prompt 不准動**。
 
 這就是這個系列的**第二條暗線**:**prompt cache 是鐵律,不是事後優化**。接下來幾天你會看到所有設計都繞著這條轉——壓縮為什麼要切 session 邊界、記憶為什麼不能塞 system prompt、技能為什麼從 user message 注入——全都是同一條鐵律的延伸。
+
+而且這條鐵律不只是「我這樣覺得」,Anthropic docs 自己就把這件事寫成**層級依賴**:
+
+> "Cache prefixes are created in the following order: **`tools`, `system`, then `messages`**."
+> "**Changes at each level invalidate that level and all subsequent levels.**"
+
+換句話說,動 system prompt 不是「只洗掉 system 那塊 cache」——它連帶把後面所有 messages 的 cache 一起送終,因為 messages 的 prefix 本來就是建立在 system 之上的。Hermes 把 system prompt 鎖死,不只是經驗法則,是順著 Anthropic 官方層級規則的最佳化策略。
 
 ---
 
@@ -76,6 +90,12 @@ Hermes 的解法很直接:**按穩定性排序**。`system_prompt.py` 把整段 
 很多 agent 的 system prompt 會放一行時間戳,告訴模型「現在是幾年幾月幾日幾點幾分」。聽起來很合理對吧,模型應該知道現在幾點啊。
 
 但你想一下:**如果時間戳精確到分鐘,代表 system prompt 每分鐘都會變一次**。每變一次,後面整段 cache 直接失效。一個 agent session 跑半小時,你可能每隔幾分鐘就重建一次 system prompt,等於把整套 prefix cache 砸到地上,**而你還完全沒意識到**——因為功能上「沒壞」,只有錢包知道。
+
+這個坑不用我講,Anthropic docs 的 *Common mistakes* 章節**直接拿 timestamp 當反例**:
+
+> "a per-request block containing **a timestamp** and the user message … Request 2: **The timestamp differs**, so the prefix hash at block 6 differs. … **No cache hit.** You pay for a fresh cache write on every request and never get a read."
+
+Hermes 那個 PR #20451,就是有人踩過這個坑、把帳單燒出洞之後才改成 date-only 的——官方明文點名的反例,真實世界裡每天都有人在踩。
 
 Hermes 怎麼處理?看 `system_prompt.py` line 265–271 附近:
 
@@ -130,7 +150,12 @@ Hermes 的做法是「**從 session DB 還原**」——把當初存的那份 sy
 
 光有「前綴穩定」這個不變式還不夠,你還得告訴 Anthropic「**幫我把這幾個位置存進 cache**」。這就是 `cache_control` breakpoint。
 
-Anthropic 的限制:**一個請求最多 4 個 cache_control breakpoint**。Hermes 怎麼用這 4 個額度?
+Anthropic 的限制:**一個請求最多 4 個 cache_control breakpoint**。官方原文:
+
+> "**You can define up to 4 cache breakpoints if you want to cache different sections that change at different frequencies.**"
+> "If 4 explicit block-level breakpoints already exist, **the API returns a 400 error**."
+
+也就是說超量是 fail-loud 的——你哪天看到 400 回來,先檢查 cache_control 是不是貼太多了。Hermes 怎麼用這 4 個額度?
 
 打開 `agent/prompt_caching.py`,只有 79 行,函式名字就叫 `apply_anthropic_cache_control`。策略它自稱 **`system_and_3`**:
 
@@ -153,9 +178,56 @@ Anthropic 的限制:**一個請求最多 4 個 cache_control breakpoint**。Herm
 
 Hermes 怎麼處理?**當上游 API 沒給 call_id 時,Hermes 的 fallback 是用 `hash(函式名 + 參數 + 在這一輪的 index)` 當 id**(見 `agent/codex_responses_adapter.py:143–152` 的 `_deterministic_call_id`,format `call_{sha256(...)[:12]}`)。同樣的 function、同樣的 args、同樣的順序,就會產出同樣的 id。前綴穩了,cache 才能命中。
 
-順帶提一下,工具呼叫的參數也會用 `json.dumps(..., sort_keys=True)` 重新序列化——JSON 物件的 key 順序在不同實作下可能不一樣,逐位元組正規化才能確保 cache hit。這個動作不只幫到 Anthropic 的 prefix cache,連你本機跑 llama.cpp / vLLM 的 KV cache 命中率也一起改善。**同一個原則打通所有層**。
+順帶提一下,工具呼叫的參數也會用 `json.dumps(..., sort_keys=True)` 重新序列化——JSON 物件的 key 順序在不同實作下可能不一樣,逐位元組正規化才能確保 cache hit。Anthropic docs 這條**直接點名**了哪些語言會出包:
+
+> "Verify that the keys in your `tool_use` content blocks have stable ordering as some languages (**for example, Swift, Go**) randomize key order during JSON conversion, **breaking caches**."
+
+Python 3.7+ 的 dict 保留插入順序,看起來沒事——但你跑的序列化 lib(orjson、ujson、stdlib)、上游 client、tool schema validator 都可能洗亂 key 順序。Hermes 對所有 provider 都做 byte-canonicalization,就是要連這種跨語言、跨 lib 的隱形洗牌也一起擋掉。這個動作不只幫到 Anthropic 的 prefix cache,連你本機跑 llama.cpp / vLLM 的 KV cache 命中率也一起改善。**同一個原則打通所有層**。
 
 讀到這你應該開始感覺到了:Hermes 不是在 system prompt 那一處檔住 cache,**它是在整條前綴的所有可變點上都檔住**。任何一個地方滲漏,前綴一變,cache 就掉。所以這條鐵律不是「加個註解寫『請勿修改』」就完事,它需要在程式碼的**每一條重建路徑上都明文強制**。
+
+---
+
+## Anthropic cache 規則的其他眉角
+
+讀 Anthropic docs 還會撈到三條跟 Hermes 設計**互動很深**的細節,這幾條你大概也踩過,值得攤開來看:
+
+### A. Cache TTL:5 分鐘 vs 1 小時,而且 read 是免費續命
+
+Anthropic 的 prompt cache 有**兩種 TTL**:
+
+> "By default, the cache has a **5-minute** lifetime. The cache is refreshed for no additional cost each time the cached content is used."
+> "If you find that 5 minutes is too short, Anthropic also offers a **1-hour cache duration** at additional cost."
+
+語法是 `{"cache_control": {"type": "ephemeral", "ttl": "1h"}}`。價格上:
+
+- **5 分鐘**:寫入 1.25× base、讀取 0.1× base
+- **1 小時**:寫入 2.0× base、讀取 0.1× base
+- 任何一次 cache read 都會**免費 refresh TTL 計時器**
+
+所以對 Hermes 這種「使用者連續對話」型 session,**預設 5 分鐘就夠了**——只要每幾分鐘有一輪請求,TTL 一直被續命,不用付 1.6× 的溢價去買 1 小時。真正會踩到 1 小時的是「使用者離開超過 5 分鐘才回來繼續」這種斷點,或是 cron job、scheduled agent 這類低頻長 session。
+
+順便提一個 Simon Willison 寫過的觀察:「如果你的 app 每 5 分鐘來不到一次請求,你開 cache 是在虧錢」——因為寫入要 1.25×,冷流量根本沒機會 hit 第二次。
+
+### B. 最小可快取 token 門檻(這條最坑,因為它**靜默失敗**)
+
+不是任何前綴都能 cache。Anthropic 對「值不值得幫你寫 cache」有最小門檻:
+
+> "the minimum cacheable prompt length is:
+> - **4,096 tokens** for Claude Opus 4.7 / 4.6 / 4.5
+> - **1,024 tokens** for Claude Sonnet 4.6 / 4.5
+> - **4,096 tokens** for Claude Haiku 4.5"
+> "Shorter prompts cannot be cached, even if marked with `cache_control`. Any requests to cache fewer than this number of tokens will be processed without caching, **and no error is returned**."
+
+注意最後那句——**低於門檻不會報錯**。你 cache_control 鋪得漂漂亮亮,dashboard 上 `cache_creation_input_tokens` 卻一直是 0,而程式邏輯完全沒壞。這就是為什麼 Hermes 不是「每則訊息都掛 cache_control」,而是先確保 stable 區段(identity + tool guidance + skills index)堆起來輕鬆破 4096 tokens 再掛——不然在 Opus 上根本不會建 cache。
+
+### C. 20-block lookback window
+
+Anthropic 找 cache 不是無限往前看:
+
+> "The lookback window is **20 blocks**. The system checks at most 20 positions per breakpoint, counting the breakpoint itself as the first. If the system finds no matching entry in that window, checking stops."
+
+也就是說從你最後一個 cache_control 標記開始往前**最多回看 20 個 content block**,超過就放棄。這跟 Hermes 的 `system_and_3` 策略有直接互動:把 4 個 marker **集中放在 system + 最後 3 則訊息**,等於「永遠在最近 4 個位置打標」,確保下一輪請求進來時,**20-block window 一定撈得到上一輪剛寫的 cache**。如果你把 marker 散得太前面,長對話一推下去,window 就超出了——你 marker 寫得再勤也撿不回來。
 
 ---
 

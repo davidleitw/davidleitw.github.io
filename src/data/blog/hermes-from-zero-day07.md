@@ -164,11 +164,15 @@ agent 最常見的失敗模式之一,是**鬼打牆**。同一個工具用同樣
 - **runtime 可以政策化**:同樣一個 `halt` 決定,在 CLI 裡可能是「印警告然後讓 user 拍板」,在 gateway 裡可能是「自動結束 session 並回 client」。decision 和 action 解耦。
 - **這是個值得偷的 pattern**。如果你也在寫類似的東西——任何需要「規則引擎 + 副作用執行」的場景——把「規則」做成純函式,讓「執行」住在 runtime,你會省下後來自己改不動的痛。
 
+> **Note**:順帶一提,「純函式 controller + 有副作用 runtime 分離」這個拆法**不是我自創**——它是 FP / classical AI agent 教科書(Russell & Norvig)的標準模式。但在 LLM agent 圈,主流寫法是 graph / orchestrator(LangGraph、AutoGen),很少這樣明確分離。Hermes 把 FP 視角搬進來這件事本身比較少見,值得指出來。
+
 預設 warning 永遠開,但 hard stop 是 opt-in 的——這個保守是對的,因為前一小節講過,**錯誤判定本身有字串比對的偽陽性**,你不會想預設就讓「正常但被誤判失敗」的工具直接觸發 halt。
 
 ---
 
 ## 八、防說謊頁尾:讓「謊報完成」在結構上不可能
+
+> **Note**:「防說謊頁尾」這個名字是我自己取的——業界目標一致但沒有統一命名(Cleanlab 叫「trustworthiness scoring」、Anthropic constitutional AI 走訓練層、有些人在 model-level 做 internal representation detection)。**Hermes 的做法是 prompt-level footer**:純工程選擇,不依賴模型訓練,任何 framework 都能照抄,這也是我覺得它值得推廣的原因。
 
 這是我看完全身起雞皮疙瘩的設計。
 

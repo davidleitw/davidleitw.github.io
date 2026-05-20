@@ -172,6 +172,8 @@ Hermes 的解法不是去消滅這個 bug——很多時候你消滅不了(provi
 
 Hermes 教我的事是這樣:寫 agent 的時候,不要讓任何一條 return 或 break 是匿名的。每條路徑離開 loop 之前,都該先用一行 log 說「我是因為 `budget_exhausted` 才停的」「我是因為 `tool_result_without_response` 才停的」。這條紀律比任何高大上的觀測平台都有用。
 
+> **Note**:Observability 本身不新——LangSmith、AutoGen、各家 framework 都做。Hermes 的紀律不在於「有 observability」,而在於**把「為什麼結束」提升為一等公民欄位**:不是事後從 log 推測,而是每條 return 之前就帶上一個 enum 標籤(`_turn_exit_reason`)。這個名字是我自己讀完整個 codebase 後幫它取的標籤,但這條紀律本身比那個名字更有感——**值得直接搬到你自己的 agent**。
+
 這個設計你今天讀完馬上能搬去自己的 code,而且馬上會回本。
 
 ---
