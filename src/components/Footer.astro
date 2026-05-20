@@ -3,7 +3,6 @@ import type { HTMLAttributes } from "astro/types";
 import { SOCIALS } from "@/constants";
 import LinkButton from "./LinkButton.astro";
 import { SITE } from "@/config";
-import Logo from "@/assets/logo/devosfera.svg";
 
 const currentYear = new Date().getFullYear();
 
@@ -33,9 +32,10 @@ const { noMarginTop = false, class: className, ...attrs } = Astro.props;
       <div class="flex flex-col items-center gap-3 sm:items-start">
         <a
           href="/"
-          class="group relative flex items-center gap-2 text-lg font-bold tracking-tight"
+          class="footer-logo-link group relative flex items-center font-cartograph text-lg font-bold tracking-tight"
+          aria-label={SITE.title}
         >
-          <Logo class="w-28 opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-105 group-hover:drop-shadow-[0_0_8px_rgba(var(--accent-rgb),0.5)] dark:invert" />
+          <span class="footer-logo-bracket">&lt;</span><span class="footer-logo-name">davidlei</span><span class="footer-logo-slash"> /</span><span class="footer-logo-bracket">&gt;</span>
         </a>
         <p
           class="max-w-xs text-center font-cartograph text-[11px] leading-relaxed tracking-wide text-foreground/40 sm:text-start"
@@ -108,5 +108,41 @@ const { noMarginTop = false, class: className, ...attrs } = Astro.props;
 
   .footer-social-btn:hover {
     box-shadow: 0 8px 20px -4px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  /* ─── Footer wordmark logo ─── */
+  .footer-logo-link {
+    letter-spacing: -0.01em;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+
+  .footer-logo-link:hover {
+    opacity: 1;
+  }
+
+  .footer-logo-bracket {
+    color: var(--accent);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: inline-block;
+  }
+
+  .footer-logo-name {
+    color: var(--foreground);
+  }
+
+  .footer-logo-slash {
+    color: color-mix(in srgb, var(--foreground) 35%, transparent);
+    transition: color 0.3s ease;
+  }
+
+  .footer-logo-link:hover .footer-logo-bracket:first-child {
+    transform: translateX(-3px);
+  }
+  .footer-logo-link:hover .footer-logo-bracket:last-child {
+    transform: translateX(3px);
+  }
+  .footer-logo-link:hover .footer-logo-slash {
+    color: var(--accent);
   }
 </style>
