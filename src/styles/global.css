@@ -21,7 +21,13 @@ html[data-theme="dark"] {
 }
 
 @theme inline {
-  --font-app: var(--font-wotfard);
+  /* Append explicit CJK fallback after Wotfard's auto-generated chain so
+     Chinese characters render consistently across platforms (macOS uses
+     PingFang TC, Windows uses JhengHei via the OS chain through sans-serif,
+     Linux without proper CJK config falls back to Noto Sans TC). */
+  --font-app:
+    var(--font-wotfard), "PingFang TC", "Microsoft JhengHei", "Noto Sans TC",
+    "Heiti TC", sans-serif;
   --font-sriracha: var(--font-sriracha);
   --font-cartograph: var(--font-cartograph);
   --color-background: var(--background);

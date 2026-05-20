@@ -11,6 +11,7 @@ export async function GET() {
     title: SITE.title,
     description: SITE.desc,
     site: SITE.website,
+    customData: `<language>${SITE.lang ?? "en"}</language>`,
     items: sortedPosts.map(({ data, id, filePath }) => ({
       link: getPath(id, filePath),
       title: data.title,
