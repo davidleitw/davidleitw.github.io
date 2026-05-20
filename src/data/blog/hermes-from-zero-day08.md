@@ -11,7 +11,21 @@ tags:
 draft: false
 ---
 
-2024 年 11 月 Anthropic 公布 MCP 之前,agent 圈一直在做一件很笨的事:每個 framework、每個整合,都自己寫一套「tool 怎麼描述、怎麼呼叫、結果怎麼回傳」。LangChain 一套、AutoGen 一套、自己寫的 chatbot 又一套——明明大家都在解同一個問題,但沒人能用別人的工具。
+打開 `acp_adapter/__init__.py`,第一行寫:
+
+```python
+"""ACP (Agent Communication Protocol) adapter for hermes-agent."""
+```
+
+打開隔壁的 `acp_adapter/server.py`,第一行寫:
+
+```python
+"""ACP agent server — exposes Hermes Agent via the Agent Client Protocol."""
+```
+
+**同一個資料夾,兩個檔案,ACP 的全名寫成兩種不同東西**——一個說「Communication」,一個說「Client」。這不是 typo,是 Hermes 真的搞混了 IBM Research 的 Agent Communication Protocol 跟 Zed Industries 的 Agent Client Protocol。`acp_adapter/` 從 `acp` 套件 import,實際是 Zed 那個 Agent Client Protocol(編輯器 ↔ agent),但 init 檔卻寫了 IBM 那個名字。
+
+連 Hermes 自己都會把這兩個 ACP 搞混——所以你今天讀 MCP 跟 ACP 這篇時,我會多花一段把這個地雷拆給你看。今天主題:MCP 是什麼、Hermes 怎麼接、Hermes 怎麼自己也當 server,以及 ACP 兩個版本到底差在哪。
 
 想像你同時要讓 agent 接 Google Calendar、Notion、再加上一台自己寫的 LSP server,你就得老老實實寫三套 adapter,每一套都要自己定義「列出可用工具」「呼叫某個工具」「處理錯誤」的格式。寫到第三個你會發現這三套 schema 長得幾乎一模一樣,只是命名不一致——`listTools` vs `list_tools` vs `tools.enumerate`——大家都在重複造同一個輪子,還造得歪七扭八。
 

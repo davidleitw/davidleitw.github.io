@@ -11,28 +11,21 @@ tags:
 draft: false
 ---
 
-Hermes 給你三套加東西進去的方式:**Skill、Plugin、MCP**。聽起來好像分得很清,實際打開 docs 你會發現三個都長得像擴充機制——目錄不同、API 不同、註冊方式不同,但職責有重疊。任何想做一件像「讓 agent 讀我的 Heptabase 筆記」這種事的人,看完三套介紹後會問同一個問題:**我到底該用哪個?**
-
-把場景具體化一下。假設你有自己在用的筆記系統,想讓 agent 能查卡片、抓出某個 tag 下的最新一張——這需求多單純,就是「給 agent 一個工具,讓它能讀我的 API」。但 Hermes 的目錄結構會立刻把你打回原點:
+打開 `plugins/spotify/__init__.py`,docstring 第二段寫了這樣的東西:
 
 ```
-hermes-agent/
-├── skills/                 ← 嗯,「技能」聽起來像?
-├── optional-skills/        ← 還有「可選技能」?
-├── plugins/                ← 「外掛」也可以加東西
-├── mcp/                    ← MCP?Day 8 那個 MCP?
-└── agent/
-    ├── skill_bundles.py
-    ├── skill_commands.py
-    ├── skill_preprocessing.py
-    └── plugin_llm.py
+Why a plugin instead of a top-level ``tools/`` file?
+
+- ``plugins/`` is where third-party service integrations live...
+- ``tools/`` is reserved for foundational capabilities (terminal,
+  read_file, web_search, etc.).
+- Mirroring the image_gen plugin layout makes new service
+  integrations a pattern contributors can copy.
 ```
 
-你會盯著這份目錄樹愣住。**這三個——不對,是四個——目錄,看起來都是「在加東西進這個 agent」。** 到底應該寫個 MCP server?寫個 skill?寫個 plugin?還是把整合包成一個有 script 的 skill?
+**Spotify 整合的 docstring,花了一整段在解釋「我為什麼是 plugin 不是 `tools/` 檔案」**。一個內建檔案要寫一整段話來辯護自己存在的位置——當這種情況發生,代表 **classification 本身在漏水**。
 
-更靠杯的是:打開每個目錄的 README,**它們都用差不多的話介紹自己**:「擴充 Hermes 的能力」「讓 agent 可以做更多事」「整合外部服務」。每個都對,每個又都沒講「跟旁邊那個差在哪」。
-
-這大概是讀 Hermes docs 最容易卡住的一段。慢慢翻完原始碼之後才會看懂:**這三套機制其實有重疊**,連 Hermes 自己內部的程式碼註解都在為「我為什麼是 plugin 不是 skill」辯護(待會給你看)。所以你會搞混,**不是你笨,是設計本身就在漏水**。
+Hermes 加東西進來的方式有三套:Skill、Plugin、MCP server。Anthropic 自己也有 Skill(2025/10/16 釋出)。但這三套職責有重疊,連 Hermes 自己內部都會在某個邊界上猶豫。今天這篇拆三套機制各自是什麼、什麼時候用哪個、以及為什麼 `plugins/spotify` 會自我辯護。
 
 ---
 

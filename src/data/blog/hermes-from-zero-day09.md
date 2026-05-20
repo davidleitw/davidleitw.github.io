@@ -11,15 +11,11 @@ tags:
 draft: false
 ---
 
-Agent 寫完總會有人問:「可以放在 Slack 嗎?Discord 嗎?可以排程嗎?可以開 HTTP API 嗎?」
+`wc -l gateway/run.py` 出來 **18,188 行**。然後 `grep -n "def _run_agent"` 看到兩個方法:`_run_agent_via_proxy`(line 15111)、`_run_agent`(line 15397)。也就是說 `_run_agent` 從 line 15397 一直寫到接近檔末——光一個方法就 **2,000+ 行**。
 
-第一個通常是 Slack。照著文件申請 app、設 OAuth scope、設 event subscriptions、用 ngrok 把 webhook 接回 localhost、處理 `url_verification` 那個 handshake、處理 retry header(三秒沒回就重送)、處理 thread vs DM vs channel mention 三種訊息來源,把那一坨 payload 翻成自己的 `messages` array,跑完 agent 再用 `chat.postMessage` 送回去——光這一個 channel 就會吃掉好幾個晚上。
+`gateway/run.py` 是整個系列我看過最大的單檔。它在做的事是把 Hermes 接到 Slack、Discord、cron、自訂 webhook、OpenAI 相容 API——每個 channel 都需要 session 管理、訊息正規化、rate limit 處理、認證流程,每接一個就疊一層。所以 18K 行不是因為亂寫,是因為**外面的世界本來就是亂的**。
 
-下一個如果是 Discord,你會發現它是 websocket gateway 不是 webhook,要長連線、要處理 heartbeat、session 概念跟 Slack 完全不同——Slack 用 `channel_id + user_id`,Discord 還有 guild,thread 又是另一套 API。
-
-再來如果是 cron job——「每天早上 9 點讓 agent 自己跑一次,把產出 email 給我」——email 又是另一個世界,SMTP 不是 webhook 不是 websocket,而且這個情境**根本沒有「使用者訊息進來」這件事**,是 agent 自己先動。
-
-每多接一個 channel,你會發現核心邏輯很小、周邊膠水卻一路膨脹——session 怎麼維持、訊息格式怎麼正規化、各家的 rate limit 怎麼處理、認證怎麼接,全部不一樣。核心很快就會被三套不同的 session 物件、三套不同的訊息格式、三套不同的 rate limit 處理污染到不像樣。
+今天這篇拆 gateway 的架構抽象——平台 adapter 模式、`build_session_key()` 的純函式設計、per-session 並行控制、OpenAI 相容 API 的反向偽裝。這些設計都對,但 18,188 行的單檔本身就是 Day 14 要批的「抽取 ≠ 分解」的活範例。
 
 ---
 

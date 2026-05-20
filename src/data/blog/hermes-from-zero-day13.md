@@ -11,15 +11,17 @@ tags:
 draft: false
 ---
 
-測試一個會講話的東西,是 agent 工程裡最尷尬的問題之一。
+打開 `tests/conftest.py`,grep `@pytest.fixture(autouse=True)`——**7 個 autouse fixture**。Hermes 的測試啟動時自動掛上去的東西,有 7 件。
 
-LLM 本身是 non-deterministic,同樣一段 input 跑十次可能有兩三次行為不一樣。傳統的 `assert result == expected` 整個沒用——prompt 動一個字輸出就完全不一樣,你 assert 字串比對嗎?你 assert「看起來合理」嗎?那叫做測試嗎?
+打開 `scripts/run_tests.sh` 第 6 行,註解寫:
 
-更尷尬的是,一個 agent 不只是 LLM。它是「LLM 輸出 → 自己 parse → 跑 tool → 把結果丟回去 → 再 LLM」這種一層套一層的東西。中間任何一段 streaming chunk 邊界沒切好、某個 `<think>` 標籤的關閉沒被認出來,後面整段 tool call 就會炸。這種 bug 通常是機率性的——十次裡偶爾兩三次壞,加 log、加重試、加例外處理也只是把頻率壓低,壓不到零。
+```
+#   * -n 4 xdist workers (CI has 4 cores; -n auto diverges locally)
+```
 
-你看坊間大家怎麼解?常見三招都有問題:**mock 整個 LLM 回應**——那你測的是 mock 不是模型;**錄一段真實 response 然後 replay**(VCR 那種)——LLM 的 wire format 一直變,錄影過幾週就跟你現在的 prompt 對不起來;**snapshot 整個 trajectory**——第一次跑就過,改一個字 prompt 全部炸,review 到瘋掉。
+**worker 數釘死成 4**——不是 auto 也不是工作站的核心數,而是 CI 機器的 4 核。註解明寫:auto 會讓本機跟 CI 跑出不同的測試順序組合,然後出現「本機綠 / CI 紅」的 flake。
 
-到底要怎麼測一個非確定的東西?昨天看完 Hermes 的三套介面,你應該擔心一件更基本的事——這麼複雜的系統怎麼測?今天就拆 Hermes 的答案。
+這兩個細節合起來告訴你 Hermes 的測試哲學:**對「不確定的 LLM」做「確定性的測試」**。autouse fixture 把每個 test 環境鎖死(時間、隨機種子、env vars、檔案系統);worker 數釘死讓並行順序可重現。LLM 的 non-determinism 在邊界外處理(mock、record/replay、純函式單元測試),核心測試是確定性的水管邏輯。今天這篇拆「分離水管與水」的測試策略,以及他們刻意沒測的那塊(agent 決策品質)。
 
 ---
 

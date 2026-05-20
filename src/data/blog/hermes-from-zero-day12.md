@@ -11,11 +11,11 @@ tags:
 draft: false
 ---
 
-Agent 寫到一個程度,你大概都會撞到三種使用者:terminal 派、瀏覽器派、和「可不可以自動跑」派。三種介面,三種 input 方式、三種 output 處理、三種狀態保存方式。
+`wc -l hermes_state.py` 出來 3,238 行。`grep -n "class " hermes_state.py` 跑下去,**class 只有一個:`class SessionDB:` 從 line 309 開始**——也就是說從 line 309 到檔尾接近 3,000 行,全是同一個 class 的 method。
 
-直覺寫法是各做各的——CLI 一份 codebase 自己 parse argv、自己管 stdin/stdout、自己 print streaming;Web 一份 FastAPI + WebSocket,訊息格式跟 CLI 完全不一樣;cron 又是第三份,定時任務、retry、log 全部自己刻。寫完才會發現一個更頭痛的問題:**session 狀態怎麼同步?** CLI 開的對話,使用者打開瀏覽器要能接著聊;cron 半夜跑的結果,白天要能在 terminal 回看。三套各自 implement 一個 session 概念,改一個 prompt 三邊都要改,修一個 bug 三邊都要驗,bug 也乘以三。
+`SessionDB` 是 Hermes 三套介面(CLI / TUI / Web)共享狀態的單一真相來源。每個介面開的對話、每張 Kanban 卡、每次壓縮 checkpoint、每筆記憶寫入——全部最終都打到這個 class 的 method 裡。3,000 行單一 class 本身是個 Day 14 會批的工程選擇,但它代表 Hermes 對「**三套介面共享狀態**」這件事是認真設計的,不是事後縫補。
 
-Hermes 的答案很簡潔:**同一個核心,三張臉**——一段 business logic、三個 adapter、共用一顆狀態庫。今天就拆這件事。
+另一個檔案 `hermes_cli/main.py`(12,939 行)又是另一個故事。grep `def cmd_` 數出來 **40 個 `cmd_*` 命令處理器**,主結構在那、但其中 11 個是寫成 `main()` 函式裡面的 nested closure——你會以為 main 函式只有幾百行,結果 main 從 line ~10138 一直跑到檔末,2,800+ 行。今天這篇拆 CLI / Web / Cron 怎麼共享同一個核心:JSON-RPC 抽象、PTY 細節、SessionDB 三套介面共用。
 
 > 上一篇我們講 Kanban,那是「agent 跟 agent」之間怎麼分工。今天往另一個方向走——「使用者跟 agent」之間怎麼接。同一個腦袋,要長出三張臉:一張在 terminal、一張在瀏覽器、一張在 cron 排程裡。
 

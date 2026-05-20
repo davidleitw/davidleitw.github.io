@@ -11,13 +11,15 @@ tags:
 draft: false
 ---
 
-Context window 是 agent 第一次撞到「規模感」的牆。
+在 `agent/context_compressor.py` 看到一個函式名叫 `_ensure_last_user_message_in_tail`(line 1365)。打開 docstring,第一句寫:
 
-Chatbot 那種一兩輪的對話塞不滿 context,你寫 side project 的時候大概也不會特別在意。但 agent 不一樣——它跑個 20、30 輪,每輪可能呼叫好幾次工具,每次 tool result 又是一坨 200 行的 stdout,然後 model 還會把整坨複製到回覆裡解釋(對,model 真的會這樣做)。再大的 200K context 也擋不住這種累積速度。等你回神,API 已經噴 `context_length_exceeded` 了。
+> Context compressor bug (#10896): `_align_boundary_backward` can pull...
 
-寫過 agent 的人第一直覺通常都是同一個:「砍掉最舊的 10 則訊息不就好了。」十行 code 的事,在送 API 前 slice 一下 `messages[-N:]`,deploy。結果你會發現 agent 開始亂答——它跑去做別的事了。滾上去一看才明白:**被砍掉的那幾則裡面,有一則正是使用者最一開始的需求。** 它根本不記得自己在幹嘛了。
+然後在呼叫點(line 1471)前面的註解(line 1470)更直白:`# active task is never lost to compression (fixes #10896)`。
 
-這是一個踩過才會記得的教訓:**context 不是無限大,但「砍掉舊的」也不是解法。**
+**一個函式被取這種名字**——「確保使用者最近的訊息留在尾巴裡」——代表有真實 bug 把它逼出來:壓縮的時候,使用者剛講完的需求被推出 tail 預算之外,只剩在摘要裡的描述。然後 LLM 看著一份摘要 + 一坨 tool result,不知道自己現在到底該做什麼,開始亂編。
+
+今天這篇要拆 Hermes 怎麼壓 context——不是炫技,是怎麼壓得「**夠小**」**而且**「**不丟關鍵資訊**」並存。bug #10896 只是其中一條設計遺跡,後面還有 4-phase pipeline、各種 anti-thrashing、SUMMARY_PREFIX framing。
 
 ---
 

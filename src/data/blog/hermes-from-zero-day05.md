@@ -11,7 +11,13 @@ tags:
 draft: false
 ---
 
-Provider 抽象是 agent framework 的必修課。chatbot 你綁定一家就好,agent 不能——使用者一定會問「可以換 Claude 嗎」「能不能跑本機 model」。看似只是把 OpenAI SDK 換成 Anthropic SDK,實際你會撞到一整片地雷。
+`wc -l agent/credential_pool.py` 跑下去,1,955 行。再看 `agent/anthropic_adapter.py`,2,220 行。`agent/auxiliary_client.py`,5,286 行。
+
+光是「**接多家 LLM provider**」這件事,Hermes 在三個檔案就燒了 9,461 行。我盯著這幾個數字想了一下——這代表什麼?
+
+代表 provider 抽象不是「換 SDK」這麼簡單。Anthropic 對 thinking 區塊要簽章、Gemini 的 schema 跟 OpenAI 不相容、Bedrock 走 AWS SigV4、Azure 需要 identity refresh、本機 llama.cpp 的 grammar pattern 又是另一套。每一條都是一條真實的兼容性債,要不就花幾千行 normalize 起來,要不就讓使用者每換一家就重寫 agent。
+
+Hermes 選了前者。今天這篇拆 adapter / registry / credential pool / transports 這四層抽象——它們之所以厚,是因為下面那個世界本來就是亂的。
 
 先看 tool call。OpenAI 給你的是 `choices[0].message.tool_calls`,每個工具呼叫是個 `function` 物件,裡面有 `name` 跟 `arguments`(字串型 JSON,順帶一提)。Anthropic 給你的是 `content` 陣列裡夾雜的 `tool_use` 區塊,`input` 直接就是 dict。要把兩家的回應壓進同一個資料結構,你就準備寫一堆 `if provider == "anthropic"`。
 

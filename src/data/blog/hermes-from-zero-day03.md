@@ -11,13 +11,20 @@ tags:
 draft: false
 ---
 
-你大概也想過這種「聰明設計」:agent 可以切換工作模式——寫程式模式、查資料模式、純聊天模式——那就在每次切換的時候,**把對應的提醒塞進 system prompt** 嘛。寫程式模式就在 system 開頭加一段「請優先讀檔再下手」,聊天模式就拿掉。漂亮、乾淨、語意清楚,聽起來像在做「會根據 context 動態調整人格」的 agent。
+在 `agent/system_prompt.py` grep `cache` 跑下去,我看到 line 265 開始的一段註解,逐字長這樣:
 
-然後你跑一個月,帳單來——比預期貴上一個量級。你那個 side project 沒幾個使用者,跑量不大,怎麼可能燒這麼多?去翻 dashboard 才會發現,`cache read input tokens` 跟 `cache creation input tokens` 的比例慘不忍睹,大部分請求都在花全價重新讀整段 prompt。
+```python
+# Date-only (not minute-precision) so the system prompt is byte-stable
+# for the full day.  Minute-precision changes invalidate prefix-cache KV
+# on every rebuild path (compression boundary, fresh-agent gateway turns,
+# session resume without a stored prompt).  The model can still query the
+# exact wall-clock time via tools when it actually needs it.
+# Credit: @iamfoz (PR #20451).
+```
 
-問題不在量,在於**根本不懂 prompt cache 是怎麼運作的**。很多人以為它認的是「語意上差不多就 hit」,但它認的是「前綴一個 byte 都不能差」。那個自以為聰明的動態 system reminder,等於每次切模式都在親手砸掉自己的快取。
+一個註解寫了五行解釋「為什麼時間戳只到日期、不到分鐘」,還掛了 PR 編號跟 contributor。這代表什麼?代表這條設計是被一個真實的 cache miss 事件逼出來的——有人寫了 `%H:%M` 級的時間戳,有人發現每分鐘 cache 都被洗、帳單冒煙,@iamfoz 開了 PR #20451 改掉,**然後團隊覺得這條教訓重要到要留五行註解 + contributor credit**。
 
-昨天看完核心迴圈,今天開始看為什麼這個迴圈長成現在這樣——很多設計都是被「錢」這條約束逼出來的。
+整個 `system_prompt.py` 的設計都從這條教訓長出來。今天這篇就是要拆 Hermes 為什麼把 system prompt 在 session 中途**鎖死、絕不能變**,以及這條鐵律怎麼塑造了整個 API 形狀。
 
 ---
 

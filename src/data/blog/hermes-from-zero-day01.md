@@ -61,21 +61,19 @@ print(resp.choices[0].message.content)
 
 ---
 
-## 為什麼是 Hermes,不是別的?
+### 為什麼是 Hermes 不是別的 framework?
 
-選一個專案來拆,要選對。我一開始的清單上其實有 LangChain、AutoGen、CrewAI、還有 Anthropic 自己最近開源的一些範例。最後挑 Hermes 是這幾個理由:
+我自己手上就有一個 personal AI assistant 在做——**OpenClaw**,Node + TypeScript 路線,目標是「你已經在用的訊息平台都能用同一個助理」:WhatsApp、Telegram、Slack、Discord、Google Chat、iMessage 都接,OAuth 主要綁 Anthropic Pro/Max + OpenAI ChatGPT/Codex。Gateway 是 control plane,product 是 assistant 本身。
 
-第一,它夠大、夠真實。 clone 下來大概 3,400 多個程式/文字檔。不是 demo,是真的有人在每天用、在每天接 issue 的東西。700+ PR、約 200 個 contributor。你能看到一個 agent framework 在真實壓力下「長」成什麼形狀——包括長歪的地方。
+所以這系列**不是「找一個 framework 來用」**,是「看一個跟我目標相近、但完全不同技術路線的人怎麼解問題」。Hermes 是 Python,我是 Node;Hermes 主推 framework + plugin 生態,我主推 personal assistant + channel coverage。語言、敘事路線都不同,但設計層面可以互學。
 
-第二,它是開源的,而且開得乾淨。 MIT license,所有東西攤在 GitHub 上。我不用去猜 Anthropic 內部的 Claude Code 或者 OpenAI 內部的 ChatGPT agent 是怎麼做的——那些是閉源黑箱,你只能從 API 表面反推。Hermes 是白盒,從 `run_agent.py` 一路追到 SQLite schema 都看得到。
+三個我特別想偷的:
 
-第三,它解的問題夠完整。 多 LLM provider、工具系統、記憶、子代理、MCP 接入、gateway 接 Telegram/Discord/Slack、cron 排程、七種 sandbox(本機/Docker/SSH/Modal/Daytona/Vercel Sandbox/Singularity)——你寫 agent 會撞到的牆它都撞過了。
+1. **多 provider 三層抽象做得徹底**——Hermes 有 6 個 explicit adapter(`agent/*_adapter.py`:Anthropic、Bedrock、Azure Identity、Codex Responses、Gemini Cloud Code、Gemini Native),再用 `credential_pool.py`(1,955 行)管同家內多 key rotation、用 `agent/transports/` 處理 streaming / proxy / 重連。對外失敗時走 OpenRouter → Nous Portal → Custom endpoint(本機 llama.cpp / vLLM 走這條)→ Native Anthropic 五段橫向 fallback。OpenClaw 走 OAuth Pro/Max + API key fallback,沒這麼多層,這套抽象細節值得抄。
+2. **prompt cache 當鐵律設計**——OpenClaw 我有做 cache 友善但沒做到「把 system prompt 鎖到禁止中途變動」的紀律。Hermes 把它變成整個 API 形狀(`stable / context / volatile` 三層、DATE-only 時間戳、deterministic tool_call_id fallback、JSON sort_keys)。Day 03 會看到細節。
+3. **觀測性紀律**——每個結束點都有名字(`_turn_exit_reason`)、防說謊頁尾、純函式 guardrail controller。這些不依賴語言,任何 framework 都能照搬。
 
-第四,它跟 LangChain 那種「教科書範例集合」氣質不一樣。 LangChain 像一本食譜——它告訴你「agent 有這幾種 pattern」,然後給你 abstraction 套用。Hermes 比較像一份「真的開過業」的廚房日誌——你會看到他們怎麼處理 prompt cache 失效的成本、怎麼用 SQLite 撐多進程協作、怎麼避免不同 channel 同時打進來時的 session 衝突。你讀的是別人撞過的牆,不是別人總結出來的抽象。
-
-第五,它的工程瑕疵也很有教育意義。 我講真的——這個 framework 有些檔案大到誇張。`cli.py` 約 657KB、`gateway/run.py` 約 855KB、`hermes_state.py` 約 138KB / 3,238 行,內含 `SessionDB` class、`agent/conversation_loop.py` 的 `run_conversation()` 約 3,900 行。對,3,900 行的單一函式。我第一次看到的時候盯著螢幕愣了一下,想說「這怎麼維護啊」。但越拆下去越發現,這些「歪掉」的地方比那些寫得漂亮的地方更值得學——因為它告訴你「快速迭代 + 真實壓力」會把一個專案推成什麼形狀。
-
-(對,我也覺得 657KB 的 `cli.py` 不該存在,但這就是現實。)
+反過來 OpenClaw 比 Hermes 強的地方(channel coverage、wizard onboarding、OAuth 工程化)是 OpenClaw 自己 docs 的事,這系列只講從 Hermes 偷得到、跨語言通用的設計層。
 
 ---
 
@@ -125,7 +123,7 @@ Chat completion 是「我問一句它答一句」,agent 是「我給一個目標
 
 | 檔案 | 在幹嘛 |
 |---|---|
-| `https://github.com/NousResearch/hermes-agent` | repo 入口,clone 下來 3,400+ 個檔案 |
+| `https://github.com/NousResearch/hermes-agent` | repo 入口 |
 | `AGENTS.md` | 專案自己給 agent contributor 看的指南,讀懂 repo 結構最快的方式 |
 | `README.md` | 官方的功能宣傳,有 quick install 跟主要 feature 列表 |
 | `run_agent.py` | `AIAgent` orchestrator 本體,約 179KB,64 kwargs 的建構子在這 |

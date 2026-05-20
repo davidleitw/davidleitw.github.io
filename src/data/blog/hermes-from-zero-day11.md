@@ -11,13 +11,22 @@ tags:
 draft: false
 ---
 
-Multi-agent 是現在 agent 圈最熱的話題之一。直覺上很美:一個 agent 做 code review、一個 agent 改 code、一個 agent 做 PM,大家分工合作,效率翻倍。但你真的把兩個 agent 放在一起跑——共用同一個 OpenAI client、共用同一份 message history(這樣他們才「看得到彼此的對話啊」)、外面包一個 while loop 輪流呼叫——馬上會發現第一個坑:**他們會互相 hallucinate**。
+在 `hermes_cli/kanban_db.py` line 2112 看到這段 SQL:
 
-Reviewer 還在說「這裡變數名稱有問題」,Coder 已經把整個檔案改寫一遍,連 Reviewer 上一輪指出的 bug 都一起刪掉了;Reviewer 看到新版本,以為自己剛剛沒講清楚,**又講一次**——但這次它幻覺出一個根本不存在的函式名稱,因為兩邊的 context 已經混成一團。Coder 信以為真,把那個不存在的函式呼叫加進去;Reviewer 看到新檔案以為剛剛被 fix 了,點頭通過;Coder 看到 Reviewer 通過,信心滿滿往下走——一場兩個 LLM 互相演給對方看的戲,log 滿天飛、token 用量直線往上。
+```sql
+UPDATE tasks
+   SET status        = 'running',
+       claim_lock    = ?,
+       claim_expires = ?,
+       started_at    = COALESCE(started_at, ?)
+ WHERE id            = ?
+   AND status        = 'ready'
+   AND claim_lock    IS NULL
+```
 
-那一刻你才意識到——**「兩個 agent 一起跑」根本不是把單一 agent 複製兩份那麼簡單**。它是一個全新的問題:**你要怎麼讓兩顆腦袋的 context 不要互相污染、不要搶同一個檔案、不要在對方腦中種下假記憶。**
+這段是 multi-agent 協作的核心——atomic compare-and-swap 在 SQLite 上做 task claim,確保兩個 agent 不會搶同一個任務。`VALID_STATUSES`(line 97)定義了 9 種狀態:`triage / todo / scheduled / ready / running / blocked / review / done / archived`。整個 Kanban 系統就跑在這張表上。
 
-昨天看完三套擴充機制——skill、plugin、MCP——那是「**讓一個 agent 變強**」。今天看一個更難的問題:**一個 agent 不夠用怎麼辦?** Hermes 對這題的答案,意外地保守、意外地實用。
+我看到這段第一個反應是「**為什麼是 SQLite 不是 Redis / Postgres**?」——答案在 `kanban_db.py` 的 default:`DEFAULT_CLAIM_TTL_SECONDS = 15 * 60`、`HERMES_KANBAN_CLAIM_TTL_SECONDS` 環境變數,加上 WAL 模式。**因為 Hermes 是「能跑在你筆電上」的設計**,不希望使用者為了 multi-agent 還要架 broker。今天這篇拆委派、context 防火牆、Kanban CAS、為什麼選 SQLite。
 
 ## 一、委派的本質不是「叫人幫忙」,是「砌一道防火牆」
 

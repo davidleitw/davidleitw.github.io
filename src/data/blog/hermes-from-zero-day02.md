@@ -11,11 +11,18 @@ tags:
 draft: false
 ---
 
-你寫完第一個 chatbot 之後,想做 agent 的第一直覺通常是這樣:套一個 `while True`,讓模型自己決定什麼時候停。聽起來很簡單,對吧?
+第一個讓我決定認真讀 Hermes 的東西,不是 README、不是架構圖,是這條命令:
 
-那這個迴圈長什麼樣?大概就是把 `client.chat.completions.create(...)` 包進迴圈裡,把 function calling 的結果接回 `messages`,再丟下一輪。跑起來——LLM 真的會自己讀檔、自己改檔、自己呼叫工具,看起來很酷。
+```bash
+$ wc -l agent/conversation_loop.py
+    4099 agent/conversation_loop.py
+```
 
-但 agent 跟 chatbot 最大的差別,就藏在這個迴圈上。chatbot 是「一問一答」,agent 是「一直問自己接下來要做什麼」——而問題就藏在「一直」兩個字。
+一個 .py 檔 4,099 行。我以為自己看錯,又 `grep -n "^def "` 一次——top-level function 沒幾個,而 `def run_conversation(` 從 line 187 開始。也就是說,**一個函式吞掉檔案 95%**。
+
+這個函式就是整個 agent 的心臟。我盯著螢幕想了一下,決定先把它拆開來讀——這也是這篇要做的事:把這個 3,900 行的怪物分層解釋。讀完你會知道為什麼它這麼大、哪些是真的必要、哪些是 Day 14 會被批的「抽取程式碼不等於分解系統」。
+
+但在拆它之前,得先回到更基本的問題:**一個 agent 的核心迴圈,最小到底是什麼樣子?**
 
 想像幾個會發生的情境:模型呼叫了一個你 dispatcher 不認識的工具名(可能多了個 s,可能少了底線),你的 dispatcher 沒攔到,就把「unknown function」當 tool result 塞回去——模型看了看,又呼叫一次一模一樣的工具,然後再一次。或者它陷進「讀檔 → 想 → 改檔(失敗)→ 讀檔 → 想 → 改檔(失敗)」的迴圈,跑了很多輪,最後輸出「我已經把所有檔案都改好了」——其實一個都沒成。等你打開 API 用量 dashboard,你才知道那個 `while True` 跑得有多遠。
 
@@ -109,6 +116,31 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 為什麼要分這麼開?因為如果你不分,你會寫出那種——每次 retry 都當成「新一輪」記帳,於是 max_iterations 那個保險絲根本沒在保——一輪呼叫失敗 10 次,就燒掉你 10 個迭代額度,而模型其實還沒前進半步。
 
 > **Note**:旗標 + `break` 是一種很手工的控制流,放在約 3,900 行的函式裡讓人很痛苦。但「retry 跟 iteration 是兩個獨立概念」這個拆分,本身是對的。你自己寫 agent 的時候,即使不模仿這個檔案結構,也要把這兩個計數器分開。
+
+### 走一遍 context_overflow recovery 的真實時序
+
+抽象說「外層管進展、內層管重試」聽起來簡單,跑一遍具體場景才看得到設計的味道。假設第 8 輪 LLM 呼叫,model 想 streaming 但 input 已經滿:
+
+```
+T0  外層第 8 圈,api_call_count = 8
+T1    內層第 1 次重試,送 messages.create(...)
+T2    Anthropic 回 400 "input length too large"
+T3    classify_api_error() → FailoverReason.context_overflow
+          ClassifiedError(retryable=True, should_compress=True, ...)
+T4    呼叫 compress(messages),送進 aux 壓縮模型,等回 ~2 秒
+T5    壓完 — messages 從 187K 變 42K tokens
+T6    內層設 restart_with_compressed_messages = True
+          (conversation_loop.py:2317 是其中一個設定點)
+T7    break 出內層
+T8  外層 line 2899 讀旗標 → continue,進外層第 9 圈
+T9    內層第 1 次,這次過了
+```
+
+看到 T6→T7→T8 那個「**設旗標 → break 出內層 → 外層讀旗標 → continue**」的傳遞了嗎?這就是「用旗標手刻的狀態機」。**為什麼不能合併成一層?**
+
+想像你把兩層合成一層:`for i in range(max_iterations): try: ... except: retry()`——retry 跟 iteration 用同一個計數器。結果:一次呼叫被 503 打中 5 次,你燒掉 5 個 iteration 額度,但模型其實還沒做半步進展。Hermes 從這個坑學到要分開——**「進展計數」跟「重試計數」是兩件事,不能共用 budget**。
+
+`restart_with_compressed_messages` 在 `conversation_loop.py` 裡被設成 True 的地方就有 **4 個**(line 2317、2481、2550、2639),正是因為「壓縮重試」可能從不同的恢復路徑觸發,但都不該算進外層的進展計數。
 
 ---
 

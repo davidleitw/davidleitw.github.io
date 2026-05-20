@@ -11,7 +11,18 @@ tags:
 draft: false
 ---
 
-LLM 本身是失憶的金魚。同一個使用者今天跟它說了什麼,明天重開 terminal 進去,它跟你從零認識。停在 chatbot 階段你可能不太在意——反正每次對話都是新的,問完即走。但寫到 agent,「跨 session 記憶」就突然變成必要:使用者不會接受一個「每天早上要重新自我介紹住哪、用什麼語言、習慣什麼工具」的助理,那不叫助理,那叫面試。
+在 `agent/background_review.py` line 428 看到一段註解:
+
+```python
+# See issue #25322 and PR #17276 for the full analysis +
+# measured impact (~26% end-to-end cost reduction on
+# Sonnet 4.5 in the integration tests).
+review_agent._cached_system_prompt = agent._cached_system_prompt
+```
+
+實測在 Sonnet 4.5 上做對「review agent 繼承父的 cached system prompt」省了大約 **26% 端到端成本**。這個檔案的設計動機就是這個註解:**讓 agent 能「分叉自己」去學習,但不付重新建 cache 的全價**。
+
+「Agent 怎麼記住昨天聊過什麼?」這個問題答案不是「塞進 system prompt」(那違反 Day 03 鐵律)——是把記憶這件事**外包給一個會繼承父 cache 的分身 agent**。今天這篇拆記憶 + 自我改進迴圈:memory provider 抽象、background review、Curator,以及「不繼承 cache 跟刻意繼承 cache」的設計差別。
 
 那記憶塞哪裡?第一直覺通常是 system prompt——把「使用者住台北、用 Mac、寫 Python、習慣 pytest」這幾條事實寫在最前面,讓模型每輪都看得到。寫法很直覺,當下很爽,但這個方案會直接撞上 Day 03 講過的那條鐵律:**system prompt 中途換掉,prompt cache 就直接砸了**。今天多記一條「使用者喜歡 dark mode」,整段前綴變,cache 從第一個 token 開始失效,帳單立刻反映在下一張對帳單上。
 
