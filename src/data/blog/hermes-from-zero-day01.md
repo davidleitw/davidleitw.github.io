@@ -63,17 +63,15 @@ print(resp.choices[0].message.content)
 
 ### 為什麼是 Hermes 不是別的 framework?
 
-我自己手上就有一個 personal AI assistant 在做——**OpenClaw**,Node + TypeScript 路線,目標是「你已經在用的訊息平台都能用同一個助理」:WhatsApp、Telegram、Slack、Discord、Google Chat、iMessage 都接,OAuth 主要綁 Anthropic Pro/Max + OpenAI ChatGPT/Codex。Gateway 是 control plane,product 是 assistant 本身。
+開源 personal AI assistant 領域可選的不少。另一個常被一起討論的是 **[OpenClaw](https://github.com/openclaw/openclaw)**(MIT、Peter Steinberger 維護的開源專案)——Node + TypeScript 路線,目標是「你已經在用的訊息平台都能用同一個助理」:WhatsApp、Telegram、Slack、Discord、Google Chat、iMessage 都接,OAuth 主要綁 Anthropic Pro/Max + OpenAI ChatGPT/Codex。Gateway 是 control plane,product 是 assistant 本身。
 
-所以這系列**不是「找一個 framework 來用」**,是「看一個跟我目標相近、但完全不同技術路線的人怎麼解問題」。Hermes 是 Python,我是 Node;Hermes 主推 framework + plugin 生態,我主推 personal assistant + channel coverage。語言、敘事路線都不同,但設計層面可以互學。
+把這兩個一起看蠻有意思:都做 personal assistant 場景,但選了完全不同的技術路線——OpenClaw 走 Node、賣點是「channel coverage 跟 wizard onboarding」,Hermes 走 Python、賣點是「framework 抽象厚 + plugin 生態」。哪個對你更合適看你的需求。但這系列不是來推銷誰、也不是來比好壞,是用 Hermes 的 source 當教材,讓你看見一個 production agent framework 在解決什麼樣的問題。
 
-三個我特別想偷的:
+我挑 Hermes 拆,因為它在三個地方下的工夫值得學:
 
-1. **多 provider 三層抽象做得徹底**——Hermes 有 6 個 explicit adapter(`agent/*_adapter.py`:Anthropic、Bedrock、Azure Identity、Codex Responses、Gemini Cloud Code、Gemini Native),再用 `credential_pool.py`(1,955 行)管同家內多 key rotation、用 `agent/transports/` 處理 streaming / proxy / 重連。對外失敗時走 OpenRouter → Nous Portal → Custom endpoint(本機 llama.cpp / vLLM 走這條)→ Native Anthropic 五段橫向 fallback。OpenClaw 走 OAuth Pro/Max + API key fallback,沒這麼多層,這套抽象細節值得抄。
-2. **prompt cache 當鐵律設計**——OpenClaw 我有做 cache 友善但沒做到「把 system prompt 鎖到禁止中途變動」的紀律。Hermes 把它變成整個 API 形狀(`stable / context / volatile` 三層、DATE-only 時間戳、deterministic tool_call_id fallback、JSON sort_keys)。Day 03 會看到細節。
+1. **多 provider 三層抽象做得徹底**——Hermes 有 6 個 explicit adapter(`agent/*_adapter.py`:Anthropic、Bedrock、Azure Identity、Codex Responses、Gemini Cloud Code、Gemini Native),再用 `credential_pool.py`(1,955 行)管同家內多 key rotation、用 `agent/transports/` 處理 streaming / proxy / 重連。對外失敗時走 OpenRouter → Nous Portal → Custom endpoint(本機 llama.cpp / vLLM 走這條)→ Native Anthropic 五段橫向 fallback。一個專案做 LLM 接入做到這種深度,值得拆來看。
+2. **prompt cache 當鐵律設計**——大部分 framework 把 cache 當「順便」做的優化,Hermes 把它變成整個 API 的形狀(`stable / context / volatile` 三層、DATE-only 時間戳、deterministic tool_call_id fallback、JSON sort_keys)。Day 03 會看到細節。
 3. **觀測性紀律**——每個結束點都有名字(`_turn_exit_reason`)、防說謊頁尾、純函式 guardrail controller。這些不依賴語言,任何 framework 都能照搬。
-
-反過來 OpenClaw 比 Hermes 強的地方(channel coverage、wizard onboarding、OAuth 工程化)是 OpenClaw 自己 docs 的事,這系列只講從 Hermes 偷得到、跨語言通用的設計層。
 
 ---
 
