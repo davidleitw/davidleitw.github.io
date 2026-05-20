@@ -136,7 +136,7 @@ Day 14 最重的一刀:Hermes 的測試套件**徹底測了水管,完全沒測 a
 
 我自己刻的話,從第一天就建一個 eval suite:
 
-- 一組 **golden trajectory**——固定任務 + 已知的好軌跡。
+- 一組 **golden trajectory**(「黃金軌跡」——人工確認過品質的標準答案 agent 跑法,之後拿來當回歸基準對比)——固定任務 + 已知的好軌跡。
 - 每次 PR 跑通過率對比。
 - 多輪任務完成評分,不只是 smoke test。
 - 對「真實 SDK 回應形狀」的契約測試——把 `SimpleNamespace` fake 釘到真實型別。
@@ -153,7 +153,7 @@ Day 14 最重的一刀:Hermes 的測試套件**徹底測了水管,完全沒測 a
 
 Hermes 的 plugin 是 fire-and-forget——一個壞掉的 plugin 可以持續產 exception,系統沒有任何整體健康度的紀錄。
 
-我會給每個 plugin 一個健康度計數器:連續失敗 N 次就 trip 一個 circuit breaker,接下來 M 分鐘不再呼叫它,並且把這個狀態暴露到一個 `/health` 端點。
+我會給每個 plugin 一個健康度計數器:連續失敗 N 次就 trip 一個 circuit breaker(熔斷器,Day 14 講過——主動暫停呼叫一個壞掉的依賴,過一段時間再試),接下來 M 分鐘不再呼叫它,並且把這個狀態暴露到一個 `/health` 端點。
 
 ### 6. Mechanical compression fallback
 
@@ -182,7 +182,7 @@ Day 10 鋪過——Skill、Plugin、MCP 三個聽起來都像擴充的東西。H
 
 ### 2. 更明確的「state ownership」
 
-Day 14 提過 Hermes 的「forwarder 模式」——`run_agent.py` 有幾百個 forwarder 方法,真正的實作在 `agent/` 模組裡,但每個被抽出的函式還是吃 `self`、還是伸手進幾十個 `AIAgent` 的屬性。「模組」邊界是裝飾性的。
+Day 14 提過 Hermes 的「forwarder 模式」(轉發模式:外層方法只負責把呼叫原封不動轉去別的模組)——`run_agent.py` 有幾百個 forwarder 方法,真正的實作在 `agent/` 模組裡,但每個被抽出的函式還是吃 `self`、還是伸手進幾十個 `AIAgent`(那個 god object)的屬性。「模組」邊界是裝飾性的。
 
 我會把每塊 state 的所有權寫進架構文件——`StreamingState` 屬於誰、誰能寫;`ProviderRuntime` 屬於誰、誰能寫;`SessionPersistence` 屬於誰、誰能寫。**不是憑感覺**。寫進文件,違反就 PR review 退回。
 

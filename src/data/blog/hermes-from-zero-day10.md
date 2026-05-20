@@ -87,7 +87,7 @@ Plugin 的入口 API 長這樣:每個 backend plugin 暴露一個 `register(ctx)
 
 ### MCP server 是外部進程
 
-Day 8 拆過了。MCP server 跑在**另一個進程**裡,Hermes 透過 stdio(或 SSE)跟它講話,用的是 Anthropic 推的標準協定。最大的特點:**程序隔離**。你的 Heptabase MCP server 跑爆了,Hermes 不會跟著倒。
+Day 8 拆過了。MCP server 跑在**另一個進程**裡,Hermes 透過 stdio(standard input/output,父程序跟子程序用標準輸入輸出對接,訊息一行一個 JSON)或 SSE(server-sent events,長連線串流推送)跟它講話,用的是 Anthropic 推的標準協定。最大的特點:**程序隔離**。你的 Heptabase MCP server 跑爆了,Hermes 不會跟著倒。
 
 > **Note**:Hermes 其實不只有這三套。內部還有一個叫 `context_engine` 的第四套 plugin 系統,原始碼自己明說「跟一般 plugin 系統分開……一次只能有一個 active」。今天先不展開,你只要知道「**重疊的擴充機制比你想像中還多**」。
 
@@ -134,7 +134,7 @@ Level 3:scripts / 補充 .md / 資源檔        ── 透過 bash 執行/讀取
 
 **Hermes 在官方三層之上又疊了一層自己的東西**:在組 system prompt 的 skill index 時,每個分類附上一行 `category_description`。這是 Hermes 為了處理 89 個技能而加的二級路由訊號,你可以把它視為「Hermes 自己的 Level 0.5」,跟 Anthropic 官方規格無關。
 
-打個比方:這就像 IDE 的 LSP——你的編輯器不會把整個 stdlib 的 source 都載進來,只在你打 `os.` 然後按 Tab 的那一刻才去拉 `os` module 的補完資訊。其他時候那 100 萬行的標準函式庫只是一個「我知道你存在」的索引條目。Skill 系統做的事一模一樣,只是把 IDE 換成 LLM、把 stdlib 換成你的 89 個技能。
+打個比方:這就像 IDE 的 LSP(Language Server Protocol,編輯器跟語言伺服器之間的標準協定,管補完、跳轉、診斷)——你的編輯器不會把整個 stdlib 的 source 都載進來,只在你打 `os.` 然後按 Tab 的那一刻才去拉 `os` module 的補完資訊。其他時候那 100 萬行的標準函式庫只是一個「我知道你存在」的索引條目。Skill 系統做的事一模一樣,只是把 IDE 換成 LLM、把 stdlib 換成你的 89 個技能。
 
 這套設計還有個沒人講但其實很重要的副作用:**它讓「技能爆炸」變成不是問題**。你 repo 裡塞 500 個技能跟塞 5 個,平常的 context 開銷幾乎一樣——多出來那 495 個就是 495 條 ~100 token 的 metadata,加總大概也才幾萬 token,對 200k context window 來說根本沒感覺。真的塞爆是不可能的,被選中的最多就那兩三個。
 

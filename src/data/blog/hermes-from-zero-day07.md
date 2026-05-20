@@ -57,7 +57,7 @@ ToolEntry(name, toolset, schema, handler, check_fn, requires_env, ...)
 
 每種都實作同一個 `BaseEnvironment` ABC,實際上只要實作 `_run_bash()` 和 `cleanup()`,其他都由基底類別提供。trade-off 很直白:`local` 最快但完全沒有隔離,`docker` 隔離夠用但啟動秒級,雲端後端隔離最徹底但每呼叫一次都得付一次 latency。
 
-**Docker 的強化姿態**值得單獨講一下:`--cap-drop ALL` 把所有 capability 砍光,再選擇性加回 `DAC_OVERRIDE / CHOWN / FOWNER`(只有 entrypoint 需要 `gosu` 降權時才加 `SETUID/SETGID`);`--security-opt no-new-privileges`、`--pids-limit 256` 防 fork bomb、tmpfs 暫存目錄掛 `nosuid`、`--init` 收殭屍程序。這是「最小能力 + 防越權」的 textbook 寫法。
+**Docker 的強化姿態**值得單獨講一下:`--cap-drop ALL` 把所有 capability 砍光,再選擇性加回 `DAC_OVERRIDE / CHOWN / FOWNER`(只有 entrypoint 需要 `gosu` 降權時才加 `SETUID/SETGID`);`--security-opt no-new-privileges`、`--pids-limit 256` 防 fork bomb(無限自我複製子程序把系統 PID 表灌爆的經典攻擊)、tmpfs 暫存目錄掛 `nosuid`、`--init` 收殭屍程序。這是「最小能力 + 防越權」的 textbook 寫法。
 
 但有一件事必須老實說。**`LocalEnvironment` 完全沒有隔離。** 整套沙箱安全模型假設你用容器或遠端後端,可是 `local` 是預設值。也就是說,從 source clone 下來、一句 config 都沒改的人,模型寫的 bash 是**直接在你的主機上 eval**。唯一的圍欄是「危險指令需要核可」那一層字串比對。
 

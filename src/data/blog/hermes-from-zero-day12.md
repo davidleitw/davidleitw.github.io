@@ -90,7 +90,7 @@ Hermes 的做法讓我笑出來:**Web 的聊天頁面,根本不是原生 web UI*
 
 **這招的取捨很有意思**:
 - 好處:零聊天邏輯重複。TUI 修一個 bug,Web 自動好。TUI 加一個 slash 指令,Web 自動有。皮膚、Markdown 渲染、模型選擇器——全部免費。
-- 壞處:這個「web app」其實是個終端機模擬器。沒有原生 DOM accessibility,訊息不會在小螢幕上 reflow,複製貼上要靠 OSC52(而且為了防 exfiltration,OSC52 read 還故意被關掉)。
+- 壞處:這個「web app」其實是個終端機模擬器。沒有原生 DOM accessibility,訊息不會在小螢幕上 reflow,複製貼上要靠 OSC52(一種 ANSI escape sequence,讓終端機程式跟系統剪貼簿互動;為了防 exfiltration,OSC52 read 還故意被關掉)。
 
 我覺得這是一個非常 hacky 但非常聰明的決定。它跟「正確的 web UI 該長什麼樣」的直覺完全反過來——**不要把 UI port 到網頁,要把一個 terminal port 到網頁**。
 
@@ -122,7 +122,7 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 - CLI 啟動:讀 `state.db` 看你上次的 session 是哪一個,要不要 resume。
 - TUI 開新對話:在 `sessions` 表 insert 一筆,拿一個 session_id。
 - Web 端:同一個 session_id 撈出來,訊息一條條 replay 回畫面。
-- Cron 排程:每次跑出一個新的 child session,但 `parent_session_id` 指回你定義的「standing goal」session(那是 `hermes_cli/goals.py` 的 Ralph loop),讓歷史可以追溯。
+- Cron 排程:每次跑出一個新的 child session,但 `parent_session_id` 指回你定義的「standing goal」session(那是 `hermes_cli/goals.py` 的 Ralph loop——一種「同一個 prompt 反覆跑、每次接著上次的 state 推進一點」的 agent 執行模式,名字來自 Geoffrey Huntley 的 essay),讓歷史可以追溯。
 
 **沒有奇蹟,只有一張表**。但是這張表是設計過的——`sessions` 有 `parent_session_id` 自我外鍵,讓 session 可以分叉(context 壓縮會分叉、cron 每次跑會分叉);`messages` 表用 FTS5 建全文索引,而且為了 CJK 還特別維護了一張 trigram FTS5 表(預設的 unicode61 tokenizer 會把中文切成單字,搜尋會誤判一堆)。
 

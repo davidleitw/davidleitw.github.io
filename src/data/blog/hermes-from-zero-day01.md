@@ -81,7 +81,7 @@ print(resp.choices[0].message.content)
 
 我寫這個系列的時候,腦中一直有三條主線在跑。你讀的時候如果能感受到這三條線在不同篇章重複浮出來,那就抓到精髓了。
 
-**第一條:「一個核心,多種驅動」。** Hermes 最重要的設計決定,就是把 `AIAgent` 寫成一個跟「誰來呼叫它」完全無關的核心。CLI 是一個 adapter、gateway 是一個 adapter、MCP server 是一個 adapter、ACP 是一個 adapter、batch runner 是一個 adapter、cron 是一個 adapter——同一顆心臟,六種身體。Day 02 我會第一次埋下種子,Day 05 你會在 provider 抽象看到它,Day 08(MCP)、Day 09(gateway)、Day 12(三套介面)會一次比一次明顯。
+**第一條:「一個核心,多種驅動」。** Hermes 最重要的設計決定,就是把 `AIAgent` 寫成一個跟「誰來呼叫它」完全無關的核心。CLI 是一個 adapter、gateway 是一個 adapter、MCP server 是一個 adapter(MCP = Model Context Protocol,Anthropic 推的「讓外部工具能被任何 agent 接上」的標準協定,Day 08 細講)、ACP 是一個 adapter(Agent Communication Protocol,讓不同 agent 之間能互相呼叫的協定)、batch runner 是一個 adapter、cron 是一個 adapter——同一顆心臟,六種身體。Day 02 我會第一次埋下種子,Day 05 你會在 provider 抽象看到它,Day 08(MCP)、Day 09(gateway)、Day 12(三套介面)會一次比一次明顯。
 
 **第二條:「prompt cache 是鐵律,不是優化」。** 這個你可能完全沒想過。Anthropic 跟 OpenAI 都提供 prompt caching——你重複送一樣的開頭可以打折——但 Hermes 把這件事從「省錢小技巧」升級成「整個 API 設計的不變式」:**system prompt 在 session 中途絕對不准變**。為什麼?因為一變,快取就失效,成本直接拉高,延遲也飆上去。(Anthropic 的 cache breakpoint 上限是 4 個——你只有 4 個機會說「這之前的東西請幫我快取」,所以怎麼擺、擺在哪,直接決定整個 session 的成本曲線。)這條鐵律塑造了一堆你乍看不直覺的設計選擇:壓縮為什麼是唯一被允許的中途變動?slash command 為什麼塞 user message 而不是改系統提示?記憶為什麼不能直接 append 到 system prompt?Day 03 主角登場,然後 Day 04、Day 06、Day 10 會反覆呼應。
 

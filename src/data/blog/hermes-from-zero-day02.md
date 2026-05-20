@@ -192,7 +192,9 @@ while ...:
 
 ### 設計 2:每個 subagent 各自一個預算,故意讓全樹超標
 
-`iteration_budget.py` 的 docstring 寫得很白:
+先插一個 forward reference:Hermes 允許一個 agent **委派任務給另一個 agent**(像主管把工作分派給組員,Day 11 會深拆)。被叫出來處理子任務的那一個叫 **subagent**,父子之間的呼叫關係形成一棵「**委派樹**」——父代理是樹根,subagent 是分支,subagent 還可以再委派出去。
+
+知道這個之後,`iteration_budget.py` 的 docstring 就讀得懂了:
 
 > 「The parent's budget is capped at `max_iterations` (default 90). Each subagent gets an independent budget capped at `delegation.max_iterations` (default 50) — this means total iterations across parent + subagents **can exceed the parent's cap**.」
 

@@ -15,7 +15,7 @@ draft: false
 
 光是「**接多家 LLM provider**」這件事,Hermes 在三個檔案就燒了 9,461 行。我盯著這幾個數字想了一下——這代表什麼?
 
-代表 provider 抽象不是「換 SDK」這麼簡單。Anthropic 對 thinking 區塊要簽章、Gemini 的 schema 跟 OpenAI 不相容、Bedrock 走 AWS SigV4、Azure 需要 identity refresh、本機 llama.cpp 的 grammar pattern 又是另一套。每一條都是真實的相容性債——要嘛花幾千行 normalize 起來,要嘛讓使用者每換一家就重寫 agent。
+代表 provider 抽象不是「換 SDK」這麼簡單。Anthropic 對 thinking 區塊要簽章、Gemini 的 schema 跟 OpenAI 不相容、Bedrock 走 AWS SigV4(AWS 自家那套用 HMAC 簽 HTTP 請求的認證機制,每個 request 都要在 client 側簽一次,不是丟個 bearer token 就好)、Azure 需要 identity refresh、本機 llama.cpp(把 LLaMA 系列模型編譯成 C++ 直接在本機 CPU/GPU 跑的開源 runtime)的 grammar pattern 又是另一套。每一條都是真實的相容性債——要嘛花幾千行 normalize 起來,要嘛讓使用者每換一家就重寫 agent。
 
 Hermes 選了前者。今天這篇拆 adapter / registry / credential pool / transports 這四層抽象——它們之所以厚,是因為下面那個世界本來就是亂的。
 
@@ -23,7 +23,7 @@ Hermes 選了前者。今天這篇拆 adapter / registry / credential pool / tra
 
 接下來是 thinking 區塊。Claude 的 extended thinking 回傳的 thinking 區塊**要簽章**——下一輪你必須把那段簽章原封不動再丟回去,不然 API 直接 400。文件不會在你想找的地方告訴你,通常是第二輪請求炸了你才回頭追。
 
-然後 Gemini。Gemini 的 function calling schema **不吃** `additionalProperties`,不吃 `$schema`,某些 integer 欄位上的 `enum` 也會被拒。你以為的 JSON Schema,在 Gemini 眼裡只是 OpenAPI 的一個子集。圖片?各家 base64 規範不同。認證?Anthropic 走 API key,Codex 走 OAuth,Bedrock 走 AWS IAM,Azure 走 Entra ID 換 JWT。Rate limit 回的錯誤碼一家一個樣,有的給 429,有的給 402,有的乾脆給你一段 free text 要你自己 parse。
+然後 Gemini。Gemini 的 function calling schema **不吃** `additionalProperties`,不吃 `$schema`,某些 integer 欄位上的 `enum` 也會被拒。你以為的 JSON Schema,在 Gemini 眼裡只是 OpenAPI 的一個子集。圖片?各家 base64 規範不同。認證?Anthropic 走 API key,Codex 走 OAuth(讓使用者授權之後拿一組會過期、可刷新的 token,不是長期金鑰),Bedrock 走 AWS IAM,Azure 走 Entra ID 換 JWT(微軟那套企業身份系統,登入後拿到一張短效的 JSON Web Token 才能呼叫 API)。Rate limit 回的錯誤碼一家一個樣,有的給 429,有的給 402,有的乾脆給你一段 free text 要你自己 parse。
 
 把這堆東西全部攤開,你會發現「換 SDK」根本只是入口。看到 hermes-agent 怎麼處理這件事的時候,我才覺得「原來這件事被認真做的話長這樣」。
 
@@ -54,19 +54,19 @@ agent/azure_identity_adapter.py
 
 > **Note**:adapter pattern 學術定義是「把一個介面包裝成另一個介面」,但實務上 80% 的工作量根本不在「轉換」,而在「翻譯這家 provider 的脾氣」——它什麼時候鬧、鬧的時候訊息長什麼樣、復原條件是什麼。這才是 adapter 的全部工作量。
 
-Hermes 還有更極端的:`copilot_acp_client.py`(GitHub Copilot 的 Agent Client Protocol)整個是 JSON-RPC over stdio 子程序協定,根本沒有結構化的工具呼叫通道,Hermes 硬是從自由文字裡用正則把 `<tool_call>{...}</tool_call>` 剝出來,假裝它是個 ChatCompletion。**核心迴圈完全分不出它不是在跟 OpenAI 講話。** 這就是 duck typing 的暴力美學——只要長得像 ChatCompletion,我就把你當 ChatCompletion 用。
+Hermes 還有更極端的:`copilot_acp_client.py`(GitHub Copilot 的 Agent Client Protocol)整個是 JSON-RPC over stdio 子程序協定,根本沒有結構化的工具呼叫通道,Hermes 硬是從自由文字裡用正則把 `<tool_call>{...}</tool_call>` 剝出來,假裝它是個 ChatCompletion。**核心迴圈完全分不出它不是在跟 OpenAI 講話。** 這就是 duck typing(動態語言裡的「會嘎嘎叫的就是鴨子」——只看物件實際提供的方法,不看它的型別宣告)的暴力美學——只要長得像 ChatCompletion,我就把你當 ChatCompletion 用。
 
 ## 二、registry — 一個核心,多種驅動
 
 寫完 adapter 還沒完。adapter 寫好要怎麼被選用?
 
-Hermes 用 registry 模式:adapter 在程式啟動時把自己註冊到一張表上,核心迴圈不知道「現在到底是誰在跑」,只知道「我要 provider 是 `anthropic` 的那個 client,給我」。
+Hermes 用 registry 模式(中央註冊表的設計手法:模組啟動時自我登記名字 → 實作,使用者用名字查、不直接 import 實作)。adapter 在程式啟動時把自己註冊到一張表上,核心迴圈不知道「現在到底是誰在跑」,只知道「我要 provider 是 `anthropic` 的那個 client,給我」。
 
 **這就是這個系列三條暗線的第一條——「一個核心,多種驅動」——第一次明顯登場。**
 
 Day 2 我講核心迴圈的時候埋了個種子:`AIAgent` 是 protocol-agnostic 的,它不關心訊息怎麼來、怎麼出去。今天你看到的是這條設計選擇的第一個直接收益:**核心迴圈一行 provider-specific 的程式碼都沒寫**,你卻有 7、8 家 provider 能切。
 
-要把這件事內化的話,記住這個畫面:核心迴圈在跑 ReAct loop,它從 registry 拿到一個「看起來像 OpenAI client」的東西,呼叫 `.chat.completions.create(...)`,拿到一個「看起來像 ChatCompletion」的物件。它**真的不在乎**底下是 Anthropic 的 Messages API、是 Bedrock 的 Converse、還是一個 JSON-RPC 子程序。對齊規格是 adapter 的事,跑邏輯是核心的事。
+要把這件事內化的話,記住這個畫面:核心迴圈在跑 ReAct loop(Reason + Act 的縮寫,經典 agent 迴圈架構:模型先推理 → 呼叫工具 → 把結果讀進 context → 再推理,直到任務結束),它從 registry 拿到一個「看起來像 OpenAI client」的東西,呼叫 `.chat.completions.create(...)`,拿到一個「看起來像 ChatCompletion」的物件。它**真的不在乎**底下是 Anthropic 的 Messages API、是 Bedrock 的 Converse、還是一個 JSON-RPC 子程序。對齊規格是 adapter 的事,跑邏輯是核心的事。
 
 這個分工 Day 8 你會在 MCP(Anthropic 的 Model Context Protocol)看到一模一樣的——MCP 也是一個「不知道是誰在執行」的核心,加上一堆 adapter。Day 9 在 gateway 又一次——同一個 agent 接 Slack、接 Discord、接 cron,核心依然不知道。**「一個核心、多種驅動」這條線,從今天開始你會反覆看到。** 看到第三次的時候你會自己會心一笑。
 

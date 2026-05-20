@@ -36,7 +36,7 @@ review_agent._cached_system_prompt = agent._cached_system_prompt
 
 Hermes 處理這件事的第一個動作,是把記憶**也**抽象成 provider——跟 LLM provider 同一個套路。
 
-寫在 `agent/memory_provider.py`(約 11KB),是一個叫 `MemoryProvider` 的 ABC,定義整套生命週期契約:`initialize`、`prefetch`、`sync_turn`、`get_tool_schemas`、`handle_tool_call`,外加一票可選 hook:`on_turn_start`、`on_session_end`、`on_pre_compress`、`on_memory_write`、`on_delegation`。`MemoryManager`(`agent/memory_manager.py`,約 23KB)負責調度一串 provider,是 `run_agent.py` 裡跟記憶相關的唯一整合點。
+寫在 `agent/memory_provider.py`(約 11KB),是一個叫 `MemoryProvider` 的 ABC(abstract base class,Python 的抽象基類——只宣告方法簽章、不寫實作,逼子類必須覆寫),定義整套生命週期契約:`initialize`、`prefetch`、`sync_turn`、`get_tool_schemas`、`handle_tool_call`,外加一票可選 hook:`on_turn_start`、`on_session_end`、`on_pre_compress`、`on_memory_write`、`on_delegation`。`MemoryManager`(`agent/memory_manager.py`,約 23KB)負責調度一串 provider,是 `run_agent.py` 裡跟記憶相關的唯一整合點。
 
 為什麼又是 provider?跟昨天 LLM provider 一樣的理由:**有人想用純文字檔當記憶後端(就是一個 `MEMORY.md`、一個 `USER.md`),有人想接 vector DB,有人想接外部服務**——例如 Honcho(專門做 LLM 使用者建模的開源服務)、Mem0、Hindsight。如果記憶寫死在某一種實作上,你想換就要動 core,動 core 就會出事。
 
@@ -94,7 +94,7 @@ Hermes 的解法很漂亮:**把這件事 outsource 給另一個 agent**。
 
 ## 四、Background Review——agent 會分叉自己去學習
 
-這是整個系列我最喜歡的設計之一,寫在 `agent/background_review.py`(約 29KB)。
+「Background Review」這個名字是 Hermes 自己取的,字面就是「在背景跑的複查」——不是業界通用術語,別去 Google。這是整個系列我最喜歡的設計之一,寫在 `agent/background_review.py`(約 29KB)。
 
 機制大致是這樣:每一輪對話結束之後,主 `AIAgent` 可能會呼叫 `spawn_background_review_thread`——啟動一個**背景 daemon 執行緒,裡面跑一個「分叉出來的 `AIAgent`」**。這個分身會重播剛剛那輪的對話快照,被問三個問題之一(記憶複查 / 技能複查 / 兩者都看):「這輪有沒有什麼該存進記憶或技能庫?」
 
@@ -139,6 +139,8 @@ Hermes 的解法很漂亮:**把這件事 outsource 給另一個 agent**。
 ---
 
 ## 五、Curator——專門幫你整理 Notion 的那個朋友
+
+(「Curator」也是 Hermes 自取的角色名,意思就是字面的「策展人」:不生產內容,只整理、合併、封存既有東西。)
 
 Background review 一直在「加」記憶跟技能。放著不管,技能庫遲早會變成幾百個窄窄的「某次 debug 修了一個 bug」條目。問題在於:**agent 是靠「技能描述」去比對該用哪個技能的**——一堆語意接近、各自只覆蓋一個邊角的窄技能,反而會傷害可發現性。
 
@@ -201,7 +203,7 @@ Curator ── 整併、封存、剪除技能庫(把膨脹收回去)
 
 膨脹的力量(複查器)跟收縮的力量(Curator)互相拉扯——這個張力是**設計上故意的**。沒有 Curator,自動生技能的 agent 會被自己生出的低品質技能淹死;沒有複查器,agent 永遠學不到新東西。
 
-Hermes 把這套結構叫「**自我改進迴圈(self-improvement loop)**」。注意這個詞的意思——它**不是**在 fine-tune 模型權重,不是 RLHF,不是 LoRA。它是:**讓 agent 自己整理自己的「外部腦」**。權重不變、模型不變,變的是它記著什麼、它身邊有哪些「技能小抄」可以翻。
+Hermes 把這套結構叫「**自我改進迴圈(self-improvement loop)**」。注意這個詞的意思——它**不是**在 fine-tune 模型權重,不是 RLHF(用人類偏好回饋訓練模型的方法),不是 LoRA(只微調少量低秩參數的輕量級訓練法)。它是:**讓 agent 自己整理自己的「外部腦」**。權重不變、模型不變,變的是它記著什麼、它身邊有哪些「技能小抄」可以翻。
 
 我覺得這個取名比實際上發生的事更激進一點(「自我改進」聽起來像 AGI),但去掉行銷濾鏡,核心想法其實很乾淨:**把『執行』和『反思』拆成兩個 agent,讓反思永遠不打擾執行**。
 

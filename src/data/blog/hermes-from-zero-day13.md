@@ -11,7 +11,7 @@ tags:
 draft: false
 ---
 
-打開 `tests/conftest.py`,grep `@pytest.fixture(autouse=True)`——**7 個 autouse fixture**。Hermes 的測試啟動時自動掛上去的東西,有 7 件。
+打開 `tests/conftest.py`(pytest 的共用設定檔,放在哪個資料夾就自動套用到底下所有測試),grep `@pytest.fixture(autouse=True)`——**7 個 autouse fixture**。Fixture 是 pytest 給測試準備環境/拆環境的機制;autouse 表示「每個測試都自動套用,不用顯式宣告」。所以這句話的意思是:Hermes 的測試啟動時會自動掛上去的東西,有 7 件。
 
 打開 `scripts/run_tests.sh` 第 6 行,註解寫:
 
@@ -19,7 +19,9 @@ draft: false
 #   * -n 4 xdist workers (CI has 4 cores; -n auto diverges locally)
 ```
 
-**worker 數釘死成 4**——不是 auto 也不是工作站的核心數,而是 CI 機器的 4 核。註解明寫:auto 會讓本機跟 CI 跑出不同的測試順序組合,然後出現「本機綠 / CI 紅」的 flake。
+(`xdist` 是 pytest 的並行測試外掛,`-n 4` 表示開 4 個 worker process 同時跑測試。)
+
+**worker 數釘死成 4**——不是 auto 也不是工作站的核心數,而是 CI(continuous integration,自動化跑測試的雲端機器)的 4 核。註解明寫:auto 會讓本機跟 CI 跑出不同的測試順序組合,然後出現「本機綠 / CI 紅」的 flake(指那種「跑十次中三次失敗、找不到原因」的不穩定測試)。
 
 這兩個細節合起來,把 Hermes 的測試哲學講得很清楚:**對「不確定的 LLM」做「確定性的測試」**。autouse fixture 把每個 test 環境鎖死——時間、隨機種子、env vars、檔案系統;worker 數釘死,讓並行順序可重現。LLM 的不確定性被丟到邊界外處理(mock、record/replay、純函式單元測試),核心測試只測確定性的水管邏輯。
 
@@ -47,7 +49,7 @@ draft: false
 
 回到我那個 `<think>` 標籤的 bug。Hermes 是怎麼避免這種事的?
 
-答案有點反直覺:**他們不錄影,也不用 VCR**。他們手工捏 chunk。
+答案有點反直覺:**他們不錄影,也不用 VCR**。(VCR 是把真實 HTTP 請求/回應錄下來、之後在測試裡重播 [replay] 的工具——常用來測網路串流,免得每次測試都打真實 API。)他們手工捏 chunk。
 
 打開 `tests/run_agent/` 隨便挑一個 streaming 相關的測試,你會看到類似這樣的東西——測試裡面自己用 `SimpleNamespace` 拼出一個長得像 `ChatCompletionChunk` 的物件,設定 `choices[0].delta.content = "<thi"`,下一個 chunk 是 `"nk>"`,再下一個是 `"hello</think>"`。然後 patch 掉 `OpenAI` client,讓 `create.return_value = iter([chunk1, chunk2, chunk3])`,跑 agent,assert 最終 parser 拿到的結果是對的。
 
@@ -57,7 +59,7 @@ Streaming 的 bug 幾乎全部來自 partial chunk 邊界:tag 被切成兩半、
 
 像 `test_repair_tool_call_arguments`、`test_streaming_tool_call_repair`、`test_empty_response_recovery` 這些檔案,全部就是在做這件事。每個檔案手工定義 `_make_stream_chunk` helper,專門用來構造對抗性的 chunk 序列。
 
-> **Note**:這個做法有個明顯代價——OpenAI 的 wire format 在這個 codebase 裡被**複製了幾十次**。SDK 改一個欄位名,28 個 mock 測試全綠,生產壞掉。Hermes **沒有** contract test 把這些 fake 釘到真實的 `ChatCompletionChunk`。這是測試策略最大的缺口之一。我們明天會再回來罵這件事。
+> **Note**:這個做法有個明顯代價——OpenAI 的 wire format(SDK 在網路上跟伺服器交換資料時的物件結構)在這個 codebase 裡被**複製了幾十次**。SDK 改一個欄位名,28 個 mock 測試全綠,生產壞掉。Hermes **沒有** contract test(專門驗證「我們寫的 fake 物件跟真實 SDK 型別欄位一致」的測試)把這些 fake 釘到真實的 `ChatCompletionChunk`。這是測試策略最大的缺口之一。我們明天會再回來罵這件事。
 
 但反過來說,好處也很實在:**對模型漂移免疫**。OpenAI 把 GPT-4 換成 GPT-4-turbo 換成 GPT-5,跟這些測試一點關係都沒有,因為測試裡的 LLM 從來就是合成的。
 
@@ -116,7 +118,7 @@ Day 7 講工具系統的時候,我們提過 `tool_guardrails.py` 的三個計數
 - 中間穿插一個成功 → assert 計數器被重置
 - 不同 tool 的失敗交錯 → assert 兩個計數器各自獨立
 
-這就是純測試樂園的樣子。**這也是為什麼 Day 7 我特別強調「工具系統做得不錯」——它有獨立模組、邊界清楚,所以測得起來**。對比一下 `cli.py` 那個 657KB 的怪物(Day 14 會狂罵),裡面塞了 30 種 slash command 處理,每個都半綁在 UI 半綁在邏輯,**那種東西根本沒辦法寫單元測試**——你只能跑整個 CLI、輸入字串、assert 輸出,然後祈禱。
+這就是純測試樂園的樣子。**這也是為什麼 Day 7 我特別強調「工具系統做得不錯」——它有獨立模組、邊界清楚,所以測得起來**。對比一下 `cli.py` 那個 657KB 的巨石檔案怪物(Day 14 會狂罵),裡面塞了 30 種 slash command(`/compress`、`/skill` 那種斜線開頭的 CLI 指令)處理,每個都半綁在 UI 半綁在邏輯,**那種東西根本沒辦法寫單元測試**——你只能跑整個 CLI、輸入字串、assert 輸出,然後祈禱。
 
 **寫程式的時候多花十分鐘把純邏輯抽出來,測試的時候會少花十小時**。Hermes 的測試覆蓋率分布,基本上就是這條規則的活體證明:抽得乾淨的地方測得密,糾纏的地方測不動。
 
@@ -152,7 +154,7 @@ Hermes 從某個版本之後改了 trajectory 的儲存格式(壓縮、結構化
 
 到這裡你應該感覺 Hermes 的測試很猛吧?但**這套東西有一個大到誇張的洞**——
 
-**沒有 agent eval 層**。
+**沒有 agent eval 層**。(eval = evaluation,指系統性地評估「這個 agent 做的決定品質好不好」——通常是丟一組固定任務跑 agent、然後打分或比通過率,跟單元測試是兩回事。)
 
 Hermes **沒有**任何一個測試在做這件事:「給 100 個任務,跑這個 agent,看通過率多少」。沒有 SWE-bench 風格的 benchmark、沒有 golden trajectory regression、沒有多輪任務完成評分、沒有跑分。
 

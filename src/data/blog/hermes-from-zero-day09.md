@@ -45,7 +45,7 @@ Hermes 的 `gateway/` 目錄,職責就一句話:**把外部世界各種奇形怪
 
 **(b) 怎麼識別 session?** 同一個使用者在群組裡發言、在私訊發言、在某個 thread 裡發言,要不要算同一個 session?群組裡多個人講話,那是一個共享 session 還是每人一個?(這個是大題,等等專門講。)
 
-**(c) 怎麼回傳?** 同步回(HTTP request/response 那種立刻回 body)?非同步推(用 channel API 主動 push 一則訊息)?還是串流回(SSE、Telegram 的「正在輸入」)?
+**(c) 怎麼回傳?** 同步回(HTTP request/response 那種立刻回 body)?非同步推(用 channel API 主動 push 一則訊息)?還是串流回(SSE——Server-Sent Events,server 透過長連線一條條推訊息給 client、Telegram 的「正在輸入」)?
 
 **(d) 怎麼處理該平台的特殊內容?** Slack 的 thread reply、Discord 的 embed、Telegram 的 inline keyboard、IRC 的 `/me`——這些是 platform-native 的東西,核心不該知道,但 adapter 要會處理。
 

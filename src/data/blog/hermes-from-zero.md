@@ -19,7 +19,7 @@ draft: false
 
 我把 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) 整個 repo(3,400+ 個檔案)拆開來讀,挑出**這個 agent framework 之所以長成現在這樣的關鍵架構決定**,然後用 iThome 鐵人賽的口吻寫了 15 篇——一篇對應你接下來會撞到的一道牆。
 
-不是 API 文件,不是怎麼安裝,不是「跟著做你也能寫一個 ChatGPT」。是:**「為什麼 Hermes 把 system prompt 鎖死不准你動?」、「為什麼一個 agent 的核心迴圈該是 protocol-agnostic 的?」、「為什麼這個 657KB 的 `cli.py` 是個警訊?」**
+不是 API 文件,不是怎麼安裝,不是「跟著做你也能寫一個 ChatGPT」。是:**「為什麼 Hermes 把 system prompt 鎖死不准你動?」、「為什麼一個 agent 的核心迴圈該是 protocol-agnostic 的(意思是核心邏輯不在乎呼叫它的是 CLI、HTTP、還是 cron——對外介面都是 adapter)?」、「為什麼這個 657KB 的 `cli.py` 是個警訊?」**
 
 ---
 

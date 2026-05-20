@@ -150,7 +150,7 @@ B ──MCP──> A ──MCP──> C
 
 講完 MCP,要順手提一個更新一點的標準:**ACP**。但在動手之前先打預防針——**ACP 這縮寫有兩個完全不同的協定共用**,而且都跟 agent 有關,標題黨成這樣不是我能力範圍內可以救的:
 
-1. **IBM Research 的 Agent Communication Protocol**(2025/03 公布)——解的是 **agent-to-agent** 通訊,HTTP-native、async、SSE streaming。2025/08 已併入 Google 的 **A2A** 協定、由 Linux Foundation 託管。換句話說,**這個 ACP 已經不獨立存在了**,要講 agent 之間怎麼對話現在請改稱 A2A。
+1. **IBM Research 的 Agent Communication Protocol**(2025/03 公布)——解的是 **agent-to-agent** 通訊,HTTP-native、async、SSE streaming(Server-Sent Events,讓 server 透過一條長連線單向把訊息一段一段推給 client,是 HTTP 上做即時 streaming 的標準做法)。2025/08 已併入 Google 的 **A2A** 協定、由 Linux Foundation 託管。換句話說,**這個 ACP 已經不獨立存在了**,要講 agent 之間怎麼對話現在請改稱 A2A。
 2. **Zed Industries 的 Agent Client Protocol**——解的是 **editor / client ↔ agent**,JSON-RPC 2.0 over stdio,目的是讓 Zed(以及 JetBrains、Neovim 等任何 ACP-compatible editor)把一個 AI agent 當子程序驅動。
 
 **Hermes 的 `acp_adapter/` 接的是第二個——Zed Industries 的 Agent Client Protocol**。從 `server.py` 開頭 docstring 寫的「exposes Hermes Agent via the Agent Client Protocol」、以及 import 的 `acp` 套件(這是 Zed 維護的 Python schema)都可以確認。
@@ -179,7 +179,7 @@ Hermes 同時支援前兩個。他可以是 MCP client、MCP server、Zed ACP se
 
 不是因為他技術上多神奇。**是因為他剛好是這個生態系第一個夠多人同意的協定。** 在他之前,每個 agent framework 都在自己造「我這邊的 plugin 怎麼寫」的輪子:LangChain 有 LangChain 的、AutoGen 有 AutoGen 的、各家 agentic IDE 也都自己一套。每個 plugin 作者只能挑陣營,沒辦法寫一份服務全部。
 
-MCP 解的是「Schelling point」問題——當大家都需要一份共同的協定來協調,**誰先公布、夠簡單、夠開放,誰就贏**。Anthropic 公布、規格夠樸實、reference implementation 又有,就成了。
+MCP 解的是「Schelling point」問題(賽局論裡的「謝林點」:多方在沒有溝通的情況下,會自然地聚到某個顯眼、夠樸實的選項上)——當大家都需要一份共同的協定來協調,**誰先公布、夠簡單、夠開放,誰就贏**。Anthropic 公布、規格夠樸實、reference implementation 又有,就成了。
 
 把 2025 一整年的時間軸串起來看會更清楚這事多誇張:**2024/11/25** Anthropic 公布 MCP → **2025/03** OpenAI 官方宣布支援 MCP(這是它從「Anthropic 提案」變「跨家共識」的決定性時刻)→ **2025/08** IBM 那個 Agent Communication Protocol 併入 Google A2A、交給 Linux Foundation 託管 → **2025/12** Anthropic 把 MCP 也捐給 Linux Foundation(Agentic AI Foundation)。**半年內從廠商協定變成中立基金會託管,這個速度本身就是 Schelling point 成立的證據**——MCP 確實已經在成為事實標準。
 

@@ -26,7 +26,7 @@ UPDATE tasks
 
 這段是 multi-agent 協作的核心——atomic compare-and-swap 在 SQLite 上做 task claim,確保兩個 agent 不會搶同一個任務。`VALID_STATUSES`(line 97)定義了 9 種狀態:`triage / todo / scheduled / ready / running / blocked / review / done / archived`。整個 Kanban 系統就跑在這張表上。
 
-我看到這段第一個反應是「**為什麼是 SQLite 不是 Redis / Postgres**?」——答案在 `kanban_db.py` 的 default:`DEFAULT_CLAIM_TTL_SECONDS = 15 * 60`、`HERMES_KANBAN_CLAIM_TTL_SECONDS` 環境變數,加上 WAL 模式。**因為 Hermes 是「能跑在你筆電上」的設計**,不希望使用者為了 multi-agent 還要架 broker。今天這篇拆委派、context 防火牆、Kanban CAS、為什麼選 SQLite。
+我看到這段第一個反應是「**為什麼是 SQLite 不是 Redis / Postgres**?」——答案在 `kanban_db.py` 的 default:`DEFAULT_CLAIM_TTL_SECONDS = 15 * 60`、`HERMES_KANBAN_CLAIM_TTL_SECONDS` 環境變數,加上 WAL 模式。**因為 Hermes 是「能跑在你筆電上」的設計**,不希望使用者為了 multi-agent 還要架 broker。今天這篇拆委派、context 防火牆、Kanban CAS(compare-and-swap,並行程式設計的原子操作:「只有當值還是預期的舊值才更新」)、為什麼選 SQLite——順帶解釋一下 WAL(Write-Ahead Logging,SQLite 的一種模式,寫入先 append 到日誌、允許多讀者跟一個寫入者並行)。
 
 ## 一、委派的本質不是「叫人幫忙」,是「砌一道防火牆」
 
