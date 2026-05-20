@@ -90,15 +90,13 @@ Hermes 的解法很直接:**按穩定性排序**。`system_prompt.py` 把整段 
 
 ---
 
-## 神來一筆:時間戳只到 DATE,不到 minute
+## 時間戳:只到 DATE,不到 minute
 
-這是我讀 Hermes 程式碼覺得「**蛤?**」、然後「**喔幹聰明**」的地方。
+很多 agent 的 system prompt 會放一行時間戳,告訴模型「現在是幾年幾月幾日幾點幾分」。聽起來很合理,模型應該知道現在幾點啊。
 
-很多 agent 的 system prompt 會放一行時間戳,告訴模型「現在是幾年幾月幾日幾點幾分」。聽起來很合理對吧,模型應該知道現在幾點啊。
+但只要你接受了上面那條鐵律,結論就明顯了:**精確到分鐘的時間戳代表 system prompt 每分鐘都會變一次**。每變一次,後面整段 cache 直接失效。一個 agent session 跑半小時,你可能每隔幾分鐘就重建一次 system prompt,等於把整套 prefix cache 砸到地上——**而你還完全沒意識到**,因為功能上「沒壞」,只有錢包知道。
 
-但你想一下:**如果時間戳精確到分鐘,代表 system prompt 每分鐘都會變一次**。每變一次,後面整段 cache 直接失效。一個 agent session 跑半小時,你可能每隔幾分鐘就重建一次 system prompt,等於把整套 prefix cache 砸到地上,**而你還完全沒意識到**——因為功能上「沒壞」,只有錢包知道。
-
-這個坑不用我講,Anthropic docs 的 *Common mistakes* 章節([Prompt caching — Common mistakes](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching))**直接拿 timestamp 當反例**:
+這個推理不複雜,但真實世界裡很多人還是踩。怎麼確定?Anthropic docs 的 *Common mistakes* 章節([Prompt caching — Common mistakes](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching))**直接拿 timestamp 當反例**:
 
 > "a per-request block containing **a timestamp** and the user message … Request 2: **The timestamp differs**, so the prefix hash at block 6 differs. … **No cache hit.** You pay for a fresh cache write on every request and never get a read."
 

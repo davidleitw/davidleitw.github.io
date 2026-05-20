@@ -15,7 +15,7 @@ draft: false
 
 然後你開始踩坑。換 model 換到崩潰、token 帳單翻幾倍、tool call 開始 hallucinate 假的函式名、想接 Slack 跟 cron 結果寫了三套狀態管理、想加新功能但動到 core 就什麼都壞掉。你開始想——「應該有人解過這些問題吧?」於是你 clone 了 `NousResearch/hermes-agent`,打開 README,看了三分鐘,完全不知道在幹嘛。那是第一天。
 
-第三天,你讀到 `system_prompt_session` 不准動那條鐵律,腦袋裡「啊!」了一聲——原來那不是效能優化,是整個 API 的形狀都被這條不變式長出來的。第七天,你看到 `tool_guardrails.py` 用三個純函式計數器擋住假完成,心裡冒出「這個我可以偷」的興奮。第十四天,你看到 `cli.py` 657KB、`run_conversation()` 約 3,900 行的單一函式(整檔 4,099 行),你開始懂為什麼這系列的最後一篇叫做「自己刻會更好」。
+第三天,你讀到 `system_prompt_session` 不准動那條鐵律——原來那條規則不是效能優化,是整個 API 的形狀都被這條不變式長出來的。第七天,你看到 `tool_guardrails.py` 用三個純函式計數器擋住假完成,把它標記起來想抄。第十四天,你看到 `cli.py` 657KB、`run_conversation()` 約 3,900 行的單一函式(整檔 4,099 行),你開始懂為什麼這系列的最後一篇叫做「自己刻會更好」。
 
 這 14 天讓你學到的是「**一個 agent framework 該長什麼樣**」。
 

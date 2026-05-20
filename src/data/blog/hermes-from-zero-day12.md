@@ -159,7 +159,7 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 
 ## 七、然後,我要鋪一個梗
 
-到這裡我已經把 Hermes 介面層講漂亮了。一個 JSON-RPC server,三套 adapter,一顆 SQLite 收狀態,PTY 把 TUI 重用到 Web——這架構乾淨。
+到這裡我已經把 Hermes 介面層講完了。一個 JSON-RPC server,三套 adapter,一顆 SQLite 收狀態,PTY 把 TUI 重用到 Web——架構是乾淨的。
 
 然後我去 `wc -c` 了一下 `cli.py`。
 
