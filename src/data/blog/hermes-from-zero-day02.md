@@ -119,28 +119,60 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 ### 走一遍 context_overflow recovery 的真實時序
 
-抽象說「外層管進展、內層管重試」聽起來簡單,跑一遍具體場景才看得到設計的味道。假設第 8 輪 LLM 呼叫,model 想 streaming 但 input 已經滿:
+抽象說「外層管進展、內層管重試」聽起來簡單,把場景跑成一段偽碼才看得到設計的味道。情境:第 8 圈,model 想送 streaming,但 input 已經滿——
 
+```python
+# ── 外層 while(conversation_loop.py:598)──────────────
+while api_call_count < max_iterations and budget.remaining > 0:
+    api_call_count += 1                              # 8
+    restart_with_compressed_messages = False
+
+    # ── 內層 retry,第 1 次 ─────────────────────────
+    for retry in range(max_retries):
+        try:
+            response = client.messages.create(...)
+            break
+        except APIError as e:
+            err = classify_api_error(e)
+            # ClassifiedError(reason=context_overflow,
+            #                 retryable=True,
+            #                 should_compress=True)
+
+            if err.should_compress:
+                compress(messages)                   # 187K → 42K tokens (~2s)
+                restart_with_compressed_messages = True   # ← line 2317
+                break                                 # 跳出內層 retry
+
+    # ── 外層尾端 line 2899(這段是真實程式碼)──────────
+    if restart_with_compressed_messages:
+        api_call_count -= 1                          # 退費,回到 7
+        agent.iteration_budget.refund()              # budget 也退
+        retry_count += 1                             # 但算進 retry 限制
+        restart_with_compressed_messages = False
+        continue                                      # 跳回 while 頂
+
+# ── 再進 while 一圈 ─────────────────────────────────
+# api_call_count 又從 7 變 8 — 跟剛剛同一號,
+# 因為壓縮這一輪在外層眼裡「沒發生過」
+while ...:
+    api_call_count += 1                              # 8
+    for retry in ...:
+        response = client.messages.create(...)       # 這次過了
 ```
-T0  外層第 8 圈,api_call_count = 8
-T1    內層第 1 次重試,送 messages.create(...)
-T2    Anthropic 回 400 "input length too large"
-T3    classify_api_error() → FailoverReason.context_overflow
-          ClassifiedError(retryable=True, should_compress=True, ...)
-T4    呼叫 compress(messages),送進 aux 壓縮模型,等回 ~2 秒
-T5    壓完 — messages 從 187K 變 42K tokens
-T6    內層設 restart_with_compressed_messages = True
-          (conversation_loop.py:2317 是其中一個設定點)
-T7    break 出內層
-T8  外層 line 2899 讀旗標 → continue,進外層第 9 圈
-T9    內層第 1 次,這次過了
-```
 
-看到 T6→T7→T8 那個「**設旗標 → break 出內層 → 外層讀旗標 → continue**」的傳遞了嗎?這就是「用旗標手刻的狀態機」。**為什麼不能合併成一層?**
+關鍵在外層尾端那 5 行——`api_call_count -= 1` 把外層進度**退費**、`budget.refund()` 把預算**退費**、但 `retry_count += 1` 卻**累積**。三個計數器在這個交叉點被刻意推往不同方向:
 
-想像你把兩層合成一層:`for i in range(max_iterations): try: ... except: retry()`——retry 跟 iteration 用同一個計數器。結果:一次呼叫被 503 打中 5 次,你燒掉 5 個 iteration 額度,但模型其實還沒做半步進展。Hermes 從這個坑學到要分開——**「進展計數」跟「重試計數」是兩件事,不能共用 budget**。
+1. **進度退費**:壓縮這一輪不算外層進展。你 90 個 iteration 用完之前,壓縮的次數不該被算成「你做了一輪正事」。
+2. **budget 退費**:同上邏輯。
+3. **retry +1**:但壓縮會吃 retry slot——擋住「壓了又壓還是塞不下」的無限壓縮迴圈。`conversation_loop.py:2902–2904` 的註解直接寫:「Count compression restarts toward the retry limit to prevent infinite loops when compression reduces messages but not enough to fit the context window」。
 
-`restart_with_compressed_messages` 在 `conversation_loop.py` 裡被設成 True 的地方就有 **4 個**(line 2317、2481、2550、2639),正是因為「壓縮重試」可能從不同的恢復路徑觸發,但都不該算進外層的進展計數。
+**這就是兩個計數器分開的真正用途**——「進展」跟「重試」是兩個維度,compression 是「失敗的重試」(吃 retry),不是「成功的進展」(不吃 budget)。如果你只有一個計數器,沒辦法做這種非對稱退費——一次壓縮要嘛全燒、要嘛全免,沒中間值。
+
+**為什麼不能合併成一層?**
+
+想像你寫的是這樣:`for i in range(max_iterations): try: ... except: retry()`——retry 跟 iteration 用同一個計數器。結果:一次呼叫被 503 打中 5 次,你燒掉 5 個 iteration 額度,但模型其實還沒做半步進展。沒有「退費」這個選項,因為計數器只有一個維度。
+
+`restart_with_compressed_messages` 在 `conversation_loop.py` 裡被設成 True 的地方有 **4 個**(line 2317、2481、2550、2639)——壓縮可以從多條恢復路徑觸發(context_overflow、payload_too_large、長對話自動壓縮、image_too_large 等),但每一條都共用同一套「退費 + 算 retry」邏輯。**寫迴圈的人決定『哪些事該算進展、哪些事該算重試』**,這是這個系列裡我最希望你帶走的觀念。
 
 ---
 
