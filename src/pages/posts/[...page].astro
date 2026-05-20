@@ -1,29 +1,89 @@
 ---
 import type { GetStaticPaths } from "astro";
+import type { CollectionEntry } from "astro:content";
 import { getCollection } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
-import Card from "@/components/Card.astro";
-import Pagination from "@/components/Pagination.astro";
 import "@pagefind/default-ui/css/ui.css";
 import getSortedPosts from "@/utils/getSortedPosts";
+import { slugifyStr } from "@/utils/slugify";
+import { getPath } from "@/utils/getPath";
 import { SITE } from "@/config";
 
-export const getStaticPaths = (async ({ paginate }) => {
-  const posts = await getCollection("blog", ({ data }) => !data.draft);
-  return paginate(getSortedPosts(posts), { pageSize: SITE.postPerPage });
+// Single-page categorized index — no pagination.
+export const getStaticPaths = (() => {
+  return [{ params: { page: undefined } }];
 }) satisfies GetStaticPaths;
 
-const { page } = Astro.props;
-const totalPosts = page.total;
+const TAG_DISPLAY: Record<string, string> = {
+  "hermes-from-zero": "Hermes From Zero",
+  leetcode: "LeetCode",
+  linux: "Linux",
+  linux_kernel: "Linux Kernel",
+  c: "C",
+  go: "Go",
+  docker: "Docker",
+  concurrency: "Concurrency",
+  network: "Networking",
+  paper: "Paper",
+  ai: "AI / LLM",
+  ironman: "Ironman",
+  agent: "Agent",
+  llm: "LLM",
+  container: "Container",
+  kernel: "Kernel",
+  ebpf: "eBPF",
+  github: "GitHub",
+};
+
+function displayTag(slug: string): string {
+  if (TAG_DISPLAY[slug]) return TAG_DISPLAY[slug];
+  return slug
+    .split(/[-_]/)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function fmtMonthDay(d: string | Date): string {
+  const date = new Date(d);
+  return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function fmtDate(d: string | Date): string {
+  const date = new Date(d);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+const allPosts = await getCollection("blog", ({ data }) => !data.draft);
+const sortedPosts = getSortedPosts(allPosts);
+const totalPosts = sortedPosts.length;
+
+// Group by FIRST tag (primary tag)
+const buckets = new Map<string, CollectionEntry<"blog">[]>();
+for (const post of sortedPosts) {
+  const firstTag = post.data.tags?.[0] ?? "misc";
+  const slug = slugifyStr(firstTag);
+  if (!buckets.has(slug)) buckets.set(slug, []);
+  buckets.get(slug)!.push(post);
+}
+
+// Sort: by post count desc, then alphabetical for ties
+const sortedBuckets = [...buckets.entries()].sort((a, b) => {
+  if (b[1].length !== a[1].length) return b[1].length - a[1].length;
+  return a[0].localeCompare(b[0]);
+});
+
+const TOP_N = 5;
+const RECENT_N = 4;
+const recentPosts = sortedPosts.slice(0, RECENT_N);
 ---
 
 <Layout title={`Posts | ${SITE.title}`}>
   <Header />
   <Breadcrumb />
-  <main id="main-content" class="app-layout pb-4">
+  <main id="main-content" class="app-layout pb-8">
     <!-- Hero -->
     <div class="posts-hero" data-posts-hero>
       <div class="aurora-orb aurora-orb-1"></div>
@@ -35,72 +95,107 @@ const totalPosts = page.total;
           <span class="glow-text">Posts</span>
         </h1>
         <p class="mt-3 max-w-lg text-foreground/70 italic">
-          All the articles I have published.
+          {totalPosts} 篇文章,依主題分成 {sortedBuckets.length} 個分類。
         </p>
         <div class="mt-4 flex flex-wrap items-center gap-2">
           <span class="hero-badge">{totalPosts} posts</span>
-          {
-            page.lastPage > 1 && (
-              <span class="hero-badge">
-                Page {page.currentPage}/{page.lastPage}
-              </span>
-            )
-          }
+          <span class="hero-badge">{sortedBuckets.length} categories</span>
         </div>
       </div>
     </div>
 
-    <!-- Posts Toolbar -->
+    <!-- Search -->
     <div class="posts-toolbar mb-8">
       <div class="posts-search-wrapper">
         <div id="posts-pagefind" class="premium-search"></div>
       </div>
     </div>
 
-    <!-- Posts Grid -->
+    <!-- Default view: recent strip + categorized buckets -->
     <div data-default-posts-container class="w-full">
-      {
-        page.data.length === 0 ? (
-          <div class="empty-state">
-            <div class="empty-icon-wrapper">
-              <svg
-                class="size-12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="9" y1="15" x2="15" y2="15"></line>
-              </svg>
-            </div>
-            <h3 class="empty-title">No posts yet</h3>
-            <p class="empty-desc">
-              Check back later for upcoming articles.
-            </p>
-          </div>
-        ) : (
-          <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {page.data.map((data: any) => <Card {...data} />)}
-          </ul>
-        )
-      }
-      
-      <div data-pagination-wrapper>
-        <Pagination {page} />
-      </div>
+      <!-- Recent strip -->
+      <section class="recent-strip" aria-label="Recent posts">
+        <header class="strip-header">
+          <span class="strip-marker">$</span>
+          <span class="strip-label">recent</span>
+          <span class="strip-divider"></span>
+        </header>
+        <ol class="recent-list">
+          {
+            recentPosts.map(post => (
+              <li class="recent-item">
+                <a href={getPath(post.id, post.filePath)} class="recent-link">
+                  <time class="recent-date" datetime={String(post.data.pubDatetime)}>
+                    {fmtDate(post.data.pubDatetime)}
+                  </time>
+                  <span class="recent-title">{post.data.title}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <!-- Category buckets -->
+      <section class="buckets-grid" aria-label="By category">
+        {
+          sortedBuckets.map(([tagSlug, posts]) => {
+            const top = posts.slice(0, TOP_N);
+            const remaining = posts.length - top.length;
+            const tagHref = `/tags/${tagSlug}`;
+            return (
+              <article class="bucket">
+                <header class="bucket-header">
+                  <h2 class="bucket-title">
+                    <span class="bucket-marker">▸</span>
+                    <a href={tagHref} class="bucket-title-link">
+                      {displayTag(tagSlug)}
+                    </a>
+                    <span class="bucket-count">({posts.length})</span>
+                  </h2>
+                  {remaining > 0 && (
+                    <a href={tagHref} class="bucket-see-all">
+                      see all →
+                    </a>
+                  )}
+                </header>
+                <ol class="bucket-list">
+                  {top.map(post => (
+                    <li class="bucket-item">
+                      <a
+                        href={getPath(post.id, post.filePath)}
+                        class="bucket-link"
+                      >
+                        <time
+                          class="bucket-date"
+                          datetime={String(post.data.pubDatetime)}
+                        >
+                          {fmtMonthDay(post.data.pubDatetime)}
+                        </time>
+                        <span class="bucket-post-title">{post.data.title}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+                {remaining > 0 && (
+                  <a href={tagHref} class="bucket-more">
+                    + {remaining} more
+                  </a>
+                )}
+              </article>
+            );
+          })
+        }
+      </section>
     </div>
   </main>
 
-  <Footer noMarginTop={page.lastPage > 1} />
+  <Footer />
 </Layout>
 
 <script>
   let cleanupController: AbortController | null = null;
-  
+
   function initPostsPage() {
     if (cleanupController) cleanupController.abort();
     cleanupController = new AbortController();
@@ -108,19 +203,29 @@ const totalPosts = page.total;
 
     // Hero mouse glow
     const hero = document.querySelector("[data-posts-hero]") as HTMLElement;
-    const heroMouse = document.querySelector("[data-posts-mouse]") as HTMLElement;
+    const heroMouse = document.querySelector(
+      "[data-posts-mouse]"
+    ) as HTMLElement;
     if (hero && heroMouse) {
-      hero.addEventListener("mousemove", e => {
-        requestAnimationFrame(() => {
-          const rect = hero.getBoundingClientRect();
-          heroMouse.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-          heroMouse.style.setProperty("--my", `${e.clientY - rect.top}px`);
-          heroMouse.style.opacity = "1";
-        });
-      }, { signal });
-      hero.addEventListener("mouseleave", () => {
-        heroMouse.style.opacity = "0";
-      }, { signal });
+      hero.addEventListener(
+        "mousemove",
+        e => {
+          requestAnimationFrame(() => {
+            const rect = hero.getBoundingClientRect();
+            heroMouse.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+            heroMouse.style.setProperty("--my", `${e.clientY - rect.top}px`);
+            heroMouse.style.opacity = "1";
+          });
+        },
+        { signal }
+      );
+      hero.addEventListener(
+        "mouseleave",
+        () => {
+          heroMouse.style.opacity = "0";
+        },
+        { signal }
+      );
     }
 
     // Initialize Pagefind local search
@@ -135,7 +240,6 @@ const totalPosts = page.total;
       // @ts-expect-error
       const { PagefindUI } = await import("@pagefind/default-ui");
 
-      // Navigation may have occurred while the module was loading (first load, uncached)
       if (signal.aborted || container.childElementCount > 0) return;
 
       if (import.meta.env.DEV) {
@@ -144,7 +248,6 @@ const totalPosts = page.total;
             <p><strong>Dev Mode:</strong> Search will try to use the most recently built index. If you don't see results, run <code>pnpm run build</code> first.</p>
           </div>
         `;
-        // Removed the early return to allow pagefind to attempt loading the local index
       }
 
       new PagefindUI({
@@ -153,10 +256,13 @@ const totalPosts = page.total;
         showSubResults: true,
       });
 
-      // Toggle default posts grid visibility when typing
-      const input = container.querySelector(".pagefind-ui__search-input") as HTMLInputElement;
-      const defaultContainer = document.querySelector("[data-default-posts-container]") as HTMLElement;
-      
+      const input = container.querySelector(
+        ".pagefind-ui__search-input"
+      ) as HTMLInputElement;
+      const defaultContainer = document.querySelector(
+        "[data-default-posts-container]"
+      ) as HTMLElement;
+
       if (input && defaultContainer) {
         const toggleVisibility = () => {
           const hasValue = input.value.trim().length > 0;
@@ -168,32 +274,33 @@ const totalPosts = page.total;
         };
 
         input.addEventListener("input", toggleVisibility, { signal });
-        
-        // Handle clear button
+
         const clearBtn = container.querySelector(".pagefind-ui__search-clear");
         if (clearBtn) {
-          clearBtn.addEventListener("click", () => {
-            requestAnimationFrame(() => toggleVisibility());
-          }, { signal });
+          clearBtn.addEventListener(
+            "click",
+            () => {
+              requestAnimationFrame(() => toggleVisibility());
+            },
+            { signal }
+          );
         }
       }
 
-      // Intercept Global Cmd+K / Ctrl+K to focus inline search instead of Modal
       const handleCmdK = (e: KeyboardEvent) => {
         if ((e.metaKey || e.ctrlKey) && e.key === "k") {
           e.preventDefault();
           e.stopPropagation();
           if (input) {
             input.focus();
-            // Scroll to the search box if it's not visible
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            input.scrollIntoView({ behavior: "smooth", block: "center" });
           }
         }
       };
-      
-      // Use capture mode to intercept before the global modal listener
-      document.addEventListener("keydown", handleCmdK, { signal, capture: true });
-
+      document.addEventListener("keydown", handleCmdK, {
+        signal,
+        capture: true,
+      });
     });
   }
 
@@ -201,6 +308,7 @@ const totalPosts = page.total;
 </script>
 
 <style>
+  /* ─── Hero (preserved) ─── */
   .posts-hero {
     position: relative;
     overflow: hidden;
@@ -219,7 +327,6 @@ const totalPosts = page.total;
       padding: 3rem;
     }
   }
-
   .aurora-orb {
     position: absolute;
     border-radius: 50%;
@@ -264,30 +371,17 @@ const totalPosts = page.total;
     animation: orb-3 11s ease-in-out infinite alternate;
   }
   @keyframes orb-1 {
-    0% {
-      transform: translate(0, 0) scale(1);
-    }
-    100% {
-      transform: translate(40px, 20px) scale(1.2);
-    }
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 20px) scale(1.2); }
   }
   @keyframes orb-2 {
-    0% {
-      transform: translate(0, 0) scale(1);
-    }
-    100% {
-      transform: translate(-30px, 30px) scale(1.15);
-    }
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-30px, 30px) scale(1.15); }
   }
   @keyframes orb-3 {
-    0% {
-      transform: translate(0, 0) scale(1);
-    }
-    100% {
-      transform: translate(20px, -25px) scale(1.1);
-    }
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(20px, -25px) scale(1.1); }
   }
-
   .aurora-mouse {
     position: absolute;
     width: 350px;
@@ -310,7 +404,6 @@ const totalPosts = page.total;
     will-change: transform;
     z-index: 1;
   }
-
   .glow-text {
     background: linear-gradient(
       135deg,
@@ -324,7 +417,6 @@ const totalPosts = page.total;
       0 0 25px color-mix(in srgb, var(--color-accent) 25%, transparent)
     );
   }
-
   .hero-badge {
     display: inline-flex;
     align-items: center;
@@ -339,7 +431,7 @@ const totalPosts = page.total;
     backdrop-filter: blur(8px);
   }
 
-  /* Toolbar & Search Styles */
+  /* ─── Toolbar ─── */
   .posts-toolbar {
     position: relative;
     z-index: 20;
@@ -348,52 +440,207 @@ const totalPosts = page.total;
     gap: 1rem;
   }
 
-  /* Empty State */
-  .empty-state {
+  /* ─── Recent strip ─── */
+  .recent-strip {
+    margin-bottom: 3rem;
+  }
+  .strip-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-cartograph), monospace;
+    font-size: 0.85rem;
+  }
+  .strip-marker {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .strip-label {
+    color: var(--muted-foreground);
+    letter-spacing: 0.05em;
+  }
+  .strip-divider {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--border) 50%, transparent),
+      transparent
+    );
+  }
+  .recent-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 2rem;
-    text-align: center;
-    border-radius: 1.5rem;
-    border: 2px dashed color-mix(in srgb, var(--border) 40%, transparent);
-    background: color-mix(in srgb, var(--background) 50%, transparent);
-    backdrop-filter: blur(12px);
+    gap: 0.15rem;
   }
-
-  .empty-icon-wrapper {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 5rem;
-    height: 5rem;
-    border-radius: 1.25rem;
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  .recent-item {
+    margin: 0;
+  }
+  .recent-link {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .recent-link:hover {
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+  .recent-link:hover .recent-title {
     color: var(--accent);
-    margin-bottom: 1.5rem;
-    box-shadow: 
-      0 0 0 1px color-mix(in srgb, var(--accent) 15%, transparent),
-      0 10px 30px -10px color-mix(in srgb, var(--accent) 25%, transparent);
-    animation: empty-float 4s ease-in-out infinite alternate;
   }
-
-  @keyframes empty-float {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-8px); }
-  }
-
-  .empty-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--foreground);
-    margin-bottom: 0.5rem;
-  }
-
-  .empty-desc {
-    font-size: 0.95rem;
+  .recent-date {
+    font-family: var(--font-cartograph), monospace;
+    font-size: 0.8rem;
     color: var(--muted-foreground);
-    max-width: 300px;
-    margin: 0 auto;
+    flex-shrink: 0;
+    min-width: 6.5em;
+  }
+  .recent-title {
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--foreground);
+    transition: color 0.15s ease;
+  }
+
+  /* ─── Buckets grid ─── */
+  .buckets-grid {
+    display: grid;
+    gap: 1.75rem 2.5rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .buckets-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem 2.5rem;
+    }
+  }
+
+  .bucket {
+    position: relative;
+  }
+
+  .bucket-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid
+      color-mix(in srgb, var(--border) 40%, transparent);
+  }
+
+  .bucket-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-cartograph), monospace;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .bucket-marker {
+    color: var(--accent);
+    transition: transform 0.2s ease;
+  }
+  .bucket:hover .bucket-marker {
+    transform: translateX(2px);
+  }
+
+  .bucket-title-link {
+    color: var(--foreground);
+    transition: color 0.15s ease;
+  }
+  .bucket-title-link:hover {
+    color: var(--accent);
+  }
+
+  .bucket-count {
+    color: var(--muted-foreground);
+    font-weight: 400;
+    font-size: 0.85rem;
+  }
+
+  .bucket-see-all {
+    font-family: var(--font-cartograph), monospace;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    opacity: 0.6;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+  .bucket:hover .bucket-see-all,
+  .bucket-see-all:hover {
+    opacity: 1;
+    color: var(--accent);
+  }
+
+  .bucket-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .bucket-item {
+    margin: 0;
+  }
+
+  .bucket-link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: 0.4rem;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .bucket-link:hover {
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+  }
+  .bucket-link:hover .bucket-post-title {
+    color: var(--accent);
+  }
+
+  .bucket-date {
+    font-family: var(--font-cartograph), monospace;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    flex-shrink: 0;
+    min-width: 3.1em;
+    letter-spacing: 0.02em;
+  }
+
+  .bucket-post-title {
+    font-size: 0.9rem;
+    line-height: 1.35;
+    color: var(--foreground);
+    transition: color 0.15s ease;
+    /* Allow wrapping but keep tight */
+    word-break: break-word;
+  }
+
+  .bucket-more {
+    display: inline-block;
+    margin-top: 0.4rem;
+    margin-left: 0.5rem;
+    font-family: var(--font-cartograph), monospace;
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.3rem;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .bucket-more:hover {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
   }
 </style>
