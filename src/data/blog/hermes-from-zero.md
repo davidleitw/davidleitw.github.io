@@ -106,23 +106,9 @@ Hermes 反覆出現的結構性債務:巨石檔案。
 
 ---
 
-## 跟隔壁兩個資料夾的關係
-
-這個 repo 旁邊有另外兩套東西,目標不同:
-
-| 資料夾 | 它在幹嘛 | 什麼時候讀它 |
-|---|---|---|
-| **`hermes-from-zero/`**(這個) | 鐵人賽風格,故事 + 架構,15 天讀完 | 你想「**理解**一個 agent framework 為什麼長這樣」 |
-| `../hermes-architecture-series/` | 13 篇結構化技術文件,密集 source 引用 | 你想「**查**某個機制的細節」,當參考手冊用 |
-| `../hermes-agent-research/` | 實用架設指南,本機跑、綁工具、外網存取 | 你想「**真的架一台**來用」 |
-
-三套互補——這套教你**為什麼**,隔壁教你**怎麼用**,再隔壁教你**細節**。
-
----
-
 ## 一些誠實的話
 
-1. **不是逐行 code walkthrough**。如果你想看「`run_conversation()` 第 1,234 行在幹嘛」,請去看 `hermes-architecture-series/_research_notes/`——那裡有密集的 `檔案:行號` 參照。
+1. **不是逐行 code walkthrough**。如果你想看「`run_conversation()` 第 1,234 行在幹嘛」,請直接打開 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) 的 source code——這個系列是「為什麼」,不是「逐行解釋」。
 2. **不是只誇 Hermes**。Day 14 整篇都在批判它。「值得讀 ≠ 值得照抄」是這個系列的基本立場。
 3. **某些細節是抓取當下的快照**——版本號、檔案大小、issue 編號這些。我都盡量標出來「不確定的地方」,但你看到具體數字時還是建議自己 `wc -c` 確認一下。
 4. **不會寫成「中立技術文件」的調調**。每一篇都有主觀判斷——什麼設計值得偷、什麼是 fragile、什麼該重寫。你可以同意或不同意,但不會看到「綜上所述」這種句子。
