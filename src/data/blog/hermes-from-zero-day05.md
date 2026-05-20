@@ -15,7 +15,7 @@ draft: false
 
 光是「**接多家 LLM provider**」這件事,Hermes 在三個檔案就燒了 9,461 行。我盯著這幾個數字想了一下——這代表什麼?
 
-代表 provider 抽象不是「換 SDK」這麼簡單。Anthropic 對 thinking 區塊要簽章、Gemini 的 schema 跟 OpenAI 不相容、Bedrock 走 AWS SigV4、Azure 需要 identity refresh、本機 llama.cpp 的 grammar pattern 又是另一套。每一條都是一條真實的兼容性債,要不就花幾千行 normalize 起來,要不就讓使用者每換一家就重寫 agent。
+代表 provider 抽象不是「換 SDK」這麼簡單。Anthropic 對 thinking 區塊要簽章、Gemini 的 schema 跟 OpenAI 不相容、Bedrock 走 AWS SigV4、Azure 需要 identity refresh、本機 llama.cpp 的 grammar pattern 又是另一套。每一條都是真實的相容性債——要嘛花幾千行 normalize 起來,要嘛讓使用者每換一家就重寫 agent。
 
 Hermes 選了前者。今天這篇拆 adapter / registry / credential pool / transports 這四層抽象——它們之所以厚,是因為下面那個世界本來就是亂的。
 
@@ -50,7 +50,7 @@ agent/azure_identity_adapter.py
 
 **第一件:規格轉換。** 核心迴圈(`run_agent.py`)是針對 OpenAI Chat Completions 的形狀寫的——`messages[]`、`tools[]`、`choices[0].message.tool_calls`。所有 provider 都得把自己原生的形狀翻譯成這個。Anthropic 的 `content` block 陣列要被攤平成 OpenAI 的 `tool_calls` 結構;Bedrock Converse 的 `toolUse` / `toolResult` 要對齊;Gemini 的 `functionCall` 要塞進來。每個 adapter 大概都有一對 `convert_messages_to_X` / `normalize_X_response` 的函式,進去是「Hermes 內部的通用格式」,出來是「那家 API 真正吃得下的東西」,或反過來。
 
-**第二件:錯誤翻譯。** 這個常被低估。Anthropic 的 rate limit 是某個格式,OpenAI 是另一個,Gemini 又不一樣,llama.cpp 連 HTTP status 都可能對不上。Hermes 內部用一組 `FailoverReason`(枚舉)當共通語言——`rate_limit`、`billing`、`auth_expired`、`context_too_long`……不管哪家 provider 出包,adapter 都得把它正規化成這幾個值之一,核心迴圈才有辦法統一決策。
+**第二件:錯誤翻譯。** 這個常被低估。Anthropic 的 rate limit 是一種格式,OpenAI 是另一種,Gemini 又不一樣,llama.cpp 連 HTTP status 都可能對不上。Hermes 內部用一組 `FailoverReason`(枚舉)當共通語言——`rate_limit`、`billing`、`auth_expired`、`context_too_long`……不管哪家 provider 出包,adapter 都得把它正規化成這幾個值之一,核心迴圈才有辦法統一決策。
 
 > **Note**:adapter pattern 學術定義是「把一個介面包裝成另一個介面」,但實務上 80% 的工作量根本不在「轉換」,而在「翻譯這家 provider 的脾氣」——它什麼時候鬧、鬧的時候訊息長什麼樣、復原條件是什麼。這才是 adapter 的全部工作量。
 
@@ -68,7 +68,7 @@ Day 2 我講核心迴圈的時候埋了個種子:`AIAgent` 是 protocol-agnostic
 
 要把這件事內化的話,記住這個畫面:核心迴圈在跑 ReAct loop,它從 registry 拿到一個「看起來像 OpenAI client」的東西,呼叫 `.chat.completions.create(...)`,拿到一個「看起來像 ChatCompletion」的物件。它**真的不在乎**底下是 Anthropic 的 Messages API、是 Bedrock 的 Converse、還是一個 JSON-RPC 子程序。對齊規格是 adapter 的事,跑邏輯是核心的事。
 
-這個分工 Day 8 你會在 MCP 看到一模一樣的——MCP 也是一個「不知道是誰在執行」的核心,加上一堆 adapter。Day 9 在 gateway 又一次——同一個 agent 接 Slack、接 Discord、接 cron,核心依然不知道。**「一個核心、多種驅動」這條線,從今天開始你會反覆看到。** 看到第三次的時候你會自己會心一笑。
+這個分工 Day 8 你會在 MCP(Anthropic 的 Model Context Protocol)看到一模一樣的——MCP 也是一個「不知道是誰在執行」的核心,加上一堆 adapter。Day 9 在 gateway 又一次——同一個 agent 接 Slack、接 Discord、接 cron,核心依然不知道。**「一個核心、多種驅動」這條線,從今天開始你會反覆看到。** 看到第三次的時候你會自己會心一笑。
 
 > 比喻:adapter + registry 像國際機場的轉接頭區。核心迴圈是你那台只有 type-C 插頭的筆電,registry 是櫃台上一排轉接頭(英規、美規、歐規、日規),你只要告訴櫃台「我要日規」,接上去就用。筆電不需要重新出廠。
 
@@ -96,7 +96,7 @@ Hermes 的答案:
 
 Hermes 的處理方式我看到的當下覺得很漂亮:刷新之前,**先重讀 `auth.json`**(可能別的程序已經寫了更新的 token 進去),採納那個比較新的;刷新完寫回檔案,但是**標記 `set_active=False`**——token 輪換不該翻動使用者「現在選的 provider」這件事;遇到終局性的失敗(token 死透了)就**隔離**,把它從 `auth.json` 清掉,免得下個 session 又把屍體載回來。
 
-這完全是分散式系統的思路:**讀-改-寫,衝突採納,失敗隔離**。只是這個「分散式系統」是同一台機器上跑著的幾個程序、共用一個檔案。
+這完全是分散式系統的思路:**讀-改-寫、衝突採納、失敗隔離**。只是這個「分散式系統」是同一台機器上跑著的幾個程序、共用一個檔案。
 
 ## 四、transports 層 — 更下面那一層
 

@@ -26,7 +26,7 @@ $ wc -l agent/conversation_loop.py
 
 想像幾個會發生的情境:模型呼叫了一個你 dispatcher 不認識的工具名(可能多了個 s,可能少了底線),你的 dispatcher 沒攔到,就把「unknown function」當 tool result 塞回去——模型看了看,又呼叫一次一模一樣的工具,然後再一次。或者它陷進「讀檔 → 想 → 改檔(失敗)→ 讀檔 → 想 → 改檔(失敗)」的迴圈,跑了很多輪,最後輸出「我已經把所有檔案都改好了」——其實一個都沒成。等你打開 API 用量 dashboard,你才知道那個 `while True` 跑得有多遠。
 
-這個 naive 版本,是每個寫 agent 的人都會先寫一次的版本。第二週就會知道為什麼它不能上線。
+這個 naive 版本,是每個寫 agent 的人都會先寫一次的版本。寫完第二週你就會知道,為什麼它不能上線。
 
 昨天講完為什麼我想拆 Hermes。今天直接從心臟開始拆——一個能上線的 agent,最小是什麼樣子?
 
@@ -113,7 +113,7 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 兩層之間的溝通方式很土法——用 `restart_with_compressed_messages`、`restart_with_length_continuation` 這種布林旗標,內層設了旗標就 `break` 出去,外層讀旗標決定 `continue`。是用 Python 手刻的狀態機,囉嗦,但它把兩個概念分得很乾淨:**「重試什麼」是內層的事,「這一輪有沒有真的前進」是外層的記帳**。
 
-為什麼要分這麼開?因為如果你不分,你會寫出那種——每次 retry 都當成「新一輪」記帳,於是 max_iterations 那個保險絲根本沒在保——一輪呼叫失敗 10 次,就燒掉你 10 個迭代額度,而模型其實還沒前進半步。
+為什麼要分這麼開?因為不分的話,你會寫出那種——每次 retry 都當成「新一輪」記帳。於是 `max_iterations` 那個保險絲根本沒在保:一輪呼叫失敗 10 次,就燒掉你 10 個迭代額度,而模型其實還沒前進半步。
 
 > **Note**:旗標 + `break` 是一種很手工的控制流,放在約 3,900 行的函式裡讓人很痛苦。但「retry 跟 iteration 是兩個獨立概念」這個拆分,本身是對的。你自己寫 agent 的時候,即使不模仿這個檔案結構,也要把這兩個計數器分開。
 
@@ -166,7 +166,7 @@ while ...:
 2. **budget 退費**:同上邏輯。
 3. **retry +1**:但壓縮會吃 retry slot——擋住「壓了又壓還是塞不下」的無限壓縮迴圈。`conversation_loop.py:2902–2904` 的註解直接寫:「Count compression restarts toward the retry limit to prevent infinite loops when compression reduces messages but not enough to fit the context window」。
 
-**這就是兩個計數器分開的真正用途**——「進展」跟「重試」是兩個維度,compression 是「失敗的重試」(吃 retry),不是「成功的進展」(不吃 budget)。如果你只有一個計數器,沒辦法做這種非對稱退費——一次壓縮要嘛全燒、要嘛全免,沒中間值。
+**這就是兩個計數器分開的真正用途**——「進展」跟「重試」是兩個維度。compression 是「失敗的重試」(吃 retry),不是「成功的進展」(不吃 budget)。如果你只有一個計數器,沒辦法做這種非對稱退費:一次壓縮要嘛全燒、要嘛全免,沒中間值。
 
 **為什麼不能合併成一層?**
 
@@ -186,7 +186,7 @@ while ...:
 
 如果某一輪 agent 只呼叫了 `execute_code`(這是 Hermes 一個「用程式碼批次呼叫工具」的機制,Day 7 會講),這一輪的迭代會被退費——不算進預算。
 
-為什麼?因為程式化的工具呼叫是 RPC 風格的,本質上是一段 deterministic 的程式碼跑完一批操作,不該跟「agent 自己一步步想」算同一種成本。一個是 LLM 在燒 token 思考,一個是 Python 直譯器在循序執行——把它們合進同一個計數器,就會出現「agent 明明還沒做什麼決策,額度就被一段 batch script 燒光」這種荒謬狀況。
+為什麼?因為程式化的工具呼叫是 RPC 風格的,本質上是一段 deterministic 的程式碼跑完一批操作,不該跟「agent 自己一步步想」算同一種成本。一個是 LLM 在燒 token 思考,一個是 Python 直譯器在循序執行。把它們合進同一個計數器,就會出現「agent 明明還沒做什麼決策,額度就被一段 batch script 燒光」這種荒謬狀況。
 
 (想像你為了讓 agent 一次抓 10 個檔案,寫了個批次工具——如果這算一輪 iteration,那很合理;但如果這 10 次工具呼叫各算一輪,你的預算就在一瞬間蒸發了。一輪燒掉 10 個 iteration,你會以為是 LLM 不聰明,其實是 cost model 一開始就被擺錯。)
 

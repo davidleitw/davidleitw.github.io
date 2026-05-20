@@ -17,7 +17,7 @@ draft: false
 
 ## 這個系列在幹嘛
 
-我把 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) 整個 repo(3,400+ 個檔案)拆開來讀,挑出**這個 agent framework 之所以長成現在這樣的關鍵架構決定**,然後用 iThome 鐵人賽的口吻寫了 15 篇——一篇對應你接下來會撞到的一個牆。
+我把 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) 整個 repo(3,400+ 個檔案)拆開來讀,挑出**這個 agent framework 之所以長成現在這樣的關鍵架構決定**,然後用 iThome 鐵人賽的口吻寫了 15 篇——一篇對應你接下來會撞到的一道牆。
 
 不是 API 文件,不是怎麼安裝,不是「跟著做你也能寫一個 ChatGPT」。是:**「為什麼 Hermes 把 system prompt 鎖死不准你動?」、「為什麼一個 agent 的核心迴圈該是 protocol-agnostic 的?」、「為什麼這個 657KB 的 `cli.py` 是個警訊?」**
 
@@ -110,7 +110,7 @@ Hermes 反覆出現的結構性債務:巨石檔案。
 
 1. **不是逐行 code walkthrough**。如果你想看「`run_conversation()` 第 1,234 行在幹嘛」,請直接打開 [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) 的 source code——這個系列是「為什麼」,不是「逐行解釋」。
 2. **不是只誇 Hermes**。Day 14 整篇都在批判它。「值得讀 ≠ 值得照抄」是這個系列的基本立場。
-3. **某些細節是抓取當下的快照**——版本號、檔案大小、issue 編號這些。我都盡量標出來「不確定的地方」,但你看到具體數字時還是建議自己 `wc -c` 確認一下。
+3. **某些細節是抓取當下的快照**——版本號、檔案大小、issue 編號這些東西會變。我都盡量標出「不確定的地方」,但你看到具體數字時還是建議自己 `wc -c` 確認一下。
 4. **不會寫成「中立技術文件」的調調**。每一篇都有主觀判斷——什麼設計值得偷、什麼是 fragile、什麼該重寫。你可以同意或不同意,但不會看到「綜上所述」這種句子。
 
 ---

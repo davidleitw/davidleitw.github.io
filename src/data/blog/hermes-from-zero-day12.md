@@ -33,7 +33,7 @@ Hermes 的 CLI、TUI、Web 三套介面,**全部對著同一個 JSON-RPC server 
 - TUI(`hermes --tui`)也是 subprocess,但渲染面是 Ink fork 寫的終端機 UI。
 - Web 兩種模式:聊天頁面其實**就是 TUI 被搬進瀏覽器**(等等講);儀表板頁面用 WebSocket(`/api/ws`)跟同一個 server 講 JSON-RPC。
 
-換句話說,業務邏輯只有一份,「對外的嘴巴」三份。
+換句話說,業務邏輯只有一份,「對外的嘴巴」有三張。
 
 ### 為什麼是 JSON-RPC,不是 REST?
 
@@ -68,7 +68,9 @@ agent.observe(result.stdout)
 
 PTY 解決這件事。你開一個 PTY,subprocess 接到 PTY 的 slave 端,subprocess 一查「我是不是 terminal」會得到 yes。它就會吐真正的 terminal escape sequence、會接受你的 ctrl-c、會跟你正常互動。你的 agent 接 PTY 的 master 端,雙向 read/write,就像你坐在 terminal 前面打字一樣。
 
-**90% 的 agent framework 這件事都做不對**。他們的 sandbox 拿 `subprocess.run` 一接,然後就跟使用者說「我們不支援互動式工具」。Hermes 不是——`hermes --tui` 跑在 PTY 裡,所以它的 slash 指令彈出層、模型選擇器、整套 TUI,都拿得到真實的 termcap 跟 ANSI 處理。同一招在 Web 端被重用得更兇,等等講。
+**很多 agent framework 這件事都做不對**。他們的 sandbox 拿 `subprocess.run` 一接,然後就跟使用者說「我們不支援互動式工具」。Hermes 不是——`hermes --tui` 跑在 PTY 裡,所以它的 slash 指令彈出層、模型選擇器、整套 TUI,都拿得到真實的 termcap 跟 ANSI 處理。同一招在 Web 端被重用得更兇,等等講。
+
+<!-- TODO: 確認「90% framework 做不對」這個比例宣稱是否有來源,改成「很多」較安全 -->
 
 ---
 
@@ -193,7 +195,7 @@ Hermes 的架構**選擇**是漂亮的——一個核心,多種驅動。但 Herm
 
 第二,PTY 是個被 90% framework 忽略的細節——它讓 agent 能跑真實的互動式工具,還讓 Web 端可以用「把 terminal 搬進瀏覽器」這招重用整套 TUI。
 
-第三,SessionDB 用 SQLite 當「唯一狀態真相」,CLI、Web、cron 全部讀寫同一張表,所以三套介面之間天然共享 session;搭配 long-term memory 各司其職,hot state 跟 curated knowledge 分開。
+第三,SessionDB 用 SQLite 當「唯一狀態真相」,CLI、Web、cron 全部讀寫同一張表,所以三套介面之間天然共享 session;搭配 long-term memory,hot state 跟 curated knowledge 各管各的。
 
 收成的暗線 A:**一個核心、四種驅動**——provider、protocol direction、channel、UI 都換得了,中間 `AIAgent` 沒動。同時鋪好暗線 C 的爆點:架構漂亮,實作肥大。
 

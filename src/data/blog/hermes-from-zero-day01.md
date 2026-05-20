@@ -33,7 +33,7 @@ print(resp.choices[0].message.content)
 
 我覺得 chat completion 跟 agent 之間,差的就是這一整層你以為很簡單、實際上有一整本書那麼厚的東西。**chat completion 不是 agent**;從 chatbot 到 agent,看似只差一個 while loop,實際上隔了一個世界。
 
-於是我去拆了 `NousResearch/hermes-agent`——一個 production-grade 的開源 agent framework——我想搞清楚一個「真的能用」的 agent 到底有什麼。
+於是我去拆了 `NousResearch/hermes-agent`——一個 production 級的開源 agent framework——我想搞清楚一個「真的能用」的 agent 到底有什麼。
 
 接下來這 15 天,我會一塊一塊講給你聽。
 
@@ -87,7 +87,7 @@ print(resp.choices[0].message.content)
 
 比喻一下:prompt cache 像便利商店的熟客折扣,你每次拿一樣的會員卡才有折,中途把卡換掉就重新算原價。Hermes 整套設計就是「不准你中途換卡」。
 
-**第三條:「抽取程式碼 ≠ 分解系統」。** 這條是我從 Hermes 學到最深的一課,而且是從它「沒做好」的地方學的。前面提的那些巨石檔案——`cli.py` 那個 11,600 行的 `HermesCLI` class、`run_agent.py` 那個 64 kwargs 的 `AIAgent` 建構子、`hermes_state.py` 那個 ~3,200 行的單檔(`SessionDB` class 從 line 309 開始)——團隊知道要模組化,所以把 method 搬進 `agent/` 底下的 80 多個 submodule,但每個搬出去的 function 都還要靠 `self` 拿回 `AIAgent` 上幾十個屬性。搬移程式碼做了,定義介面 + 切割狀態所有權沒做。Day 07 偷偷鋪墊,Day 12 提一下,Day 14 我會正面開砲。
+**第三條:「抽取程式碼 ≠ 分解系統」。** 這條是我從 Hermes 學到最深的一課,而且是從它「沒做好」的地方學的。前面提的那些巨石檔案——`cli.py` 那個 11,600 行的 `HermesCLI` class、`run_agent.py` 那個 64 kwargs 的 `AIAgent` 建構子、`hermes_state.py` 那個 ~3,200 行的單檔(`SessionDB` class 從 line 309 開始)——團隊明明知道要模組化,所以把 method 搬進 `agent/` 底下的 80 多個 submodule。但每個搬出去的 function 都還要靠 `self` 拿回 `AIAgent` 上幾十個屬性。搬移程式碼做了,定義介面 + 切割狀態所有權沒做。Day 07 偷偷鋪墊,Day 12 提一下,Day 14 我會正面開砲。
 
 如果你之後想自己刻一個 agent framework,這三條線——一個成功(主線 A)、一個鐵律(主線 B)、一個前車之鑑(主線 C)——是我覺得最值得帶走的三樣東西。
 

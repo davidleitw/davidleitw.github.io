@@ -13,15 +13,15 @@ draft: false
 
 `wc -l gateway/run.py` 出來 **18,188 行**。然後 `grep -n "def _run_agent"` 看到兩個方法:`_run_agent_via_proxy`(line 15111)、`_run_agent`(line 15397)。也就是說 `_run_agent` 從 line 15397 一直寫到接近檔末——光一個方法就 **2,000+ 行**。
 
-`gateway/run.py` 是整個系列我看過最大的單檔。它在做的事是把 Hermes 接到 Slack、Discord、cron、自訂 webhook、OpenAI 相容 API——每個 channel 都需要 session 管理、訊息正規化、rate limit 處理、認證流程,每接一個就疊一層。所以 18K 行不是因為亂寫,是因為**外面的世界本來就是亂的**。
+`gateway/run.py` 是整個系列我看過最大的單檔。它把 Hermes 接到 Slack、Discord、cron、自訂 webhook、OpenAI 相容 API。每個 channel 都要做 session 管理、訊息正規化、rate limit 處理、認證流程,每接一個就疊一層。所以 18K 行不是亂寫,是因為**外面的世界本來就是亂的**。
 
 今天這篇拆 gateway 的架構抽象——平台 adapter 模式、`build_session_key()` 的純函式設計、per-session 並行控制、OpenAI 相容 API 的反向偽裝。這些設計都對,但 18,188 行的單檔本身就是 Day 14 要批的「抽取 ≠ 分解」的活範例。
 
 ---
 
-昨天我們講到 MCP 跟 ACP——那是「協定」層的「一個核心,多種驅動」:agent 不在乎工具實際長怎樣,只要有 adapter 翻譯成統一形狀就好。今天的 gateway 是**同一個故事,但發生在「部署 / 通道」這一層**。差別在於:昨天是 agent **往外打**(call tool、call sub-agent),今天是外面**往內打**(訊息從各種 channel 進來 agent)。
+昨天我們講到 MCP 跟 ACP——那是「協定」層的「一個核心,多種驅動」:agent 不在乎工具實際長怎樣,只要有 adapter 翻譯成統一形狀就好。今天的 gateway 是**同一個故事,但發生在「部署 / 通道」這一層**。差別在於:昨天是 agent **往外打**(call tool、call sub-agent),今天是外面**往內打**(訊息從各種 channel 進來找 agent)。
 
-進來的方向也需要同一套抽象,理由我前面那三個踩坑的晚上已經幫你示範過了。
+進來的方向也需要同一套抽象。
 
 ## 一、Gateway 是核心 agent 跟外部世界之間的翻譯層
 
@@ -53,9 +53,9 @@ Hermes 把這四題的答案都關在 adapter 自己的檔案裡。`AIAgent` 從
 
 ## 三、Session key:讓「一個 agent 同時服務全世界」成立的純函式
 
-這題我覺得是 gateway 最漂亮的設計,值得花一個小節。
+這題我覺得是 gateway 最漂亮的設計,值得花一個小節講。
 
-問題場景:一個 agent 同時服務私訊、群組、論壇 thread、多個使用者。每個對話需要**隔離的 context**(你跟我的對話 agent 不能看到他跟別人的對話),但 thread 應該在參與者間**共享**(三個人在同一個 thread 討論,agent 應該知道前面誰說了什麼)、群組裡的私訊應該**每人一個**(雖然在同一個 chat ID,但 A 和 B 對 bot 講的話是兩條獨立脈絡)。
+問題場景:一個 agent 同時服務私訊、群組、論壇 thread、多個使用者。每個對話需要**隔離的 context**(你跟我的對話 agent 不能看到他跟別人的對話);但 thread 應該在參與者間**共享**(三個人在同一個 thread 討論,agent 要知道前面誰說了什麼);群組裡的私訊應該**每人一個**(雖然在同一個 chat ID,但 A 和 B 對 bot 講的話是兩條獨立脈絡)。
 
 Hermes 用 `gateway/session.py` 裡的 `build_session_key()` 解決——一個**確定性、無狀態**的純函式。它建一個像這樣的字串:
 
@@ -103,7 +103,7 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 
 **堆疊安全**。排隊訊息排空時是「生出一個全新 task」而不是遞迴呼叫——原始碼註解有寫:遞迴版本曾經在約 2000 層的時候把 C 堆疊耗盡、SIGSEGV。
 
-這就是真正困難的並行工程。代價是巨大的複雜度——光是 `_process_message_background` 這個函式就大約 490 行,正確,但幾乎無法維護。每個 tricky 分支邊上都引了 GitHub issue 編號——讀就會發現這些不是憑空想的,**每個修法都是某個半夜炸過一次換來的**。
+這就是真正困難的並行工程。代價是巨大的複雜度——光是 `_process_message_background` 這個函式就大約 490 行,正確,但幾乎無法維護。每個 tricky 分支邊上都引了 GitHub issue 編號——讀就會發現,這些設計不是憑空想出來的,**每個修法都是某個半夜炸過一次換來的**。
 
 ## 五、OpenAI 相容 API:暗線 A 第三次,而且這次是「對外」也偽裝
 
@@ -127,7 +127,7 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 | Day 8 | agent ↔ tool / sub-agent | agent 不在乎工具是本地 function、是 MCP server、還是另一個 agent |
 | **Day 9** | channel → agent / agent → OpenAI 形狀 | agent 不在乎訊息從哪個 channel 來,client 也不在乎背後是不是 OpenAI |
 
-**三個方向、同一個架構選擇**——窄契約、預設降級、確定性無狀態的入口函式。Hermes 整個系統的形狀就是這個 pattern 反覆出現。讀到這你應該開始有感覺:這不是巧合,是有人決定整個系統都用這個方式組裝。
+**三個方向、同一個架構選擇**——窄契約、預設降級、確定性無狀態的入口函式。整個 Hermes 反覆在用同一個 pattern。讀到這你應該有感覺:這不是巧合,是有人決定整個系統都用這個方式組裝。
 
 > **Note**:`APIServerAdapter` 把 HTTP API 當成 platform adapter,意味著它**免費繼承**了 session 管理、toolset 解析、provider fallback、streaming 消費者——沒有平行的執行期。`_derive_chat_session_id()` 把(system prompt + 第一則 user 訊息)雜湊起來,給無狀態的 OpenAI client 一個「黏著的 session」——你連續呼叫兩次同樣 system prompt + 同一段開頭,自動續上同一個 session。
 
@@ -149,7 +149,7 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 
 讓我們停一下感受一下。**這是一個被升格成「文件化流程」的程式碼壞味道**。「想加新平台?好的,先把這 16 步做完,還有那個 `if/elif` 鏈記得也加,然後在五個其他檔案裡 grep 看看有沒有漏。」這不是文件,這是控訴狀。
 
-這也是這篇要鋪的批判:**這是一個 architecture 與 implementation 拉開差距的活範例**。架構上,gateway 是漂亮的 adapter pattern;實作上,它的入口檔案是一個塞了 150 個方法的 god object。每一個 hard-won 的修法(自癒鎖、TOCTOU 關閉、stack-safe drain)都附了 issue 編號——知識是有的,但被擠在一個 18k 行的檔案裡,沒有模組邊界。
+這也是這篇要鋪的批判:**架構跟實作拉開差距的活範例**。架構上,gateway 是漂亮的 adapter pattern;實作上,入口檔案是一個塞了約 150 個方法的 god object。每一個 hard-won 的修法(自癒鎖、TOCTOU 關閉、stack-safe drain)都附了 issue 編號——知識是有的,但被擠在一個 18K 行的檔案裡,沒有模組邊界。
 
 這就是暗線 C(抽取程式碼 ≠ 分解系統)的最大一次預告。Day 14 會正面開砲。
 

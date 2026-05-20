@@ -25,7 +25,7 @@ draft: false
 
 昨天我們講到 prompt cache 是鐵律:system prompt 在一個 session 中途絕對不能變,變一個字元 cache 就 miss、成本立刻翻倍。今天就要承接這條鐵律問下一題:**那 context 滿了到底怎麼辦?如果連 system prompt 都不能動,那能動的是什麼?**
 
-答案是壓縮。Hermes 唯一允許在 session 中途動到 context body 的操作,就是壓縮。但壓得不夠聰明,使用者的需求就會被你壓不見——就跟前面那個「砍最舊」的天真寫法一樣下場。
+答案是壓縮。Hermes 唯一允許在 session 中途動到 context body 的操作,就是壓縮。但壓得不夠聰明,使用者的需求就會被你壓不見——下場跟 Day 01 開頭那個「砍最舊」的天真寫法一樣。
 
 今天來拆 Hermes 怎麼壓。
 
@@ -41,7 +41,7 @@ draft: false
 
 關鍵是「內建」這兩個字。你只要透過設定改 `context.engine`,就能換掉整個壓縮策略。Hermes 註解裡提到一個叫「LCM」的替代實作——它不是「修剪訊息」,而是把對話建成一個 DAG,讓 agent 可以查圖、查節點、按需展開。**這意思是「context 管理」可以從一個背景偷偷跑的東西,變成 agent 自己能呼叫的工具**(例如 `lcm_grep` 就是個從 context engine 暴露出來的 tool)。
 
-我看到這層的時候有點被驚到。多數人寫 agent 是把壓縮 hardcode 在迴圈裡;Hermes 把它抽成一個介面,然後讓「context 怎麼管」變成像 storage backend 一樣可換的東西。這是個比表面看起來更有想像力的抽象。
+我看到這層的時候有點被驚到。多數人寫 agent 是把壓縮 hardcode 在迴圈裡;Hermes 把它抽成一個介面,然後讓「context 怎麼管」變成像 storage backend 一樣可換的東西。比表面看起來更有想像力的一個抽象。
 
 **第二層:壓縮演算法本身。** 就是 `ContextCompressor` 那個 4-phase pipeline,等下細講。
 
@@ -78,7 +78,7 @@ draft: false
 
 直覺寫法是「參數太長?切到前 1000 byte 就好」。錯。`tool_call.args` 是 JSON,你 byte-slice 切出來的東西是**沒閉合的 JSON**:`{"path": "/very/long/path/foo`——括號沒收、引號沒收、什麼都沒收。
 
-這 JSON 送進下一輪 API,MiniMax 直接回 400 不可重試,整個 session 永久卡死。**而且這 400 不是因為 context 太大,是因為 JSON 壞掉**——你 debug 半天會以為是壓縮邏輯壞了,結果是壓縮做完之後送出的訊息結構壞了。
+這 JSON 送進下一輪 API,MiniMax 直接回 400 不可重試,整個 session 永久卡死。**而且這 400 不是因為 context 太大,是因為 JSON 壞掉**。你 debug 半天會以為是壓縮邏輯壞了,結果是壓縮做完之後送出的訊息結構壞了。
 
 Hermes 的正解是:把 args JSON 先 `json.loads()` parse 開,**在 parsed 結構裡面**找到所有 string leaf,在那些 leaf 上面截斷,再 dump 回去。這樣截出來的永遠是合法 JSON。差別就在一行 code,但你沒踩過這個坑就不會這樣寫。
 
