@@ -13,7 +13,7 @@ draft: false
 
 14 天前,你打開一個空白檔案,寫下 `from openai import OpenAI`,然後想「我要做一個 agent」。你的腦袋裡裝的東西是這樣的:`client.chat.completions.create(messages=[...])`、`tools=[...]`、一個 while loop、收到 `finish_reason='tool_calls'` 就執行工具、塞回去、再呼叫一次。聽起來很簡單。
 
-然後你開始踩坑。換 model 換到崩潰、token 帳單翻三倍、tool call 開始 hallucinate 假的函式名、想接 Slack 跟 cron 結果寫了三套狀態管理、想加新功能但動到 core 就什麼都壞掉。你開始想——「應該有人解過這些問題吧?」於是你 clone 了 `NousResearch/hermes-agent`,打開 README,看了三分鐘,完全不知道在幹嘛。那是第一天。
+然後你開始踩坑。換 model 換到崩潰、token 帳單翻幾倍、tool call 開始 hallucinate 假的函式名、想接 Slack 跟 cron 結果寫了三套狀態管理、想加新功能但動到 core 就什麼都壞掉。你開始想——「應該有人解過這些問題吧?」於是你 clone 了 `NousResearch/hermes-agent`,打開 README,看了三分鐘,完全不知道在幹嘛。那是第一天。
 
 第三天,你讀到 `system_prompt_session` 不准動那條鐵律,腦袋裡突然「啊!」了一聲——原來那不是性能優化,是整個 API 的形狀都被這條不變式長出來的。第七天,你看到 `tool_guardrails.py` 用三個純函式計數器擋住假完成,你心裡冒出「這個我可以偷」的興奮。第十四天,你看到 `cli.py` 657KB、`run_conversation()` 4,099 行的單一函式,你開始懂為什麼那個系列的最後一篇叫做「自己刻會更好」。
 
@@ -43,7 +43,7 @@ Hermes 把所有外部介面都做成 adapter——CLI 是一個 adapter、gatew
 
 這是暗線 B——Day 3 主角登場、Day 4 解釋為什麼壓縮是唯一被允許的中途變動、Day 6 記憶為什麼不能塞 system prompt、Day 10 技能注入為什麼走 user message。
 
-**System prompt 在一個 session 中途絕對不能動。** 一個字都不行。動了你就失去 cache、帳單就翻三倍、延遲就從 200ms 變 2s。所有需要中途改變的東西——記憶、新技能、reminder、被注入的 context——一律走 user message,當成「使用者剛剛說了一句話」插進去。
+**System prompt 在一個 session 中途絕對不能動。** 一個字都不行。動了你就失去 cache、成本翻幾倍、延遲飆高一個量級。所有需要中途改變的東西——記憶、新技能、reminder、被注入的 context——一律走 user message,當成「使用者剛剛說了一句話」插進去。
 
 這條規則塑造了 Hermes 整個 API 的形狀。你刻自己的 framework,這條從第一天就要立。立了之後,你會發現很多看起來奇怪的設計(為什麼技能是 user message 注入而不是改 system prompt?為什麼壓縮要產一個新的 assistant message?)突然全部變得理所當然。
 

@@ -11,15 +11,15 @@ tags:
 draft: false
 ---
 
-那天我心血來潮想把自己的小 agent 加上 Claude 支援。心裡盤算大概就是「把 OpenAI SDK 換成 Anthropic SDK 嘛」,一個下午搞定,晚上還能順便接個 Gemini。
+Provider 抽象是 agent framework 的必修課。chatbot 你綁定一家就好,agent 不能——使用者一定會問「可以換 Claude 嗎」「能不能跑本機 model」。看似只是把 OpenAI SDK 換成 Anthropic SDK,實際你會撞到一整片地雷。
 
-結果你猜怎麼著。第一個小時就卡在 tool call。OpenAI 給你的是 `choices[0].message.tool_calls`,每個工具呼叫是個 `function` 物件,裡面有 `name` 跟 `arguments`(字串型 JSON,順帶一提)。Anthropic 給你的是 `content` 陣列裡夾雜的 `tool_use` 區塊,`input` 直接就是 dict。光是要把兩家的回應壓進同一個資料結構,就讓我寫了一堆 `if provider == "anthropic"`。
+先看 tool call。OpenAI 給你的是 `choices[0].message.tool_calls`,每個工具呼叫是個 `function` 物件,裡面有 `name` 跟 `arguments`(字串型 JSON,順帶一提)。Anthropic 給你的是 `content` 陣列裡夾雜的 `tool_use` 區塊,`input` 直接就是 dict。要把兩家的回應壓進同一個資料結構,你就準備寫一堆 `if provider == "anthropic"`。
 
-接下來 thinking 區塊登場。Claude 的 extended thinking 回傳的 thinking 區塊**要簽章**——下一輪你必須把那段簽章原封不動再丟回去,不然 API 直接 400。我那時候根本不知道,只覺得「為什麼第二輪會炸」。
+接下來是 thinking 區塊。Claude 的 extended thinking 回傳的 thinking 區塊**要簽章**——下一輪你必須把那段簽章原封不動再丟回去,不然 API 直接 400。文件不會在你想找的地方告訴你,通常是第二輪請求炸了你才回頭追。
 
 然後 Gemini。Gemini 的 function calling schema **不吃** `additionalProperties`,不吃 `$schema`,某些 integer 欄位上的 `enum` 也會被拒。你以為的 JSON Schema,在 Gemini 眼裡只是 OpenAPI 的一個子集。圖片?各家 base64 規範不同。認證?Anthropic 走 API key,Codex 走 OAuth,Bedrock 走 AWS IAM,Azure 走 Entra ID 換 JWT。Rate limit 回的錯誤碼一家一個樣,有的給 429,有的給 402,有的乾脆給你一段 free text 要你自己 parse。
 
-原本以為一天的事,我寫了兩個禮拜還在 debug。看到 hermes-agent 的時候,我才知道「原來這件事被認真做的話長這樣」。
+把這堆東西全部攤開,你會發現「換 SDK」根本只是入口。看到 hermes-agent 怎麼處理這件事的時候,我才覺得「原來這件事被認真做的話長這樣」。
 
 ---
 
@@ -107,7 +107,7 @@ base.py    types.py
 
 那些被刻意排除的東西去哪了?留在 `AIAgent` 上。為什麼這樣切?因為**串流、重試、cache 這些跨 provider 通用的事,讓 adapter 各自重寫一遍是浪費**。你要的是讓 adapter 只專注在「我這家 API 的訊息長什麼樣」,而不是又要去處理斷線重連這種跟商業邏輯無關的雞毛蒜皮。
 
-`types.py` 裡的 `NormalizedResponse` 跟 `ToolCall` 是這層最強的部分。它只把「**真正跨 provider 的欄位**」攤平——`content`、`tool_calls`、`finish_reason`、`usage`。其他 provider-specific 的狀態被丟進一個叫 `provider_data` 的 dict。Codex 有它的 `call_id`,Gemini 有它的 `thought_signature`(**這個你下一輪必須原封不動丟回去,不然 API 回 400**——對,就是我開頭踩過的那個坑),這些都塞 `provider_data` 裡,不污染共通介面。
+`types.py` 裡的 `NormalizedResponse` 跟 `ToolCall` 是這層最強的部分。它只把「**真正跨 provider 的欄位**」攤平——`content`、`tool_calls`、`finish_reason`、`usage`。其他 provider-specific 的狀態被丟進一個叫 `provider_data` 的 dict。Codex 有它的 `call_id`,Gemini 有它的 `thought_signature`(**這個你下一輪必須原封不動丟回去,不然 API 回 400**——對,就是開頭提到的那個坑),這些都塞 `provider_data` 裡,不污染共通介面。
 
 ## 五、那些「翻譯這家脾氣」的雞毛蒜皮
 
@@ -119,7 +119,7 @@ base.py    types.py
 
 **llama.cpp 的 grammar pattern。** 它的 grammar 約束格式跟其他家不相容,有個 `should_fallback` 判斷會在偵測到某些情境時走特殊路徑——本地推論的世界,規範常常是 LLM runtime 自己定的,跟 cloud API 不是同一套生態。
 
-寫完這節我想表達的是:**這些細節才是 adapter 的全部工作量**。名詞上是 adapter pattern,實際上是一堆「翻譯這家的脾氣」的特例處理。如果你以為照書上把 adapter pattern 套上去就能解決,你大概會跟我一樣寫兩個禮拜。
+寫完這節我想表達的是:**這些細節才是 adapter 的全部工作量**。名詞上是 adapter pattern,實際上是一堆「翻譯這家的脾氣」的特例處理。如果你以為照書上把 adapter pattern 套上去就能解決,你大概會在每家 provider 的脾氣裡反覆繞圈。
 
 ## 六、failover — 橫向切換,不是縱向重試
 
@@ -144,7 +144,7 @@ base.py    types.py
 
 寫到這你應該能看出 Hermes 的策略:**核心迴圈一個,adapter 一排,credential pool + transports 撐底層**。OpenAI 跟 Claude 共存的代價,不在核心,而在 adapter 的 2,220 行 + credential pool 的 1,955 行 + auxiliary client 的 5,286 行。
 
-這也是我想留給你的一句話:**provider 抽象不是「把 SDK 換掉」,是「把每家 API 的脾氣全部承擔下來,讓核心迴圈相信全世界都是 OpenAI 形狀」。** 願意吃下這個代價,你就能換一行設定切 model;不願意吃,你就會像我一樣 debug 兩個禮拜。
+這也是我想留給你的一句話:**provider 抽象不是「把 SDK 換掉」,是「把每家 API 的脾氣全部承擔下來,讓核心迴圈相信全世界都是 OpenAI 形狀」。** 願意吃下這個代價,你就能換一行設定切 model;不願意吃,你就會在每次新增 provider 的時候,從頭再被同一批坑教訓一次。
 
 ---
 

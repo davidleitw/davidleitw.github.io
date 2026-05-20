@@ -11,11 +11,11 @@ tags:
 draft: false
 ---
 
-那陣子我手上同時欠三個 side project 的整合。一個要讓 agent 讀 Google Calendar、幫我排隔週的會議;一個是想讓他翻 Notion 的會議記錄、自動回填 action items;還有一個更慘——我想接自己寫的那台土炮 LSP server,讓 agent 能看到當前專案的 symbol。
+2024 年 11 月 Anthropic 公布 MCP 之前,agent 圈一直在做一件很笨的事:每個 framework、每個整合,都自己寫一套「tool 怎麼描述、怎麼呼叫、結果怎麼回傳」。LangChain 一套、AutoGen 一套、自己寫的 chatbot 又一套——明明大家都在解同一個問題,但沒人能用別人的工具。
 
-三個整合,我就老老實實寫了三套 adapter。每一套都要自己定義「列出可用工具」「呼叫某個工具」「處理錯誤」的格式。寫到第三個的時候,我盯著螢幕笑出來——這三套 schema 長得**幾乎一模一樣**,只是命名不一致。`listTools` vs `list_tools` vs `tools.enumerate`。我在重複造同一個輪子,還造得歪七扭八。
+想像你同時要讓 agent 接 Google Calendar、Notion、再加上一台自己寫的 LSP server,你就得老老實實寫三套 adapter,每一套都要自己定義「列出可用工具」「呼叫某個工具」「處理錯誤」的格式。寫到第三個你會發現這三套 schema 長得幾乎一模一樣,只是命名不一致——`listTools` vs `list_tools` vs `tools.enumerate`——大家都在重複造同一個輪子,還造得歪七扭八。
 
-後來看到 Anthropic 在 2024 年 11 月公布 MCP 的規格,點開來掃一眼,差點翻桌:「啊原來大家都會撞到一樣的問題,而且早就有人想清楚了。」
+MCP 就是要解這件事。
 
 > 上一篇我們聊工具系統,我留下一個鉤子:寫第三個工具時你會想——能不能用別人寫的?今天就來拆這件事,而且會發現它牽出的東西比想像中大。
 

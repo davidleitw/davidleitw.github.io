@@ -41,7 +41,7 @@ draft: false
 |---|---|---|
 | [01](/posts/hermes-from-zero-day01) | 我為什麼想拆一個 agent framework | 從 `chat.completions.create` 寫到一個「真正的 agent」中間到底差了什麼。 |
 | [02](/posts/hermes-from-zero-day02) | Agent 的「最小心臟」長什麼樣 | 核心迴圈、兩層巢狀、迭代預算,以及最該偷的設計:每個結束點都有名字。 |
-| [03](/posts/hermes-from-zero-day03) | 為什麼 system prompt 不准動 | 帳單翻五倍以後才會懂的事——prompt cache 不是優化,是鐵律。 |
+| [03](/posts/hermes-from-zero-day03) | 為什麼 system prompt 不准動 | 看懂 prompt cache 失效成本以後才會懂的事——它不是優化,是鐵律。 |
 | [04](/posts/hermes-from-zero-day04) | Context 不是無限大,所以要壓 | 三層壓縮、5-phase pipeline、為什麼壓縮是唯一被允許的中途變動。 |
 | [05](/posts/hermes-from-zero-day05) | 同一段程式碼怎麼接 OpenAI 又接 Claude | Adapter、registry、credential pool——Hermes 怎麼忍受 LLM 圈的各種脾氣。 |
 | [06](/posts/hermes-from-zero-day06) | Agent 怎麼「記住」昨天聊過什麼 | 記憶 provider、會「分叉自己去學習」的背景複查、Curator,合起來叫自我改進迴圈。 |

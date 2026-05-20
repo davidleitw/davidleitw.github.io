@@ -11,17 +11,15 @@ tags:
 draft: false
 ---
 
-我第一次自己寫 agent 那禮拜,是真的覺得「這有什麼難的」。
+你寫完第一個 chatbot 之後,想做 agent 的第一直覺通常是這樣:套一個 `while True`,讓模型自己決定什麼時候停。聽起來很簡單,對吧?
 
-那時候我做一個 side project,想讓 LLM 自己讀檔、自己改檔、自己跑測試,完全不需要我介入。我大概花了 20 分鐘畫流程,半小時動手——一個 `while True` 包住 `client.chat.completions.create(...)`,把 function calling 的結果接回 `messages`,再丟下一輪。跑起來!真的會自己改檔!那一刻我覺得我在做一件很酷的事。
+那這個迴圈長什麼樣?大概就是把 `client.chat.completions.create(...)` 包進迴圈裡,把 function calling 的結果接回 `messages`,再丟下一輪。跑起來——LLM 真的會自己讀檔、自己改檔、自己呼叫工具,看起來很酷。
 
-第三天就崩了。
+但 agent 跟 chatbot 最大的差別,就藏在這個迴圈上。chatbot 是「一問一答」,agent 是「一直問自己接下來要做什麼」——而問題就藏在「一直」兩個字。
 
-先是有一次它呼叫了一個叫 `read_files`(我的工具叫 `read_file`,沒有 s)的東西,我的 dispatcher 沒攔到,直接把「unknown function」這串字當 tool result 塞回去——它看了看,又呼叫了一次一模一樣的 `read_files`。連續七次。我看著 terminal 一直跳 token,腦袋一片空白。
+想像幾個會發生的情境:模型呼叫了一個你 dispatcher 不認識的工具名(可能多了個 s,可能少了底線),你的 dispatcher 沒攔到,就把「unknown function」當 tool result 塞回去——模型看了看,又呼叫一次一模一樣的工具,然後再一次。或者它陷進「讀檔 → 想 → 改檔(失敗)→ 讀檔 → 想 → 改檔(失敗)」的迴圈,跑了很多輪,最後輸出「我已經把所有檔案都改好了」——其實一個都沒成。等你打開 API 用量 dashboard,你才知道那個 `while True` 跑得有多遠。
 
-然後是另一次,它陷進一個我看不懂的迴圈:讀檔 → 想 → 改檔(失敗)→ 讀檔 → 想 → 改檔(失敗)。第 40 輪左右,我才意識到模型在輸出的最後加了一句「我已經把所有檔案都改好了」——其實一個都沒改成功。隔天早上 OpenAI 寄了一封「您本月用量已達一般使用者的 19 倍」的提醒信過來,我那時候在學校宿舍,看著那封信冷汗直流。
-
-(後來我才知道,我那個 while 迴圈,是世界上每個 agent 工程師都會寫一次的版本。第二週就會知道為什麼它不能上線。)
+這個 naive 版本,是每個寫 agent 的人都會先寫一次的版本。第二週就會知道為什麼它不能上線。
 
 昨天講完為什麼我想拆 Hermes。今天直接從心臟開始拆——一個能上線的 agent,最小是什麼樣子?
 
@@ -37,7 +35,7 @@ draft: false
 
 學界有個名字叫 ReAct(Reasoning + Acting),Princeton 跟 Google 在 2022 年那篇 paper 弄出來的。但你不用記名字。你要記得的是這個迴圈——agent 跟 chatbot 的差別,就在這個迴圈跑不跑得起來。
 
-如果我把我那禮拜寫的 naive 版本壓到大約 30 行,大概長這樣:
+如果把上面那個 naive 版本壓到大約 30 行,大概長這樣:
 
 ```python
 def run_agent(user_msg, tools):
@@ -70,7 +68,7 @@ def run_agent(user_msg, tools):
 
 那這個會在哪裡爆?**全部地方都會爆**。你來找:
 
-- `dispatch()` 收到不存在的工具名怎麼辦?剛剛我的故事就是這個。
+- `dispatch()` 收到不存在的工具名怎麼辦?剛剛那個「拼錯工具名」的情境就是這個。
 - 模型一直呼叫同一個失敗的工具,要跑幾次才停?上面這版答案是「永遠」。
 - API 回 429、500、context overflow、`thinking_signature` 錯誤怎麼處理?整段噴掉。
 - 一輪呼叫到第 200 次了,還沒結束,你要繼續燒錢嗎?
@@ -108,7 +106,7 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 兩層之間的溝通方式很土法——用 `restart_with_compressed_messages`、`restart_with_fallback_provider` 這種布林旗標,內層設了旗標就 `break` 出去,外層讀旗標決定 `continue`。是用 Python 手刻的狀態機,囉嗦,但它把兩個概念分得很乾淨:**「重試什麼」是內層的事,「這一輪有沒有真的前進」是外層的記帳**。
 
-為什麼要分這麼開?因為如果你不分,你會寫出像我當初那種——每次 retry 都當成「新一輪」記帳,於是 max_iterations 那個保險絲根本沒在保——一輪呼叫失敗 10 次,就燒掉你 10 個迭代額度,而模型其實還沒前進半步。
+為什麼要分這麼開?因為如果你不分,你會寫出那種——每次 retry 都當成「新一輪」記帳,於是 max_iterations 那個保險絲根本沒在保——一輪呼叫失敗 10 次,就燒掉你 10 個迭代額度,而模型其實還沒前進半步。
 
 > **Note**:旗標 + `break` 是一種很手工的控制流,放在 4,099 行函式裡讓人很痛苦。但「retry 跟 iteration 是兩個獨立概念」這個拆分,本身是對的。你自己寫 agent 的時候,即使不模仿這個檔案結構,也要把這兩個計數器分開。
 
@@ -126,7 +124,7 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 為什麼?因為程式化的工具呼叫是 RPC 風格的,本質上是一段 deterministic 的程式碼跑完一批操作,不該跟「agent 自己一步步想」算同一種成本。一個是 LLM 在燒 token 思考,一個是 Python 直譯器在循序執行——把它們合進同一個計數器,就會出現「agent 明明還沒做什麼決策,額度就被一段 batch script 燒光」這種荒謬狀況。
 
-(這是我在自己 side project 上踩過的坑——當時我為了讓 agent 一次抓 10 個檔案,寫了個批次工具,結果一輪燒掉 10 個 iteration。那時候我以為是 LLM 不聰明,後來才發現是我自己把 cost model 弄錯。)
+(想像你為了讓 agent 一次抓 10 個檔案,寫了個批次工具——如果這算一輪 iteration,那很合理;但如果這 10 次工具呼叫各算一輪,你的預算就在一瞬間蒸發了。一輪燒掉 10 個 iteration,你會以為是 LLM 不聰明,其實是 cost model 一開始就被擺錯。)
 
 ### 設計 2:每個 subagent 各自一個預算,故意讓全樹超標
 
@@ -148,7 +146,7 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 所以 Hermes 的做法是:預算用完時,給一次寬限呼叫,讓模型有機會產出最終答案。如果還是不行(模型不肯停、繼續想呼叫工具),就走 `_handle_max_iterations()`——做一次完全不帶任何工具的呼叫,訊息大概是「請把目前進度總結給使用者」。
 
-這就是用優雅降級取代粗暴截斷。我自己的 naive 版本沒這個——預算撞牆就 raise 出去,使用者看到一個堆疊追蹤,以為 agent 壞了。其實 agent 是做完了,只是還沒講話。
+這就是用優雅降級取代粗暴截斷。naive 版本通常沒這個——預算撞牆就 raise 出去,使用者看到一個堆疊追蹤,以為 agent 壞了。其實 agent 是做完了,只是還沒講話。
 
 > **Note**:寫到這裡可以暫停一下。三個設計——退費、樹狀獨立、寬限呼叫——它們的共同點是什麼?都是在處理「計數器跟現實成本之間的失真」。一個全域 +1 的計數器太粗,真實世界裡每種呼叫的成本、每個 agent 的工作邊界、每個迴圈的結尾體驗,都不該被同一條規則粗暴打平。
 
@@ -168,9 +166,9 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 Hermes 的解法不是去消滅這個 bug——很多時候你消滅不了(provider 那邊在抖,你能怎樣)。Hermes 的解法是:**讓每一條結束路徑都先報出自己的名字**,而且這條「最後一則是 tool result 又沒被打斷」的尷尬情境,直接拉警報。
 
-我第一次讀到這段的時候,坐在咖啡廳裡愣了三十秒。
+我第一次讀到這段的時候,愣了三十秒。
 
-因為我自己的 naive 版本是怎麼處理結束的?——`return msg.content`,完。沒有 log、沒有原因、沒有任何能讓未來的我(在凌晨三點對著 ticket 哭)debug 的線索。我那禮拜的 agent 「靜靜地結束」過無數次,每次我都得手動翻整段對話歷史,猜它停在哪。
+因為 naive 版本通常是怎麼處理結束的?——`return msg.content`,完。沒有 log、沒有原因、沒有任何 debug 線索。想像 agent 跑到一半安靜地停下,你打開 log 想知道它停在哪——沒留下任何訊息。你只能手動翻整段對話歷史,猜它停在哪。
 
 Hermes 教我的事是這樣:寫 agent 的時候,不要讓任何一條 return 或 break 是匿名的。每條路徑離開 loop 之前,都該先用一行 log 說「我是因為 `budget_exhausted` 才停的」「我是因為 `tool_result_without_response` 才停的」。這條紀律比任何高大上的觀測平台都有用。
 
@@ -196,7 +194,7 @@ agent 的最小心臟,概念上就一個迴圈:呼叫模型 → 執行動作 →
 
 但這個 loop 跑著跑著,你會撞到一個非常具體的牆——錢。
 
-明天我們講 Hermes 為什麼把 system prompt 鎖死、不准你在 session 中途動它半個字。那不是它在裝高冷,那是一條被帳單教出來的鐵律。
+明天我們講 Hermes 為什麼把 system prompt 鎖死、不准你在 session 中途動它半個字。那不是它在裝高冷,那是 Hermes 從成本與穩定性壓力中得出的設計選擇。
 
 ---
 

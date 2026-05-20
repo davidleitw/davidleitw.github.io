@@ -1,6 +1,6 @@
 ---
 title: "Day 03:為什麼 system prompt 不准動"
-description: "帳單翻五倍以後才會懂的事——prompt cache 不是優化,是鐵律。"
+description: "prompt cache 不是事後優化,是 Hermes 設計裡最被當成鐵律的一條——為什麼 system prompt 在 session 中途絕不能變。"
 pubDatetime: 2026-05-07T22:00:00+08:00
 tags:
   - hermes-from-zero
@@ -11,15 +11,11 @@ tags:
 draft: false
 ---
 
-那是我寫第一個「正經 agent」side project 的第三週。我自以為有一個很聰明的設計:既然 agent 可以切換工作模式——寫程式模式、查資料模式、純聊天模式——那我就在每次切換的時候,**把對應的提醒塞進 system prompt** 嘛。寫程式模式就在 system 開頭加一段「請優先讀檔再下手」,聊天模式就拿掉。漂亮、乾淨、語意清楚。
+你大概也想過這種「聰明設計」:agent 可以切換工作模式——寫程式模式、查資料模式、純聊天模式——那就在每次切換的時候,**把對應的提醒塞進 system prompt** 嘛。寫程式模式就在 system 開頭加一段「請優先讀檔再下手」,聊天模式就拿掉。漂亮、乾淨、語意清楚,聽起來像在做「會根據 context 動態調整人格」的 agent。
 
-我當時還有點得意,跟朋友炫耀說「你看,我這個 agent 會根據 context 動態調整人格」。
+然後你跑一個月,帳單來——比預期貴上一個量級。你那個 side project 沒幾個使用者,跑量不大,怎麼可能燒這麼多?去翻 dashboard 才會發現,`cache read input tokens` 跟 `cache creation input tokens` 的比例慘不忍睹,大部分請求都在花全價重新讀整段 prompt。
 
-然後月底帳單來了。
-
-不是貴一點點。是**跟我預期差了快五倍**。我那 side project 沒幾個使用者,跑量不大,怎麼可能燒這麼多?打開 Anthropic dashboard 一看,`cache read input tokens` 跟 `cache creation input tokens` 的比例慘不忍睹——cache hit rate 趴在地上,大部分請求都在花全價重新讀整段 prompt。
-
-那一刻我才意識到:**我根本不懂 prompt cache 是怎麼運作的**。我以為它認的是「語意上差不多就 hit」,結果它認的是「前綴一個 byte 都不能差」。我那個自以為聰明的動態 system reminder,等於每次切模式都在親手砸掉自己的快取。
+問題不在量,在於**根本不懂 prompt cache 是怎麼運作的**。很多人以為它認的是「語意上差不多就 hit」,但它認的是「前綴一個 byte 都不能差」。那個自以為聰明的動態 system reminder,等於每次切模式都在親手砸掉自己的快取。
 
 昨天看完核心迴圈,今天開始看為什麼這個迴圈長成現在這樣——很多設計都是被「錢」這條約束逼出來的。
 
@@ -126,7 +122,7 @@ Hermes 的做法是「**從 session DB 還原**」——把當初存的那份 sy
 
 這個你在 Day 04(壓縮)、Day 06(記憶)、Day 10(技能注入)會反覆看到同一條鐵律——換不同的場景、解不同的問題,但最後都繞回「**不要動 system prompt**」這條紅線。
 
-我那個 side project 的「動態 system reminder」,正確的做法不是改 system,而是**在輪到 agent 出手前,先塞一則 user message 進去**:「請接下來以 X 模式回答」。功能一樣,但前綴沒動,cache 還在。
+開頭那個「動態 system reminder」的想法,正確的做法不是改 system,而是**在輪到 agent 出手前,先塞一則 user message 進去**:「請接下來以 X 模式回答」。功能一樣,但前綴沒動,cache 還在。
 
 ---
 

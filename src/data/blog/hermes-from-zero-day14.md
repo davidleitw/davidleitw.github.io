@@ -11,7 +11,7 @@ tags:
 draft: false
 ---
 
-那天晚上我在挖 CLI 的指令分派,想知道 `/compress` 是怎麼被路由到對應的 handler。我已經知道 CLI 入口在 `cli.py`,所以就直接打開。打開之前先 `ls -lh` 看一眼:
+挖 Hermes 的 CLI 指令分派的時候,想知道 `/compress` 是怎麼被路由到對應的 handler。我已經知道 CLI 入口在 `cli.py`,所以就直接打開。打開之前先 `ls -lh` 看一眼:
 
 ```
 -rw-r--r--  1 me  staff   643K cli.py
@@ -21,7 +21,7 @@ draft: false
 
 打開來,跳到第一萬行——還是同一個 class,還是 `HermesCLI`。再跳到一萬兩千行,還是。`Cmd-End` 跳到底,14,466 行。同一個檔案、同一個類別、一路到底。
 
-那一瞬間我心裡有個東西碎了一下。過去兩個禮拜我一直在誇 Hermes:provider 抽象漂亮、prompt cache 鐵律設計得乾淨、MCP adapter 一鍵接、Kanban 那套持久性協調原語簡直藝術品。但這個檔案——這個 14,466 行的 `cli.py`——它在這裡,它真的在這裡,它就是 Hermes 的一部分。
+然後事實一直是那個數字。過去兩個禮拜我一直在誇 Hermes:provider 抽象漂亮、prompt cache 鐵律設計得乾淨、MCP adapter 一鍵接、Kanban 那套持久性協調原語簡直藝術品。但這個檔案——這個 14,466 行的 `cli.py`——它在這裡,它真的在這裡,它就是 Hermes 的一部分。
 
 「**架構漂亮 ≠ 實作乾淨**」這句話那一刻直接在我腦子裡浮出來。這份 codebase 的「設計文件」可以拿去教 distributed systems,但「程式碼結構」是另一回事。
 

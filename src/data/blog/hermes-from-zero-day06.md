@@ -11,17 +11,11 @@ tags:
 draft: false
 ---
 
-我第一次幫自己寫的 agent 加「跨 session 記憶」的那天,場面有點尷尬。
+LLM 本身是失憶的金魚。同一個使用者今天跟它說了什麼,明天重開 terminal 進去,它跟你從零認識。停在 chatbot 階段你可能不太在意——反正每次對話都是新的,問完即走。但寫到 agent,「跨 session 記憶」就突然變成必要:使用者不會接受一個「每天早上要重新自我介紹住哪、用什麼語言、習慣什麼工具」的助理,那不叫助理,那叫面試。
 
-那是一個週末的 side project,我想做一個「會記得我的 coding 助理」。前一天我在 chat 裡跟它說:「我住台北、用 Mac、寫 Python、習慣用 pytest 不用 unittest。」它說好。隔天我重開 terminal,進去問:「幫我看一下這個專案要怎麼設 CI?」——它開始很認真地跟我介紹 Jenkins,然後問我作業系統是什麼。
+那記憶塞哪裡?第一直覺通常是 system prompt——把「使用者住台北、用 Mac、寫 Python、習慣 pytest」這幾條事實寫在最前面,讓模型每輪都看得到。寫法很直覺,當下很爽,但這個方案會直接撞上 Day 03 講過的那條鐵律:**system prompt 中途換掉,prompt cache 就直接砸了**。今天多記一條「使用者喜歡 dark mode」,整段前綴變,cache 從第一個 token 開始失效,帳單立刻反映在下一張對帳單上。
 
-那一瞬間我心裡只有一句話:「兄弟,我們昨天才聊過。」
-
-於是我做了那個所有人第一次都會做的事——把那幾條事實塞進 system prompt 開頭:「使用者住台北、用 Mac、寫 Python、用 pytest。」當下感覺很爽,完美解決。
-
-爽不到 24 小時。Day 03 我們已經學過了:**system prompt 中途換掉,prompt cache 就直接砸了**。今天加一條「使用者喜歡 dark mode」,整段提示前綴變,cache 從第一個 token 開始失效,帳單再次起飛。
-
-兩難就出在這:LLM 自己是失憶的金魚,但塞它記憶的最自然位置——system prompt——又是全系統最不准動的地方。
+兩難就出在這:LLM 自己是失憶的,但塞它記憶的最自然位置——system prompt——又是全系統最不准動的地方。
 
 > 上一篇我們看完了 provider 抽象,把「換 LLM」這件事拆得很乾淨。今天回到 agent 自己身上:它怎麼跨 session 記住你?而且還要在不打爆 prompt cache 的前提下記住。
 

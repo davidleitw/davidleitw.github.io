@@ -11,21 +11,19 @@ tags:
 draft: false
 ---
 
-那是一個禮拜五的晚上。
+Context window 是 agent 第一次撞到「規模感」的牆。
 
-我那個 side project agent 已經跑了第 30 輪對話。使用者一開始是叫它「幫我把這份 CSV 清洗一下,把 email 欄位的空白去掉,然後依日期排序輸出」——很單純的需求。中間它呼叫了五六次工具,每次工具回來都是一坨 200 行的 stdout,然後 model 又把整坨複製到回覆裡解釋(對,model 真的會這樣做)。第 28 輪的時候,我開始覺得不太對勁——它回答的時間變很長,而且開始講一些我五分鐘前就講過的事。
+Chatbot 那種一兩輪的對話塞不滿 context,你寫 side project 的時候大概也不會特別在意。但 agent 不一樣——它跑個 20、30 輪,每輪可能呼叫好幾次工具,每次 tool result 又是一坨 200 行的 stdout,然後 model 還會把整坨複製到回覆裡解釋(對,model 真的會這樣做)。再大的 200K context 也擋不住這種累積速度。等你回神,API 已經噴 `context_length_exceeded` 了。
 
-第 31 輪,API 直接噴 `context_length_exceeded`。
+寫過 agent 的人第一直覺通常都是同一個:「砍掉最舊的 10 則訊息不就好了。」十行 code 的事,在送 API 前 slice 一下 `messages[-N:]`,deploy。結果你會發現 agent 開始亂答——它跑去做別的事了。滾上去一看才明白:**被砍掉的那幾則裡面,有一則正是使用者最一開始的需求。** 它根本不記得自己在幹嘛了。
 
-我當下的第一直覺很 lazy:「砍掉最舊的 10 則訊息不就好了」。我寫了 10 行 code,在送 API 前 slice 一下 `messages[-20:]`,deploy。結果你猜怎麼著——agent 開始亂答。它跑去做別的事了。我滾上去看,才發現:**被砍掉的那 10 則裡面,有一則正是使用者一開始的需求。** 它根本不記得自己在幹嘛了。
-
-那一晚我學到一件事:**context 不是無限大,但「砍掉舊的」也不是解法。**
+這是一個踩過才會記得的教訓:**context 不是無限大,但「砍掉舊的」也不是解法。**
 
 ---
 
-昨天我們講到 prompt cache 是鐵律:system prompt 在一個 session 中途絕對不能變,變一個字元 cache 就 miss、帳單就翻三倍。今天就要承接這條鐵律問下一題:**那 context 滿了到底怎麼辦?如果連 system prompt 都不能動,那能動的是什麼?**
+昨天我們講到 prompt cache 是鐵律:system prompt 在一個 session 中途絕對不能變,變一個字元 cache 就 miss、成本立刻翻倍。今天就要承接這條鐵律問下一題:**那 context 滿了到底怎麼辦?如果連 system prompt 都不能動,那能動的是什麼?**
 
-答案是壓縮。Hermes 唯一允許在 session 中途動到 context body 的操作,就是壓縮。但壓得不夠聰明,使用者的需求就會被你壓不見——就像我那個禮拜五晚上一樣。
+答案是壓縮。Hermes 唯一允許在 session 中途動到 context body 的操作,就是壓縮。但壓得不夠聰明,使用者的需求就會被你壓不見——就跟前面那個「砍最舊」的天真寫法一樣下場。
 
 今天來拆 Hermes 怎麼壓。
 
@@ -92,7 +90,7 @@ System prompt + 最前面 N 則訊息,verbatim 留著。
 
 ### Phase 3:保護「尾」——按 token 預算,不是按訊息數
 
-這是讓我最後悔當初沒這樣寫的細節。我那個 side project 的版本是「保留最後 20 則」——固定訊息數。問題是:tool result 一則就 5000 token,user message 一則只有 30 token,「最後 20 則」可能是 80,000 token,也可能是 600 token,完全不可控。
+這是這篇我覺得最值得抄的細節。常見的 naive 寫法是「保留最後 20 則」——固定訊息數。問題是:tool result 一則就 5000 token,user message 一則只有 30 token,「最後 20 則」可能是 80,000 token,也可能是 600 token,完全不可控。
 
 Hermes 從尾巴往回走,**累加 token**,直到打到 `summary_target_ratio × context_length` 算出來的預算。這保證了壓完之後 context 大小是 predictable 的。
 

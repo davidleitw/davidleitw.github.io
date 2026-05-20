@@ -11,15 +11,13 @@ tags:
 draft: false
 ---
 
-我第一個自己寫的 agent 上線那天,我盯著一個 bug 看了三小時。
+測試一個會講話的東西,是 agent 工程裡最尷尬的問題之一。
 
-那個 bug 很玄:同樣一段使用者輸入,跑十次,有兩三次會壞掉。stack trace 指向 streaming parser——某個 `<think>` 標籤的關閉沒被認出來,於是後面整段 tool call 都炸了。我加 log、加重試、加例外處理,bug 還是時不時出現,只是頻率變低。
+LLM 本身是 non-deterministic,同樣一段 input 跑十次可能有兩三次行為不一樣。傳統的 `assert result == expected` 整個沒用——prompt 動一個字輸出就完全不一樣,你 assert 字串比對嗎?你 assert「看起來合理」嗎?那叫做測試嗎?
 
-那時我才意識到一件事:**我根本不知道怎麼幫這東西寫測試**。
+更尷尬的是,一個 agent 不只是 LLM。它是「LLM 輸出 → 自己 parse → 跑 tool → 把結果丟回去 → 再 LLM」這種一層套一層的東西。中間任何一段 streaming chunk 邊界沒切好、某個 `<think>` 標籤的關閉沒被認出來,後面整段 tool call 就會炸。這種 bug 通常是機率性的——十次裡偶爾兩三次壞,加 log、加重試、加例外處理也只是把頻率壓低,壓不到零。
 
-我會寫單元測試。我會寫 mock。但你怎麼幫一個「LLM 輸出 → 我自己 parse → 跑 tool → 把結果丟回去 → 再 LLM」這種東西寫 assertion?prompt 動一個字輸出就完全不一樣,你 assert 字串比對嗎?你 assert「看起來合理」嗎?那叫做測試嗎?
-
-我試過三種:**mock 整個 LLM 回應**(那測的是我寫的 mock,不是 agent)、**錄一段真實 response 然後 replay**(VCR 那種,但 LLM 的 wire format 一直變,錄影過幾週就失準)、**snapshot 整個 trajectory**(每次跑都要手動 review,review 到瘋掉)。每種都有問題。
+你看坊間大家怎麼解?常見三招都有問題:**mock 整個 LLM 回應**——那你測的是 mock 不是模型;**錄一段真實 response 然後 replay**(VCR 那種)——LLM 的 wire format 一直變,錄影過幾週就跟你現在的 prompt 對不起來;**snapshot 整個 trajectory**——第一次跑就過,改一個字 prompt 全部炸,review 到瘋掉。
 
 到底要怎麼測一個非確定的東西?昨天看完 Hermes 的三套介面,你應該擔心一件更基本的事——這麼複雜的系統怎麼測?今天就拆 Hermes 的答案。
 
@@ -124,7 +122,7 @@ Day 7 講工具系統的時候,我們提過 `tool_guardrails.py` 的三個計數
 
 光寫測試還不夠,你得讓它**在 CI 裡也能跑、跑得跟本機一樣**。Hermes 在 `.github/workflows/tests.yml` 跟 `scripts/run_tests.sh` 裡做了三件我覺得很值得抄的事:
 
-**第一,密封性的三層防禦**。CI 裡 `tests.yml` 把所有 API key env var 設成空字串;`conftest.py` 在 fixture 層級再 unset 一次;`run_tests.sh` 在 bash 層級又 blank 一次。為什麼這麼偏執?因為「**真的 API key 不小心被測試吃進去**」會發生很 ironic 的事——你的測試會去打真的 OpenAI,測試會「過」(因為 LLM 回的東西看起來合理),但**你的信用卡會莫名其妙被刷**。三層防禦的成本是 30 行 code,收益是不會某天醒來看到 $400 的帳單。
+**第一,密封性的三層防禦**。CI 裡 `tests.yml` 把所有 API key env var 設成空字串;`conftest.py` 在 fixture 層級再 unset 一次;`run_tests.sh` 在 bash 層級又 blank 一次。為什麼這麼偏執?因為「**真的 API key 不小心被測試吃進去**」會發生很 ironic 的事——你的測試會去打真的 OpenAI,測試會「過」(因為 LLM 回的東西看起來合理),但**你的信用卡會莫名其妙被刷**。三層防禦的成本是 30 行 code,收益是不會「某天醒來發現帳單比上個月多了一個量級」。
 
 **第二,本機 / CI 一致性是被強制的**。`run_tests.sh` 釘住 `-n 4`(平行 worker 數),因為 CI 機器是 4 核;如果在 20 核工作站用 `-n auto`,會跑出 CI 從沒見過的順序組合,然後出現「本機綠、CI 紅」的 flake。釘死 worker 數,本機跟 CI 才會看到一樣的東西。
 

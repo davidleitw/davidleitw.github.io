@@ -11,11 +11,9 @@ tags:
 draft: false
 ---
 
-## 那年我以為 `chat.completions.create` 就是全部
+## 從 `chat.completions.create` 到 agent,中間隔了一個世界
 
-我第一次寫 chatbot 是某個週末晚上,大概十一點,泡了杯咖啡準備來玩一下 OpenAI SDK。
-
-第一支程式很順:
+想像你剛寫完一支最簡單的 chatbot,大概長這樣:
 
 ```python
 resp = client.chat.completions.create(
@@ -25,15 +23,15 @@ resp = client.chat.completions.create(
 print(resp.choices[0].message.content)
 ```
 
-跑起來那一刻有種「啊原來就這樣」的快感。然後我開始得寸進尺,想做更多事——讓它幫我跑一段 Python、讓它記得我昨天問過什麼、讓它去抓我的行事曆。我那時候以為,反正都是 prompt engineering 嘛,加個 system message 寫「你會用工具」、然後在迴圈裡塞 user input 進去就好了。
+跑起來,順得不得了,有種「啊原來就這樣」的快感。然後你開始得寸進尺——想讓它幫你跑一段 Python、想讓它記得你昨天問過什麼、想讓它去抓你的行事曆。直覺上你會想:反正都是 prompt engineering 嘛,加個 system message 寫「你會用工具」、然後在外面包個 while loop 把 user input 一直塞進去就好了吧?
 
-(我知道這聽起來很天真,但你大概也這樣想過。)
+(這聽起來很天真,但坦白說,大部分人第一次想做 agent 的心智模型差不多就是這樣。)
 
-結果三天之後我有一坨非常醜的東西:一個 while 迴圈、一個越疊越大的 `messages` array、幾個用 regex 從模型輸出裡撈 function name 的醜八怪、然後我發現模型有時候會亂叫一個我根本沒定義的工具,有時候上下文塞到 token 上限就直接 400。我那時候還沒搞清楚 token 是怎麼算的,所以第一個反應是「那我把舊訊息砍掉就好了嘛」——結果砍完它失憶,連自己上一步呼叫了什麼工具都忘記,直接陷入「我剛剛是不是叫過這個?那我再叫一次好了」的死循環。
+只要你真的動手寫下去,很快就會生出一坨醜東西:一個 while 迴圈、一個越疊越大的 `messages` array、幾個用 regex 從模型輸出裡撈 function name 的醜八怪。然後你會發現模型有時候會亂叫一個你根本沒定義的工具,有時候上下文塞到 token 上限直接 400。第一反應大概會是「那我把舊訊息砍掉就好了嘛」——結果砍完它失憶,連自己上一步呼叫了什麼工具都忘記,直接陷入「我剛剛是不是叫過這個?那我再叫一次好了」的死循環。
 
-最慘的是換 Claude 試試看,所有東西要重寫,因為 message format 不一樣(`system` 是獨立欄位不是 message)、function calling 的 schema 結構不一樣、tool result 要 nest 在 user message 的 content block 裡而不是 `tool` role、連 streaming 的 SSE event 名稱都不一樣。我那時候花了一整個下午,只是為了讓「同一段話」在兩家模型上都能跑——還沒做任何「真的功能」。
+更慘的是換個 provider 試試看。從 OpenAI 換到 Claude,幾乎所有東西要重寫:message format 不一樣(`system` 是獨立欄位不是 message)、function calling 的 schema 結構不一樣、tool result 要 nest 在 user message 的 content block 裡而不是 `tool` role、連 streaming 的 SSE event 名稱都不一樣。光是為了讓「同一段話」能在兩家模型上都跑起來,就是一道工程關卡——還沒做任何「真的功能」。
 
-那一刻我才意識到:**chat completion 不是 agent**。中間差了一個我以為很簡單、其實有一整本書那麼厚的東西。
+我覺得 chat completion 跟 agent 之間,差的就是這一整層你以為很簡單、實際上有一整本書那麼厚的東西。**chat completion 不是 agent**;從 chatbot 到 agent,看似只差一個 while loop,實際上隔了一個世界。
 
 於是我去拆了 `NousResearch/hermes-agent`——一個 production-grade 的開源 agent framework——我想搞清楚一個「真的能用」的 agent 到底有什麼。
 
@@ -73,7 +71,7 @@ print(resp.choices[0].message.content)
 
 第三,它解的問題夠完整。 多 LLM provider、工具系統、記憶、子代理、MCP 接入、gateway 接 Telegram/Discord/Slack、cron 排程、七種 sandbox(本機/Docker/SSH/Modal/Daytona/Vercel Sandbox/Singularity)——你寫 agent 會撞到的牆它都撞過了。
 
-第四,它跟 LangChain 那種「教科書範例集合」氣質不一樣。 LangChain 像一本食譜——它告訴你「agent 有這幾種 pattern」,然後給你 abstraction 套用。Hermes 比較像一份「真的開過業」的廚房日誌——它告訴你 prompt cache 失效那天帳單長什麼樣、SQLite 在 NFS 上怎麼壞掉、Telegram 跟 Discord 同時打進來怎麼避免 session race condition。你讀的是別人撞過的牆,不是別人總結出來的抽象。
+第四,它跟 LangChain 那種「教科書範例集合」氣質不一樣。 LangChain 像一本食譜——它告訴你「agent 有這幾種 pattern」,然後給你 abstraction 套用。Hermes 比較像一份「真的開過業」的廚房日誌——你會看到他們怎麼處理 prompt cache 失效的成本、怎麼用 SQLite 撐多進程協作、怎麼避免不同 channel 同時打進來時的 session 衝突。你讀的是別人撞過的牆,不是別人總結出來的抽象。
 
 第五,它的工程瑕疵也很有教育意義。 我講真的——這個 framework 有些檔案大到誇張。`cli.py` 約 657KB、`gateway/run.py` 約 855KB、`hermes_state.py` 約 138KB 一個 class、`agent/conversation_loop.py` 的 `run_conversation()` 約 3,900 行。對,3,900 行的單一函式。我第一次看到的時候盯著螢幕愣了一下,想說「這怎麼維護啊」。但越拆下去越發現,這些「歪掉」的地方比那些寫得漂亮的地方更值得學——因為它告訴你「快速迭代 + 真實壓力」會把一個專案推成什麼形狀。
 
@@ -87,7 +85,7 @@ print(resp.choices[0].message.content)
 
 **第一條:「一個核心,多種驅動」。** Hermes 最重要的設計決定,就是把 `AIAgent` 寫成一個跟「誰來呼叫它」完全無關的核心。CLI 是一個 adapter、gateway 是一個 adapter、MCP server 是一個 adapter、ACP 是一個 adapter、batch runner 是一個 adapter、cron 是一個 adapter——同一顆心臟,六種身體。Day 02 我會第一次埋下種子,Day 05 你會在 provider 抽象看到它,Day 08(MCP)、Day 09(gateway)、Day 12(三套介面)會一次比一次明顯。
 
-**第二條:「prompt cache 是鐵律,不是優化」。** 這個你可能完全沒想過。Anthropic 跟 OpenAI 都提供 prompt caching——你重複送一樣的開頭可以打折——但 Hermes 把這件事從「省錢小技巧」升級成「整個 API 設計的不變式」:**system prompt 在 session 中途絕對不准變**。為什麼?因為一變,快取就失效,帳單翻倍,延遲飆高。(Anthropic 的 cache breakpoint 上限是 4 個——你只有 4 個機會說「這之前的東西請幫我快取」,所以怎麼擺、擺在哪,直接決定整個 session 的成本曲線。)這條鐵律塑造了一堆你乍看不直覺的設計選擇:壓縮為什麼是唯一被允許的中途變動?slash command 為什麼塞 user message 而不是改系統提示?記憶為什麼不能直接 append 到 system prompt?Day 03 主角登場,然後 Day 04、Day 06、Day 10 會反覆呼應。
+**第二條:「prompt cache 是鐵律,不是優化」。** 這個你可能完全沒想過。Anthropic 跟 OpenAI 都提供 prompt caching——你重複送一樣的開頭可以打折——但 Hermes 把這件事從「省錢小技巧」升級成「整個 API 設計的不變式」:**system prompt 在 session 中途絕對不准變**。為什麼?因為一變,快取就失效,成本直接拉高,延遲也飆上去。(Anthropic 的 cache breakpoint 上限是 4 個——你只有 4 個機會說「這之前的東西請幫我快取」,所以怎麼擺、擺在哪,直接決定整個 session 的成本曲線。)這條鐵律塑造了一堆你乍看不直覺的設計選擇:壓縮為什麼是唯一被允許的中途變動?slash command 為什麼塞 user message 而不是改系統提示?記憶為什麼不能直接 append 到 system prompt?Day 03 主角登場,然後 Day 04、Day 06、Day 10 會反覆呼應。
 
 比喻一下:prompt cache 像便利商店的熟客折扣,你每次拿一樣的會員卡才有折,中途把卡換掉就重新算原價。Hermes 整套設計就是「不准你中途換卡」。
 

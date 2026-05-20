@@ -11,15 +11,11 @@ tags:
 draft: false
 ---
 
-那段時間我才剛把自己寫的小 agent 丟到 GitHub 上,自己也還沒玩夠,就收到第一個用過的朋友 ping 我:「欸你這個能不能在 terminal 跑?我不想每次都開瀏覽器。」我說好,給我兩天。
+Agent 寫到一個程度,你大概都會撞到三種使用者:terminal 派、瀏覽器派、和「可不可以自動跑」派。三種介面,三種 input 方式、三種 output 處理、三種狀態保存方式。
 
-兩天後我把 CLI 模式生出來,他用得很開心。隔天另一個朋友冒出來:「我同事看了覺得很酷,但她是 PM,你能不能做個網頁版?」我說……好啦,給我一週。
+直覺寫法是各做各的——CLI 一份 codebase 自己 parse argv、自己管 stdin/stdout、自己 print streaming;Web 一份 FastAPI + WebSocket,訊息格式跟 CLI 完全不一樣;cron 又是第三份,定時任務、retry、log 全部自己刻。寫完才會發現一個更頭痛的問題:**session 狀態怎麼同步?** CLI 開的對話,使用者打開瀏覽器要能接著聊;cron 半夜跑的結果,白天要能在 terminal 回看。三套各自 implement 一個 session 概念,改一個 prompt 三邊都要改,修一個 bug 三邊都要驗,bug 也乘以三。
 
-一週後網頁版也勉強堪用,然後第三個人來了:「你這個如果可以每天早上九點自動幫我整理一次 inbox 就完美了。」我聽完,坐在椅子上盯著螢幕看了大概十分鐘。
-
-因為這時候我已經知道我寫了什麼東西:**三份各自獨立的 codebase**。CLI 那邊自己 parse argv、自己管 stdin/stdout、自己 print streaming;Web 那邊用 FastAPI + WebSocket,訊息格式跟 CLI 完全不一樣;第三個需求進來的瞬間,我意識到 cron 又會是第三份。改一個 prompt 三邊都要改。修一個 bug 三邊都要驗。
-
-那一刻我去翻 Hermes,想看人家怎麼做。看完之後有一種「啊原來是這樣」的安靜——它的答案很簡單,簡單到讓我覺得我前面那一週都白寫了:**同一段核心,三個 adapter,共用一個狀態庫**。今天就拆這件事。
+Hermes 的答案很簡潔:**同一個核心,三張臉**——一段 business logic、三個 adapter、共用一顆狀態庫。今天就拆這件事。
 
 > 上一篇我們講 Kanban,那是「agent 跟 agent」之間怎麼分工。今天往另一個方向走——「使用者跟 agent」之間怎麼接。同一個腦袋,要長出三張臉:一張在 terminal、一張在瀏覽器、一張在 cron 排程裡。
 

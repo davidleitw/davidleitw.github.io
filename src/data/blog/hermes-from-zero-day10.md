@@ -11,11 +11,9 @@ tags:
 draft: false
 ---
 
-那天我打開 Hermes 的 docs,想做一件聽起來很簡單的事:**「我想加一個『讀我的 Heptabase』功能。」**
+Hermes 給你三套加東西進去的方式:**Skill、Plugin、MCP**。聽起來好像分得很清,實際打開 docs 你會發現三個都長得像擴充機制——目錄不同、API 不同、註冊方式不同,但職責有重疊。任何想做一件像「讓 agent 讀我的 Heptabase 筆記」這種事的人,看完三套介紹後會問同一個問題:**我到底該用哪個?**
 
-我有自己在用的筆記系統,想讓 agent 能查我的卡片、抓出某個 tag 下的最新一張。這需求多單純——給 agent 一個工具,讓它能讀我的 API。
-
-然後我看到目錄:
+把場景具體化一下。假設你有自己在用的筆記系統,想讓 agent 能查卡片、抓出某個 tag 下的最新一張——這需求多單純,就是「給 agent 一個工具,讓它能讀我的 API」。但 Hermes 的目錄結構會立刻把你打回原點:
 
 ```
 hermes-agent/
@@ -30,11 +28,11 @@ hermes-agent/
     └── plugin_llm.py
 ```
 
-我盯著螢幕看了快十分鐘。**這三個——不對,是四個——目錄,看起來都是「在加東西進這個 agent」。** 我到底應該寫個 MCP server?寫個 skill?寫個 plugin?還是把 Heptabase 包成一個有 script 的 skill?
+你會盯著這份目錄樹愣住。**這三個——不對,是四個——目錄,看起來都是「在加東西進這個 agent」。** 到底應該寫個 MCP server?寫個 skill?寫個 plugin?還是把整合包成一個有 script 的 skill?
 
 更靠杯的是:打開每個目錄的 README,**它們都用差不多的話介紹自己**:「擴充 Hermes 的能力」「讓 agent 可以做更多事」「整合外部服務」。每個都對,每個又都沒講「跟旁邊那個差在哪」。
 
-這是我寫這篇之前最痛的一次經驗。後來我才慢慢看懂:**這三套機制其實有重疊**,連 Hermes 自己內部的程式碼註解都在為「我為什麼是 plugin 不是 skill」辯護(待會給你看)。所以你會搞混,**不是你笨,是設計本身就在漏水**。
+這大概是讀 Hermes docs 最容易卡住的一段。慢慢翻完原始碼之後才會看懂:**這三套機制其實有重疊**,連 Hermes 自己內部的程式碼註解都在為「我為什麼是 plugin 不是 skill」辯護(待會給你看)。所以你會搞混,**不是你笨,是設計本身就在漏水**。
 
 ---
 
@@ -143,7 +141,7 @@ Tier 1 才是這套設計的心臟。每個技能的 `description` 永遠都在,
 
 回顧一下:
 
-- **Day 3** 講了 prompt caching 的鐵律:**system prompt 在 session 中途絕不能變**,改了就洗光 cache、帳單翻三倍。
+- **Day 3** 講了 prompt caching 的鐵律:**system prompt 在 session 中途絕不能變**,改了就洗光 cache、成本翻幾倍。
 - **Day 4** 看 context 壓縮:壓縮是唯一被允許的「中途變動」,而且還小心翼翼地處理。
 - **Day 6** 講記憶:為什麼「記住昨天」不能用「把使用者的記憶塞進 system prompt」這種看似最直覺的做法。
 
@@ -155,7 +153,7 @@ Tier 1 才是這套設計的心臟。每個技能的 `description` 永遠都在,
 
 `agent/skill_preprocessing.py` 在每輪掃描使用者 prompt,判斷哪些 skill「相關」,把相關技能的 description 接到 user message 上;真的被觸發的技能,完整 body 也是塞進 user message,不是 system prompt。`reload_skills()` 跑完之後 **system prompt 動都沒動**,prompt cache 完全有效。
 
-你看,這條鐵律是怎麼默默塑造整個架構的——從 Day 3 的帳單痛點,一路到 Day 4 的壓縮、Day 6 的記憶、再到今天的技能注入。它不是個優化選項,它是個**結構性的約束**,所有的擴充機制都必須圍著它設計。
+你看,這條鐵律是怎麼默默塑造整個架構的——從 Day 3 講的 prompt cache 鐵律,一路到 Day 4 的壓縮、Day 6 的記憶、再到今天的技能注入。它不是個優化選項,它是個**結構性的約束**,所有的擴充機制都必須圍著它設計。
 
 ---
 

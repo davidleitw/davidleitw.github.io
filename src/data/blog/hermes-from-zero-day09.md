@@ -11,15 +11,15 @@ tags:
 draft: false
 ---
 
-第一次想把自己寫的 chatbot 從 terminal「搬出去」給朋友用的時候,我選了 Slack。
+Agent 寫完總會有人問:「可以放在 Slack 嗎?Discord 嗎?可以排程嗎?可以開 HTTP API 嗎?」
 
-照著文件申請 app、設 OAuth scope、設 event subscriptions、用 ngrok 把 webhook 接回 localhost、處理 `url_verification` 那個 handshake、處理 retry header(因為 Slack 三秒沒回就重送)、處理 thread vs DM vs channel mention 三種訊息來源,把那一坨 payload 翻成自己的 `messages` array,跑完 agent 再用 `chat.postMessage` 送回去——光這一個 channel 就花了我兩個晚上。
+第一個通常是 Slack。照著文件申請 app、設 OAuth scope、設 event subscriptions、用 ngrok 把 webhook 接回 localhost、處理 `url_verification` 那個 handshake、處理 retry header(三秒沒回就重送)、處理 thread vs DM vs channel mention 三種訊息來源,把那一坨 payload 翻成自己的 `messages` array,跑完 agent 再用 `chat.postMessage` 送回去——光這一個 channel 就會吃掉好幾個晚上。
 
-然後想說「不錯耶,接下來接 Discord 吧」。Discord 是 websocket gateway 不是 webhook,要長連線、要處理 heartbeat、session 概念跟 Slack 完全不同——人家用 `channel_id + user_id`,Discord 還有 guild,thread 又是另一套 API。我硬著頭皮接完。
+下一個如果是 Discord,你會發現它是 websocket gateway 不是 webhook,要長連線、要處理 heartbeat、session 概念跟 Slack 完全不同——Slack 用 `channel_id + user_id`,Discord 還有 guild,thread 又是另一套 API。
 
-第三個是 cron job:「每天早上 9 點讓 agent 自己跑一次,把產出 email 給我」。email 又是另一個世界,SMTP 不是 webhook 不是 websocket,而且這個情境**根本沒有「使用者訊息進來」這件事**,是 agent 自己先動。
+再來如果是 cron job——「每天早上 9 點讓 agent 自己跑一次,把產出 email 給我」——email 又是另一個世界,SMTP 不是 webhook 不是 websocket,而且這個情境**根本沒有「使用者訊息進來」這件事**,是 agent 自己先動。
 
-第四個我本來想接 webhook,寫到一半放棄。我那個 agent 核心已經被三套不同的 session 物件、三套不同的訊息格式、三套不同的 rate limit 處理污染到不像樣。**核心邏輯只有 200 行,周邊膠水兩千行**。
+每多接一個 channel,你會發現核心邏輯很小、周邊膠水卻一路膨脹——session 怎麼維持、訊息格式怎麼正規化、各家的 rate limit 怎麼處理、認證怎麼接,全部不一樣。核心很快就會被三套不同的 session 物件、三套不同的訊息格式、三套不同的 rate limit 處理污染到不像樣。
 
 ---
 
@@ -39,7 +39,7 @@ Hermes 的 `gateway/` 目錄,職責就一句話:**把外部世界各種奇形怪
 
 進來的訊息會被正規化成單一的 `MessageEvent` dataclass,送出的結果正規化成 `SendResult`。agent 核心**永遠只看到這兩個型別**,看不到任何 Slack 的 `event.message.text`、Discord 的 `Message.content`、Telegram 的 `Update.message.text`。
 
-> **Note**:這個叫**反腐層(anti-corruption layer)**——你的系統和外部系統之間放一個翻譯層,讓外部的怪東西不污染你的核心模型。我自己第一次想到這個抽象是接到第三個 channel 的時候——因為每接一個,就會發現 `if platform == "slack"` 的 if-else 又多了三個分支。把這件事抽象成 `MessageEvent`,核心瞬間乾淨。
+> **Note**:這個叫**反腐層(anti-corruption layer)**——你的系統和外部系統之間放一個翻譯層,讓外部的怪東西不污染你的核心模型。一個常見的觸發時機是接到第三個 channel 的時候——因為每接一個,就會發現 `if platform == "slack"` 的 if-else 又多了三個分支。把這件事抽象成 `MessageEvent`,核心瞬間乾淨。
 
 ## 二、每個 channel adapter 在回答四個問題
 
