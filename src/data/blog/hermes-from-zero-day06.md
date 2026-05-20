@@ -1,7 +1,7 @@
 ---
 title: "Day 06:Agent 怎麼「記住」昨天聊過什麼"
 description: "記憶 provider、會「分叉自己去學習」的背景複查、Curator,合起來叫自我改進迴圈。"
-pubDatetime: 2026-05-20T16:00:00+08:00
+pubDatetime: 2026-05-10T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

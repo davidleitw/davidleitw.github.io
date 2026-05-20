@@ -1,7 +1,7 @@
 ---
 title: "Day 09:Gateway — 一個 agent 接全世界"
 description: "Slack / Discord / cron / 自己當 OpenAI API,所有 channel 都是 adapter。"
-pubDatetime: 2026-05-20T19:00:00+08:00
+pubDatetime: 2026-05-13T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

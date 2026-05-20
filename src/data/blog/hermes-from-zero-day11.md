@@ -1,7 +1,7 @@
 ---
 title: "Day 11:多個 agent 怎麼合作不打架"
 description: "委派是 context 防火牆,不是分工;Kanban 用 SQLite 蓋的多 agent 協作核心。"
-pubDatetime: 2026-05-20T21:00:00+08:00
+pubDatetime: 2026-05-15T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

@@ -1,7 +1,7 @@
 ---
 title: "Day 08:MCP 是什麼,為什麼大家都在喊"
 description: "Anthropic 那個 USB-C-of-tools 規格,Hermes 怎麼接、怎麼自己也當 server。"
-pubDatetime: 2026-05-20T18:00:00+08:00
+pubDatetime: 2026-05-12T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

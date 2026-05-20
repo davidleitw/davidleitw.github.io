@@ -1,7 +1,7 @@
 ---
 title: "Day 07:讓 agent 真的能動手做事"
 description: "工具系統、七種沙箱、guardrail 三計數器、防說謊頁尾——讓謊報完成在結構上不可能。"
-pubDatetime: 2026-05-20T17:00:00+08:00
+pubDatetime: 2026-05-11T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

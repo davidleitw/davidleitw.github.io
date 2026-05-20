@@ -1,7 +1,7 @@
 ---
 title: "Day 02:Agent 的「最小心臟」長什麼樣"
 description: "核心迴圈、兩層巢狀、迭代預算,以及最該偷的設計:每個結束點都有名字。"
-pubDatetime: 2026-05-20T12:00:00+08:00
+pubDatetime: 2026-05-06T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

@@ -1,7 +1,7 @@
 ---
 title: "Day 12:CLI、Web、Cron — 同一個腦袋三張臉"
 description: "JSON-RPC、PTY、SessionDB——三個介面共用一份核心,Hermes 是怎麼做到的。"
-pubDatetime: 2026-05-20T22:00:00+08:00
+pubDatetime: 2026-05-16T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

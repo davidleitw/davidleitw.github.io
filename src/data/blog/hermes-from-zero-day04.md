@@ -1,7 +1,7 @@
 ---
 title: "Day 04:Context 不是無限大,所以要壓"
 description: "三層壓縮、5-phase pipeline、為什麼壓縮是 Hermes 唯一被允許的中途變動。"
-pubDatetime: 2026-05-20T14:00:00+08:00
+pubDatetime: 2026-05-08T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

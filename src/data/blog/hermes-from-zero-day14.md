@@ -1,7 +1,7 @@
 ---
 title: "Day 14:Hermes 哪裡其實做得不夠好"
 description: "657KB 的 cli.py、len // 4 的中文災難、24 種英文字串比對——對 Hermes 誠實開砲。"
-pubDatetime: 2026-05-20T24:00:00+08:00
+pubDatetime: 2026-05-18T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

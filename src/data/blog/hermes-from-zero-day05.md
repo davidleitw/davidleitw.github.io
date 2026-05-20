@@ -1,7 +1,7 @@
 ---
 title: "Day 05:同一段程式碼,怎麼同時接 OpenAI 和 Claude"
 description: "Adapter、registry、credential pool——Hermes 怎麼忍受 LLM 圈每家不同的脾氣。"
-pubDatetime: 2026-05-20T15:00:00+08:00
+pubDatetime: 2026-05-09T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

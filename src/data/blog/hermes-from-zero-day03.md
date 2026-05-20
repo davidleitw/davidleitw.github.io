@@ -1,7 +1,7 @@
 ---
 title: "Day 03:為什麼 system prompt 不准動"
 description: "帳單翻五倍以後才會懂的事——prompt cache 不是優化,是鐵律。"
-pubDatetime: 2026-05-20T13:00:00+08:00
+pubDatetime: 2026-05-07T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

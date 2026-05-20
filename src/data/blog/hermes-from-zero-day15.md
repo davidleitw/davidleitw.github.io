@@ -1,7 +1,7 @@
 ---
 title: "Day 15:如果是我會怎麼寫一個 agent framework"
 description: "14 天的收成:會保留的、會修掉的、會新加的——如果是我會怎麼寫一個 agent framework。"
-pubDatetime: 2026-05-20T25:00:00+08:00
+pubDatetime: 2026-05-19T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

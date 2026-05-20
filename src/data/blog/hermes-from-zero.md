@@ -1,7 +1,7 @@
 ---
 title: "Hermes From Zero:15 天讀懂一個 agent framework"
 description: "我把 NousResearch/hermes-agent 整個 repo 拆開來讀,挑出這個 agent framework 之所以長成現在這樣的關鍵架構決定,用 iThome 鐵人賽的口吻寫了 15 篇。"
-pubDatetime: 2026-05-20T10:00:00+08:00
+pubDatetime: 2026-05-04T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

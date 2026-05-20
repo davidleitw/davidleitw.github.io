@@ -1,7 +1,7 @@
 ---
 title: "Day 10:技能、外掛、MCP — 三個聽起來都像擴充的東西到底差在哪"
 description: "Skill、Plugin、MCP——三個聽起來都像擴充的東西,到底差在哪、什麼時候用哪個。"
-pubDatetime: 2026-05-20T20:00:00+08:00
+pubDatetime: 2026-05-14T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

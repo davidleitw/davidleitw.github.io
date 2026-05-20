@@ -1,7 +1,7 @@
 ---
 title: "Day 13:怎麼測試一個會講話的東西"
 description: "「分離水管與水」的測試哲學,以及他們刻意沒測的那塊。"
-pubDatetime: 2026-05-20T23:00:00+08:00
+pubDatetime: 2026-05-17T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai

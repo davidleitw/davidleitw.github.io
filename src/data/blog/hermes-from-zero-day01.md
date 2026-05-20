@@ -1,7 +1,7 @@
 ---
 title: "Day 01:我為什麼想拆一個 agent framework"
 description: "從 chat.completions.create 寫到一個「真正的 agent」中間到底差了什麼——我為什麼想拆一個 agent framework。"
-pubDatetime: 2026-05-20T11:00:00+08:00
+pubDatetime: 2026-05-05T22:00:00+08:00
 tags:
   - hermes-from-zero
   - ai
