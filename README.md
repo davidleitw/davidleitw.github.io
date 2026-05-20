@@ -8,13 +8,12 @@
 
 ## Stack
 
-Astro 5 · Tailwind 4 · Pagefind(static search index)。fork 自 [Devosfera](https://devosfera.vercel.app/) 的 layout(它本身是 [AstroPaper](https://github.com/satnaing/astro-paper) 的重度客製版)。沿用了主視覺(aurora hero、glassmorphism nav、Cmd-K modal),不合的部分換掉:
+Astro 5 · Tailwind 4 · MDX · Pagefind(static search index)。視覺上保留了 aurora hero、glassmorphism nav、Cmd-K 搜尋 modal,客製過的部分:
 
-- **Logo**:`<davidlei />` 工程師角括號 wordmark,取代原 Devosfera SVG
-- **`/posts`**:單頁 tag-categorized 分類面板,取代原本 8 篇/頁的 grid 分頁
-- **Prose voice**:`src/data/blog/` 裡的文章過了一輪 [hermes-voice skill](https://github.com/davidleitw/davidleitw.github.io/blob/master/CUSTOMIZATIONS.md),把 AI 味的句型(假個人經驗、擬人化 codebase、「不是 X,是 Y」對比、抬高詞)儘量拔掉
+- **Logo**:`<davidlei />` 工程師角括號 wordmark
+- **`/posts`**:單頁 tag-categorized 分類面板,取代分頁式 grid
 
-更多視覺細節與設計系統:[CUSTOMIZATIONS.md](CUSTOMIZATIONS.md)。
+更多視覺細節:[CUSTOMIZATIONS.md](CUSTOMIZATIONS.md)。
 
 ---
 
@@ -55,7 +54,7 @@ draft: false
 ---
 ```
 
-**重點**:`tags` 的**第一個 tag** 是 primary,決定這篇文章在 `/posts` 落到哪個分類 bucket(順序在 frontmatter 裡可以自由排)。
+**重點**:`tags` 的**第一個 tag** 是 primary,決定這篇文章在 `/posts` 落到哪個分類 bucket。
 
 支援 MDX(可直接寫 JSX 元件),`<GalleryEmbed>` 不用 import 直接用——細節見 [GALLERIES.md](GALLERIES.md)。
 
@@ -63,34 +62,10 @@ draft: false
 
 ## Site config
 
-主要設定在 `src/config.ts` 的 `SITE`:
-
-```ts
-export const SITE = {
-  website: "https://davidleitw.github.io/",
-  author: "davidlei",
-  profile: "https://github.com/davidleitw",
-  desc: "一個紀錄心情、技術、人生的網站",
-  title: "davidLei",
-  timezone: "Asia/Taipei",
-  showArchives: true,
-  showGalleries: true,
-  // ...
-};
-```
-
-社群連結與 share 按鈕設定在 `src/constants.ts`。
-
----
-
-## Credits
-
-- Layout fork:[Devosfera](https://devosfera.vercel.app/) by [@0xdres](https://github.com/0xdres)
-- Upstream:[AstroPaper](https://github.com/satnaing/astro-paper) by [Sat Naing](https://satnaing.dev),MIT
+主要設定在 `src/config.ts` 的 `SITE`。社群連結與 share 按鈕設定在 `src/constants.ts`。
 
 ---
 
 ## License
 
-- **Code**:MIT(繼承自上游)
-- **`src/data/blog/` 裡的文章**:© davidleitw,保留所有權利。引用請註明出處。
+見 [LICENSE](LICENSE)。`src/data/blog/` 裡的文章 © davidleitw,保留所有權利,引用請註明出處。
