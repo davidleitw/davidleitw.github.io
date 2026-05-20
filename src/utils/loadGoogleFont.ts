@@ -34,11 +34,21 @@ async function loadGoogleFonts(
 ): Promise<
   Array<{ name: string; data: ArrayBuffer; weight: number; style: string }>
 > {
+  // Order matters: Satori picks the first font that has the glyph for a char.
+  // Noto Sans (Latin) goes first so ASCII keeps using it; CJK chars fall
+  // through to Noto Sans TC (Traditional Chinese).
   const fontsConfig = [
     { name: "Noto Sans", font: "Noto+Sans", weight: 400, style: "normal" },
+    { name: "Noto Sans", font: "Noto+Sans", weight: 700, style: "normal" },
     {
-      name: "Noto Sans",
-      font: "Noto+Sans",
+      name: "Noto Sans TC",
+      font: "Noto+Sans+TC",
+      weight: 400,
+      style: "normal",
+    },
+    {
+      name: "Noto Sans TC",
+      font: "Noto+Sans+TC",
       weight: 700,
       style: "normal",
     },
