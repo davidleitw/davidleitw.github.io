@@ -49,7 +49,7 @@ MCP 就是要解這件事。
 
 > **白話比喻(社群常用)**:MCP 之於 agent tool,像 USB-C 之於充電線。你不用為每台手機買專屬線,也不用每家工具供應商各寫一份 adapter。
 >
-> (順手澄清一下出處:這個比喻**不是** Anthropic 2024/11 公告原文用的——當時官方寫的是更乾的「universal, open standard for connecting AI systems with data sources」。USB-C 是社群衍生的講法,最早在 Medium、SambaNova 等技術部落格出現,後來被講到爛大街,Anthropic 自家後續文件(`docs.anthropic.com`)也跟著用了。我這邊保留這個比喻是因為它確實精準,但歸屬要說清楚。)
+> (順手澄清一下出處:這個比喻**不是** Anthropic 2024/11 公告原文用的——當時官方寫的是更乾的「universal, open standard for connecting AI systems with data sources」。USB-C 是社群衍生的講法,最早出現在各家技術部落格(我推測),後來被講到爛大街。我這邊保留這個比喻是因為它確實精準,但歸屬要說清楚。)
 
 它跑在 stdio 或 HTTP 上,訊息是 JSON-RPC 2.0。設計刻意樸實——**這個協定的價值不在技術新穎,在於「夠多人同意用同一份規格」**。寫過 LSP 的人應該很熟,LSP 把編輯器跟語言伺服器解耦,讓 VSCode、Neovim、Emacs 不用各寫一遍 Go 的型別檢查;MCP 在 agent ↔ 外部工具這層做了一樣的事。
 
@@ -181,7 +181,7 @@ Hermes 同時支援前兩個。他可以是 MCP client、MCP server、Zed ACP se
 
 MCP 解的是「Schelling point」問題(賽局論裡的「謝林點」:多方在沒有溝通的情況下,會自然地聚到某個顯眼、夠樸實的選項上)——當大家都需要一份共同的協定來協調,**誰先公布、夠簡單、夠開放,誰就贏**。Anthropic 公布、規格夠樸實、reference implementation 又有,就成了。
 
-把 2025 一整年的時間軸串起來看會更清楚這事多誇張:**2024/11/25** Anthropic 公布 MCP → **2025/03** OpenAI 官方宣布支援 MCP(這是它從「Anthropic 提案」變「跨家共識」的決定性時刻)→ **2025/08** IBM 那個 Agent Communication Protocol 併入 Google A2A、交給 Linux Foundation 託管 → **2025/12** Anthropic 把 MCP 也捐給 Linux Foundation(Agentic AI Foundation)。**半年內從廠商協定變成中立基金會託管,這個速度本身就是 Schelling point 成立的證據**——MCP 確實已經在成為事實標準。
+把 2025 一整年的時間軸串起來看會更清楚這事多誇張:**2024/11/25** Anthropic 公布 MCP → **2025/03** OpenAI 官方宣布支援 MCP(這是它從「Anthropic 提案」變「跨家共識」的決定性時刻)→ **2025/08** IBM 那個 Agent Communication Protocol 併入 Google A2A、交給 Linux Foundation 託管。從廠商協定一路被各家擁抱、又陸續被中立基金會接手,這個速度本身就是 Schelling point 成立的證據——MCP 確實已經在成為事實標準。
 
 跟 Hermes 的「一個核心多種驅動」對照來看,這兩件事其實是同一個道理在不同尺度上發生:
 

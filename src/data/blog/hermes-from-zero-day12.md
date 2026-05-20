@@ -70,8 +70,6 @@ PTY 解決這件事。你開一個 PTY,subprocess 接到 PTY 的 slave 端,subpr
 
 **很多 agent framework 這件事都做不對**。他們的 sandbox 拿 `subprocess.run` 一接,然後就跟使用者說「我們不支援互動式工具」。Hermes 不是——`hermes --tui` 跑在 PTY 裡,所以它的 slash 指令彈出層、模型選擇器、整套 TUI,都拿得到真實的 termcap 跟 ANSI 處理。同一招在 Web 端被重用得更兇,等等講。
 
-<!-- TODO: 確認「90% framework 做不對」這個比例宣稱是否有來源,改成「很多」較安全 -->
-
 ---
 
 ## 三、Web 端的偷懶之道:不要 port UI,要 port terminal
@@ -175,7 +173,7 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 
 **657KB,一個 `.py` 檔**。同一個 repo 裡 `gateway/run.py` 是 855KB。一個 CLI 入口檔半 MB,一個 gateway runtime 接近 1MB,而且都是單一檔案、單一 class。
 
-我把 `cli.py` 打開往下捲——它是一個 `HermesCLI` 類別,大概一萬一千多行、約 190 個 method。`run()` 一個 method 就兩千三百多行。所有的 slash 指令(`/model`、`/skills`、`/resume`、`/voice`、`/codex-runtime`……六十幾個)不是註冊成獨立的 `Command` 物件,是 `run()` 裡面一條巨大的 `if/elif` 鏈。
+我把 `cli.py` 打開往下捲——它是一個 `HermesCLI` 類別,從 line 2539 拉到檔末接近一萬兩千行,class body 約 180 個 method。`run()` 一個 method 就兩千五百多行。所有的 slash 指令(`/model`、`/skills`、`/resume`、`/voice`、`/codex-runtime`……六十幾個)不是註冊成獨立的 `Command` 物件,是 `run()` 裡面一條巨大的 `if/elif` 鏈。
 
 這就是我前面 Day 7 偷偷鋪過、要在 Day 14 正面開砲的暗線 C:**抽取程式碼 ≠ 分解系統**。
 
@@ -193,7 +191,7 @@ Hermes 的架構**選擇**是漂亮的——一個核心,多種驅動。但 Herm
 
 第一,Hermes 的 CLI / TUI / Web 三套介面共用一個 JSON-RPC server,差別只在傳輸層跟渲染面;JSON-RPC 是個對 agent loop 友善的選擇,因為 agent 的對話本來就是長連線、雙向、streaming-friendly。
 
-第二,PTY 是個被 90% framework 忽略的細節——它讓 agent 能跑真實的互動式工具,還讓 Web 端可以用「把 terminal 搬進瀏覽器」這招重用整套 TUI。
+第二,PTY 是個常被忽略的細節——它讓 agent 能跑真實的互動式工具,還讓 Web 端可以用「把 terminal 搬進瀏覽器」這招重用整套 TUI。
 
 第三,SessionDB 用 SQLite 當「唯一狀態真相」,CLI、Web、cron 全部讀寫同一張表,所以三套介面之間天然共享 session;搭配 long-term memory,hot state 跟 curated knowledge 各管各的。
 

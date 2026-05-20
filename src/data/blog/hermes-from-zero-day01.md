@@ -69,7 +69,7 @@ print(resp.choices[0].message.content)
 
 我挑 Hermes 拆,因為它在三個地方下的工夫值得學:
 
-1. **多 provider 三層抽象做得徹底**——Hermes 有 6 個 explicit adapter(`agent/*_adapter.py`:Anthropic、Bedrock、Azure Identity、Codex Responses、Gemini Cloud Code、Gemini Native),再用 `credential_pool.py`(1,955 行)管同家內多 key rotation、用 `agent/transports/` 處理 streaming / proxy / 重連。對外失敗時走 OpenRouter → Nous Portal → Custom endpoint(本機 llama.cpp / vLLM 走這條)→ Native Anthropic 五段橫向 fallback。一個專案做 LLM 接入做到這種深度,值得拆來看。
+1. **多 provider 三層抽象做得徹底**——Hermes 有 6 個 explicit adapter(`agent/*_adapter.py`:Anthropic、Bedrock、Azure Identity、Codex Responses、Gemini Cloud Code、Gemini Native),再用 `credential_pool.py`(1,955 行)管同家內多 key rotation、用 `agent/transports/` 處理 streaming / proxy / 重連。對外失敗時走 OpenRouter、Nous Portal、Custom endpoint(本機 llama.cpp / vLLM 走這條)、Native Anthropic 多段橫向 fallback。一個專案做 LLM 接入做到這種深度,值得拆來看。
 2. **prompt cache 當鐵律設計**——大部分 framework 把 cache 當「順便」做的優化,Hermes 把它變成整個 API 的形狀(`stable / context / volatile` 三層、DATE-only 時間戳、deterministic tool_call_id fallback、JSON sort_keys)。Day 03 會看到細節。
 3. **觀測性紀律**——每個結束點都有名字(`_turn_exit_reason`)、防說謊頁尾、純函式 guardrail controller。這些不依賴語言,任何 framework 都能照搬。
 
@@ -125,7 +125,7 @@ Chat completion 是「我問一句它答一句」,agent 是「我給一個目標
 | `AGENTS.md` | 專案自己給 agent contributor 看的指南,讀懂 repo 結構最快的方式 |
 | `README.md` | 官方的功能宣傳,有 quick install 跟主要 feature 列表 |
 | `run_agent.py` | `AIAgent` orchestrator 本體,約 179KB,64 kwargs 的建構子在這 |
-| `agent/agent_init.py` | `AIAgent.__init__` 真正把 64 個 kwargs 攤開組裝起來的地方 |
+| `agent/agent_init.py` | `AIAgent.__init__` 真正把那 64 個 kwargs 攤開組裝起來的地方 |
 | `agent/conversation_loop.py` | 核心 while 迴圈,`run_conversation()` 進去看 |
 
 從 `run_agent.py` 的 `AIAgent` 進去,跟著 `run_conversation()` 一路追下去就會走到 Day 02 的主菜。

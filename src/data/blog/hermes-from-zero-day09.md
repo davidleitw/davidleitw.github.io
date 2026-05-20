@@ -29,9 +29,9 @@ Hermes 的 `gateway/` 目錄,職責就一句話:**把外部世界各種奇形怪
 
 每個 channel(Telegram、Discord、Slack、Signal、email、SMS、Matrix、Feishu …Hermes 內建大約 25 個平台)是一個 **adapter**。所有 adapter 都繼承自 `gateway/platforms/base.py` 的 `BasePlatformAdapter`,這是一個 ABC——抽象基底類別,定義一個**很窄**的契約。
 
-窄到什麼程度?強制必須實作的方法只有大概五個:`connect`、`disconnect`、`send`、`send_typing`、`get_chat_info`。其他更花俏的東西——送圖片、送語音、編輯訊息、送草稿、開分流 thread——基底類別都有**會優雅降級的預設實作**。
+窄到什麼程度?`@abstractmethod` 強制的只有四個:`connect`、`disconnect`、`send`、`get_chat_info`。其他更花俏的東西——送 typing 指示、送圖片、送語音、編輯訊息、送草稿、開分流 thread——基底類別都有**會優雅降級的預設實作**。
 
-一個不能送原生圖片的 adapter,降級成「把 URL 當文字貼上」就好;一個不能編輯訊息的,回傳 `success=False`,呼叫端就改送一則新訊息。**接一個新平台只要實作五個方法就能跑**,進階能力是「選擇性 opt-in」,不是「全部都要做齊」。
+一個不能送原生圖片的 adapter,降級成「把 URL 當文字貼上」就好;一個不能編輯訊息的,回傳 `success=False`,呼叫端就改送一則新訊息。**接一個新平台只要實作那四個強制方法就能跑**,進階能力是「選擇性 opt-in」,不是「全部都要做齊」。
 
 進來的訊息會被正規化成單一的 `MessageEvent` dataclass,送出的結果正規化成 `SendResult`。agent 核心**永遠只看到這兩個型別**,看不到任何 Slack 的 `event.message.text`、Discord 的 `Message.content`、Telegram 的 `Update.message.text`。
 
@@ -141,7 +141,7 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 
 對,855KB。一個 .py 檔。我第一次 `ls -lh` 看到的時候以為是工具壞了。
 
-裡面有個叫 `GatewayRunner` 的 god object,大約 150 個方法,擁有 adapter 生命週期、約 50 個 slash 指令、6 個以上的背景 watcher、語音、Telegram 討論串管理、kanban、目標續接、agent 快取、重啟、關機排空。光是 `_run_agent` 一個方法就大約 2,240 行。
+裡面有個叫 `GatewayRunner` 的 god object,**class body 量到約 200 個方法**(`awk` 從 `class GatewayRunner` 開始抓 `def`),擁有 adapter 生命週期、數十個 slash 指令、6 個以上的背景 watcher、語音、Telegram 討論串管理、kanban、目標續接、agent 快取、重啟、關機排空。光是 `_run_agent` 一個方法就大約 2,500 行。
 
 更荒謬的是,`gateway/platforms/ADDING_A_PLATFORM.md` 文件本身就是個「**16 步驟、要碰約 13 個檔案**的檢查清單」。驗證步驟字面上寫著:「grep 其他平台的名字——如果某個檔案提到它們卻沒提到你的,你就漏了。」
 

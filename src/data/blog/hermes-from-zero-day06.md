@@ -16,11 +16,11 @@ draft: false
 ```python
 # See issue #25322 and PR #17276 for the full analysis +
 # measured impact (~26% end-to-end cost reduction on
-# Sonnet 4.5 in the integration tests).
+# Sonnet 4.5).
 review_agent._cached_system_prompt = agent._cached_system_prompt
 ```
 
-實測在 Sonnet 4.5 上做對「review agent 繼承父的 cached system prompt」省了大約 **26% 端到端成本**。這個檔案的設計動機就是這個註解:**讓 agent 能「分叉自己」去學習,但不付重新建 cache 的全價**。
+實測在 Sonnet 4.5 上做對「review agent 繼承父的 cached system prompt」省了大約 **26% 端到端成本**(註解原話)。這個檔案的設計動機就是這個註解:**讓 agent 能「分叉自己」去學習,但不付重新建 cache 的全價**。
 
 「Agent 怎麼記住昨天聊過什麼?」這個問題答案不是「塞進 system prompt」(那違反 Day 03 鐵律)——是把記憶這件事**外包給一個會繼承父 cache 的分身 agent**。今天這篇拆記憶 + 自我改進迴圈:memory provider 抽象、background review、Curator,以及「不繼承 cache 跟刻意繼承 cache」的設計差別。
 

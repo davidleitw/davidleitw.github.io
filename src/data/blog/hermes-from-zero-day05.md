@@ -50,7 +50,7 @@ agent/azure_identity_adapter.py
 
 **第一件:規格轉換。** 核心迴圈(`run_agent.py`)是針對 OpenAI Chat Completions 的形狀寫的——`messages[]`、`tools[]`、`choices[0].message.tool_calls`。所有 provider 都得把自己原生的形狀翻譯成這個。Anthropic 的 `content` block 陣列要被攤平成 OpenAI 的 `tool_calls` 結構;Bedrock Converse 的 `toolUse` / `toolResult` 要對齊;Gemini 的 `functionCall` 要塞進來。每個 adapter 大概都有一對 `convert_messages_to_X` / `normalize_X_response` 的函式,進去是「Hermes 內部的通用格式」,出來是「那家 API 真正吃得下的東西」,或反過來。
 
-**第二件:錯誤翻譯。** 這個常被低估。Anthropic 的 rate limit 是一種格式,OpenAI 是另一種,Gemini 又不一樣,llama.cpp 連 HTTP status 都可能對不上。Hermes 內部用一組 `FailoverReason`(枚舉)當共通語言——`rate_limit`、`billing`、`auth_expired`、`context_too_long`……不管哪家 provider 出包,adapter 都得把它正規化成這幾個值之一,核心迴圈才有辦法統一決策。
+**第二件:錯誤翻譯。** 這個常被低估。Anthropic 的 rate limit 是一種格式,OpenAI 是另一種,Gemini 又不一樣,llama.cpp 連 HTTP status 都可能對不上。Hermes 內部用一組 `FailoverReason`(枚舉)當共通語言——`rate_limit`、`billing`、`auth`、`context_overflow`……不管哪家 provider 出包,adapter 都得把它正規化成這幾個值之一,核心迴圈才有辦法統一決策。
 
 > **Note**:adapter pattern 學術定義是「把一個介面包裝成另一個介面」,但實務上 80% 的工作量根本不在「轉換」,而在「翻譯這家 provider 的脾氣」——它什麼時候鬧、鬧的時候訊息長什麼樣、復原條件是什麼。這才是 adapter 的全部工作量。
 
@@ -78,7 +78,7 @@ Day 2 我講核心迴圈的時候埋了個種子:`AIAgent` 是 protocol-agnostic
 
 實務上一個 heavy user 不會只有一把 Anthropic key。可能 5 把(個人 + Pro + 公司 + side project + 朋友送的)。或是 2 個 Codex OAuth 帳號交替用。為什麼?因為**一把 key 被 rate limit 的時候,你不希望整個 agent 在那邊乾等**。另一把可以接手。
 
-Hermes 把這件事抽出來叫 `credential_pool.py`,1,955 行,是這個子系統最重的一塊。你乍看會覺得「不就是個 key 的 list 嗎,幹嘛這麼複雜?」——直到你開始想下面這些問題:
+Hermes 把這件事抽出來叫 `credential_pool.py`,1,955 行。你乍看會覺得「不就是個 key 的 list 嗎,幹嘛這麼複雜?」——直到你開始想下面這些問題:
 
 - 一把 key 被限流了,什麼時候該重試?5 分鐘?1 小時?
 - 重試的等待時間,**該不該根據錯誤類型不同?**(spoiler:該)
@@ -121,7 +121,7 @@ base.py    types.py
 
 **Anthropic 的 thinking 簽章。** Claude 開了 extended thinking 之後,回傳的 thinking block 帶簽章。下一輪你**必須**把簽章重播回去,不然會收到 `thinking_signature` error。Hermes 看到這種錯誤的時候會去 strip 掉一個叫 `reasoning_details` 的東西重試——這是個寫死的特例,不是泛型解法,因為你只能對著 Anthropic 的行為寫。
 
-**Gemini 的 schema 方言。** `gemini_schema.py` 是個遞迴 schema 改寫器,99 行,用 allowlist(23 個 key)+ 一條 enum-vs-integer 例外規則處理 Gemini schema 方言。它做的事大概像這樣:遍歷工具的 JSON Schema,allowlist 一組 Gemini 真的吃得下的 key,把 `$schema`、`additionalProperties` 砍掉,在 integer 欄位上的 `enum` 也得刪。
+**Gemini 的 schema 方言。** `gemini_schema.py` 是個遞迴 schema 改寫器,99 行,用 allowlist(22 個 key)+ 一條 enum-vs-integer 例外規則處理 Gemini schema 方言。它做的事大概像這樣:遍歷工具的 JSON Schema,allowlist 一組 Gemini 真的吃得下的 key,把 `$schema`、`additionalProperties` 砍掉,在 integer 欄位上的 `enum` 也得刪。
 
 **llama.cpp 的 grammar pattern。** 它的 grammar 約束格式跟其他家不相容,有個 `should_fallback` 判斷會在偵測到某些情境時走特殊路徑——本地推論的世界,規範常常是 LLM runtime 自己定的,跟 cloud API 不是同一套生態。
 
@@ -174,4 +174,4 @@ base.py    types.py
 | `agent/gemini_schema.py` | Gemini schema 方言的遞迴修復器 |
 | `agent/nous_rate_guard.py` | 跨 session 限流斷路器 |
 
-從 `agent/anthropic_adapter.py` 進去,先看 `convert_messages_to_anthropic` 跟 `normalize_anthropic_response` 一對函式怎麼搭;再去 `credential_pool.py` 看 `PooledCredential` 跟 `_exhausted_ttl()`(401 vs 429 不同冷卻);最後去 `agent/transports/types.py` 看 `NormalizedResponse` 跟 `ToolCall`——那是這個子系統設計最乾淨的部分。
+從 `agent/anthropic_adapter.py` 進去,先看 `convert_messages_to_anthropic` 怎麼把訊息翻譯成 Anthropic 形狀;normalize 的對應方向則住在 `agent/transports/anthropic.py` 的 `normalize_response`。再去 `credential_pool.py` 看 `PooledCredential` 跟 `_exhausted_ttl()`(401 vs 429 不同冷卻);最後去 `agent/transports/types.py` 看 `NormalizedResponse` 跟 `ToolCall`——那是這個子系統設計最乾淨的部分。

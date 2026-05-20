@@ -235,7 +235,7 @@ Hermes 是英文世界的產物。壓縮、token 估算、prompt 模板、錯誤
 | 08 | MCP adapter | `mcp_serve.py`(repo 根目錄)、相關 MCP 工具註冊在 `tools/` |
 | 09 | Gateway | `gateway/run.py`(約 855KB,`GatewayRunner` god object)|
 | 09 | ACP adapter | `acp_adapter/server.py` |
-| 10 | 技能系統 | `skills/`(repo 根目錄,89 個內建技能)、`agent/skill_bundles.py` / `skill_commands.py` / `skill_preprocessing.py` / `skill_utils.py`、`tools/skill_manager_tool.py` |
+| 10 | 技能系統 | `skills/`(repo 根目錄,內建二十幾個技能)、`agent/skill_bundles.py` / `skill_commands.py` / `skill_preprocessing.py` / `skill_utils.py`、`tools/skill_manager_tool.py` |
 | 10 | Plugin 系統 | `plugins/`(repo 根目錄)、`agent/plugin_llm.py`、`hermes_cli/plugins.py` |
 | 11 | 子代理委派 | `tools/delegate_tool.py`(委派工具)、`hermes_cli/kanban.py` / `kanban_db.py` / `kanban_swarm.py`、`tools/kanban_tools.py` |
 | 12 | CLI / Web / Cron | `cli.py`(657KB)、`hermes_cli/main.py`、`cron/scheduler.py` |
