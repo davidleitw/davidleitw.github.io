@@ -177,7 +177,7 @@ Hermes 的答案在 `hermes_state.py`——一個 138KB 的模組,核心是 `Ses
 
 這就是我前面 Day 7 偷偷鋪過、要在 Day 14 正面開砲的暗線 C:**抽取程式碼 ≠ 分解系統**。
 
-Hermes 的架構**選擇**是漂亮的——一個核心,多種驅動。但 Hermes 的**實作**有一個反覆出現的結構性債務:**檔案肥大、單一 class 包山包海**。`AIAgent` 至少還把 method body 推進了 `agent/` 子模組;`HermesCLI` 把一萬多行全部留在 `cli.py` inline。`hermes_cli/main.py` 也是,12,939 行,`main()` 函式本身 2,800 行,十幾個 `cmd_*` 命令處理器寫成 `main()` 裡面的 nested closure——根本沒辦法 import、沒辦法單元測試。
+Hermes 的架構**選擇**是漂亮的——一個核心,多種驅動。但 Hermes 的**實作**有一個反覆出現的結構性債務:**檔案肥大、單一 class 包山包海**。`AIAgent` 至少還把 method body 推進了 `agent/` 子模組;`HermesCLI` 把一萬多行全部留在 `cli.py` inline。`hermes_cli/main.py` 也是,12,939 行,`main()` 函式本身 2,800 行,11 個 `cmd_*` 寫成 `main()` 裡面的 nested closure(`cmd_pairing`、`cmd_skills`、`cmd_plugins`、`cmd_memory`、`cmd_tools`、`cmd_computer_use`、`cmd_mcp`、`cmd_sessions`、`cmd_insights`、`cmd_claw`、`cmd_acp`),其他主要 `cmd_*` 是 top-level def——nested 那批根本沒辦法 import、沒辦法單元測試。
 
 我不是要說這團隊不行——他們做了非常多其他做得好的事(Day 1 到今天一路講過)。我想說的是:**架構選擇和實作組織是兩個獨立的東西**。你可以架構乾淨但實作糊在一起,反之也可以。Hermes 是前者。
 
@@ -211,7 +211,7 @@ Hermes 的架構**選擇**是漂亮的——一個核心,多種驅動。但 Herm
 | `hermes_state.py` | SessionDB,138KB 單一檔,所有 session 狀態 |
 | `hermes_cli/pty_bridge.py` | 把 `hermes --tui` 透過 PTY 搬進瀏覽器 |
 | `hermes_cli/goals.py` | Ralph loop,cron 排程跑 agent 的核心邏輯 |
-| `hermes_cli/main.py` | CLI 入口,12,939 行,看 `_apply_profile_override` 跟那 14 個 nested `cmd_*` closure |
+| `hermes_cli/main.py` | CLI 入口,12,939 行,看 `_apply_profile_override` 跟那 11 個 nested `cmd_*` closure |
 | `cli.py` | 657KB 的 `HermesCLI`,所有 slash 指令、TUI 互動邏輯 |
 | `ui-tui/` | TUI 的 React renderer,內含 fork 過的 Ink |
 | `web/` | Vite + React SPA,聊天頁是 xterm.js + PTY |

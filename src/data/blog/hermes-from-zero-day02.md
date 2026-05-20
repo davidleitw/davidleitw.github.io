@@ -83,7 +83,7 @@ def run_agent(user_msg, tools):
 
 Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation()` 裡。
 
-我一開始 clone 下來打開這個檔案,VS Code 卡了一下——`wc -l` 出來是 **4,099 行**。不是檔案 4,099 行,是這個單一函式就 4,099 行。我以為自己看錯了。(老實說這本身是個問題,Day 14 會正面開砲。但今天先放下這個審美問題,看它在做什麼。)
+我一開始 clone 下來打開這個檔案,VS Code 卡了一下——`wc -l` 出來是 **4,099 行**——其中 `run_conversation()` 函式從 line 187 開始,函式本體大約 3,900 行。我以為自己看錯了。(老實說這本身是個問題,Day 14 會正面開砲。但今天先放下這個審美問題,看它在做什麼。)
 
 剝掉所有恢復邏輯之後,它的形狀是兩層巢狀迴圈:
 
@@ -104,11 +104,11 @@ Hermes 的核心迴圈寫在 `agent/conversation_loop.py` 的 `run_conversation(
 
 外層管的是「這一輪有沒有進展」——每呼叫一次模型就 +1。內層管的是「這次呼叫本身失不失敗」——壓縮過 context、調高輸出預算、換 provider 之後,要不要再試一次。
 
-兩層之間的溝通方式很土法——用 `restart_with_compressed_messages`、`restart_with_fallback_provider` 這種布林旗標,內層設了旗標就 `break` 出去,外層讀旗標決定 `continue`。是用 Python 手刻的狀態機,囉嗦,但它把兩個概念分得很乾淨:**「重試什麼」是內層的事,「這一輪有沒有真的前進」是外層的記帳**。
+兩層之間的溝通方式很土法——用 `restart_with_compressed_messages`、`restart_with_length_continuation` 這種布林旗標,內層設了旗標就 `break` 出去,外層讀旗標決定 `continue`。是用 Python 手刻的狀態機,囉嗦,但它把兩個概念分得很乾淨:**「重試什麼」是內層的事,「這一輪有沒有真的前進」是外層的記帳**。
 
 為什麼要分這麼開?因為如果你不分,你會寫出那種——每次 retry 都當成「新一輪」記帳,於是 max_iterations 那個保險絲根本沒在保——一輪呼叫失敗 10 次,就燒掉你 10 個迭代額度,而模型其實還沒前進半步。
 
-> **Note**:旗標 + `break` 是一種很手工的控制流,放在 4,099 行函式裡讓人很痛苦。但「retry 跟 iteration 是兩個獨立概念」這個拆分,本身是對的。你自己寫 agent 的時候,即使不模仿這個檔案結構,也要把這兩個計數器分開。
+> **Note**:旗標 + `break` 是一種很手工的控制流,放在約 3,900 行的函式裡讓人很痛苦。但「retry 跟 iteration 是兩個獨立概念」這個拆分,本身是對的。你自己寫 agent 的時候,即使不模仿這個檔案結構,也要把這兩個計數器分開。
 
 ---
 
@@ -202,8 +202,8 @@ agent 的最小心臟,概念上就一個迴圈:呼叫模型 → 執行動作 →
 
 | 檔案 | 在幹嘛 |
 |---|---|
-| `agent/conversation_loop.py` | 核心迴圈 `run_conversation()`,4,099 行單一函式;兩層巢狀迴圈、所有恢復邏輯、`_turn_exit_reason` 都在這 |
+| `agent/conversation_loop.py` | 核心迴圈 `run_conversation()`,整檔 4,099 行,`run_conversation()` 函式本體約 3,900 行;兩層巢狀迴圈、所有恢復邏輯、`_turn_exit_reason` 都在這 |
 | `agent/iteration_budget.py` | `IterationBudget` 計數器,62 行;`consume()` / `refund()` / 寬限呼叫的源頭 |
-| `agent/run_agent.py` | `AIAgent` 主類別,核心迴圈的「驅動者」;protocol-agnostic 的設計就在這 |
+| `run_agent.py`(repo 根目錄) | `AIAgent` 主類別,核心迴圈的「驅動者」;protocol-agnostic 的設計就在這 |
 
 從 `run_conversation()` 進入,跟著 `restart_with_*` 旗標看分支,你就會看到那 ~25 個 inline 的恢復路徑(然後你會跟我一樣,想把它重構成 `RecoveryHandler`——但那是 Day 14 的事)。

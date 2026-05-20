@@ -47,7 +47,7 @@ print(resp.choices[0].message.content)
 
 聽起來只多了一個迴圈?但這個迴圈會把你拖進五個你原本不用煩惱的問題:
 
-1. Loop 本身——什麼時候停?模型自己說「我做完了」就信嗎?還是要設一個迭代上限?如果它無限呼叫同一個工具呢?(Hermes 的答案叫 `IterationBudget`,預設每個 agent 50 次,我們 Day 02 會講。)
+1. Loop 本身——什麼時候停?模型自己說「我做完了」就信嗎?還是要設一個迭代上限?如果它無限呼叫同一個工具呢?(Hermes 的答案叫 `IterationBudget`,父 agent 預設 90 圈,子代理 50 圈,我們 Day 02 會講。)
 2. Tool use——模型說「我要呼叫 `read_file`」,你怎麼安全地真的去執行?執行完的結果怎麼塞回對話?它叫了一個不存在的工具怎麼辦?
 3. Memory——這個 session 結束,下一個 session 開始,它怎麼記得「你」是誰?
 4. Context management——對話越長 token 越多,context window 一定會撐爆,壓縮要怎麼壓才不會把任務狀態壓沒了?
@@ -73,7 +73,7 @@ print(resp.choices[0].message.content)
 
 第四,它跟 LangChain 那種「教科書範例集合」氣質不一樣。 LangChain 像一本食譜——它告訴你「agent 有這幾種 pattern」,然後給你 abstraction 套用。Hermes 比較像一份「真的開過業」的廚房日誌——你會看到他們怎麼處理 prompt cache 失效的成本、怎麼用 SQLite 撐多進程協作、怎麼避免不同 channel 同時打進來時的 session 衝突。你讀的是別人撞過的牆,不是別人總結出來的抽象。
 
-第五,它的工程瑕疵也很有教育意義。 我講真的——這個 framework 有些檔案大到誇張。`cli.py` 約 657KB、`gateway/run.py` 約 855KB、`hermes_state.py` 約 138KB 一個 class、`agent/conversation_loop.py` 的 `run_conversation()` 約 3,900 行。對,3,900 行的單一函式。我第一次看到的時候盯著螢幕愣了一下,想說「這怎麼維護啊」。但越拆下去越發現,這些「歪掉」的地方比那些寫得漂亮的地方更值得學——因為它告訴你「快速迭代 + 真實壓力」會把一個專案推成什麼形狀。
+第五,它的工程瑕疵也很有教育意義。 我講真的——這個 framework 有些檔案大到誇張。`cli.py` 約 657KB、`gateway/run.py` 約 855KB、`hermes_state.py` 約 138KB / 3,238 行,內含 `SessionDB` class、`agent/conversation_loop.py` 的 `run_conversation()` 約 3,900 行。對,3,900 行的單一函式。我第一次看到的時候盯著螢幕愣了一下,想說「這怎麼維護啊」。但越拆下去越發現,這些「歪掉」的地方比那些寫得漂亮的地方更值得學——因為它告訴你「快速迭代 + 真實壓力」會把一個專案推成什麼形狀。
 
 (對,我也覺得 657KB 的 `cli.py` 不該存在,但這就是現實。)
 
@@ -89,7 +89,7 @@ print(resp.choices[0].message.content)
 
 比喻一下:prompt cache 像便利商店的熟客折扣,你每次拿一樣的會員卡才有折,中途把卡換掉就重新算原價。Hermes 整套設計就是「不准你中途換卡」。
 
-**第三條:「抽取程式碼 ≠ 分解系統」。** 這條是我從 Hermes 學到最深的一課,而且是從它「沒做好」的地方學的。前面提的那些巨石檔案——`cli.py` 那個 11,600 行的 `HermesCLI` class、`run_agent.py` 那個 80+ kwargs 的 `AIAgent` 建構子、`hermes_state.py` 那個 3,200 行單一 class——團隊知道要模組化,所以把 method 搬進 `agent/` 底下的 80 多個 submodule,但每個搬出去的 function 都還要靠 `self` 拿回 `AIAgent` 上幾十個屬性。搬移程式碼做了,定義介面 + 切割狀態所有權沒做。Day 07 偷偷鋪墊,Day 12 提一下,Day 14 我會正面開砲。
+**第三條:「抽取程式碼 ≠ 分解系統」。** 這條是我從 Hermes 學到最深的一課,而且是從它「沒做好」的地方學的。前面提的那些巨石檔案——`cli.py` 那個 11,600 行的 `HermesCLI` class、`run_agent.py` 那個 64 kwargs 的 `AIAgent` 建構子、`hermes_state.py` 那個 ~3,200 行的單檔(`SessionDB` class 從 line 309 開始)——團隊知道要模組化,所以把 method 搬進 `agent/` 底下的 80 多個 submodule,但每個搬出去的 function 都還要靠 `self` 拿回 `AIAgent` 上幾十個屬性。搬移程式碼做了,定義介面 + 切割狀態所有權沒做。Day 07 偷偷鋪墊,Day 12 提一下,Day 14 我會正面開砲。
 
 如果你之後想自己刻一個 agent framework,這三條線——一個成功(主線 A)、一個鐵律(主線 B)、一個前車之鑑(主線 C)——是我覺得最值得帶走的三樣東西。
 
@@ -128,8 +128,8 @@ Chat completion 是「我問一句它答一句」,agent 是「我給一個目標
 | `https://github.com/NousResearch/hermes-agent` | repo 入口,clone 下來 3,400+ 個檔案 |
 | `AGENTS.md` | 專案自己給 agent contributor 看的指南,讀懂 repo 結構最快的方式 |
 | `README.md` | 官方的功能宣傳,有 quick install 跟主要 feature 列表 |
-| `run_agent.py` | `AIAgent` orchestrator 本體,約 179KB,80+ kwargs 的建構子在這 |
-| `agent/agent_init.py` | `AIAgent.__init__` 真正把 80 個 kwargs 攤開組裝起來的地方 |
+| `run_agent.py` | `AIAgent` orchestrator 本體,約 179KB,64 kwargs 的建構子在這 |
+| `agent/agent_init.py` | `AIAgent.__init__` 真正把 64 個 kwargs 攤開組裝起來的地方 |
 | `agent/conversation_loop.py` | 核心 while 迴圈,`run_conversation()` 進去看 |
 
 從 `run_agent.py` 的 `AIAgent` 進去,跟著 `run_conversation()` 一路追下去就會走到 Day 02 的主菜。

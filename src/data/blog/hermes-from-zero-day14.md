@@ -70,10 +70,10 @@ def some_method(self, *args, **kwargs):
 
 ## 二、24 種 fallback 都是英文字串比對
 
-Day 7 我們講過 tool 失敗分類用 `'"error"' in result[:500].lower()` 這種 substring match。當下我覺得「OK 這是 LLM-aware 的 trade-off」。但你把整個 codebase 掃過一遍會發現——這不是孤例。
+Day 7 我們講過 tool 失敗分類——`tool_guardrails.py` 的判斷是 `'"error"' in lower or '"failed"' in lower or result.startswith("Error")`——三條 OR 拼起來的字串比對。當下我覺得「OK 這是 LLM-aware 的 trade-off」。但你把整個 codebase 掃過一遍會發現——這不是孤例。
 
 - **Tool 失敗判定**:`'"error"' in result[:500]`
-- **Provider 錯誤分類**:`'rate limit' in str(exc).lower()`、`'context length' in str(exc).lower()`、`'safety' in str(exc).lower()`——一整排英文片語比對,大約 24 個 fallback string match 分散在不同地方
+- **Provider 錯誤分類**:`'rate limit' in str(exc).lower()`、`'context length' in str(exc).lower()`、`'safety' in str(exc).lower()`——一整排英文片語比對,二十幾個 fallback string match 分散在不同地方
 - **圖片拒絕偵測**:寫死的英文(和少數中文)子字串
 - **Context 溢位**:同樣是英文片語
 
@@ -212,7 +212,7 @@ Hermes 是個**「設計水準 > 實作水準」的 codebase**。它的架構選
 | `cli.py` | 657KB / 14,466 行的單一 `HermesCLI` 類別,看一眼感受一下 |
 | `gateway/run.py` | 855KB / 18,188 行,`GatewayRunner` god object |
 | `agent/conversation_loop.py` | 4,099 行,`run_conversation()` 是約 3,900 行的單一函式 |
-| `agent/tool_executor.py` | 並行工具的 `_PARALLEL_SAFE_TOOLS` 白名單跟 path overlap check |
+| `agent/tool_dispatch_helpers.py` | 並行工具的 `_PARALLEL_SAFE_TOOLS` 白名單跟 path overlap check |
 | `agent/auxiliary_client.py` | aux LLM 客戶端,看背景複查的 fallback 路徑 |
 | `run_agent.py` | `AIAgent` god object 跟 forwarder pattern |
 

@@ -77,7 +77,7 @@ Hermes 的解法很直接:**按穩定性排序**。`system_prompt.py` 把整段 
 
 但你想一下:**如果時間戳精確到分鐘,代表 system prompt 每分鐘都會變一次**。每變一次,後面整段 cache 直接失效。一個 agent session 跑半小時,你可能每隔幾分鐘就重建一次 system prompt,等於把整套 prefix cache 砸到地上,**而你還完全沒意識到**——因為功能上「沒壞」,只有錢包知道。
 
-Hermes 怎麼處理?看 `system_prompt.py` 第 265 行附近:
+Hermes 怎麼處理?看 `system_prompt.py` line 265–271 附近:
 
 ```python
 # Date-only (not minute-precision) so the system prompt is byte-stable
@@ -151,7 +151,7 @@ Anthropic 的限制:**一個請求最多 4 個 cache_control breakpoint**。Herm
 
 但你想一下:**random UUID 代表每次重跑同一個 agent loop 拿到的訊息序列都不一樣**。哪怕模型輸出一模一樣、工具參數一模一樣,tool_call_id 不同——前綴**逐位元組**比較就會 miss。你的 cache 一輩子都重建,永遠在花全價。
 
-Hermes 怎麼處理?**用 `hash(函式名 + 參數 + 在這一輪的 index)` 當 id**。同樣的 function、同樣的 args、同樣的順序,就會產出同樣的 id。前綴穩了,cache 才能命中。
+Hermes 怎麼處理?**當上游 API 沒給 call_id 時,Hermes 的 fallback 是用 `hash(函式名 + 參數 + 在這一輪的 index)` 當 id**(見 `agent/codex_responses_adapter.py:143–152` 的 `_deterministic_call_id`,format `call_{sha256(...)[:12]}`)。同樣的 function、同樣的 args、同樣的順序,就會產出同樣的 id。前綴穩了,cache 才能命中。
 
 順帶提一下,工具呼叫的參數也會用 `json.dumps(..., sort_keys=True)` 重新序列化——JSON 物件的 key 順序在不同實作下可能不一樣,逐位元組正規化才能確保 cache hit。這個動作不只幫到 Anthropic 的 prefix cache,連你本機跑 llama.cpp / vLLM 的 KV cache 命中率也一起改善。**同一個原則打通所有層**。
 
@@ -183,6 +183,6 @@ Hermes 怎麼處理?**用 `hash(函式名 + 參數 + 在這一輪的 index)` 當
 |---|---|
 | `agent/prompt_caching.py` | `apply_anthropic_cache_control` 把 4 個 cache_control breakpoint 鋪在 system + 最後 3 則訊息 |
 | `agent/system_prompt.py` | `build_system_prompt` / `_build_system_prompt_layers`,三層 stable/context/volatile 組裝,只建一次快在 `_cached_system_prompt` |
-| `agent/system_prompt.py:265` 附近 | 時間戳只到 DATE 的那段註解,有 PR #20451 出處 |
+| `agent/system_prompt.py` line 265–271 附近 | 時間戳只到 DATE 的那段註解,有 PR #20451 出處 |
 
 從 `build_system_prompt()` 進入,留意它的 docstring 寫「only rebuilt after context compression events」——這就是 Day 04 要拆的那條例外。

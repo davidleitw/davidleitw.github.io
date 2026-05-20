@@ -147,7 +147,9 @@ Hermes 在 `gateway/platforms/base.py` 裡用三個協調的 dict 處理:
 
 裡面有個叫 `GatewayRunner` 的 god object,大約 150 個方法,擁有 adapter 生命週期、約 50 個 slash 指令、6 個以上的背景 watcher、語音、Telegram 討論串管理、kanban、目標續接、agent 快取、重啟、關機排空。光是 `_run_agent` 一個方法就大約 2,240 行。
 
-更荒謬的是,`gateway/` 裡其實有個 `ADDING_A_PLATFORM.md` 文件——它是個「**16 步驟、要碰約 13 個檔案**的檢查清單」。驗證步驟字面上寫著:「grep 其他平台的名字——如果某個檔案提到它們卻沒提到你的,你就漏了。」
+更荒謬的是,`gateway/platforms/ADDING_A_PLATFORM.md` 文件本身就是個「**16 步驟、要碰約 13 個檔案**的檢查清單」。驗證步驟字面上寫著:「grep 其他平台的名字——如果某個檔案提到它們卻沒提到你的,你就漏了。」
+
+值得補一句:**這 16 步是給「內建 path」用的**——文件還提供了一條官方推薦的 plugin path,完全不用動 core code(zero changes to core Hermes)。換句話說,16 步的痛是你「選擇硬接進 core」才會付,不是加平台這件事本身必然這麼貴。
 
 讓我們停一下感受一下。**這是一個被升格成「文件化流程」的程式碼壞味道**。「想加新平台?好的,先把這 16 步做完,還有那個 `if/elif` 鏈記得也加,然後在五個其他檔案裡 grep 看看有沒有漏。」這不是文件,這是控訴狀。
 
@@ -179,6 +181,6 @@ Gateway 是 Hermes 的「對外殼層」。核心 agent 一個,外殼把每個 c
 | `gateway/pairing.py` | 8 碼私訊配對、OWASP/NIST 強化 |
 | `gateway/hooks.py` | 事件 hook 系統(`~/.hermes/hooks/*/`) |
 | `gateway/run.py` | 那個 855KB 的怪物。`GatewayRunner`、`_run_agent`、所有 slash 指令、所有 watcher |
-| `gateway/ADDING_A_PLATFORM.md` | 自我控訴的 16 步驟清單 |
+| `gateway/platforms/ADDING_A_PLATFORM.md` | 自我控訴的 16 步驟清單 |
 
 從 `BasePlatformAdapter` 開始讀,搞清楚契約有多窄;接著看 `session.py` 的 `build_session_key()`(很短、很值得抄);然後跳到 `platforms/api_server.py` 體會「HTTP 也只是一個 platform」的乾淨。最後再點開 `run.py`——當作對「架構不等於程式碼組織」的當頭棒喝。
