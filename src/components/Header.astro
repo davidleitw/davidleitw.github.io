@@ -7,6 +7,14 @@ import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
 import LinkButton from "./LinkButton.astro";
 import { SITE } from "@/config";
 
+type Props = {
+  /** Homepage mode: only logo + search + theme toggle (the bento nav card
+   *  carries the main navigation there). */
+  minimal?: boolean;
+};
+
+const { minimal = false } = Astro.props;
+
 const { pathname } = Astro.url;
 
 // Remove trailing slash from current pathname if exists
@@ -51,22 +59,59 @@ const isActive = (path: string) => {
 
       <!-- Nav area -->
       <nav id="nav-menu" class="flex items-center sm:gap-1">
+        {
+          minimal && (
+            <ul class="flex flex-row items-center gap-1">
+              <li class="flex items-center">
+                <button
+                  data-search-trigger
+                  class="nav-search-btn"
+                  title="Search (⌘K)"
+                  aria-label="Open search"
+                  aria-keyshortcuts="Meta+K"
+                >
+                  <IconSearch class="size-4.5" />
+                  <kbd class="nav-kbd hidden sm:inline-flex">⌘K</kbd>
+                </button>
+              </li>
+              {SITE.lightAndDarkMode && (
+                <li class="flex items-center">
+                  <button
+                    id="theme-btn"
+                    class="nav-icon-btn relative"
+                    title="Toggles light & dark"
+                    aria-label="auto"
+                    aria-live="polite"
+                  >
+                    <IconMoon class="absolute top-1/2 left-1/2 -translate-1/2 scale-100 rotate-0 transition-all duration-300 dark:scale-0 dark:-rotate-90" />
+                    <IconSunHigh class="absolute top-1/2 left-1/2 -translate-1/2 scale-0 rotate-90 transition-all duration-300 dark:scale-100 dark:rotate-0" />
+                  </button>
+                </li>
+              )}
+            </ul>
+          )
+        }
         <!-- Mobile hamburger (animated lines) -->
-        <button
-          id="menu-btn"
-          class="hamburger-btn sm:hidden"
-          aria-label="Open Menu"
-          aria-expanded="false"
-          aria-controls="mobile-menu"
-        >
-          <div class="hamburger-box">
-            <span class="hamburger-line hamburger-line--1"></span>
-            <span class="hamburger-line hamburger-line--2"></span>
-            <span class="hamburger-line hamburger-line--3"></span>
-          </div>
-        </button>
+        {
+          !minimal && (
+            <button
+              id="menu-btn"
+              class="hamburger-btn sm:hidden"
+              aria-label="Open Menu"
+              aria-expanded="false"
+              aria-controls="mobile-menu"
+            >
+              <div class="hamburger-box">
+                <span class="hamburger-line hamburger-line--1" />
+                <span class="hamburger-line hamburger-line--2" />
+                <span class="hamburger-line hamburger-line--3" />
+              </div>
+            </button>
+          )
+        }
 
         <!-- Desktop links (always visible on sm+) -->
+        {!minimal && (
         <ul class="hidden sm:flex sm:flex-row sm:items-center sm:gap-1">
           <li>
             <a
@@ -167,11 +212,13 @@ const isActive = (path: string) => {
             )
           }
         </ul>
+        )}
       </nav>
     </div>
   </div>
 
   <!-- ===================== MOBILE DROPDOWN MENU (Floating Sheet) ===================== -->
+  {!minimal && (
   <div id="mobile-menu" class="mobile-menu sm:hidden" aria-hidden="true">
     <!-- Overlay/Backdrop -->
     <div class="mobile-menu-backdrop"></div>
@@ -272,6 +319,7 @@ const isActive = (path: string) => {
       </div>
     </div>
   </div>
+  )}
 
   <!-- Bottom border with gradient -->
   <div
@@ -392,10 +440,10 @@ const isActive = (path: string) => {
     padding: 0.3rem 0.5rem 0.3rem 0.5rem;
     font-size: 0.8125rem;
     font-weight: 500;
-    color: var(--muted-foreground);
-    border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+    color: var(--ink-muted);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--muted) 40%, transparent);
+    background: var(--surface);
     cursor: pointer;
     transition: all 0.2s ease;
   }
@@ -418,7 +466,7 @@ const isActive = (path: string) => {
     border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
     border-bottom-width: 2px;
     background: color-mix(in srgb, var(--background) 90%, transparent);
-    color: var(--muted-foreground);
+    color: var(--ink-muted);
     box-shadow: inset 0 -1px 0 rgba(0,0,0,0.1);
     transition: all 0.2s ease;
   }

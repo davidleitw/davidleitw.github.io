@@ -13,8 +13,11 @@
       @apply mb-3 text-foreground;
     }
 
-    h3 {
-      @apply font-sriracha italic;
+    h1,
+    h2,
+    h3,
+    h4 {
+      @apply tracking-tight;
     }
 
     p,
@@ -92,7 +95,7 @@
     }
 
     blockquote {
-      @apply rounded-r-xl border-s-[3px] border-accent/80 bg-accent/5 py-4 pr-5 pl-6 font-sriracha text-[1.05rem] text-foreground/90 opacity-90 shadow-sm shadow-accent/5 wrap-break-word;
+      @apply rounded-r-xl border-s-[3px] border-accent/60 bg-surface py-4 pr-5 pl-6 text-[1.02rem] font-normal not-italic text-ink-secondary shadow-(--shadow-card) wrap-break-word;
     }
 
     /* ===== Table of Contents (modern card) ===== */

@@ -1,0 +1,116 @@
+---
+import { Image } from "astro:assets";
+import IconArchive from "@/assets/icons/IconArchive.svg";
+import IconHash from "@/assets/icons/IconHash.svg";
+import IconSearch from "@/assets/icons/IconSearch.svg";
+import IconRss from "@/assets/icons/IconRss.svg";
+import { SITE } from "@/config";
+
+const mascots = import.meta.glob<{ default: ImageMetadata }>(
+  "@/assets/mascot/*.png",
+  { eager: true }
+);
+const avatar = mascots["/src/assets/mascot/mascot-avatar.png"]?.default;
+---
+
+<section class="bento-card flex h-full flex-col" aria-label="關於這個網站">
+  <!-- Identity -->
+  <div class="flex items-center gap-3">
+    {
+      avatar ? (
+        <Image
+          src={avatar}
+          alt="davidlei 的吉祥物頭像"
+          width={96}
+          height={96}
+          class="size-12 rounded-full bg-background object-cover"
+          loading="eager"
+        />
+      ) : (
+        <span class="grid size-12 place-items-center rounded-full bg-background font-cartograph text-lg text-accent">
+          d
+        </span>
+      )
+    }
+    <div>
+      <p class="text-base leading-tight font-semibold tracking-tight">
+        {SITE.title}
+      </p>
+      <p class="mt-0.5 text-xs text-ink-muted">systems / backend</p>
+    </div>
+  </div>
+
+  <p class="mt-4 text-sm leading-relaxed text-ink-secondary">
+    紀錄日常研究、踩過的坑、還有一些亂七八糟的技術筆記。
+  </p>
+
+  <!-- Nav menu -->
+  <p class="mt-6 mb-2 text-[11px] font-semibold tracking-widest text-ink-faint uppercase">
+    General
+  </p>
+  <nav class="flex flex-col gap-1" aria-label="主要導覽">
+    <a href="/posts" class="bento-nav-row">
+      <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+      </svg>
+      <span>全部文章</span>
+    </a>
+    <a href="/tags" class="bento-nav-row">
+      <IconHash class="size-4.5" />
+      <span>標籤</span>
+    </a>
+    <a href="/about" class="bento-nav-row">
+      <svg class="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+      </svg>
+      <span>關於我</span>
+    </a>
+    <a href="/archives" class="bento-nav-row">
+      <IconArchive class="size-4.5" />
+      <span>歸檔</span>
+    </a>
+    <button type="button" data-search-trigger class="bento-nav-row w-full text-start">
+      <IconSearch class="size-4.5" />
+      <span>搜尋</span>
+      <kbd class="ms-auto rounded border border-border bg-background px-1.5 py-0.5 font-cartograph text-[10px] text-ink-muted">⌘K</kbd>
+    </button>
+    <a href="/rss.xml" target="_blank" class="bento-nav-row">
+      <IconRss class="size-4.5" />
+      <span>RSS 訂閱</span>
+    </a>
+  </nav>
+</section>
+
+<style>
+  .bento-nav-row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--ink-secondary);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+  }
+
+  .bento-nav-row:hover {
+    background: var(--background);
+    color: var(--foreground);
+  }
+
+  .bento-nav-row:hover :global(svg) {
+    color: var(--accent);
+  }
+
+  .bento-nav-row :global(svg) {
+    color: var(--ink-faint);
+    transition: color 0.15s ease;
+    flex-shrink: 0;
+  }
+</style>

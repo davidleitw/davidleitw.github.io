@@ -37,31 +37,16 @@ const yearGroups = Object.entries(
 ).sort(([a], [b]) => Number(b) - Number(a));
 ---
 
-<Layout title={`Archives | ${SITE.title}`}>
+<Layout title={`歸檔 | ${SITE.title}`} description={`${SITE.title} 的所有文章，依時間排列`}>
   <Header />
   <Breadcrumb />
   <main id="main-content" class="app-layout pb-12">
     <!-- Hero -->
-    <div class="archive-hero" data-archive-hero>
-      <div class="aurora-orb aurora-orb-1"></div>
-      <div class="aurora-orb aurora-orb-2"></div>
-      <div class="aurora-orb aurora-orb-3"></div>
-      <div class="aurora-mouse" data-archive-mouse></div>
-      <div class="relative z-10">
-        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-          <span class="glow-text">Archives</span>
-        </h1>
-        <p class="mt-3 max-w-lg text-foreground/70 italic">
-          Everything I've written, organized by time.
-        </p>
-        <div class="mt-4 flex flex-wrap items-center gap-2">
-          <span class="hero-badge">{totalPosts} posts</span>
-          <span class="hero-badge"
-            >{yearGroups.length}
-            {yearGroups.length === 1 ? "year" : "years"}</span
-          >
-        </div>
-      </div>
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">歸檔</h1>
+      <p class="mt-2 text-ink-muted">
+        {totalPosts} 篇文章 · {yearGroups.length} 個年份
+      </p>
     </div>
 
     <!-- Timeline -->
@@ -78,8 +63,7 @@ const yearGroups = Object.entries(
           return (
             <div class="year-section">
               {/* Year marker */}
-              <div class="year-marker" data-archive-card>
-                <div class="year-aurora" data-card-aurora />
+              <div class="year-marker">
                 <span class="year-label">{year}</span>
                 <span class="year-count">{yearPosts.length}</span>
               </div>
@@ -105,10 +89,7 @@ const yearGroups = Object.entries(
                           <a
                             href={getPath(post.id, post.filePath)}
                             class="post-card group"
-                            data-archive-card
                           >
-                            <div class="post-aurora" data-card-aurora />
-                            <div class="post-border-glow" data-card-border />
                             <div class="post-dot" />
                             <div class="post-inner">
                               <div class="post-day">
@@ -143,220 +124,7 @@ const yearGroups = Object.entries(
   <Footer />
 </Layout>
 
-<script>
-  let archiveCleanup: AbortController | null = null;
-
-  document.addEventListener("astro:page-load", () => {
-    // Cleanup previous listeners
-    if (archiveCleanup) archiveCleanup.abort();
-    archiveCleanup = new AbortController();
-    const { signal } = archiveCleanup;
-
-    // Hero mouse-follow
-    const hero = document.querySelector("[data-archive-hero]") as HTMLElement;
-    const heroMouse = document.querySelector(
-      "[data-archive-mouse]"
-    ) as HTMLElement;
-    if (hero && heroMouse) {
-      hero.addEventListener(
-        "mousemove",
-        e => {
-          requestAnimationFrame(() => {
-            const rect = hero.getBoundingClientRect();
-            heroMouse.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-            heroMouse.style.setProperty("--my", `${e.clientY - rect.top}px`);
-            heroMouse.style.opacity = "1";
-          });
-        },
-        { signal }
-      );
-      hero.addEventListener(
-        "mouseleave",
-        () => {
-          heroMouse.style.opacity = "0";
-        },
-        { signal }
-      );
-    }
-
-    // Card mouse-follow aurora
-    document.querySelectorAll("[data-archive-card]").forEach(card => {
-      const aurora = card.querySelector("[data-card-aurora]") as HTMLElement;
-      const border = card.querySelector("[data-card-border]") as HTMLElement;
-      if (!aurora) return;
-
-      card.addEventListener(
-        "mousemove",
-        e => {
-          requestAnimationFrame(() => {
-            const rect = (card as HTMLElement).getBoundingClientRect();
-            const x = (e as MouseEvent).clientX - rect.left;
-            const y = (e as MouseEvent).clientY - rect.top;
-            aurora.style.setProperty("--mx", `${x}px`);
-            aurora.style.setProperty("--my", `${y}px`);
-            aurora.style.opacity = "1";
-            if (border) {
-              border.style.setProperty("--mx", `${x}px`);
-              border.style.setProperty("--my", `${y}px`);
-              border.style.opacity = "1";
-            }
-          });
-        },
-        { signal }
-      );
-
-      card.addEventListener(
-        "mouseleave",
-        () => {
-          aurora.style.opacity = "0";
-          if (border) border.style.opacity = "0";
-        },
-        { signal }
-      );
-    });
-  });
-</script>
-
 <style>
-  /* ===== Hero ===== */
-  .archive-hero {
-    position: relative;
-    overflow: hidden;
-    border-radius: 1.5rem;
-    padding: 2.5rem 2rem;
-    margin-bottom: 2.5rem;
-    background: color-mix(
-      in srgb,
-      var(--color-foreground) 3%,
-      var(--color-background)
-    );
-    border: 1px solid color-mix(in srgb, var(--color-accent) 12%, transparent);
-  }
-  @media (min-width: 640px) {
-    .archive-hero {
-      padding: 3rem;
-    }
-  }
-
-  .aurora-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    pointer-events: none;
-    will-change: transform;
-  }
-  .aurora-orb-1 {
-    width: 300px;
-    height: 300px;
-    top: -30%;
-    left: -10%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 25%, transparent),
-      transparent 70%
-    );
-    animation: orb-1 7s ease-in-out infinite alternate;
-  }
-  .aurora-orb-2 {
-    width: 250px;
-    height: 250px;
-    top: 10%;
-    right: -5%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-border) 20%, transparent),
-      transparent 70%
-    );
-    animation: orb-2 9s ease-in-out infinite alternate;
-  }
-  .aurora-orb-3 {
-    width: 200px;
-    height: 200px;
-    bottom: -20%;
-    left: 40%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 12%, transparent),
-      transparent 70%
-    );
-    animation: orb-3 11s ease-in-out infinite alternate;
-  }
-  @keyframes orb-1 {
-    0% {
-      transform: translate(0, 0) scale(1);
-    }
-    100% {
-      transform: translate(40px, 20px) scale(1.2);
-    }
-  }
-  @keyframes orb-2 {
-    0% {
-      transform: translate(0, 0) scale(1);
-    }
-    100% {
-      transform: translate(-30px, 30px) scale(1.15);
-    }
-  }
-  @keyframes orb-3 {
-    0% {
-      transform: translate(0, 0) scale(1);
-    }
-    100% {
-      transform: translate(20px, -25px) scale(1.1);
-    }
-  }
-
-  .aurora-mouse {
-    position: absolute;
-    width: 350px;
-    height: 350px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 18%, transparent),
-      color-mix(in srgb, var(--color-border) 8%, transparent) 40%,
-      transparent 70%
-    );
-    filter: blur(50px);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    transform: translate(
-      calc(var(--mx, 0px) - 175px),
-      calc(var(--my, 0px) - 175px)
-    );
-    will-change: transform;
-    z-index: 1;
-  }
-
-  .glow-text {
-    background: linear-gradient(
-      135deg,
-      var(--color-foreground),
-      var(--color-accent)
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(
-      0 0 25px color-mix(in srgb, var(--color-accent) 25%, transparent)
-    );
-  }
-
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.3rem 0.85rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-accent);
-    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-accent) 15%, transparent);
-    backdrop-filter: blur(8px);
-  }
-
   /* ===== Timeline ===== */
   .timeline {
     position: relative;
@@ -389,61 +157,21 @@ const yearGroups = Object.entries(
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1.25rem;
+    padding: 0.5rem 1.1rem;
     margin-left: -1.5rem;
     margin-bottom: 1rem;
     border-radius: 999px;
-    background: color-mix(
-      in srgb,
-      var(--color-foreground) 3%,
-      var(--color-background)
-    );
-    border: 1px solid color-mix(in srgb, var(--color-accent) 15%, transparent);
-    overflow: hidden;
-    transition:
-      border-color 0.3s ease,
-      box-shadow 0.3s ease;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
     z-index: 2;
-  }
-
-  .year-marker:hover {
-    border-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
-    box-shadow: 0 4px 20px
-      color-mix(in srgb, var(--color-accent) 12%, transparent);
-  }
-
-  .year-aurora {
-    position: absolute;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 25%, transparent),
-      transparent 70%
-    );
-    filter: blur(25px);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    transform: translate(
-      calc(var(--mx, 0px) - 75px),
-      calc(var(--my, 0px) - 75px)
-    );
-    z-index: -1;
   }
 
   .year-label {
     font-size: 1.5rem;
-    font-weight: 800;
-    background: linear-gradient(
-      135deg,
-      var(--color-foreground),
-      var(--color-accent)
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
   }
 
   .year-count {
@@ -507,77 +235,20 @@ const yearGroups = Object.entries(
     position: relative;
     display: block;
     padding: 1rem 1.25rem;
-    border-radius: 1rem;
-    background: color-mix(
-      in srgb,
-      var(--color-foreground) 2%,
-      var(--color-background)
-    );
-    border: 1px solid
-      color-mix(in srgb, var(--color-foreground) 6%, transparent);
-    overflow: hidden;
+    border-radius: 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-card);
     text-decoration: none;
-    color: var(--color-foreground);
+    color: var(--foreground);
     transition:
-      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-      border-color 0.3s ease,
-      box-shadow 0.3s ease;
-    isolation: isolate;
+      transform 0.25s cubic-bezier(0.22, 0.9, 0.3, 1),
+      box-shadow 0.25s ease;
   }
 
   .post-card:hover {
     transform: translateY(-2px);
-    border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
-    box-shadow:
-      0 8px 30px -8px color-mix(in srgb, var(--color-accent) 12%, transparent),
-      0 0 0 1px color-mix(in srgb, var(--color-accent) 6%, transparent),
-      inset 0 1px 0 color-mix(in srgb, var(--color-accent) 5%, transparent);
-  }
-
-  .post-aurora {
-    position: absolute;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 20%, transparent),
-      color-mix(in srgb, var(--color-border) 8%, transparent) 40%,
-      transparent 70%
-    );
-    filter: blur(35px);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    transform: translate(
-      calc(var(--mx, 0px) - 100px),
-      calc(var(--my, 0px) - 100px)
-    );
-    will-change: transform;
-    z-index: -1;
-  }
-
-  .post-border-glow {
-    position: absolute;
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 35%, transparent),
-      transparent 70%
-    );
-    filter: blur(18px);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    transform: translate(
-      calc(var(--mx, 0px) - 60px),
-      calc(var(--my, 0px) - 60px)
-    );
-    will-change: transform;
-    z-index: -1;
-    mix-blend-mode: screen;
+    box-shadow: var(--shadow-float);
   }
 
   /* Timeline dot */
@@ -616,22 +287,18 @@ const yearGroups = Object.entries(
   .post-day {
     flex-shrink: 0;
     font-size: 1.5rem;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1;
     color: var(--color-accent);
-    opacity: 0.35;
-    transition:
-      opacity 0.3s ease,
-      text-shadow 0.3s ease;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
     min-width: 2rem;
     text-align: center;
     padding-top: 0.15rem;
   }
 
   .post-card:hover .post-day {
-    opacity: 0.8;
-    text-shadow: 0 0 15px
-      color-mix(in srgb, var(--color-accent) 40%, transparent);
+    opacity: 1;
   }
 
   .post-info {
@@ -651,8 +318,6 @@ const yearGroups = Object.entries(
 
   .post-card:hover .post-title {
     color: var(--color-accent);
-    text-shadow: 0 0 20px
-      color-mix(in srgb, var(--color-accent) 20%, transparent);
   }
 
   .post-desc {

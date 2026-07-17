@@ -1,0 +1,85 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getPath } from "@/utils/getPath";
+import Datetime from "@/components/Datetime.astro";
+import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
+
+type Props = {
+  posts: CollectionEntry<"blog">[];
+};
+
+const { posts } = Astro.props;
+---
+
+<section class="bento-card flex h-full flex-col" aria-label="最新文章">
+  <div class="mb-3 flex items-center justify-between">
+    <h2 class="text-sm font-semibold tracking-tight">最新文章</h2>
+    <a
+      href="/posts"
+      class="group inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+    >
+      全部
+      <IconArrowRight
+        class="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
+      />
+    </a>
+  </div>
+
+  <ul class="flex flex-1 flex-col">
+    {
+      posts.map(post => (
+        <li class="border-b border-border/60 last:border-b-0">
+          <a
+            href={getPath(post.id, post.filePath)}
+            class="latest-row group block rounded-lg px-2 py-2.5 transition-colors hover:bg-background"
+            data-post-path={getPath(post.id, post.filePath)}
+          >
+            <div class="flex items-start justify-between gap-3">
+              <p class="line-clamp-1 text-sm font-medium text-ink-secondary transition-colors group-hover:text-accent">
+                {post.data.title}
+              </p>
+              <span
+                class="read-mark mt-0.5 hidden shrink-0 text-xs text-sticker-green"
+                title="看過了"
+                aria-label="已閱讀"
+              >
+                ✓
+              </span>
+            </div>
+            <div class="mt-1 flex items-center gap-2">
+              <Datetime
+                pubDatetime={post.data.pubDatetime}
+                modDatetime={post.data.modDatetime}
+                class="shrink-0 text-xs text-ink-faint [&>svg]:hidden"
+              />
+              <p class="line-clamp-1 text-xs text-ink-muted">
+                {post.data.description}
+              </p>
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<script>
+  // Mark posts the visitor has already opened (written by the post page).
+  function applyReadMarks() {
+    let read: string[] = [];
+    try {
+      read = JSON.parse(localStorage.getItem("readPosts") ?? "[]");
+    } catch {
+      read = [];
+    }
+    if (read.length === 0) return;
+    document
+      .querySelectorAll<HTMLElement>("[data-post-path]")
+      .forEach(link => {
+        if (read.includes(link.dataset.postPath ?? "")) {
+          link.querySelector(".read-mark")?.classList.remove("hidden");
+        }
+      });
+  }
+  document.addEventListener("astro:page-load", applyReadMarks);
+</script>

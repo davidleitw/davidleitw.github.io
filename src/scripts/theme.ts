@@ -5,7 +5,9 @@ const DARK = "dark";
 
 // Initial color scheme
 // Can be "light", "dark", or empty string for system's prefers-color-scheme
-const initialColorScheme = "dark";
+// Keep in sync with the inline FOUC-prevention script in Layout.astro:
+// empty string = follow the visitor's system preference.
+const initialColorScheme = "";
 
 function getPreferTheme(): string {
   // get theme data from local storage (user's explicit choice)

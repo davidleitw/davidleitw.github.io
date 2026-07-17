@@ -93,8 +93,7 @@ const nextPost =
   >
     <!-- Post header section -->
     <header class="post-header relative mb-10 text-center">
-      <div class="post-hero-bg"></div>
-      <div class="relative z-10 rounded-3xl border border-border/20 bg-muted/5 px-6 py-8 backdrop-blur-md sm:px-10 sm:py-12">
+      <div class="relative z-10 rounded-2xl border border-border bg-surface px-6 py-8 shadow-(--shadow-card) sm:px-10 sm:py-12">
         <!-- Title -->
         <h1
           transition:name={slugifyStr(title.replaceAll(".", "-"))}
@@ -243,10 +242,9 @@ const nextPost =
         prevPost ? (
           <a
             href={getPath(prevPost.id, prevPost.filePath)}
-            class="post-nav-link group relative flex flex-col gap-1 rounded-2xl border border-border/20 px-5 py-4 transition-all duration-300 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5"
+            class="post-nav-link group relative flex flex-col gap-1 rounded-2xl border border-border px-5 py-4 transition-all duration-300 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5"
           >
-            <div class="post-nav-bg" />
-            <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-1.5">
               <svg
                 class="size-3.5 text-accent/50 transition-transform duration-300 group-hover:-translate-x-1 rtl:rotate-180"
                 viewBox="0 0 24 24"
@@ -275,10 +273,9 @@ const nextPost =
         nextPost && (
           <a
             href={getPath(nextPost.id, nextPost.filePath)}
-            class="post-nav-link group relative col-start-2 flex flex-col items-end gap-1 rounded-2xl border border-border/20 px-5 py-4 text-end transition-all duration-300 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5"
+            class="post-nav-link group relative col-start-2 flex flex-col items-end gap-1 rounded-2xl border border-border px-5 py-4 text-end transition-all duration-300 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5"
           >
-            <div class="post-nav-bg" />
-            <div class="flex items-center gap-1.5">
+                        <div class="flex items-center gap-1.5">
               <span class="font-cartograph text-[10px] tracking-wider text-foreground/35 uppercase">
                 Next
               </span>
@@ -423,6 +420,20 @@ const nextPost =
   }
   attachCopyButtons();
 
+  /** Remember this post as read — the homepage cards show a small check
+   *  mark next to posts the visitor has already opened. */
+  try {
+    const readKey = "readPosts";
+    const path = window.location.pathname.replace(/\/+$/, "");
+    const read = JSON.parse(localStorage.getItem(readKey) ?? "[]");
+    if (!read.includes(path)) {
+      read.push(path);
+      localStorage.setItem(readKey, JSON.stringify(read.slice(-300)));
+    }
+  } catch {
+    /* localStorage unavailable — skip silently */
+  }
+
   /* Go to page start after page swap */
   document.addEventListener("astro:after-swap", () =>
     window.scrollTo({ left: 0, top: 0, behavior: "instant" })
@@ -430,93 +441,21 @@ const nextPost =
 </script>
 
 <style>
-  .post-title {
-    background: linear-gradient(
-      135deg,
-      var(--accent) 0%,
-      color-mix(in oklab, var(--accent) 60%, var(--foreground)) 25%,
-      var(--foreground) 50%,
-      var(--foreground) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .post-tag-badge {
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-  }
-
-  /* Hero Aurora glow layer */
-  .post-hero-bg {
-    position: absolute;
-    inset: -2px;
-    opacity: 0.5;
-    background:
-      radial-gradient(
-        circle at 20% 0%,
-        color-mix(in oklab, var(--accent) 15%, transparent) 0%,
-        transparent 50%
-      ),
-      radial-gradient(
-        ellipse 80% 60% at 80% 100%,
-        color-mix(in oklab, var(--accent) 10%, transparent) 0%,
-        transparent 60%
-      );
-    filter: blur(24px);
-    pointer-events: none;
-    z-index: 0;
-    border-radius: 1.5rem; /* matches rounded-3xl */
-  }
-
   .post-nav-link {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    background: color-mix(in srgb, var(--muted) 5%, transparent);
+    background: var(--surface);
     position: relative;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+    transition:
+      transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
   }
 
   .post-nav-link:hover {
-    background: color-mix(in srgb, var(--accent) 4%, transparent);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-float);
   }
 
   .post-nav-link:active {
     transform: translateY(0) scale(0.98);
-  }
-
-  /* Aurora glow layer — always visible, intensifies on hover */
-  .post-nav-bg {
-    position: absolute;
-    inset: -1px;
-    opacity: 0.5;
-    transition: opacity 0.4s ease;
-    background:
-      radial-gradient(
-        ellipse 80% 60% at 20% 80%,
-        color-mix(in oklab, var(--accent) 12%, transparent) 0%,
-        transparent 70%
-      ),
-      radial-gradient(
-        ellipse 60% 70% at 80% 20%,
-        color-mix(in oklab, var(--accent) 8%, transparent) 0%,
-        transparent 60%
-      ),
-      radial-gradient(
-        ellipse 90% 40% at 50% 100%,
-        color-mix(in oklab, var(--accent) 6%, transparent) 0%,
-        transparent 50%
-      );
-    filter: blur(16px);
-    pointer-events: none;
-    z-index: -1;
-    border-radius: inherit;
-  }
-
-  .post-nav-link:hover .post-nav-bg {
-    opacity: 1;
-    filter: blur(20px);
   }
 </style>

@@ -1,0 +1,51 @@
+---
+// Static GitHub contribution grid rendered from a build-time snapshot
+// (scripts/fetch-github-activity.mjs — refreshed daily by CI).
+import IconGitHub from "@/assets/icons/IconGitHub.svg";
+import activity from "@/data/github-activity.json";
+
+const { login, updated, windowTotal, windowWeeks, levels } = activity;
+const OPACITY = ["", "opacity-25", "opacity-45", "opacity-70", "opacity-100"];
+---
+
+<section class="bento-card flex h-full flex-col" aria-label="GitHub 活動">
+  <div class="mb-3 flex items-center justify-between">
+    <h2 class="flex items-center gap-1.5 text-sm font-semibold tracking-tight">
+      <IconGitHub class="size-4 stroke-[1.75]" />
+      GitHub
+    </h2>
+    <a
+      href={`https://github.com/${login}`}
+      target="_blank"
+      rel="noopener"
+      class="text-xs font-medium text-accent hover:underline"
+    >
+      @{login}
+    </a>
+  </div>
+
+  <div
+    class="grid flex-1 content-center justify-center gap-[3px]"
+    style={`grid-template-columns: repeat(${levels.length}, auto); direction: ltr;`}
+    role="img"
+    aria-label={`最近 ${windowWeeks} 週共 ${windowTotal} 次提交`}
+  >
+    {
+      levels.map(week => (
+        <div class="grid gap-[3px]">
+          {week.map(level =>
+            level === 0 ? (
+              <span class="size-[9px] rounded-[2px] bg-border" />
+            ) : (
+              <span class={`size-[9px] rounded-[2px] bg-accent ${OPACITY[level]}`} />
+            )
+          )}
+        </div>
+      ))
+    }
+  </div>
+
+  <p class="mt-3 text-center text-[11px] text-ink-faint">
+    最近 {windowWeeks} 週 {windowTotal} 次提交 · 更新於 {updated}
+  </p>
+</section>

@@ -4,7 +4,7 @@ export const SITE = {
   profile: "https://github.com/davidleitw",
   desc: "一個紀錄心情，技術，人生的網站",
   title: "davidLei",
-  ogImage: "devosfera-og.webp",
+  ogImage: "", // empty -> use the dynamic /og.png (warm mascot template)
   lightAndDarkMode: true,
   postPerIndex: 6,
   postPerPage: 8,

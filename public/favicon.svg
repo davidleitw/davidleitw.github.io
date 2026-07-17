@@ -1,1 +1,21 @@
-<svg height="800" viewBox="0 0 1024 1024" width="800" xmlns="http://www.w3.org/2000/svg"><path d="m32 512a480 480 0 1 0 960 0 480 480 0 1 0 -960 0z" fill="#fee8eb"/><path d="m601.6 473.6c-57.6-64-57.6-140.8-57.6-249.6-179.2 70.4-134.4 262.4-140.8 326.4-44.8-38.4-57.6-128-57.6-128-51.2 25.6-76.8 89.6-76.8 140.8 0 128 108.8 236.8 243.2 236.8s243.2-102.4 243.2-236.8c0-76.8-57.6-115.2-57.6-217.6-83.2 25.6-96 89.6-96 128z" fill="#ff6b6a"/><path d="m505.6 537.6c83.2 32 64 121.6 64 147.2 19.2-19.2 25.6-57.6 25.6-57.6 19.2 12.8 32 38.4 32 64 0 57.6-51.2 108.8-108.8 108.8s-108.8-51.2-108.8-108.8c6.4-57.6 96-102.4 96-153.6z" fill="#ffa9b1"/></svg>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="14" fill="#f6f5f4"/>
+  <!-- ears -->
+  <path d="M20 20 L20 34 L31 30 Z" fill="#fbf7ef"/>
+  <path d="M44 20 L44 34 L33 30 Z" fill="#fbf7ef"/>
+  <path d="M22.5 23 L22.5 31 L28 29 Z" fill="#f2c8b0"/>
+  <path d="M41.5 23 L41.5 31 L36 29 Z" fill="#f2c8b0"/>
+  <!-- head -->
+  <ellipse cx="32" cy="37" rx="17" ry="15" fill="#fbf7ef"/>
+  <!-- forehead patch -->
+  <path d="M32 24 q5 5 3 11 q-3-2-6 0 q-2-6 3-11 Z" fill="#e6c67e"/>
+  <!-- cheeks -->
+  <circle cx="21" cy="41" r="3.4" fill="#f6cbb3"/>
+  <circle cx="43" cy="41" r="3.4" fill="#f6cbb3"/>
+  <!-- eyes -->
+  <circle cx="26" cy="37" r="2.6" fill="#4a372a"/>
+  <circle cx="38" cy="37" r="2.6" fill="#4a372a"/>
+  <!-- nose + mouth -->
+  <path d="M31 42 q1 1.4 2 0" fill="none" stroke="#a9743f" stroke-width="1.6" stroke-linecap="round"/>
+  <path d="M30 44 q2 2 4 0" fill="none" stroke="#4a372a" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

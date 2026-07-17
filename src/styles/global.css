@@ -3,50 +3,82 @@
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
+/* ── Notion-style token system ──
+   Warm paper canvas, white surfaces, near-black ink, ONE structural
+   accent blue. The sticker palette is decoration-only: never paint a
+   CTA, link, or structural fill with it. */
 :root,
 html[data-theme="light"] {
-  --background: #f2f5ec;
-  --foreground: #353538;
-  --accent: #1158d1;
-  --muted: #bbc789;
-  --border: #7cadff;
+  --background: #f6f5f4;
+  --surface: #ffffff;
+  --foreground: #191918;
+  --ink-secondary: #31302e;
+  --ink-muted: #615d59;
+  --ink-faint: #a39e98;
+  --accent: #0075de;
+  --accent-active: #005bab;
+  --muted: #a39e98;
+  --border: #e6e6e6;
+  --night: #213183;
+  --sticker-sky: #62aef0;
+  --sticker-purple: #d6b6f6;
+  --sticker-pink: #ff64c8;
+  --sticker-orange: #dd5b00;
+  --sticker-teal: #2a9d99;
+  --sticker-green: #1aae39;
 }
 
 html[data-theme="dark"] {
-  --background: #10131a;
-  --foreground: #f6f7f8;
-  --accent: #008fec;
-  --muted: #212f3f;
-  --border: #2264e3;
+  --background: #191919;
+  --surface: #232322;
+  --foreground: #eae9e6;
+  --ink-secondary: #d3d1cd;
+  --ink-muted: #9b968f;
+  --ink-faint: #6e6a64;
+  --accent: #2f96e8;
+  --accent-active: #5cadee;
+  --muted: #8a857f;
+  --border: #313130;
+  --night: #2b3990;
+  --sticker-sky: #62aef0;
+  --sticker-purple: #d6b6f6;
+  --sticker-pink: #ff64c8;
+  --sticker-orange: #f07b28;
+  --sticker-teal: #35b5b0;
+  --sticker-green: #2fc253;
 }
 
 @theme inline {
-  /* Append explicit CJK fallback after Wotfard's auto-generated chain so
-     Chinese characters render consistently across platforms (macOS uses
-     PingFang TC, Windows uses JhengHei via the OS chain through sans-serif,
-     Linux without proper CJK config falls back to Noto Sans TC). */
+  /* Inter carries latin, Noto Sans TC carries CJK; OS CJK fonts as a
+     safety net on platforms where the webfont fails to load. */
   --font-app:
-    var(--font-wotfard), "PingFang TC", "Microsoft JhengHei", "Noto Sans TC",
-    "Heiti TC", sans-serif;
-  --font-sriracha: var(--font-sriracha);
+    var(--font-inter), var(--font-noto-tc), "PingFang TC",
+    "Microsoft JhengHei", sans-serif;
   --font-cartograph: var(--font-cartograph);
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
   --color-accent: var(--accent);
+  --color-accent-active: var(--accent-active);
   --color-muted: var(--muted);
   --color-border: var(--border);
-}
-
-.italic,
-.prose em,
-em,
-i {
-  font-family: var(--font-sriracha);
-  font-style: italic;
-}
-
-.spicy {
-  font-family: var(--font-sriracha);
+  --color-night: var(--night);
+  --color-sticker-sky: var(--sticker-sky);
+  --color-sticker-purple: var(--sticker-purple);
+  --color-sticker-pink: var(--sticker-pink);
+  --color-sticker-orange: var(--sticker-orange);
+  --color-sticker-teal: var(--sticker-teal);
+  --color-sticker-green: var(--sticker-green);
+  /* Barely-there layered elevation (Notion levels 1 & 2) */
+  --shadow-card:
+    0 0.2px 1px rgba(0, 0, 0, 0.01), 0 0.8px 3px rgba(0, 0, 0, 0.02),
+    0 2px 8px rgba(0, 0, 0, 0.027), 0 4px 18px rgba(0, 0, 0, 0.04);
+  --shadow-float:
+    0 0.8px 3px rgba(0, 0, 0, 0.02), 0 2px 8px rgba(0, 0, 0, 0.03),
+    0 8px 24px rgba(0, 0, 0, 0.04), 0 23px 52px rgba(0, 0, 0, 0.05);
 }
 
 @layer base {
@@ -59,7 +91,7 @@ i {
     @apply overflow-y-scroll scroll-smooth;
   }
   body {
-    @apply flex min-h-svh flex-col bg-background font-app text-foreground selection:bg-accent/75 selection:text-background;
+    @apply flex min-h-svh flex-col bg-background font-app text-foreground selection:bg-accent/20 selection:text-foreground;
   }
   a,
   button {
@@ -77,6 +109,16 @@ i {
 
 @utility app-layout {
   @apply mx-auto w-full max-w-app px-4;
+}
+
+/* Homepage-only wide container — article pages keep the narrow reading column */
+@utility app-layout-wide {
+  @apply mx-auto w-full max-w-[1250px] px-4;
+}
+
+/* Bento widget card: white surface, hairline border, barely-there shadow */
+@utility bento-card {
+  @apply rounded-xl border border-border bg-surface p-5 shadow-(--shadow-card);
 }
 
 .active-nav {

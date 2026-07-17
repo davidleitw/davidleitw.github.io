@@ -80,25 +80,16 @@ const RECENT_N = 4;
 const recentPosts = sortedPosts.slice(0, RECENT_N);
 ---
 
-<Layout title={`Posts | ${SITE.title}`}>
+<Layout title={`文章 | ${SITE.title}`} description={`${SITE.title} 的所有文章，依分類整理`}>
   <Header />
   <Breadcrumb />
   <main id="main-content" class="app-layout pb-8">
     <!-- Hero -->
-    <div class="posts-hero" data-posts-hero>
-      <div class="aurora-orb aurora-orb-1"></div>
-      <div class="aurora-orb aurora-orb-2"></div>
-      <div class="aurora-orb aurora-orb-3"></div>
-      <div class="aurora-mouse" data-posts-mouse></div>
-      <div class="relative z-10">
-        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
-          <span class="glow-text">Posts</span>
-        </h1>
-        <div class="mt-4 flex flex-wrap items-center gap-2">
-          <span class="hero-badge">{totalPosts} posts</span>
-          <span class="hero-badge">{sortedBuckets.length} categories</span>
-        </div>
-      </div>
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">文章</h1>
+      <p class="mt-2 text-ink-muted">
+        {totalPosts} 篇文章 · {sortedBuckets.length} 個分類
+      </p>
     </div>
 
     <!-- Search -->
@@ -198,33 +189,6 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
     cleanupController = new AbortController();
     const { signal } = cleanupController;
 
-    // Hero mouse glow
-    const hero = document.querySelector("[data-posts-hero]") as HTMLElement;
-    const heroMouse = document.querySelector(
-      "[data-posts-mouse]"
-    ) as HTMLElement;
-    if (hero && heroMouse) {
-      hero.addEventListener(
-        "mousemove",
-        e => {
-          requestAnimationFrame(() => {
-            const rect = hero.getBoundingClientRect();
-            heroMouse.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-            heroMouse.style.setProperty("--my", `${e.clientY - rect.top}px`);
-            heroMouse.style.opacity = "1";
-          });
-        },
-        { signal }
-      );
-      hero.addEventListener(
-        "mouseleave",
-        () => {
-          heroMouse.style.opacity = "0";
-        },
-        { signal }
-      );
-    }
-
     // Initialize Pagefind local search
     const container = document.querySelector("#posts-pagefind");
     if (!container || container.childElementCount > 0) return;
@@ -305,129 +269,6 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
 </script>
 
 <style>
-  /* ─── Hero (preserved) ─── */
-  .posts-hero {
-    position: relative;
-    overflow: hidden;
-    border-radius: 1.5rem;
-    padding: 2.5rem 2rem;
-    margin-bottom: 2rem;
-    background: color-mix(
-      in srgb,
-      var(--color-foreground) 3%,
-      var(--color-background)
-    );
-    border: 1px solid color-mix(in srgb, var(--color-accent) 12%, transparent);
-  }
-  @media (min-width: 640px) {
-    .posts-hero {
-      padding: 3rem;
-    }
-  }
-  .aurora-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    pointer-events: none;
-    will-change: transform;
-  }
-  .aurora-orb-1 {
-    width: 300px;
-    height: 300px;
-    top: -30%;
-    left: -10%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 25%, transparent),
-      transparent 70%
-    );
-    animation: orb-1 7s ease-in-out infinite alternate;
-  }
-  .aurora-orb-2 {
-    width: 250px;
-    height: 250px;
-    top: 10%;
-    right: -5%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-border) 20%, transparent),
-      transparent 70%
-    );
-    animation: orb-2 9s ease-in-out infinite alternate;
-  }
-  .aurora-orb-3 {
-    width: 200px;
-    height: 200px;
-    bottom: -20%;
-    left: 40%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 12%, transparent),
-      transparent 70%
-    );
-    animation: orb-3 11s ease-in-out infinite alternate;
-  }
-  @keyframes orb-1 {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(40px, 20px) scale(1.2); }
-  }
-  @keyframes orb-2 {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(-30px, 30px) scale(1.15); }
-  }
-  @keyframes orb-3 {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(20px, -25px) scale(1.1); }
-  }
-  .aurora-mouse {
-    position: absolute;
-    width: 350px;
-    height: 350px;
-    border-radius: 50%;
-    background: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--color-accent) 18%, transparent),
-      color-mix(in srgb, var(--color-border) 8%, transparent) 40%,
-      transparent 70%
-    );
-    filter: blur(50px);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    transform: translate(
-      calc(var(--mx, 0px) - 175px),
-      calc(var(--my, 0px) - 175px)
-    );
-    will-change: transform;
-    z-index: 1;
-  }
-  .glow-text {
-    background: linear-gradient(
-      135deg,
-      var(--color-foreground),
-      var(--color-accent)
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(
-      0 0 25px color-mix(in srgb, var(--color-accent) 25%, transparent)
-    );
-  }
-  .hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.3rem 0.85rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-accent);
-    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-accent) 15%, transparent);
-    backdrop-filter: blur(8px);
-  }
-
   /* ─── Toolbar ─── */
   .posts-toolbar {
     position: relative;
@@ -454,7 +295,7 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
     font-weight: 700;
   }
   .strip-label {
-    color: var(--muted-foreground);
+    color: var(--ink-muted);
     letter-spacing: 0.05em;
   }
   .strip-divider {
@@ -494,7 +335,7 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
   .recent-date {
     font-family: var(--font-cartograph), monospace;
     font-size: 0.8rem;
-    color: var(--muted-foreground);
+    color: var(--ink-muted);
     flex-shrink: 0;
     min-width: 6.5em;
   }
@@ -561,7 +402,7 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
   }
 
   .bucket-count {
-    color: var(--muted-foreground);
+    color: var(--ink-muted);
     font-weight: 400;
     font-size: 0.85rem;
   }
@@ -569,7 +410,7 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
   .bucket-see-all {
     font-family: var(--font-cartograph), monospace;
     font-size: 0.75rem;
-    color: var(--muted-foreground);
+    color: var(--ink-muted);
     opacity: 0.6;
     transition: opacity 0.15s ease, color 0.15s ease;
   }
@@ -610,7 +451,7 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
   .bucket-date {
     font-family: var(--font-cartograph), monospace;
     font-size: 0.75rem;
-    color: var(--muted-foreground);
+    color: var(--ink-muted);
     flex-shrink: 0;
     min-width: 3.1em;
     letter-spacing: 0.02em;
@@ -631,7 +472,7 @@ const recentPosts = sortedPosts.slice(0, RECENT_N);
     margin-left: 0.5rem;
     font-family: var(--font-cartograph), monospace;
     font-size: 0.75rem;
-    color: var(--muted-foreground);
+    color: var(--ink-muted);
     padding: 0.25rem 0.5rem;
     border-radius: 0.3rem;
     transition: background 0.15s ease, color 0.15s ease;

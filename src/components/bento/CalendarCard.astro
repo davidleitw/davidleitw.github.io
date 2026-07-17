@@ -1,0 +1,78 @@
+---
+// Month calendar with dots on days that have published posts.
+// Computed at build time in the site timezone (Asia/Taipei).
+type DayPost = { title: string; path: string };
+
+type Props = {
+  year: number;
+  month: number; // 1-12
+  today: number; // day of month at build time
+  postsByDay: Record<number, DayPost[]>;
+};
+
+const { year, month, today, postsByDay } = Astro.props;
+
+const WEEKDAYS = ["一", "二", "三", "四", "五", "六", "日"];
+
+const daysInMonth = new Date(year, month, 0).getDate();
+// getDay(): 0=Sun … 6=Sat → Monday-first offset
+const firstDow = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+
+const cells: (number | null)[] = [
+  ...Array.from({ length: firstDow }, () => null),
+  ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+];
+---
+
+<section class="bento-card flex h-full flex-col" aria-label="本月日曆">
+  <p class="mb-3 text-sm font-semibold tracking-tight">
+    {year}/{month}
+    <span class="ms-1 text-[11px] font-normal text-ink-faint">有藍點的日子有發文</span>
+  </p>
+
+  <div class="grid grid-cols-7 gap-y-1 text-center text-xs">
+    {WEEKDAYS.map(d => <span class="pb-1 text-[11px] text-ink-faint">{d}</span>)}
+    {
+      cells.map(day => {
+        if (day === null) return <span />;
+        const posts = postsByDay[day];
+        const isToday = day === today;
+        const cellClass = [
+          "relative mx-auto grid size-7 place-items-center rounded-lg tabular-nums",
+          isToday ? "bg-accent font-semibold text-white" : "text-ink-secondary",
+          posts ? "cal-has-post" : "",
+        ].join(" ");
+        return posts ? (
+          <a
+            href={posts[0].path}
+            class={`${cellClass} transition-colors hover:bg-accent/10 hover:text-accent`}
+            title={posts.map(p => p.title).join("\n")}
+          >
+            {day}
+            <span class="cal-dot" aria-hidden="true" />
+          </a>
+        ) : (
+          <span class={cellClass}>{day}</span>
+        );
+      })
+    }
+  </div>
+</section>
+
+<style>
+  .cal-dot {
+    position: absolute;
+    bottom: 0.125rem;
+    left: 50%;
+    translate: -50% 0;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background: var(--accent);
+  }
+
+  /* Today already has an accent background; keep its dot visible */
+  .cal-has-post.bg-accent .cal-dot {
+    background: #fff;
+  }
+</style>

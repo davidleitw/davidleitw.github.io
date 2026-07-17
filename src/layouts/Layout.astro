@@ -3,6 +3,7 @@ import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import { PUBLIC_GOOGLE_SITE_VERIFICATION } from "astro:env/client";
 import { SITE } from "@/config";
+import { SOCIALS } from "@/constants";
 import SearchModal from "@/components/SearchModal.astro";
 import "@/styles/global.css";
 
@@ -44,6 +45,41 @@ const ogLocale = (SITE.lang ?? "en").replace("-", "_");
 // JSON-LD: use the raw post title (without "| siteTitle" suffix) when provided
 const schemaHeadline = headline ?? title;
 
+// Author identity, reused across schema types
+const authorEntity = {
+  "@type": "Person",
+  name: `${author}`,
+  ...(profile && { url: profile }),
+  sameAs: SOCIALS.filter(s => !s.href.startsWith("mailto:")).map(s => s.href),
+};
+
+// Breadcrumb trail derived from the URL path (articles only)
+const crumbSegments = Astro.url.pathname.split("/").filter(Boolean);
+const breadcrumbData =
+  isArticle && crumbSegments.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "首頁",
+            item: `${SITE.website}`,
+          },
+          ...crumbSegments.map((seg, i) => ({
+            "@type": "ListItem",
+            position: i + 2,
+            name: decodeURIComponent(seg),
+            item: new URL(
+              `/${crumbSegments.slice(0, i + 1).join("/")}/`,
+              SITE.website
+            ).href,
+          })),
+        ],
+      }
+    : null;
+
 const structuredData = isArticle
   ? {
       "@context": "https://schema.org",
@@ -59,18 +95,8 @@ const structuredData = isArticle
       datePublished: `${pubDatetime?.toISOString()}`,
       ...(modDatetime && { dateModified: modDatetime.toISOString() }),
       ...(tags && tags.length > 0 && { keywords: tags.join(", ") }),
-      author: [
-        {
-          "@type": "Person",
-          name: `${author}`,
-          ...(profile && { url: profile }),
-        },
-      ],
-      publisher: {
-        "@type": "Person",
-        name: `${author}`,
-        ...(profile && { url: profile }),
-      },
+      author: [authorEntity],
+      publisher: authorEntity,
       inLanguage: `${SITE.lang ?? "en"}`,
     }
   : {
@@ -80,6 +106,7 @@ const structuredData = isArticle
       url: `${SITE.website}`,
       description: `${description}`,
       inLanguage: `${SITE.lang ?? "en"}`,
+      author: authorEntity,
     };
 ---
 
@@ -93,24 +120,20 @@ const structuredData = isArticle
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="canonical" href={canonicalURL} />
     <meta name="generator" content={Astro.generator} />
 
     <!-- Load Font -->
     <Font
-      cssVariable="--font-wotfard"
-      preload={[{ subset: "latin", weight: 400, style: "normal" }]}
+      cssVariable="--font-inter"
+      preload={[{ subset: "latin", weight: "400 700", style: "normal" }]}
     />
-    <Font
-      cssVariable="--font-sriracha"
-      preload={[{ subset: "latin", weight: 400, style: "normal" }]}
-    />
+    <Font cssVariable="--font-noto-tc" />
     <Font
       cssVariable="--font-cartograph"
-      preload={[{ subset: "latin", weight: 400, style: "normal" }]}
-    />
-    <Font
-      cssVariable="--font-cascadia-code"
       preload={[{ subset: "latin", weight: 400, style: "normal" }]}
     />
 
@@ -172,6 +195,15 @@ const structuredData = isArticle
       is:inline
       set:html={JSON.stringify(structuredData)}
     />
+    {
+      breadcrumbData && (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={JSON.stringify(breadcrumbData)}
+        />
+      )
+    }
 
     <!-- Enable RSS feed auto-discovery  -->
     <!-- https://docs.astro.build/en/recipes/rss/#enabling-rss-feed-auto-discovery -->
@@ -182,7 +214,7 @@ const structuredData = isArticle
       href={new URL("rss.xml", Astro.site)}
     />
 
-    <meta name="theme-color" content="" />
+    <meta name="theme-color" content="#f6f5f4" />
 
     {
       // If PUBLIC_GOOGLE_SITE_VERIFICATION is set in the environment variable,
@@ -229,14 +261,6 @@ const structuredData = isArticle
     </script>
   </head>
   <body>
-    <!-- Global decorative backdrop (grid, glow, cursor glow, noise) -->
-    <div class="site-backdrop pointer-events-none" aria-hidden="true">
-      <div class="site-grid"></div>
-      <div class="site-glow"></div>
-      <div class="site-cursor-glow"></div>
-      <div class="site-grain"></div>
-    </div>
-
     <slot />
 
     <SearchModal />
@@ -246,153 +270,3 @@ const structuredData = isArticle
   </body>
 </html>
 
-<style>
-  .site-backdrop {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    z-index: 0;
-    mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 40%,
-      rgba(0, 0, 0, 0.3) 70%,
-      transparent 100%
-    );
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      black 0%,
-      black 40%,
-      rgba(0, 0, 0, 0.3) 70%,
-      transparent 100%
-    );
-  }
-
-  .site-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(var(--accent) 1px, transparent 1px),
-      linear-gradient(90deg, var(--accent) 1px, transparent 1px);
-    background-size: 50px 50px;
-    opacity: 0.035;
-    mask-image: radial-gradient(
-      ellipse 100% 60% at 50% 0%,
-      black 15%,
-      transparent 100%
-    );
-    -webkit-mask-image: radial-gradient(
-      ellipse 100% 60% at 50% 0%,
-      black 15%,
-      transparent 100%
-    );
-  }
-
-  .site-glow {
-    position: absolute;
-    top: -15%;
-    left: 50%;
-    transform: translateX(-50%) translateZ(0);
-    width: 800px;
-    height: 550px;
-    background: radial-gradient(
-      ellipse at center,
-      color-mix(in oklab, var(--accent) 100%, transparent) 0%,
-      color-mix(in oklab, var(--accent) 80%, transparent) 10%,
-      color-mix(in oklab, var(--accent) 60%, transparent) 20%,
-      color-mix(in oklab, var(--accent) 45%, transparent) 30%,
-      color-mix(in oklab, var(--accent) 30%, transparent) 40%,
-      color-mix(in oklab, var(--accent) 18%, transparent) 50%,
-      color-mix(in oklab, var(--accent) 10%, transparent) 60%,
-      color-mix(in oklab, var(--accent) 4%, transparent) 70%,
-      transparent 85%
-    );
-    opacity: 0.06;
-    filter: blur(80px);
-  }
-
-  .site-cursor-glow {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 1100px;
-    height: 1100px;
-    margin-left: -550px;
-    margin-top: -550px;
-    transform: translate(var(--site-cx, 50vw), var(--site-cy, 50vh)) translateZ(0);
-    background: radial-gradient(
-      circle,
-      color-mix(in oklab, var(--accent) 6%, transparent) 0%,
-      color-mix(in oklab, var(--accent) 4%, transparent) 15%,
-      color-mix(in oklab, var(--accent) 2.5%, transparent) 25%,
-      color-mix(in oklab, var(--accent) 1.5%, transparent) 38%,
-      color-mix(in oklab, var(--accent) 0.8%, transparent) 50%,
-      color-mix(in oklab, var(--accent) 0.2%, transparent) 62%,
-      transparent 75%
-    );
-    filter: blur(40px);
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    will-change: transform;
-    pointer-events: none;
-  }
-
-  .site-cursor-glow.active {
-    opacity: 1;
-  }
-
-  .site-grain {
-    position: absolute;
-    inset: 0;
-    background-image: url("/noise.png");
-    background-repeat: repeat;
-    background-size: 64px 64px;
-    opacity: 0.55;
-    mix-blend-mode: overlay;
-    pointer-events: none;
-  }
-</style>
-
-<script>
-  let cursorCleanup: AbortController | null = null;
-
-  document.addEventListener("astro:page-load", () => {
-    // Cleanup previous listeners
-    if (cursorCleanup) cursorCleanup.abort();
-    cursorCleanup = new AbortController();
-    const { signal } = cursorCleanup;
-
-    const cursorGlow = document.querySelector<HTMLElement>(".site-cursor-glow");
-    let ticking = false;
-
-    if (cursorGlow) {
-      document.addEventListener(
-        "mousemove",
-        (e: MouseEvent) => {
-          if (!ticking) {
-            window.requestAnimationFrame(() => {
-              cursorGlow.style.setProperty("--site-cx", `${e.clientX}px`);
-              cursorGlow.style.setProperty("--site-cy", `${e.clientY}px`);
-              if (!cursorGlow.classList.contains("active")) {
-                cursorGlow.classList.add("active");
-              }
-              ticking = false;
-            });
-            ticking = true;
-          }
-        },
-        { signal }
-      );
-
-      document.addEventListener(
-        "mouseleave",
-        () => {
-          cursorGlow.classList.remove("active");
-        },
-        { signal }
-      );
-    }
-  });
-</script>

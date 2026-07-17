@@ -4,6 +4,10 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+  schedule:
+    # Daily rebuild so the homepage GitHub-activity card stays fresh
+    # (05:30 Asia/Taipei)
+    - cron: "30 21 * * *"
 
 permissions:
   contents: read
@@ -32,6 +36,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Refresh GitHub activity snapshot
+        run: node scripts/fetch-github-activity.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
 
       - name: Build Astro
         run: pnpm build

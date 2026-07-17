@@ -13,15 +13,17 @@ import { SITE } from "@/config";
     id="main-content"
     class="app-layout flex flex-1 items-center justify-center"
   >
-    <div class="mb-14 flex flex-col items-center justify-center">
-      <h1 class="text-9xl font-bold text-accent">404</h1>
-      <span aria-hidden="true">¯\_(ツ)_/¯</span>
-      <p class="mt-4 text-2xl sm:text-3xl">Page not found</p>
+    <div class="mb-14 flex flex-col items-center justify-center text-center">
+      <h1 class="text-8xl font-bold tracking-tight text-accent sm:text-9xl">404</h1>
+      <span class="mt-2 font-cartograph text-ink-faint" aria-hidden="true"
+        >¯\_(ツ)_/¯</span
+      >
+      <p class="mt-4 text-2xl font-semibold sm:text-3xl">找不到這個頁面</p>
       <LinkButton
         href="/"
-        class="my-6 text-lg underline decoration-dashed underline-offset-8"
+        class="mt-8 inline-flex items-center rounded-full bg-accent px-6 py-2.5 font-medium text-white transition-colors hover:bg-accent-active"
       >
-        Go back to the home page
+        回到首頁
       </LinkButton>
     </div>
   </main>

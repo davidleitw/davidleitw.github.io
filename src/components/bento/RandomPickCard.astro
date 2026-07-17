@@ -1,0 +1,77 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getPath } from "@/utils/getPath";
+
+type Props = {
+  candidates: CollectionEntry<"blog">[];
+};
+
+const { candidates } = Astro.props;
+
+// Minimal payload for the client-side daily pick
+const pool = candidates.map(post => ({
+  t: post.data.title,
+  d: post.data.description,
+  u: getPath(post.id, post.filePath),
+}));
+
+// Server-rendered default so the card never appears empty (JS swaps it)
+const first = pool[0];
+---
+
+<section class="bento-card flex h-full flex-col" aria-label="今日推薦文章">
+  <div class="mb-3 flex items-center justify-between">
+    <h2 class="text-sm font-semibold tracking-tight">今日推薦</h2>
+    <span class="text-[11px] text-ink-faint">每天換一篇舊文</span>
+  </div>
+
+  {
+    first && (
+      <a href={first.u} class="group block flex-1" data-daily-pick>
+        <p
+          class="line-clamp-2 text-sm font-medium text-ink-secondary transition-colors group-hover:text-accent"
+          data-pick-title
+        >
+          {first.t}
+        </p>
+        <p class="mt-2 line-clamp-2 text-xs leading-relaxed text-ink-muted" data-pick-desc>
+          {first.d}
+        </p>
+      </a>
+    )
+  }
+
+  <script type="application/json" data-pick-pool set:html={JSON.stringify(pool)} />
+</section>
+
+<script>
+  // Date-seeded pick: stable for the whole day, changes tomorrow.
+  function applyDailyPick() {
+    const poolEl = document.querySelector("[data-pick-pool]");
+    const link = document.querySelector<HTMLAnchorElement>("[data-daily-pick]");
+    if (!poolEl || !link) return;
+
+    let pool: { t: string; d: string; u: string }[] = [];
+    try {
+      pool = JSON.parse(poolEl.textContent ?? "[]");
+    } catch {
+      return;
+    }
+    if (pool.length === 0) return;
+
+    const today = new Date();
+    const seedStr = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    let hash = 0;
+    for (let i = 0; i < seedStr.length; i++) {
+      hash = (hash * 31 + seedStr.charCodeAt(i)) >>> 0;
+    }
+    const pick = pool[hash % pool.length];
+
+    link.href = pick.u;
+    const title = link.querySelector("[data-pick-title]");
+    const desc = link.querySelector("[data-pick-desc]");
+    if (title) title.textContent = pick.t;
+    if (desc) desc.textContent = pick.d;
+  }
+  document.addEventListener("astro:page-load", applyDailyPick);
+</script>

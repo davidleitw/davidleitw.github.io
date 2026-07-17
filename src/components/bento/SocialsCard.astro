@@ -1,0 +1,26 @@
+---
+import { SOCIALS } from "@/constants";
+---
+
+<section class="flex h-full flex-wrap items-center justify-center gap-2.5" aria-label="社群連結">
+  {
+    SOCIALS.map(social => (
+      <a
+        href={social.href}
+        target={social.href.startsWith("mailto:") ? undefined : "_blank"}
+        rel="noopener"
+        title={social.linkTitle}
+        class:list={[
+          "social-pill inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium",
+          "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-(--shadow-float)",
+          social.name === "GitHub"
+            ? "bg-foreground text-background"
+            : "border border-border bg-surface text-ink-secondary shadow-(--shadow-card)",
+        ]}
+      >
+        <social.icon class="size-4.5 fill-transparent stroke-current stroke-[1.75]" />
+        {social.name}
+      </a>
+    ))
+  }
+</section>

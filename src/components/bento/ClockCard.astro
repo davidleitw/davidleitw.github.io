@@ -1,0 +1,80 @@
+---
+// Digital clock with a Taipei / local-time toggle. Renders a fixed-size
+// placeholder so the layout never jumps before JS runs.
+---
+
+<section class="bento-card flex h-full flex-col items-center justify-center gap-2" aria-label="時鐘">
+  <p class="clock-digits font-cartograph text-4xl font-bold tracking-wider tabular-nums" data-clock>
+    --<span class="clock-colon">:</span>--
+  </p>
+  <button
+    type="button"
+    class="clock-toggle rounded-full border border-border bg-background px-2.5 py-0.5 font-cartograph text-[10px] tracking-wider text-ink-muted uppercase transition-colors hover:text-accent"
+    data-clock-toggle
+    aria-label="切換台北時間與本地時間"
+  >
+    TPE
+  </button>
+</section>
+
+<style>
+  .clock-colon {
+    animation: colon-blink 2s steps(1) infinite;
+  }
+
+  @keyframes colon-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clock-colon {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  let clockTimer: ReturnType<typeof setInterval> | null = null;
+
+  function setupClock() {
+    const el = document.querySelector<HTMLElement>("[data-clock]");
+    const toggle = document.querySelector<HTMLElement>("[data-clock-toggle]");
+    if (!el || !toggle) return;
+
+    if (clockTimer) clearInterval(clockTimer);
+
+    let zone: "tpe" | "local" =
+      sessionStorage.getItem("clockZone") === "local" ? "local" : "tpe";
+
+    const render = () => {
+      const opts: Intl.DateTimeFormatOptions = {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      };
+      if (zone === "tpe") opts.timeZone = "Asia/Taipei";
+      const [h, m] = new Intl.DateTimeFormat("en-GB", opts)
+        .format(new Date())
+        .split(":");
+      el.innerHTML = `${h}<span class="clock-colon">:</span>${m}`;
+      toggle.textContent = zone === "tpe" ? "TPE" : "LOCAL";
+    };
+
+    toggle.addEventListener("click", () => {
+      zone = zone === "tpe" ? "local" : "tpe";
+      sessionStorage.setItem("clockZone", zone);
+      render();
+    });
+
+    render();
+    clockTimer = setInterval(render, 15_000);
+  }
+
+  document.addEventListener("astro:page-load", setupClock);
+</script>

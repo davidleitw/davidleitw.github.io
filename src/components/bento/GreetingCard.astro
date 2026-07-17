@@ -1,0 +1,168 @@
+---
+import { Image } from "astro:assets";
+
+const mascots = import.meta.glob<{ default: ImageMetadata }>(
+  "@/assets/mascot/*.png",
+  { eager: true }
+);
+const wave = mascots["/src/assets/mascot/mascot-wave.png"]?.default;
+const blink = mascots["/src/assets/mascot/mascot-wave-blink.png"]?.default;
+const sleep = mascots["/src/assets/mascot/mascot-sleep.png"]?.default;
+---
+
+<section
+  class="bento-card flex h-full flex-col items-center justify-center gap-4 text-center"
+  aria-label="打招呼"
+>
+  <div class="mascot-stage relative" data-mascot-stage>
+    <span class="mascot-halo" aria-hidden="true"></span>
+    {
+      wave ? (
+        <>
+          <Image
+            src={wave}
+            alt="一隻奶油色小貓向你揮手"
+            width={480}
+            height={360}
+            class="mascot-img relative z-10"
+            loading="eager"
+            fetchpriority="high"
+            data-mascot="wave"
+          />
+          {blink && (
+            <Image
+              src={blink}
+              alt=""
+              width={480}
+              height={360}
+              class="mascot-img mascot-blink absolute inset-0 z-20"
+              loading="eager"
+              aria-hidden="true"
+              data-mascot="blink"
+            />
+          )}
+          {sleep && (
+            <Image
+              src={sleep}
+              alt="小貓睡著了"
+              width={480}
+              height={360}
+              class="mascot-img absolute inset-0 z-10 hidden"
+              loading="eager"
+              data-mascot="sleep"
+            />
+          )}
+        </>
+      ) : (
+        <span class="relative z-10 grid h-40 w-52 place-items-center text-6xl">
+          🐈
+        </span>
+      )
+    }
+  </div>
+
+  <div class="min-h-[3.75rem]">
+    <p class="text-xl font-semibold tracking-tight" data-greeting>
+      哈囉，我是 davidlei
+    </p>
+    <p class="mt-1 text-sm text-ink-muted" data-greeting-sub>很高興見到你</p>
+  </div>
+</section>
+
+<style>
+  .mascot-stage {
+    width: 13rem;
+    height: 10rem;
+    display: grid;
+    place-items: center;
+  }
+
+  .mascot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .mascot-halo {
+    position: absolute;
+    top: 0.25rem;
+    left: 50%;
+    translate: -50% 0;
+    width: 7.5rem;
+    height: 7.5rem;
+    border-radius: 9999px;
+    background: #f7edc2;
+    opacity: 0.9;
+    z-index: 0;
+  }
+
+  :global(html[data-theme="dark"]) .mascot-halo {
+    background: #3d3829;
+  }
+
+  /* Two-frame blink: the closed-eye frame fades in briefly every ~7s */
+  .mascot-blink {
+    opacity: 0;
+    animation: mascot-blink 7s infinite;
+  }
+
+  @keyframes mascot-blink {
+    0%,
+    95.5%,
+    100% {
+      opacity: 0;
+    }
+    96.5%,
+    99% {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mascot-blink {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  function applyGreeting() {
+    const el = document.querySelector<HTMLElement>("[data-greeting]");
+    const sub = document.querySelector<HTMLElement>("[data-greeting-sub]");
+    if (!el) return;
+
+    const hour = new Date().getHours();
+    let text = "哈囉，我是 davidlei";
+    let subText = "很高興見到你";
+    let sleeping = false;
+
+    if (hour >= 5 && hour < 11) {
+      text = "早安，我是 davidlei";
+    } else if (hour >= 11 && hour < 18) {
+      text = "午安，我是 davidlei";
+    } else if (hour >= 18 && hour < 23) {
+      text = "晚安，我是 davidlei";
+    } else {
+      text = "還沒睡啊？我也是";
+      subText = "夜深了，隨便看看吧";
+      sleeping = true;
+    }
+
+    el.textContent = text;
+    if (sub) sub.textContent = subText;
+
+    // Swap to the sleeping pose late at night
+    const wave = document.querySelector<HTMLElement>('[data-mascot="wave"]');
+    const blink = document.querySelector<HTMLElement>('[data-mascot="blink"]');
+    const sleepImg = document.querySelector<HTMLElement>(
+      '[data-mascot="sleep"]'
+    );
+    if (sleepImg && wave) {
+      wave.classList.toggle("hidden", sleeping);
+      blink?.classList.toggle("hidden", sleeping);
+      sleepImg.classList.toggle("hidden", !sleeping);
+    }
+  }
+
+  document.addEventListener("astro:page-load", applyGreeting);
+</script>

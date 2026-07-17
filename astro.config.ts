@@ -65,23 +65,18 @@ export default defineConfig({
     preserveScriptOrder: true,
     fonts: [
       {
-        name: "Wotfard",
-        cssVariable: "--font-wotfard",
+        name: "Inter",
+        cssVariable: "--font-inter",
         fallbacks: ["sans-serif"],
-        provider: fontProviders.local(),
-        options: {
-          variants: [
-            {
-              src: ["./src/assets/fonts/wotfard-regular-webfont.woff2"],
-            },
-          ],
-        },
+        provider: fontProviders.google(),
+        weights: ["400 700"],
       },
       {
-        name: "Sriracha",
-        cssVariable: "--font-sriracha",
-        fallbacks: ["cursive"],
+        name: "Noto Sans TC",
+        cssVariable: "--font-noto-tc",
+        fallbacks: ["sans-serif"],
         provider: fontProviders.google(),
+        weights: [400, 500, 700],
       },
       {
         name: "Cartograph CF",
@@ -92,19 +87,6 @@ export default defineConfig({
           variants: [
             {
               src: ["./src/assets/fonts/cartograph-cf-regular-webfont.woff2"],
-            },
-          ],
-        },
-      },
-      {
-        name: "Cascadia Code",
-        cssVariable: "--font-cascadia-code",
-        fallbacks: ["monospace"],
-        provider: fontProviders.local(),
-        options: {
-          variants: [
-            {
-              src: ["./src/assets/fonts/cascadia-code.woff2"],
             },
           ],
         },
