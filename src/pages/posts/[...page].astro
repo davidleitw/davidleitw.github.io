@@ -7,7 +7,7 @@ import Footer from "@/components/Footer.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import "@pagefind/default-ui/css/ui.css";
 import getSortedPosts from "@/utils/getSortedPosts";
-import { buildFolders, collapseRecent, SERIES } from "@/utils/postSeries";
+import { buildFolders, collapseRecent, getSeriesData } from "@/utils/series";
 import { SITE } from "@/config";
 
 // Single-page file-tree index — no pagination.
@@ -26,10 +26,12 @@ function fmtDate(d: Date): string {
 const sortedPosts = getSortedPosts(await getCollection("blog"));
 const totalPosts = sortedPosts.length;
 
-const folders = buildFolders(sortedPosts);
-const recent = collapseRecent(sortedPosts, 5);
+const { index: seriesIndex, seriesPosts } = getSeriesData(sortedPosts);
+const folders = buildFolders(seriesIndex, seriesPosts);
+const recent = collapseRecent(seriesIndex, seriesPosts, 5);
 
-// How many chapter/post rows to show before an expanded folder truncates.
+// How many rows a plain tag folder shows before it truncates. Series folders
+// nest their parts instead, so nothing is hidden behind a "more" link.
 const VISIBLE = 6;
 ---
 
@@ -109,7 +111,7 @@ const VISIBLE = 6;
           folders.map((folder, i) => {
             const shown = folder.entries.slice(0, VISIBLE);
             const more = folder.entries.length - shown.length;
-            const seeAll = SERIES[folder.slug]?.landing ?? `/tags/${folder.slug}`;
+            const seeAll = `/tags/${folder.slug}`;
             return (
               <details
                 class="tree-folder"
@@ -134,20 +136,83 @@ const VISIBLE = 6;
                       <span class="file-title">{folder.landing.title}</span>
                     </a>
                   )}
-                  {shown.map(entry => (
-                    <a
-                      href={entry.href}
-                      class="file-row"
-                      data-post-path={entry.href}
-                    >
-                      <span class="file-title">{entry.title}</span>
-                      <span class="read-mark" title="看過了" aria-label="已閱讀">
-                        ✓
-                      </span>
-                      <time class="file-date">{fmtMonthDay(entry.date)}</time>
-                    </a>
-                  ))}
-                  {more > 0 && (
+                  {folder.parts
+                    ? folder.parts.map(part =>
+                        part.title ? (
+                          <details
+                            class="tree-folder tree-part"
+                            data-folder={`${folder.slug}/${part.title}`}
+                          >
+                            <summary class="folder-row part-row">
+                              <span class="caret" aria-hidden="true">
+                                ▸
+                              </span>
+                              <span class="folder-name">{part.title}</span>
+                              <span class="folder-count">
+                                ({part.entries.length})
+                              </span>
+                            </summary>
+                            <div class="folder-body">
+                              {part.entries.map(entry => (
+                                <a
+                                  href={entry.href}
+                                  class="file-row"
+                                  data-post-path={entry.href}
+                                >
+                                  <span class="file-title">{entry.title}</span>
+                                  <span
+                                    class="read-mark"
+                                    title="看過了"
+                                    aria-label="已閱讀"
+                                  >
+                                    ✓
+                                  </span>
+                                </a>
+                              ))}
+                            </div>
+                          </details>
+                        ) : (
+                          part.entries.map(entry => (
+                            <a
+                              href={entry.href}
+                              class="file-row"
+                              data-post-path={entry.href}
+                            >
+                              <span class="file-title">{entry.title}</span>
+                              <span
+                                class="read-mark"
+                                title="看過了"
+                                aria-label="已閱讀"
+                              >
+                                ✓
+                              </span>
+                              <time class="file-date">
+                                {fmtMonthDay(entry.date)}
+                              </time>
+                            </a>
+                          ))
+                        )
+                      )
+                    : shown.map(entry => (
+                        <a
+                          href={entry.href}
+                          class="file-row"
+                          data-post-path={entry.href}
+                        >
+                          <span class="file-title">{entry.title}</span>
+                          <span
+                            class="read-mark"
+                            title="看過了"
+                            aria-label="已閱讀"
+                          >
+                            ✓
+                          </span>
+                          <time class="file-date">
+                            {fmtMonthDay(entry.date)}
+                          </time>
+                        </a>
+                      ))}
+                  {!folder.parts && more > 0 && (
                     <a href={seeAll} class="file-more">
                       … {more} more →
                     </a>
@@ -477,6 +542,28 @@ const VISIBLE = 6;
     font-size: 0.72rem;
     color: var(--ink-faint);
     flex-shrink: 0;
+  }
+
+  /* Series parts nest one level deeper, hanging off the same rail as files */
+  .tree-part > .folder-row {
+    position: relative;
+    padding: 0.3rem 0.45rem;
+  }
+  .tree-part > .folder-row::before {
+    content: "";
+    position: absolute;
+    left: -0.9rem;
+    top: 0.95em;
+    width: 0.62rem;
+    height: 1px;
+    background: color-mix(in srgb, var(--border) 55%, transparent);
+  }
+  .tree-part > .folder-row .folder-name {
+    font-weight: 500;
+    font-size: 0.88rem;
+  }
+  .tree-part > .folder-row .caret {
+    font-size: 0.62rem;
   }
 
   /* Folder contents: guide rail + branch ticks */

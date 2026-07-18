@@ -14,17 +14,20 @@ import SocialsCard from "@/components/bento/SocialsCard.astro";
 import CollageCard from "@/components/bento/CollageCard.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
-import { collapseRecent, SERIES, firstTagSlug } from "@/utils/postSeries";
+import { collapseRecent, getSeriesData } from "@/utils/series";
 import { SITE } from "@/config";
 
 const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
+const { index: seriesIndex, seriesPosts } = getSeriesData(sortedPosts);
 
 // Latest list with any multi-part series folded into a single entry, so a
 // 39-chapter book doesn't bury everything else.
-const latest = collapseRecent(sortedPosts, 4);
+const latest = collapseRecent(seriesIndex, seriesPosts, 4);
 // Daily recommendation draws from standalone posts (not series chapters).
-const pickPool = sortedPosts.filter(p => !SERIES[firstTagSlug(p)]);
+const pickPool = sortedPosts.filter(
+  p => !seriesIndex.memberOf.has(getPath(p.id, p.filePath))
+);
 
 /* Calendar: posts published in the current month (site timezone) */
 const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: SITE.timezone });
@@ -51,27 +54,48 @@ for (const post of sortedPosts) {
 <Layout>
   <Header minimal />
 
-  <main id="main-content" data-layout="index" class="app-layout-wide pt-4 pb-14 sm:pt-6">
+  <main
+    id="main-content"
+    data-layout="index"
+    class="app-layout-wide pt-4 pb-14 sm:pt-6"
+  >
     <h1 class="sr-only">{SITE.title} — {SITE.desc}</h1>
 
-    <div class="bento-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12">
-      <div class="bento-item sm:col-span-2 lg:col-span-5 lg:col-start-4 lg:row-start-1" style="--i: 0">
+    <div
+      class="bento-grid grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-12"
+    >
+      <div
+        class="bento-item sm:col-span-2 lg:col-span-5 lg:col-start-4 lg:row-start-1"
+        style="--i: 0"
+      >
         <GreetingCard />
       </div>
 
-      <div class="bento-item lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-1" style="--i: 1">
+      <div
+        class="bento-item lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-1"
+        style="--i: 1"
+      >
         <ProfileCard />
       </div>
 
-      <div class="bento-item lg:col-span-4 lg:col-start-9 lg:row-start-1" style="--i: 2">
+      <div
+        class="bento-item lg:col-span-4 lg:col-start-9 lg:row-start-1"
+        style="--i: 2"
+      >
         <ClockCard />
       </div>
 
-      <div class="bento-item sm:col-span-2 lg:col-span-5 lg:col-start-4 lg:row-start-2" style="--i: 3">
+      <div
+        class="bento-item sm:col-span-2 lg:col-span-5 lg:col-start-4 lg:row-start-2"
+        style="--i: 3"
+      >
         <LatestPostsCard entries={latest} />
       </div>
 
-      <div class="bento-item lg:col-span-4 lg:col-start-9 lg:row-start-2" style="--i: 4">
+      <div
+        class="bento-item lg:col-span-4 lg:col-start-9 lg:row-start-2"
+        style="--i: 4"
+      >
         <CalendarCard
           year={calYear}
           month={calMonth}
@@ -88,7 +112,10 @@ for (const post of sortedPosts) {
         <GithubCard />
       </div>
 
-      <div class="bento-item flex items-center justify-center lg:col-span-3" style="--i: 7">
+      <div
+        class="bento-item flex items-center justify-center lg:col-span-3"
+        style="--i: 7"
+      >
         <SocialsCard />
       </div>
 

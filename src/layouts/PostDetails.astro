@@ -9,16 +9,20 @@ import ShareLinks from "@/components/ShareLinks.astro";
 import BackButton from "@/components/BackButton.astro";
 import BackToTopButton from "@/components/BackToTopButton.astro";
 import GalleryEmbed from "@/components/GalleryEmbed.astro";
+import SeriesNav from "@/components/SeriesNav.astro";
 import { getPath } from "@/utils/getPath";
 import { slugifyStr } from "@/utils/slugify";
+import type { SeriesContext } from "@/utils/series";
 import { SITE } from "@/config";
 
 type Props = {
   post: CollectionEntry<"blog">;
   posts: CollectionEntry<"blog">[];
+  /** Set when this post is part of an ordered series. */
+  seriesContext?: SeriesContext | null;
 };
 
-const { post, posts } = Astro.props;
+const { post, posts, seriesContext = null } = Astro.props;
 
 const {
   title,
@@ -68,7 +72,12 @@ const layoutProps = {
   scrollSmooth: true,
 };
 
-/* ========== Prev/Next Posts ========== */
+/* ========== Prev/Next Posts ==========
+ *
+ * Inside a series the order comes from the series manifest, so "next" means
+ * the next chapter and the chain stops at the last one. Everywhere else it
+ * falls back to the site-wide publish order.
+ */
 
 const allPosts = posts.map(({ data: { title }, id, filePath }) => ({
   id,
@@ -81,6 +90,16 @@ const currentPostIndex = allPosts.findIndex(a => a.id === post.id);
 const prevPost = currentPostIndex !== 0 ? allPosts[currentPostIndex - 1] : null;
 const nextPost =
   currentPostIndex !== allPosts.length ? allPosts[currentPostIndex + 1] : null;
+
+const toLink = (p: (typeof allPosts)[number] | null | undefined) =>
+  p ? { href: getPath(p.id, p.filePath), title: p.title } : null;
+
+const prevLink = seriesContext ? seriesContext.prev : toLink(prevPost);
+const nextLink = seriesContext ? seriesContext.next : toLink(nextPost);
+
+const unit = seriesContext?.series.unitLabel;
+const prevLabel = unit ? `上一${unit}` : "Previous";
+const nextLabel = unit ? `下一${unit}` : "Next";
 ---
 
 <Layout {...layoutProps}>
@@ -91,9 +110,13 @@ const nextPost =
     class:list={["relative app-layout pb-12", { "mt-8": !SITE.showBackButton }]}
     data-pagefind-body
   >
+    {seriesContext && <SeriesNav ctx={seriesContext} />}
+
     <!-- Post header section -->
     <header class="post-header relative mb-10 text-center">
-      <div class="relative z-10 rounded-2xl border border-border bg-surface px-6 py-8 shadow-(--shadow-card) sm:px-10 sm:py-12">
+      <div
+        class="relative z-10 rounded-2xl border border-border bg-surface px-6 py-8 shadow-(--shadow-card) sm:px-10 sm:py-12"
+      >
         <!-- Title -->
         <h1
           transition:name={slugifyStr(title.replaceAll(".", "-"))}
@@ -174,8 +197,6 @@ const nextPost =
             class="hidden rounded-lg border border-border/25 bg-muted/10 px-2.5 py-1 opacity-70 backdrop-blur-sm transition-all duration-200 hover:border-accent/30 hover:opacity-100 sm:flex [&>svg]:size-3.5"
           />
         </div>
-
-
       </div>
     </header>
 
@@ -188,18 +209,35 @@ const nextPost =
 
     <!-- ═══════ Post footer section ═══════ -->
     <!-- ═══════ Post footer section ═══════ -->
-    <div class="relative mt-12 mb-8 flex items-center justify-center gap-4" aria-hidden="true">
-      <div class="relative h-px flex-1 bg-linear-to-r from-transparent via-border/30 to-accent/20">
-        <div class="absolute inset-0 bg-linear-to-r from-transparent via-accent/40 to-accent/40 blur-[2px]"></div>
+    <div
+      class="relative mt-12 mb-8 flex items-center justify-center gap-4"
+      aria-hidden="true"
+    >
+      <div
+        class="relative h-px flex-1 bg-linear-to-r from-transparent via-border/30 to-accent/20"
+      >
+        <div
+          class="absolute inset-0 bg-linear-to-r from-transparent via-accent/40 to-accent/40 blur-[2px]"
+        >
+        </div>
       </div>
-      
-      <div class="relative z-10 flex items-center gap-2 font-cartograph text-[10px] tracking-widest text-accent/40 uppercase select-none">
-        <span class="h-1.5 w-1.5 rounded-full bg-accent/50 shadow-[0_0_8px_var(--color-accent)]"></span>
+
+      <div
+        class="relative z-10 flex items-center gap-2 font-cartograph text-[10px] tracking-widest text-accent/40 uppercase select-none"
+      >
+        <span
+          class="h-1.5 w-1.5 rounded-full bg-accent/50 shadow-[0_0_8px_var(--color-accent)]"
+        ></span>
         end
       </div>
 
-      <div class="relative h-px flex-1 bg-linear-to-l from-transparent via-border/30 to-accent/20">
-        <div class="absolute inset-0 bg-linear-to-l from-transparent via-accent/40 to-accent/40 blur-[2px]"></div>
+      <div
+        class="relative h-px flex-1 bg-linear-to-l from-transparent via-border/30 to-accent/20"
+      >
+        <div
+          class="absolute inset-0 bg-linear-to-l from-transparent via-accent/40 to-accent/40 blur-[2px]"
+        >
+        </div>
       </div>
     </div>
 
@@ -239,12 +277,12 @@ const nextPost =
     <!-- Previous/Next Post Navigation -->
     <div data-pagefind-ignore class="grid grid-cols-2 gap-3">
       {
-        prevPost ? (
+        prevLink ? (
           <a
-            href={getPath(prevPost.id, prevPost.filePath)}
+            href={prevLink.href}
             class="post-nav-link group relative flex flex-col gap-1 rounded-2xl border border-border px-5 py-4 transition-all duration-300 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5"
           >
-                        <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5">
               <svg
                 class="size-3.5 text-accent/50 transition-transform duration-300 group-hover:-translate-x-1 rtl:rotate-180"
                 viewBox="0 0 24 24"
@@ -258,11 +296,11 @@ const nextPost =
                 <polyline points="12 19 5 12 12 5" />
               </svg>
               <span class="font-cartograph text-[10px] tracking-wider text-foreground/35 uppercase">
-                Previous
+                {prevLabel}
               </span>
             </div>
             <span class="line-clamp-2 text-sm leading-snug font-medium text-foreground/70 transition-colors duration-200 group-hover:text-accent">
-              {prevPost.title}
+              {prevLink.title}
             </span>
           </a>
         ) : (
@@ -270,14 +308,14 @@ const nextPost =
         )
       }
       {
-        nextPost && (
+        nextLink && (
           <a
-            href={getPath(nextPost.id, nextPost.filePath)}
+            href={nextLink.href}
             class="post-nav-link group relative col-start-2 flex flex-col items-end gap-1 rounded-2xl border border-border px-5 py-4 text-end transition-all duration-300 hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5"
           >
-                        <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5">
               <span class="font-cartograph text-[10px] tracking-wider text-foreground/35 uppercase">
-                Next
+                {nextLabel}
               </span>
               <svg
                 class="size-3.5 text-accent/50 transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180"
@@ -293,7 +331,7 @@ const nextPost =
               </svg>
             </div>
             <span class="line-clamp-2 text-sm leading-snug font-medium text-foreground/70 transition-colors duration-200 group-hover:text-accent">
-              {nextPost.title}
+              {nextLink.title}
             </span>
           </a>
         )
@@ -346,12 +384,14 @@ const nextPost =
   }
   updateScrollProgress();
 
-  /** Attaches links to headings in the document,
-   *  allowing sharing of sections easily */
+  /** Attaches links to headings in the article,
+   *  allowing sharing of sections easily.
+   *  Scoped to #article so navigation chrome (the series table of contents
+   *  groups its entries under headings too) doesn't sprout dead "#" links. */
   function addHeadingLinks() {
-    const headings = Array.from(
-      document.querySelectorAll("h2, h3, h4, h5, h6")
-    );
+    const article = document.getElementById("article");
+    if (!article) return;
+    const headings = Array.from(article.querySelectorAll("h2, h3, h4, h5, h6"));
     for (const heading of headings) {
       heading.classList.add("group");
       const link = document.createElement("a");

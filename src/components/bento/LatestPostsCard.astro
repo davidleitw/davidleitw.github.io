@@ -1,5 +1,5 @@
 ---
-import type { RecentEntry } from "@/utils/postSeries";
+import type { RecentEntry } from "@/utils/series";
 import Datetime from "@/components/Datetime.astro";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 
@@ -10,7 +10,7 @@ type Props = {
 const { entries } = Astro.props;
 ---
 
-<section class="bento-card flex h-full flex-col" aria-label="最新文章">
+<section class="flex h-full flex-col bento-card" aria-label="最新文章">
   <div class="mb-3 flex items-center justify-between">
     <h2 class="text-sm font-semibold tracking-tight">最新文章</h2>
     <a
@@ -60,7 +60,9 @@ const { entries } = Astro.props;
                 class="shrink-0 text-xs text-ink-faint [&>svg]:hidden"
               />
               <p class="line-clamp-1 text-xs text-ink-muted">
-                {entry.kind === "series" ? "整個系列 · 從頭讀起" : entry.description}
+                {entry.kind === "series"
+                  ? "整個系列 · 從頭讀起"
+                  : entry.description}
               </p>
             </div>
           </a>
