@@ -1,14 +1,13 @@
 ---
-import type { CollectionEntry } from "astro:content";
-import { getPath } from "@/utils/getPath";
+import type { RecentEntry } from "@/utils/postSeries";
 import Datetime from "@/components/Datetime.astro";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 
 type Props = {
-  posts: CollectionEntry<"blog">[];
+  entries: RecentEntry[];
 };
 
-const { posts } = Astro.props;
+const { entries } = Astro.props;
 ---
 
 <section class="bento-card flex h-full flex-col" aria-label="最新文章">
@@ -27,33 +26,41 @@ const { posts } = Astro.props;
 
   <ul class="flex flex-1 flex-col">
     {
-      posts.map(post => (
+      entries.map(entry => (
         <li class="border-b border-border/60 last:border-b-0">
           <a
-            href={getPath(post.id, post.filePath)}
+            href={entry.href}
             class="latest-row group block rounded-lg px-2 py-2.5 transition-colors hover:bg-background"
-            data-post-path={getPath(post.id, post.filePath)}
+            data-post-path={entry.kind === "post" ? entry.href : undefined}
           >
             <div class="flex items-start justify-between gap-3">
-              <p class="line-clamp-1 text-sm font-medium text-ink-secondary transition-colors group-hover:text-accent">
-                {post.data.title}
+              <p class="line-clamp-1 flex items-center gap-1.5 text-sm font-medium text-ink-secondary transition-colors group-hover:text-accent">
+                {entry.kind === "series" && (
+                  <span class="latest-series-badge">系列</span>
+                )}
+                {entry.kind === "series" ? entry.name : entry.title}
               </p>
-              <span
-                class="read-mark mt-0.5 hidden shrink-0 text-xs text-sticker-green"
-                title="看過了"
-                aria-label="已閱讀"
-              >
-                ✓
-              </span>
+              {entry.kind === "series" ? (
+                <span class="mt-0.5 shrink-0 text-xs font-medium text-accent">
+                  {entry.count} 篇
+                </span>
+              ) : (
+                <span
+                  class="read-mark mt-0.5 hidden shrink-0 text-xs text-sticker-green"
+                  title="看過了"
+                  aria-label="已閱讀"
+                >
+                  ✓
+                </span>
+              )}
             </div>
             <div class="mt-1 flex items-center gap-2">
               <Datetime
-                pubDatetime={post.data.pubDatetime}
-                modDatetime={post.data.modDatetime}
+                pubDatetime={entry.date}
                 class="shrink-0 text-xs text-ink-faint [&>svg]:hidden"
               />
               <p class="line-clamp-1 text-xs text-ink-muted">
-                {post.data.description}
+                {entry.kind === "series" ? "整個系列 · 從頭讀起" : entry.description}
               </p>
             </div>
           </a>
@@ -62,6 +69,20 @@ const { posts } = Astro.props;
     }
   </ul>
 </section>
+
+<style>
+  .latest-series-badge {
+    flex-shrink: 0;
+    font-family: var(--font-cartograph), monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+</style>
 
 <script>
   // Mark posts the visitor has already opened (written by the post page).
@@ -73,13 +94,11 @@ const { posts } = Astro.props;
       read = [];
     }
     if (read.length === 0) return;
-    document
-      .querySelectorAll<HTMLElement>("[data-post-path]")
-      .forEach(link => {
-        if (read.includes(link.dataset.postPath ?? "")) {
-          link.querySelector(".read-mark")?.classList.remove("hidden");
-        }
-      });
+    document.querySelectorAll<HTMLElement>("[data-post-path]").forEach(link => {
+      if (read.includes(link.dataset.postPath ?? "")) {
+        link.querySelector(".read-mark")?.classList.remove("hidden");
+      }
+    });
   }
   document.addEventListener("astro:page-load", applyReadMarks);
 </script>

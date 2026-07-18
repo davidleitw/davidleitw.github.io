@@ -78,7 +78,7 @@ import "@pagefind/default-ui/css/ui.css";
           </svg>
         </div>
         <p class="empty-text">
-          Type to search articles, tutorials, and ideas...
+          打個關鍵字，翻遍站上的文章、筆記和想法⋯
         </p>
       </div>
     </div>
@@ -99,6 +99,8 @@ import "@pagefind/default-ui/css/ui.css";
 </div>
 
 <script>
+  import { pagefindTranslations } from "@/utils/pagefindTranslations";
+
   let cleanupHelper: AbortController | null = null;
 
   function initSearchModal() {
@@ -206,6 +208,7 @@ import "@pagefind/default-ui/css/ui.css";
           element: "#modal-pagefind-search",
           showImages: false,
           showSubResults: true,
+          translations: pagefindTranslations,
         });
 
         // Hide empty state when user types

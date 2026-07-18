@@ -14,13 +14,17 @@ import SocialsCard from "@/components/bento/SocialsCard.astro";
 import CollageCard from "@/components/bento/CollageCard.astro";
 import getSortedPosts from "@/utils/getSortedPosts";
 import { getPath } from "@/utils/getPath";
+import { collapseRecent, SERIES, firstTagSlug } from "@/utils/postSeries";
 import { SITE } from "@/config";
 
 const posts = await getCollection("blog");
 const sortedPosts = getSortedPosts(posts);
 
-const latestPosts = sortedPosts.slice(0, 4);
-const pickPool = sortedPosts.slice(4);
+// Latest list with any multi-part series folded into a single entry, so a
+// 39-chapter book doesn't bury everything else.
+const latest = collapseRecent(sortedPosts, 4);
+// Daily recommendation draws from standalone posts (not series chapters).
+const pickPool = sortedPosts.filter(p => !SERIES[firstTagSlug(p)]);
 
 /* Calendar: posts published in the current month (site timezone) */
 const dayFmt = new Intl.DateTimeFormat("en-CA", { timeZone: SITE.timezone });
@@ -64,7 +68,7 @@ for (const post of sortedPosts) {
       </div>
 
       <div class="bento-item sm:col-span-2 lg:col-span-5 lg:col-start-4 lg:row-start-2" style="--i: 3">
-        <LatestPostsCard posts={latestPosts} />
+        <LatestPostsCard entries={latest} />
       </div>
 
       <div class="bento-item lg:col-span-4 lg:col-start-9 lg:row-start-2" style="--i: 4">

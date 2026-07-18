@@ -1,6 +1,7 @@
 ---
 import IconMoon from "@/assets/icons/IconMoon.svg";
 import IconSearch from "@/assets/icons/IconSearch.svg";
+import LogoCat from "@/assets/icons/LogoCat.svg";
 import IconArchive from "@/assets/icons/IconArchive.svg";
 import IconGallery from "@/assets/icons/IconGallery.svg";
 import IconSunHigh from "@/assets/icons/IconSunHigh.svg";
@@ -54,7 +55,7 @@ const isActive = (path: string) => {
         class="logo-link group relative z-20 flex items-center font-cartograph text-xl font-bold tracking-tight sm:text-2xl"
         aria-label={SITE.title}
       >
-        <span class="logo-bracket">&lt;</span><span class="logo-name">davidlei</span><span class="logo-slash"> /</span><span class="logo-bracket">&gt;</span>
+        <LogoCat class="logo-cat" /><span class="logo-bracket">&lt;</span><span class="logo-name">davidlei</span><span class="logo-slash"> /</span><span class="logo-bracket">&gt;</span>
       </a>
 
       <!-- Nav area -->
@@ -342,9 +343,33 @@ const isActive = (path: string) => {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
   }
 
-  /* ─── Wordmark logo: <davidlei /> ─── */
+  /* ─── Wordmark logo: 🐱 <davidlei /> ─── */
   .logo-link {
     letter-spacing: -0.01em;
+    gap: 0.42rem;
+  }
+
+  .logo-cat {
+    height: 1.18em;
+    width: 1.18em;
+    flex-shrink: 0;
+    color: var(--foreground);
+    transform-origin: 60% 80%;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Playful head-tilt when the whole wordmark is hovered */
+  .logo-link:hover .logo-cat {
+    transform: rotate(-9deg) scale(1.08);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .logo-cat {
+      transition: none;
+    }
+    .logo-link:hover .logo-cat {
+      transform: none;
+    }
   }
 
   .logo-bracket {
