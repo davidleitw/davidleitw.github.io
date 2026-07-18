@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 8 章：Memory Management（記憶管理）"
 description: "幫 Agent 管理短期對話脈絡與長期記憶。《Agentic Design Patterns》第 8 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:52:00+08:00
+pubDatetime: 2026-07-17T20:52:00+08:00
 tags:
   - agentic-design-patterns
   - ai

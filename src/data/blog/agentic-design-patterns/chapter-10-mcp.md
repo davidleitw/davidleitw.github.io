@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 10 章：Model Context Protocol（MCP）"
 description: "用開放協定讓 LLM 以統一介面連接外部工具與資料。《Agentic Design Patterns》第 10 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:50:00+08:00
+pubDatetime: 2026-07-17T20:50:00+08:00
 tags:
   - agentic-design-patterns
   - ai

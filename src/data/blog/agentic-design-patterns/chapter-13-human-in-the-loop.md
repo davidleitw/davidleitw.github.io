@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 13 章：Human-in-the-Loop（人機協作）"
 description: "在關鍵決策點把人拉進迴圈：審核、修正、接手。《Agentic Design Patterns》第 13 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:47:00+08:00
+pubDatetime: 2026-07-17T20:47:00+08:00
 tags:
   - agentic-design-patterns
   - ai

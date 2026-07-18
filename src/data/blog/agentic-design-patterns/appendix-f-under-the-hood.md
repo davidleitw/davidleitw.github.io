@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 附錄 F：Agent 推理引擎解析"
 description: "深入 Agent 推理引擎的內部運作。《Agentic Design Patterns》附錄 F 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:33:00+08:00
+pubDatetime: 2026-07-17T20:33:00+08:00
 tags:
   - agentic-design-patterns
   - ai

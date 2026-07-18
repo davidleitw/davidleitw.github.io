@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 術語索引"
 description: "從 Prompt、Context Window 到 MoE，全書術語索引與解釋。《Agentic Design Patterns》繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:28:00+08:00
+pubDatetime: 2026-07-17T20:28:00+08:00
 tags:
   - agentic-design-patterns
   - ai

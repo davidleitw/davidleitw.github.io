@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 結語"
 description: "全書總結：21 個模式怎麼組合成可靠的 Agentic 系統。《Agentic Design Patterns》結語繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:31:00+08:00
+pubDatetime: 2026-07-17T20:31:00+08:00
 tags:
   - agentic-design-patterns
   - ai

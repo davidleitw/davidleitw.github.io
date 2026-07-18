@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 21 章：Exploration and Discovery（探索與發現）"
 description: "讓 Agent 主動探索未知、發現新知識。《Agentic Design Patterns》第 21 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:39:00+08:00
+pubDatetime: 2026-07-17T20:39:00+08:00
 tags:
   - agentic-design-patterns
   - ai

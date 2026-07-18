@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 11 章：Goal Setting and Monitoring（目標設定與監控）"
 description: "幫 Agent 設定明確目標，並持續監控達成進度。《Agentic Design Patterns》第 11 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:49:00+08:00
+pubDatetime: 2026-07-17T20:49:00+08:00
 tags:
   - agentic-design-patterns
   - ai

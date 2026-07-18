@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 3 章：Parallelization（平行化）"
 description: "同時執行多個獨立子任務，縮短整體延遲。《Agentic Design Patterns》第 3 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:57:00+08:00
+pubDatetime: 2026-07-17T20:57:00+08:00
 tags:
   - agentic-design-patterns
   - ai

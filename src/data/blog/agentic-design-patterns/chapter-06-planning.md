@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 6 章：Planning（規劃）"
 description: "讓 Agent 先把目標拆成多步計畫再執行。《Agentic Design Patterns》第 6 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:54:00+08:00
+pubDatetime: 2026-07-17T20:54:00+08:00
 tags:
   - agentic-design-patterns
   - ai

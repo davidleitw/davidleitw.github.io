@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 16 章：Resource-Aware Optimization（資源感知最佳化）"
 description: "依成本、延遲與品質動態選模型、配資源。《Agentic Design Patterns》第 16 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:44:00+08:00
+pubDatetime: 2026-07-17T20:44:00+08:00
 tags:
   - agentic-design-patterns
   - ai

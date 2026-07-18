@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 5 章：Tool Use（工具使用，Function Calling）"
 description: "透過 Function Calling 讓 LLM 呼叫外部工具與 API。《Agentic Design Patterns》第 5 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:55:00+08:00
+pubDatetime: 2026-07-17T20:55:00+08:00
 tags:
   - agentic-design-patterns
   - ai

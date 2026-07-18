@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 附錄 D：用 AgentSpace 打造 Agent"
 description: "用 Google AgentSpace 在企業環境打造 Agent。《Agentic Design Patterns》附錄 D 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:35:00+08:00
+pubDatetime: 2026-07-17T20:35:00+08:00
 tags:
   - agentic-design-patterns
   - ai

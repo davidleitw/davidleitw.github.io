@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 附錄 A：進階 Prompt 技巧"
 description: "從 System Prompt、CoT 到 ReAct，進階 Prompt 技巧總整理。《Agentic Design Patterns》附錄 A 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:38:00+08:00
+pubDatetime: 2026-07-17T20:38:00+08:00
 tags:
   - agentic-design-patterns
   - ai

@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 附錄 E：CLI 上的 AI Agent"
 description: "終端機裡的 AI Agent：CLI 工具怎麼改變開發流程。《Agentic Design Patterns》附錄 E 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:34:00+08:00
+pubDatetime: 2026-07-17T20:34:00+08:00
 tags:
   - agentic-design-patterns
   - ai

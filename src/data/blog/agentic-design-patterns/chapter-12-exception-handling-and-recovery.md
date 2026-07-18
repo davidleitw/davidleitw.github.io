@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 12 章：Exception Handling and Recovery（例外處理與恢復）"
 description: "工具失敗、輸出不對勁時，Agent 怎麼偵測、恢復、優雅降級。《Agentic Design Patterns》第 12 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:48:00+08:00
+pubDatetime: 2026-07-17T20:48:00+08:00
 tags:
   - agentic-design-patterns
   - ai

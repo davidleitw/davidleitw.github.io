@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 附錄 G：Coding Agent"
 description: "Coding Agent 怎麼改變寫程式這件事。《Agentic Design Patterns》附錄 G 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:32:00+08:00
+pubDatetime: 2026-07-17T20:32:00+08:00
 tags:
   - agentic-design-patterns
   - ai

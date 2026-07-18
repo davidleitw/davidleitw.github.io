@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns：什麼讓 AI 系統成為 Agent？"
 description: "從單純的 LLM 呼叫到有目標、能用工具的 Agent，一層層拆解。《Agentic Design Patterns》繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:27:00+08:00
+pubDatetime: 2026-07-17T20:27:00+08:00
 tags:
   - agentic-design-patterns
   - ai

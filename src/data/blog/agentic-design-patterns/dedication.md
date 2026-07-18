@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 獻詞"
 description: "作者 Antonio Gulli 的獻詞，全書版稅捐給 Save the Children。《Agentic Design Patterns》繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:22:00+08:00
+pubDatetime: 2026-07-17T20:22:00+08:00
 tags:
   - agentic-design-patterns
   - ai

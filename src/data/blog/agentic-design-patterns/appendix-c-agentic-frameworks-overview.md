@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 附錄 C：Agentic 框架速覽"
 description: "LangChain、LangGraph、CrewAI、Google ADK 等 Agentic 框架速覽。《Agentic Design Patterns》附錄 C 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:36:00+08:00
+pubDatetime: 2026-07-17T20:36:00+08:00
 tags:
   - agentic-design-patterns
   - ai

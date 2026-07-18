@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 15 章：Inter-Agent Communication（A2A）"
 description: "Agent 之間怎麼用 A2A 協定互相溝通、委派任務。《Agentic Design Patterns》第 15 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:45:00+08:00
+pubDatetime: 2026-07-17T20:45:00+08:00
 tags:
   - agentic-design-patterns
   - ai

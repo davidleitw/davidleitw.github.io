@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 繁體中文版:21 個 AI Agent 設計模式(全書目錄)"
 description: "《Agentic Design Patterns》(Antonio Gulli 著)繁體中文翻譯全書目錄:21 個 AI Agent 設計模式,從 Prompt Chaining、Tool Use 到 Multi-Agent 協作、Guardrails 與評估監控。邊翻譯邊學習的完整紀錄。"
-pubDatetime: 2026-07-18T21:00:00+08:00
+pubDatetime: 2026-07-17T21:00:00+08:00
 featured: true
 tags:
   - agentic-design-patterns

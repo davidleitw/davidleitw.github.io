@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 術語表"
 description: "全書核心術語一次整理。《Agentic Design Patterns》術語表繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:29:00+08:00
+pubDatetime: 2026-07-17T20:29:00+08:00
 tags:
   - agentic-design-patterns
   - ai

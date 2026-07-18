@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns：思想領袖的觀點——力量與責任"
 description: "談 Agentic AI 帶來的能力，以及隨之而來的責任。《Agentic Design Patterns》繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:25:00+08:00
+pubDatetime: 2026-07-17T20:25:00+08:00
 tags:
   - agentic-design-patterns
   - ai

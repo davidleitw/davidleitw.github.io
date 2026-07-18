@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 附錄 B：AI Agent 的互動介面"
 description: "AI Agent 怎麼從 GUI 走進真實世界互動。《Agentic Design Patterns》附錄 B 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:37:00+08:00
+pubDatetime: 2026-07-17T20:37:00+08:00
 tags:
   - agentic-design-patterns
   - ai

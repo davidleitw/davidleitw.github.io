@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 4 章：Reflection（反思）"
 description: "讓 Agent 檢視並修正自己的輸出，迭代提升品質。《Agentic Design Patterns》第 4 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:56:00+08:00
+pubDatetime: 2026-07-17T20:56:00+08:00
 tags:
   - agentic-design-patterns
   - ai

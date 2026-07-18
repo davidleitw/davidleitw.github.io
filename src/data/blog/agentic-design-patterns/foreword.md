@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 序"
 description: "從 LLM 到能規劃、用工具、自主行動的 Agent。《Agentic Design Patterns》序繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:24:00+08:00
+pubDatetime: 2026-07-17T20:24:00+08:00
 tags:
   - agentic-design-patterns
   - ai

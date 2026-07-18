@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 17 章：Reasoning Techniques（推理技巧）"
 description: "CoT、ToT、ReAct 等推理技巧，以及推理階段的 scaling。《Agentic Design Patterns》第 17 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:43:00+08:00
+pubDatetime: 2026-07-17T20:43:00+08:00
 tags:
   - agentic-design-patterns
   - ai

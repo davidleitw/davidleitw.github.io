@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 常見問題"
 description: "關於這本書與 Agentic 系統的常見問題。《Agentic Design Patterns》FAQ 繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:30:00+08:00
+pubDatetime: 2026-07-17T20:30:00+08:00
 tags:
   - agentic-design-patterns
   - ai

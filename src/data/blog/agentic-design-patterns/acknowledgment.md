@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 致謝"
 description: "作者 Antonio Gulli 的致謝。《Agentic Design Patterns》繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:23:00+08:00
+pubDatetime: 2026-07-17T20:23:00+08:00
 tags:
   - agentic-design-patterns
   - ai

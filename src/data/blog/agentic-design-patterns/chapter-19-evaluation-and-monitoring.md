@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 19 章：Evaluation and Monitoring（評估與監控）"
 description: "怎麼評估 Agent 的表現：評測、上線監控與 LLM-as-a-Judge。《Agentic Design Patterns》第 19 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:41:00+08:00
+pubDatetime: 2026-07-17T20:41:00+08:00
 tags:
   - agentic-design-patterns
   - ai

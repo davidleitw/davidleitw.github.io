@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 20 章：Prioritization（優先排序）"
 description: "任務一多，Agent 怎麼排優先順序、動態調整。《Agentic Design Patterns》第 20 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:40:00+08:00
+pubDatetime: 2026-07-17T20:40:00+08:00
 tags:
   - agentic-design-patterns
   - ai

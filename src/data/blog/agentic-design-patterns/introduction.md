@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 前言"
 description: "介紹全書架構：21 個 Agentic 設計模式，從基礎到 Multi-Agent 系統。《Agentic Design Patterns》前言繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:26:00+08:00
+pubDatetime: 2026-07-17T20:26:00+08:00
 tags:
   - agentic-design-patterns
   - ai

@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 1 章：Prompt Chaining（提示鏈）"
 description: "把複雜任務拆成一連串 Prompt，前一步的輸出餵給下一步。《Agentic Design Patterns》第 1 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:59:00+08:00
+pubDatetime: 2026-07-17T20:59:00+08:00
 tags:
   - agentic-design-patterns
   - ai

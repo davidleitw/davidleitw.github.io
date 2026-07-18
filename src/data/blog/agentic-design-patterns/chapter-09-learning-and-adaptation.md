@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 9 章：Learning and Adaptation（學習與適應）"
 description: "讓 Agent 從經驗與回饋中學習，隨時間越做越好。《Agentic Design Patterns》第 9 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:51:00+08:00
+pubDatetime: 2026-07-17T20:51:00+08:00
 tags:
   - agentic-design-patterns
   - ai

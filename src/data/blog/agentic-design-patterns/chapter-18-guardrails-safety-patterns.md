@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 18 章：Guardrails / Safety Patterns（護欄與安全模式）"
 description: "用護欄擋住有害的輸入與輸出，讓 Agent 能安全上線。《Agentic Design Patterns》第 18 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:42:00+08:00
+pubDatetime: 2026-07-17T20:42:00+08:00
 tags:
   - agentic-design-patterns
   - ai

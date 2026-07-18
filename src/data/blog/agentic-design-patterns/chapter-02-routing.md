@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 2 章：Routing（路由）"
 description: "讓 Agent 依輸入內容動態決定走哪一條處理路徑。《Agentic Design Patterns》第 2 章繁體中文翻譯，含程式碼範例。"
-pubDatetime: 2026-07-18T20:58:00+08:00
+pubDatetime: 2026-07-17T20:58:00+08:00
 tags:
   - agentic-design-patterns
   - ai

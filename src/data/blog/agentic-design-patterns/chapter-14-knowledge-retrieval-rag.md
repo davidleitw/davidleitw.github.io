@@ -1,7 +1,7 @@
 ---
 title: "Agentic Design Patterns 第 14 章：Knowledge Retrieval（知識檢索，RAG）"
 description: "用檢索補足 LLM 的知識：從 RAG、GraphRAG 到 Agentic RAG。《Agentic Design Patterns》第 14 章繁體中文翻譯。"
-pubDatetime: 2026-07-18T20:46:00+08:00
+pubDatetime: 2026-07-17T20:46:00+08:00
 tags:
   - agentic-design-patterns
   - ai
